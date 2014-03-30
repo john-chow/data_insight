@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<head>
+	<meta charset='utf-8'>
+</head>
+<body>
+	<p>Welcome</p>
+	<form method='post' action='http://10.1.50.125:9000/indb/'>
+		<label>ip<input type='text' name='ip' /></label>
+		<label>port<input type='text' name='port' /></label>
+		<label>database<input type='text' name='db' /></label>
+		<label>table<input type='text' name='table' /></label>
+		<label>username<input type='text' name='user' /></label>
+		<label>password<input type='text' name='pwd' /></label>
+		<input type='submit' value='发送' />
+	</form>
+	<ul>
+		{% for i in dbs %}
+			<li>{{i.ip}}  -----  {{i.tablename}}</li>
+		{% endfor %}
+	</ul>
+</body>
