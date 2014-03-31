@@ -55,7 +55,7 @@ def tryIntoDb(request):
 		request.session[u'table'] 	= table
 
 		context = RequestContext(request)
-		return render_to_response('db_info.html', context)
+		return render_to_response('index.html', context)
 	else:
 		return HttpResponse('NO NO NO!')
 

@@ -1,0 +1,119 @@
+<div class="modal fade" id="filter_modal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+     <div class="modal-content">
+
+      <!--模态框header-->
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">
+           <% if(model.fil) { %>
+           筛选器[<%= model.title %>]
+           <% } else { %>
+           筛选器字段[<%= model.title %>]
+           <% } %>
+        </h4>
+      </div>
+
+      <!--模态框body-->
+      <div class="modal-body">
+        <% if(model.fil) { %>
+        <!-- 属性过滤器 -->
+        <div id="property_filter">
+          <!-- Nav tabs -->
+            <ul class="nav nav-tabs" id="filter_tab">
+              <li class="active"><a href="#filter_convention" data-toggle="tab">常规</a></li>
+              <li><a href="#filter_wildcard" data-toggle="tab">通配符</a></li>
+              <li><a href="#filter_condition" data-toggle="tab">条件</a></li>
+              <li><a href="#filter_top" data-toggle="tab">顶部</a></li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+
+              <div class="tab-pane fade in active" id="filter_convention">
+              <div class="filter-con-list">
+                <% _.each(model.fil, function(f) { %> <label><input type="checkbox"><%= f %></label> <% }); %>
+              </div>
+              <div class="filter-con-bton">
+                <button type="button" class="btn btn-primary" id="choose_filter_all">全部</button>
+                <button type="button" class="btn btn-default" id="choose_filter_none">无</button>
+                <!-- <label><input type="checkbox" id="choose_filter_remove">排除</label> -->
+              </div>
+              <div class="panel panel-default">
+                <div class="panel-body">
+                  <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                    <label class="col-sm-3 control-label">字段：</label>
+                    <div class="col-sm-9">
+                      <p class="form-control-static">[<%= model.title %>]</p>
+                    </div>
+                    </div>
+                    <div class="form-group">
+                    <label class="col-sm-3 control-label">所选内容：</label>
+                    <div class="col-sm-9">
+                      <p class="form-control-static">无</p>
+                    </div>
+                    </div>
+                     <div class="form-group">
+                    <label class="col-sm-3 control-label">通配符：</label>
+                    <div class="col-sm-9">
+                      <p class="form-control-static">无</p>
+                    </div>
+                    </div>
+                     <div class="form-group">
+                    <label class="col-sm-3 control-label">条件：</label>
+                    <div class="col-sm-9">
+                      <p class="form-control-static">无</p>
+                    </div>
+                    </div>
+                     <div class="form-group">
+                    <label class="col-sm-3 control-label">限制：</label>
+                    <div class="col-sm-9">
+                      <p class="form-control-static">无</p>
+                    </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              </div>
+
+              <div class="tab-pane fade" id="filter_wildcard">2</div>
+              <div class="tab-pane fade" id="filter_condition">3</div>
+              <div class="tab-pane fade" id="filter_top">4</div>
+            </div>
+        </div>
+        <% } else { %>
+        <!-- 数值过滤器 -->
+        <div id="number_filter">
+          <div>您要如何对[<%= model.title %>]进行筛选？</div>
+          <div class="number-filter-content">
+            <ul>
+              <li>#&nbsp;&nbsp;&nbsp;所有值</li>
+              <hr/>
+              <li>#&nbsp;&nbsp;&nbsp;计数</li>
+              <li>#&nbsp;&nbsp;&nbsp;总计</li>
+              <li>#&nbsp;&nbsp;&nbsp;平均值</li>
+              <li>#&nbsp;&nbsp;&nbsp;最大值</li>
+              <li>#&nbsp;&nbsp;&nbsp;最小值</li>
+              <hr/>
+              <li>#&nbsp;&nbsp;&nbsp;标准差</li>
+              <li>#&nbsp;&nbsp;&nbsp;标准差(总体)</li>
+              <li>#&nbsp;&nbsp;&nbsp;方差</li>
+              <li>#&nbsp;&nbsp;&nbsp;方差(总体)</li>
+            </ul>
+          </div>
+        </div>
+        <% } %>
+      </div>
+  
+       <!--模态框footer-->
+        <div class="modal-footer">
+           <% if(model.fil) { %>
+           <button type="button" class="filter_ok btn btn-primary">确定</button>
+           <button type="button" class="filter_reset btn btn-default">重置</button>
+           <% } else { %>
+           <button type="button" class="filter_next btn btn-primary">下一步</button>
+           <% } %>
+           <button type="button" class="filter_cancel btn btn-default">取消</button>
+      </div>
+    
+</div>

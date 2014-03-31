@@ -1,0 +1,427 @@
+/*
+***备注***
+***class 名称中只能出现小写字符和破折号（例如，.btn 和 .btn-danger）
+***基于最近的父 class 或基本（base） class 作为新 class 的前缀。
+*/
+
+.clearfix:after {
+    clear: both
+}
+
+.clearfix:before {
+    display: block; 
+    height: 0px; 
+    VISIBILITY: hidden; 
+    CONTENT: "."
+}
+
+.clearfix:after {
+    display: block;
+    height: 0px;
+    VISIBILITY: hidden;
+   /* CONTENT: "."*/
+}
+
+
+#header {
+    height: 25px;
+    color: white;
+    text-align: center;
+    background-color: #776677;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 25px;
+}
+
+#design_menu {
+    background-color: #F0F0F0;
+    width: 100%;
+    -khtml-box-shadow:  0px 1px 1px #888888;
+      -moz-box-shadow:  0px 1px 1px #888888;
+       -ms-box-shadow:  0px 1px 1px #888888;
+        -o-box-shadow:  0px 1px 1px #888888;
+           box-shadow:  0px 1px 1px #888888;  
+    padding: 0;
+}
+
+#design_menu .navbar {
+    margin-bottom: 0;
+}
+
+#dbinfo_bar label {
+    background-color: #DCDCDC;
+    width: 100%;
+}
+
+#dbinfo_bar,
+#design_panel,
+#filter_box,
+#draw_workplace {
+    float: left;
+}
+
+#design_panel {
+    border-top: 1px solid #888888;
+}
+
+#dbinfo_bar {
+    padding: 0;
+    border-right: 1px solid #888888;
+}
+
+#design_panel {
+    /*padding: 5px;*/
+}
+
+#design_panel .panel,
+#filter_box .panel {
+    margin: 3px;
+}
+
+#draw_workplace {
+    margin: 3px 0 3px 3px;
+}
+
+#dbinfo_bar .panel {
+    margin: 0;
+    border-radius: 0;
+    border: none;
+}
+
+#dbinfo_bar .panel-heading,
+#filter_box .panel-heading {
+    min-width: 120px;
+    padding: 3px 15px;
+}
+
+#filter_box .panel-body {
+    min-height: 60px;
+    padding: 8px;
+}
+
+#work_area {
+    background-color: #E7E7E7;
+}
+
+#design_menu .navbar {
+    min-height: 30px;
+}
+
+#design_menu .navbar-nav > li > a {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.design-column,
+.design-row {
+    height: 27px;
+    background-color: white;
+    margin-bottom: 12px;
+    margin-top: 2px;
+    border-top-left-radius: 8px;
+    overflow: hidden;
+}
+
+.design-column>div,
+.design-row>div,
+.design-column>ul,
+.design-row>ul{
+    float:left;
+}
+
+.design-column>div:first-child,
+.design-row>div:first-child {
+    border-right: 1px solid transparent;
+    width: 75px;
+    text-align: center;
+    line-height: 25px;
+    color: #333;
+    border-color: #ddd;
+    border-top-left-radius: 8px;
+    background-color: #F2F2F0;
+}
+
+#design_menu_ico span {
+    padding: 8px 10px;
+}
+
+#design_menu_ico button {
+    border: none;
+}
+
+#filter_box .panel-heading {
+    background-image: -webkit-linear-gradient(top, #FFFFFF 0%, #F3EAEA 100%);
+    background-image: linear-gradient(to bottom, #FFFFFF 0%, #F3EAEA 100%);
+}
+
+#dimensions,
+#measures {
+    overflow: hidden;
+}
+
+#filter_box .panel,
+#dbinfo_bar .panel {
+    width: 160px;
+}
+
+#footer {
+    -khtml-box-shadow: 0 0px 0px 0.5px rgba(0, 0, 0, 0.5);
+      -moz-box-shadow: 0 0px 0px 0.5px rgba(0, 0, 0, 0.5);
+       -ms-box-shadow: 0 0px 0px 0.5px rgba(0, 0, 0, 0.5);
+        -o-box-shadow: 0 0px 0px 0.5px rgba(0, 0, 0, 0.5);
+           box-shadow: inset 0 0px 0px 0.5px rgba(0, 0, 0, 0.5);
+    height: 18px;
+    border-top: 1px solid #888888;
+    background-color: #F0F0F0;
+}
+
+#box_sign {
+    width: 138px;
+    height: 30px;
+}
+
+#filter_box button {
+    background: transparent;
+    font-size: 10px;
+    margin: 8px 5px 0px 0;
+}
+
+#info_workplace {
+    display: block;
+}
+
+#design_panel {
+    overflow: hidden;
+}
+
+#info_workplace {
+    height: 28px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: white;
+    line-height: 28px;
+    padding: 0 10px;
+}
+
+#design_panel {
+    position: relative;
+}
+
+.filter-con-list label {
+    display:block;
+    margin-bottom: 0px;
+}
+
+
+.filter-con-list label input {
+    margin-right: 5px;
+}
+
+#filter_convention {
+padding: 10px;
+border-right: 1px solid #ddd;
+border-left: 1px solid #ddd;
+border-bottom: 1px solid #ddd;
+}
+
+.filter-con-list {
+max-height: 300px; 
+overflow-y: scroll; 
+border: 1px solid #ddd;
+padding: 10px;
+}
+
+.filter-con-bton {
+    padding:10px 0px;
+}
+
+.filter-con-bton label {
+    float:right;
+}
+
+#filter_convention .panel {
+    margin-bottom: 0;
+}
+
+#filter_modal .modal-body {
+    padding-bottom: 0;
+}
+
+.filter-con-list label:hover {
+    background-color: #F1F0F0;
+}
+
+.filter-con-list label:hover {
+    background-color: #F1F0F0;
+}
+
+#column_sortable ,
+#row_sortable { 
+    list-style-type: none;
+     margin: 0; 
+     padding: 0; 
+ }
+
+#column_sortable li ,
+#row_sortable li { 
+    margin: 1px 0 1px 1px;
+    border-radius: 6px;
+    padding: 0;
+    float: left;
+    width: 150px;
+    height: 23px;
+    text-align: center;
+    background: none;
+    background-color: #C9DBF5;
+    border: 1px solid #C9DBF5;
+    transition: background-color 0.3s ,border 0.3s;
+    -moz-transition: background-color 0.3s, border 0.3s; /* Firefox 4 */
+    -webkit-transition: background-color 0.3s, border 0.3s; /* Safari and Chrome */
+    -o-transition: background-color 0.3s, border 0.3s; /* Opera */
+    overflow: hidden;
+    position: relative;
+}
+
+#column_sortable li:hover,
+#row_sortable li:hover { 
+    background-color: #CAE4FC;
+    border: 1px solid #AA9DEB;
+}
+
+#column_sortable,
+#row_sortable {
+height: 25px;
+}
+
+#mensions_list,#measures_list {
+list-style-type: none;
+}
+
+#mensions_list li,
+#measures_list li,
+#db_name {
+padding-left: 10px;
+border: 1px solid #fff;;
+cursor: default;
+}
+
+#mensions_list li:hover,
+#measures_list li:hover {
+background-color: #E5F1FB;
+border-radius: 5px;
+border: 1px solid #CCC5EC;
+}
+
+#using_db_name ul {
+margin: 0;
+padding: 0;
+list-style-type: none;
+}
+
+.dragging-li {
+margin: 1px 0 1px 1px;
+border-radius: 6px;
+padding: 0;
+float: left;
+width: 150px;
+height: 23px;
+text-align: center;
+background: none;
+background-color: #C9DBF5;
+border: 1px solid #C9DBF5;
+overflow: hidden;
+}
+
+#row_sortable,
+#column_sortable {
+    cursor:default;
+}
+
+
+.dragging-custom {
+    border:1px solid #E7E7E7;
+}
+
+.dragging-change-border {
+    -khtml-box-shadow:  0px 1px 1px rgb(121, 224, 121);
+      -moz-box-shadow:  0px 1px 1px rgb(121, 224, 121);
+       -ms-box-shadow:  0px 1px 1px rgb(121, 224, 121);
+        -o-box-shadow:  0px 1px 1px rgb(121, 224, 121);
+        box-shadow: 0px 1px 1px rgb(121, 224, 121);
+        border: 1px solid rgb(121, 224, 121) !important;
+}
+
+#mensions_list,
+#measures_list {
+    padding:10px 0 0 0;
+    margin:0 0 0 0;
+    overflow-y: auto;
+}
+
+.plots_close:hover,
+.plots_close:focus {
+color: #000;
+text-decoration: none;
+cursor: pointer;
+filter: alpha(opacity=50);
+opacity: .5;
+}
+
+button.plots_close {
+padding: 0;
+cursor: pointer;
+background: transparent;
+border: 0;
+}
+
+.plots_close {
+float: right;
+font-size: 21px;
+font-weight: bold;
+line-height: 1;
+color: #000;
+text-shadow: 0 1px 0 #fff;
+filter: alpha(opacity=20);
+opacity: .2;
+position: absolute;
+right: 2px;
+}
+
+.number-filter-content {
+    border:1px solid #ddd;
+}
+
+.number-filter-content ul {
+    list-style-type: none;
+    padding:0;
+    margin-bottom: 0;
+}
+
+#number_filter div:first-child {
+    padding-bottom: 15px;
+}
+
+.number-filter-content hr {
+    padding:0;
+    margin:0;
+}
+
+.number-filter-content li {
+    padding:3px 0 3px 20px;
+    border: 1px solid #ffffff;
+}
+
+.number-filter-content ul li:first-child {
+    font-weight: bold;
+}
+
+.number-filter-content li:hover {
+    background-color: #E2EFFF;
+    border-radius: 5px;
+    border: 1px solid #CCC5EC;
+}
+
+#draw_panel{
+    background-color: white;
+}

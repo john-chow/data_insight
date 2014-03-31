@@ -1,0 +1,55 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Web like Tableau</title>
+		<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'css/mine.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'css/jquery-ui-1.10.4.custom.css' %}">
+		<script src="{% static 'js/require.js' %}" async='false'></script>
+    </head>
+    <body>
+        <div id="header">LOGO</div>
+        <div id="content"></div>
+        <div id="footer"></div>
+    </body>
+</html>
+<script>
+	requirejs.config({
+		baseUrl: "{% static 'js' %}",
+
+		// 这里paths的默认路径就是上面的baseUrl
+		// 如果没有设置baseUrl, 那么默认路径就是加载require.js的html所在的路径
+		paths: {
+			"jquery": "lib/jquery-2.1.0"
+			, "jqueryUi": "lib/jquery-ui-1.10.4.custom.min"
+			, "backbone": "lib/backbone"
+			, "underscore": "lib/underscore"
+			, "bootstrap": "lib/bootstrap"
+			, "mine": "lib/mine"
+			, "main": "design_main"
+		},
+
+		//添加依赖关系
+		shim: {
+	　　　　'bootstrap': {
+	　　　　　　deps: ['jquery']
+	　　　　},
+			'backbone': {
+	　　　　　　deps: ['underscore', 'jquery']
+	　　　　},
+			'jqueryUi': {
+			　　deps: ['jquery']
+			}
+	  }
+	});
+
+	requirejs(['app'], function(app) {
+	})
+</script>
+    
+});
+

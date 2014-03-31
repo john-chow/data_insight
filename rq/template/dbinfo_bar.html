@@ -1,0 +1,21 @@
+<div id="using_db_name" class="panel panel-default">
+    <div class="panel-heading">数据</div>
+    <!--<div id="db_name"><%= model.name %></div>-->
+    <ul>
+        <li id="db_name" class="ui-state-highlight"><%= model.name %></li>
+    </ul>
+</div>
+
+<div id="dimensions" class="panel panel-default">
+    <div class="panel-heading">维度</div>
+    <ul id="mensions_list" class="panel-body">
+    <% _.each(model.dm, function(v, k) { %> <li class="mension ui-state-highlight" ><%= k %></li> <% }); %>
+    </ul>
+</div>
+
+<div id="measures" class="panel panel-default">
+    <div class="panel-heading">度量</div>
+    <ul id="measures_list"  class="panel-body">
+        <% _.each(model.me, function(v, k) { %> <li class="measure" draggable="true"><%= k %></li> <% }); %>
+    </ul>
+</div>
