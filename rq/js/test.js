@@ -38,7 +38,6 @@ define([
 			}
 			, success: function(json) {
 				showPic(json);
-				alert('xxxx');
 				sendFilter()
 			}
 			, error: function() {

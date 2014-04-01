@@ -4,6 +4,8 @@ define([
 , "underscore"
 ], function($, Backbone, _) {
 
+	var DB_INFO_BAR_MODEL = null;
+
     var DbinfoBarModel = Backbone.Model.extend({
         simulateData: function() {
             var dbInfo = {
@@ -48,5 +50,13 @@ define([
         }
     });
 
-    return DbinfoBarModel;
+	return {
+		getInstance: function() {
+            if(!DB_INFO_BAR_MODEL) {
+                DB_INFO_BAR_MODEL = new DbinfoBarModel();
+                return DB_INFO_BAR_MODEL
+            }
+            return DB_INFO_BAR_MODEL
+        }
+	}
 })

@@ -4,9 +4,14 @@ requirejs([
  "jqueryUi",
  "bootstrap",
  "underscore", 
+ "router", 
  'test'
-], function($, MainView ,ui ,b ,_, t) {
+], function($, MainView ,ui ,b ,_, Router, t) {
     new MainView;
+
+	// 启动router
+	new Router();
+    Backbone.history.start( { pushState: true} );
 
 	t.start();
 
