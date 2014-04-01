@@ -43,21 +43,22 @@ def tryIntoDb(request):
 	user 	= request.POST.get('user', 	'')
 	pwd 	= request.POST.get('pwd', 	'')
 	table 	= request.POST.get('table', '')
+	context = RequestContext(request)
 
 	connDbInput = (ip, port, db, user, pwd)
 	
 	if connectDb(connDbInput):
-		request.session[u'ip'] 		= ip
-		request.session[u'port'] 	= port
-		request.session[u'db'] 		= db
-		request.session[u'user'] 	= user
-		request.session[u'pwd'] 	= pwd
-		request.session[u'table'] 	= table
+		request.session[u'_ip_'] 		= ip
+		request.session[u'_port_'] 		= port
+		request.session[u'_db_'] 		= db
+		request.session[u'_user_'] 		= user
+		request.session[u'_pwd_'] 		= pwd
+		request.session[u'_table_'] 	= table
 
-		context = RequestContext(request)
 		return render_to_response('index.html', context)
 	else:
-		return HttpResponse('NO NO NO!')
+		msg = 'cant access into database'
+		return HttpResponse( json.dumps({'succ': False, 'msg':msg}), context )
 
 
 
@@ -68,8 +69,6 @@ def connectDb(dbInput):
 			dbInput 
 		)
 	except Exception, e:
-		print 'Cant access into db, $s' % e
-		pdb.set_trace()
 		return None
 	else:
 		return conn
@@ -79,27 +78,29 @@ def connectDb(dbInput):
 def selectData(request):
 	# 如果时间过了很久，这里要判断session是否失效了
 	conn = connectDb( 
-		( request.session[u'ip'] 	  
-		, request.session[u'port']  
-		, request.session[u'db'] 	  
-		, request.session[u'user']  
-		, request.session[u'pwd']  )
+		( request.session[u'_ip_'] 	  
+		, request.session[u'_port_']  
+		, request.session[u'_db_'] 	  
+		, request.session[u'_user_']  
+		, request.session[u'_pwd_']  )
 	)
 
+	if not conn:
+		raise Exception('Cant access into database')
 
 	''' 拼凑sql语句中查询x、y列表部分 '''
 	xList 		= request.session.setdefault('_x_', [])
 	yList 		= request.session.setdefault('_y_', [])
-	filterList 	= request.session.setdefault('filter', {})
+	filterList 	= request.session.setdefault('_filter_', {})
 
-	table 	= request.session['table']
+	table 	= request.session['_table_']
 	sel		= 'select %s from %s %s' 
 	filterSen = ''
 	selX = ''
 	selY = ''
 	
 	if bool(filterList):
-		filterSenList = request.session['filter'].values()
+		filterSenList = request.session['_filter_'].values()
 		filterSen	= 'where ' + ' and '.join(filterSenList)
 
 	if bool(xList):
@@ -110,11 +111,6 @@ def selectData(request):
 	
 	sqlX = ''
 	sqlY = ''
-	if bool(selX):
-		sqlX	= sel % (selX, table, filterSen)
-	if bool(selY):
-		sqlY	= sel % (selY, table, filterSen)
-
 
 	cursor = conn.cursor()
 	try:
@@ -131,7 +127,7 @@ def selectData(request):
 
 	except Exception, e:
 		# 继续抛出异常
-		print 'exception'
+		raise Exception(e.msg)
 		pass
 	else:
 		return (resultsX, resultsY)
@@ -144,30 +140,60 @@ def addSelect(request):
 
 	reqSelX 	= json.loads( request.POST.get('x', u'[]') )
 	reqSelY 	= json.loads( request.POST.get('y', u'[]') )
-	request.session.setdefault('_x_', [])
-	request.session.setdefault('_y_', [])
-	request.session['_x_'] += reqSelX
-	request.session['_y_'] += reqSelY
+	alreadyX 	= request.session.setdefault('_x_', [])
+	alreadyY 	= request.session.setdefault('_y_', [])
 
-	#try:
-	data = generateBackData(request)
-	#except Exception, e:
+	# 不接受相同变量
+	request.session['_x_'] = list( set(alreadyX + reqSelX) )
+	request.session['_y_'] = list( set(alreadyY + reqSelY) )
+
+	try:
+		data = generateBackData(request)
+	except Exception, e:
 		# 从session中roll back
-		#print 'run sql error'
-		#errorMsg = {'succ': False, 'msg': ''}
-		#return HttpResponse( json.dumps(errorMsg), content_type='application/json' )
-	#else:
-	backData = {'succ': True, 'data': data}
-	return HttpResponse( json.dumps(backData), content_type='application/json' )
-	
+		rollBackSessionXY(request, alreadyX, alreadyY)
+		errorMsg = {'succ': False, 'msg': e.msg}
+		return HttpResponse( json.dumps(errorMsg), content_type='application/json' )
+	else:
+		backData = {'succ': True, 'data': data}
+		return HttpResponse( json.dumps(backData), content_type='application/json' )
 
+
+def rmSelect(request):
+	# 有相同变量也只考虑一次，因为add流程中保证了session_x_等都不会有重复值
+	reqSelX 	= list( set(json.loads( request.POST.get('x', u'[]') )) )
+	reqSelY 	= list( set(json.loads( request.POST.get('y', u'[]') )) )
+
+	alreadyX 	= request.session.setdefault('_x_', [])
+	alreadyY 	= request.session.setdefault('_y_', [])
+
+	if bool(reqSelX):
+		if any(x in alreadyX for x in reqSelX):
+			request.session['_x_'] = alreadyX - reqSelX
+		else:
+			msg = 'some unknown factor is in X axis'
+	elif bool(reqSelY):
+		if any(y in alreadyY for y in reqSelY):
+			request.session['_y_'] = alreadyY - reqSelY
+		else:
+			msg = 'some unknown factor is in Y axis'
+
+	try:
+		data = generateBackData(request)
+	except Exception, e:
+		# 从session中roll back
+		rollBackSessionXY(request, alreadyX, alreadyY)
+		errorMsg = {'succ': False, 'msg': e.msg}
+		return HttpResponse( json.dumps(errorMsg), content_type='application/json' )
+	else:
+		backData = {'succ': True, 'data': data}
+		return HttpResponse( json.dumps(backData), content_type='application/json' )
+
+	
 
 def addValListFilter(request):
 	filters = json.loads( request.POST.get('f') )
-	request.session.setdefault('filter', {})
-
-	def fun(p, x):
-		return (p + '=' + x)
+	request.session.setdefault('_filter_', {})
 
 	for each in filters:
 		id 		= each['id']
@@ -175,11 +201,37 @@ def addValListFilter(request):
 		valList = each['val_list']
 		lll 	= [ (proty + '=' + str(x)) for x in valList ]
 		sen 	= ' or '.join(lll)
-		request.session['filter'][id] = sen
+		request.session['_filter_'][id] = sen
 
 	data = generateBackData(request)
+	backData = {'succ': True, 'data': data}
 
-	return HttpResponse( json.dumps(data), content_type='application/json' )
+	return HttpResponse( json.dumps(backData), content_type='application/json' )
+
+
+def addCalcFilter(request):
+	filters = json.loads( request.POST.get('f') )
+	request.session.setdefault('_filter_', {})
+
+
+def rmFilter(request):
+	filters 	= json.loads( request.POST.get('f') )
+	seFilters 	= request.session.setdefault('_filter_', {})
+
+	for key in filters:
+		if key in request.session['_filter_']:
+			del request.session['_filter_'][key]
+
+	try:
+		data = generateBackData(request)
+	except Exception, e:
+		# 从session中roll back
+		errorMsg = {'succ': False, 'msg': e.msg}
+		return HttpResponse( json.dumps(errorMsg), content_type='application/json' )
+	else:
+		backData = {'succ': True, 'data': data}
+		return HttpResponse( json.dumps(backData), content_type='application/json' )
+	
 
 
 def generateBackData(request):
@@ -188,13 +240,13 @@ def generateBackData(request):
 
 	data = readJsonFile('')
 	return data
+
+def rollBackSessionXY(request, alreadyX, alreadyY):
+	request.session['_x_'] = alreadyX
+	request.session['_y_'] = alreadyY
+	return 
 			
 
-
-def addOperInfoToSession(request):
-	for (key, val) in zip( request.POST.keys(), request.POST.values() ):
-		request.session.setdefault( key + 'all', [] )
-		request.session[key].append(val)
 	
 		
 def perpareBackData(xList, yList):
