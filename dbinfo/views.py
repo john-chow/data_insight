@@ -108,36 +108,57 @@ def selectData(request):
 	if bool(yList):
 		selY 	= ','.join(yList)
 	
-	sqlX	= sel % (selX, table, filterSen)
-	sqlY	= sel % (selY, table, filterSen)
+	sqlX = ''
+	sqlY = ''
+	if bool(selX):
+		sqlX	= sel % (selX, table, filterSen)
+	if bool(selY):
+		sqlY	= sel % (selY, table, filterSen)
 
 
 	cursor = conn.cursor()
 	try:
-		cursor.execute(sqlX)
-		resultsX = cursor.fetchall()
-		cursor.execute(sqlY)
-		resultsY = cursor.fetchall()
+		(resultsX, resultsY) = ([], [])
+
+		if bool(selX):
+			sqlX	= sel % (selX, table, filterSen)
+			cursor.execute(sqlX)
+			resultsX = cursor.fetchall()
+		if bool(selY):
+			sqlY	= sel % (selY, table, filterSen)
+			cursor.execute(sqlY)
+			resultsY = cursor.fetchall()
+
 	except Exception, e:
-		return []
+		# 继续抛出异常
+		print 'exception'
 		pass
 	else:
-		return resultsX
+		return (resultsX, resultsY)
 	finally:
 		conn.close()
 
 
 def addSelect(request):
+	# 如果时间过了很久，这里要判断session是否失效了
+
 	reqSelX 	= json.loads( request.POST.get('x', u'[]') )
 	reqSelY 	= json.loads( request.POST.get('y', u'[]') )
 	request.session.setdefault('_x_', [])
 	request.session.setdefault('_y_', [])
 	request.session['_x_'] += reqSelX
-	request.session['_y_'] += reqSelX
+	request.session['_y_'] += reqSelY
 
-	data = generateJsonData(request)
-
-	return HttpResponse( json.dumps(data), content_type='application/json' )
+	#try:
+	data = generateBackData(request)
+	#except Exception, e:
+		# 从session中roll back
+		#print 'run sql error'
+		#errorMsg = {'succ': False, 'msg': ''}
+		#return HttpResponse( json.dumps(errorMsg), content_type='application/json' )
+	#else:
+	backData = {'succ': True, 'data': data}
+	return HttpResponse( json.dumps(backData), content_type='application/json' )
 	
 
 
@@ -156,14 +177,15 @@ def addValListFilter(request):
 		sen 	= ' or '.join(lll)
 		request.session['filter'][id] = sen
 
-	data = generateJsonData(request)
+	data = generateBackData(request)
 
 	return HttpResponse( json.dumps(data), content_type='application/json' )
 
 
-def generateJsonData(request):
-	dbResults = selectData(request)
-	generateJsonFile(dbResults)
+def generateBackData(request):
+	(xList, yList) = selectData(request)
+	perpareBackData(xList, yList)
+
 	data = readJsonFile('')
 	return data
 			
@@ -175,22 +197,25 @@ def addOperInfoToSession(request):
 		request.session[key].append(val)
 	
 		
-def generateJsonFile(result):
-	list = [ i[0] for i in result ]
-	bar = vincent.Bar(list)
-	bar.to_json('111.json')
+def perpareBackData(xList, yList):
+	if bool(xList):
+		dataList = [ xt[0] for xt in xList ]
+		bar = vincent.Bar(dataList)
+		bar.to_json('111.json')
+		return
 
-	'''
-	dict_of_iters = { 'x': [0, 1, 2, 3, 5], 'data': [10, 20, 30, 40, 50] }
-	bar = vincent.Bar(dict_of_iters, iter_idx='y')
-	bar.to_json('111.json')
-	'''
+	elif bool(yList):
+		list = vincent.Bar(xList[0])
+		bar = vincent.Bar(list)
+		bar.to_json('111.json')
+		return
 
-	'''
-	list = [10, 30, 44, 87]
-	bar = vincent.Bar(list)
-	bar.to_json('111.json')
-	'''
+	else:
+		dict_of_iters = { 'x': xList[0], 'data': yList[0] }
+		bar = vincent.Bar(dict_of_iters, iter_idx='x')
+		bar.to_json('111.json')
+		return 
+
 				
 def readJsonFile(file):
 	file = '111.json'

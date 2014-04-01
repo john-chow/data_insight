@@ -1,5 +1,14 @@
-requirejs(["jquery", "main","jqueryUi","bootstrap","underscore"], function($, MainView ,ui ,b ,_) {
+requirejs([
+ "jquery", 
+ "main",
+ "jqueryUi",
+ "bootstrap",
+ "underscore", 
+ 'test'
+], function($, MainView ,ui ,b ,_, t) {
     new MainView;
+
+	t.start();
 
     //设置可自动排序
     $( "#column_sortable,#row_sortable" ).sortable({
