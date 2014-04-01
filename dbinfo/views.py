@@ -215,7 +215,6 @@ def perpareBackData(xList, yList):
 		bar = vincent.Bar(dict_of_iters, iter_idx='x')
 		bar.to_json('111.json')
 		return 
-
 				
 def readJsonFile(file):
 	file = '111.json'
