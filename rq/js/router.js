@@ -4,15 +4,15 @@ define([
 
     var MainRouter = Backbone.Router.extend({
         routes: {
-            "view":          	'test'
+			":dbname/":         'test'
 			, '*default': 		'elseDo'
         },
 
-        test: function() {
-            alert("11111111")
+        test: function(dbname, qs) {
+            //alert("11111111")
         },
 	
-		elseDo: function() {
+		elseDo: function(e) {
 			alert("aaaaaaaa")
 		}
     });
