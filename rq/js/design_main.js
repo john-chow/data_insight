@@ -4,6 +4,7 @@ define([
 , "work_area"
 ], function(Backbone, MenusView, WorkareaView) {
 
+	// 使model save时，数据是object型
 	Backbone.emulateJSON = true;
     
     var MainView = Backbone.View.extend({

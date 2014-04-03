@@ -12,7 +12,6 @@ define([
 			attributes    = attributes || {};
 		 
 			this.set(attributes);
-
 		 
 			options.data  = this.toJSON();
 		 

@@ -191,18 +191,22 @@ def rmSelect(request):
 
 	
 
-def addValListFilter(request, id):
-	pdb.set_trace()
-	filters = json.loads( request.POST.get('f') )
+def dealFilter(request, id):
 	request.session.setdefault('_filter_', {})
 
-	for each in filters:
-		id 		= each['id']
-		proty 	= each['property']
-		valList = each['val_list']
-		lll 	= [ (proty + '=' + str(x)) for x in valList ]
+	pdb.set_trace()
+	if 'POST' == request.method:
+		post_data 		= request.POST
+		ajax_cmd 		= post_data['cmd']
+		id 				= post_data['id']
+		proty			= post_data['property']
+		val_list 		= json.loads( post_data['val_list'] )
+		
+		lll 	= [ (proty + '=' + str(x)) for x in val_list ]
 		sen 	= ' or '.join(lll)
 		request.session['_filter_'][id] = sen
+	else:
+		print 'request.method is %s' % request.method
 
 	data = generateBackData(request)
 	backData = {'succ': True, 'data': data}

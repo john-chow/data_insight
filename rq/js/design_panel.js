@@ -35,11 +35,11 @@ define([
                 { model: new ( Backbone.Model.extend({}) ) }
             );
             this.chooseFilterView.on("choose_filter", this.addFilter);
-			this.chooseFilterView.on( "ensure_filter", _.bind(this.ensureFilter, this) );
-			this.filterBoxView.collection.on("add", function(model) {
-				console.log("saving..............");
-				model.save()
-			});
+			this.chooseFilterView.on( "ensure_filter", 
+										_.bind(this.ensureFilter, this) );
+			this.filterBoxView.collection.on("add", 
+										_.bind(this.filterBoxView.afterModelAdded, this.filterBoxView), 
+										this);
 
             this.render();
             //this.$("#column_sortable, #row_sortable").on("drop", this.dropInPlots);
