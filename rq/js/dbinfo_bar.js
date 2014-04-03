@@ -1,10 +1,8 @@
 define([
-"jquery"
-, "backbone"
-, "underscore"
+"backbone"
 , "bootstrap"
 , "text!../template/dbinfo_bar.html" 
-], function($, Backbone, _, b, dataAreaHtml) {
+], function(Backbone, b, dataAreaHtml) {
 
     var DbInfoBarView = Backbone.View.extend({
 

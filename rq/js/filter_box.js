@@ -1,11 +1,9 @@
 define([
-"jquery"
-, "backbone"
-, "underscore"
+"backbone"
 , "bootstrap"
 , "model/filter_boxes"
 , "text!../template/filter_box.html"
-], function($, Backbone, _, b, FiltersCollection, filterBoxHtml) {
+], function(Backbone, b, FiltersCollection, filterBoxHtml) {
 
     var FilterBoxView = Backbone.View.extend({
 

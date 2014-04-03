@@ -1,8 +1,7 @@
 define([
-	'jquery'
-	, 'backbone'
+	'backbone'
 	, 'model/vtron_model'
-], function($, Backbone, VtronModel) {
+], function(Backbone, VtronModel) {
 	var FilterModel = VtronModel.extend({
 		urlRoot:	"/indb/filter/add/",
 		

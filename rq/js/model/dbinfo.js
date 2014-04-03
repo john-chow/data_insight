@@ -1,8 +1,6 @@
 define([
-"jquery"
-, "backbone"
-, "underscore"
-], function($, Backbone, _) {
+"backbone"
+], function(Backbone) {
 
 	var DB_INFO_BAR_MODEL = null;
 

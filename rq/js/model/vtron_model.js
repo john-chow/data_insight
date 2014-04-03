@@ -1,7 +1,6 @@
 define([
-	'jquery'
-	, 'backbone'
-], function($, Backbone) {
+	'backbone'
+], function(Backbone) {
 	var VtronModel = Backbone.Model.extend({
 		
 		method_map: {

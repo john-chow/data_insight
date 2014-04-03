@@ -1,9 +1,8 @@
 define([
-"jquery"
-, "backbone"
+"backbone"
 , "design_menus"
 , "work_area"
-], function($, Backbone, MenusView, WorkareaView) {
+], function(Backbone, MenusView, WorkareaView) {
 
 	Backbone.emulateJSON = true;
     

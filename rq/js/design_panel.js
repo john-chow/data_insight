@@ -1,12 +1,10 @@
 define([
-"jquery"
-, "backbone"
-, "underscore"
+"backbone"
 , "draw_workplace"
 , "choose_filter"
 , "bootstrap"
 , "filter_box"
-], function($, Backbone, _, DrawPlaceView, ChooseFilterView, b, 
+], function(Backbone, DrawPlaceView, ChooseFilterView, b, 
             filterBoxView) {
 
     var FilterModel = Backbone.Model.extend({

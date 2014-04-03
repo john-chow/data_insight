@@ -1,11 +1,9 @@
 requirejs([
- "jquery", 
  "main",
  "jqueryUi",
  "bootstrap",
- "underscore", 
  'test'
-], function($, MainView ,ui ,b ,_, t) {
+], function(MainView ,ui ,b ,t) {
 	new MainView;
 
     var MainRouter = Backbone.Router.extend({

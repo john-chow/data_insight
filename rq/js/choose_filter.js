@@ -1,10 +1,8 @@
 define([
-"jquery"
-, "backbone"
-, "underscore"
+"backbone"
 , "bootstrap"
 , "text!../template/choose_filter.html" 
-], function($, Backbone, _, b, cfTemplate) {
+], function(Backbone, b, cfTemplate) {
 
     var ChooseFilter = Backbone.View.extend({
 

@@ -1,11 +1,10 @@
 define([
-"jquery"
-, "backbone"
+"backbone"
 , "dbinfo_bar"
 , "design_panel"
 , "bootstrap"
 , "model/dbinfo"
-], function($, Backbone, DbBarView, PanelView, b, DbInfoModel) {
+], function(Backbone, DbBarView, PanelView, b, DbInfoModel) {
     var WorkAreaView = Backbone.View.extend({
 
         tagName: "div",

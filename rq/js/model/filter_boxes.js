@@ -1,8 +1,7 @@
 define([
-	'jquery'
-	, 'backbone'
+	'backbone'
 	, 'model/filter_box'
-], function($, Backbone, FilterModel) {
+], function(Backbone, FilterModel) {
 	var FiltersCollection = Backbone.Collection.extend({
 		url: "",
 
