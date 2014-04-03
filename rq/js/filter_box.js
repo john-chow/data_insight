@@ -3,8 +3,9 @@ define([
 , "backbone"
 , "underscore"
 , "bootstrap"
+, "model/filter_boxes"
 , "text!../template/filter_box.html"
-], function($, Backbone, _, b, filterBoxHtml) {
+], function($, Backbone, _, b, FiltersCollection, filterBoxHtml) {
 
     var FilterBoxView = Backbone.View.extend({
 
@@ -13,6 +14,7 @@ define([
         template:   filterBoxHtml,
 
         initialize: function() {
+			this.collection = new FiltersCollection();
             this.render();
         },
 

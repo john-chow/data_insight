@@ -4,6 +4,8 @@ define([
 , "design_menus"
 , "work_area"
 ], function($, Backbone, MenusView, WorkareaView) {
+
+	Backbone.emulateJSON = true;
     
     var MainView = Backbone.View.extend({
         el: "#content",

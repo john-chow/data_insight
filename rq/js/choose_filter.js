@@ -20,6 +20,8 @@ define([
         },
 
         initialize: function() {
+			// model 在初始化时由外部传入
+
             //this.listenTo(this.model, "change", this.render);
            /* this.$el.modal({
                 show: false
@@ -40,8 +42,23 @@ define([
         },
 
         ensureFilter: function() {
-          //  this.trigger( "choose_filter", {} );
+			// 抓取用户选中的内容
+			var userFilterData = {};
+			userFilterData["property"] = this.model.get("title");
 
+			// 属性过滤
+			if( this.model.get("fil") ) {
+			/*
+				userFilterData["val_list"] = 
+					$.each( this.$("#filter_convention [type='checkbox']:checked")
+							, function(i, ck) {
+						return ck.value
+					});
+			*/
+				userFilterData["id"] = this.model.get("pro_id")
+			}
+
+			this.trigger("ensure_filter", userFilterData)
         },
 
         chooseAll: function(){

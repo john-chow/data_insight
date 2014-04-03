@@ -32,8 +32,14 @@ define([
         },
 
         drag: function(ev) {
-           //ev.originalEvent.dataTransfer.setData( "text/plain", $(ev.target).html() );
-           sessionStorage.dragContent=$(ev.target).html();//把数据放在session
+            //ev.originalEvent.dataTransfer.setData( "text/plain", $(ev.target).html() );
+			$tar = $(ev.target);
+			data = {
+				"pro_id": 		$tar.attr("id")
+				, "content": 	$tar.html()
+			};
+
+            sessionStorage.dragment = JSON.stringify(data);
         }
 
     });

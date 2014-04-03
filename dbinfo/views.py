@@ -191,7 +191,8 @@ def rmSelect(request):
 
 	
 
-def addValListFilter(request):
+def addValListFilter(request, id):
+	pdb.set_trace()
 	filters = json.loads( request.POST.get('f') )
 	request.session.setdefault('_filter_', {})
 

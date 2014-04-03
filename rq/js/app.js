@@ -4,16 +4,41 @@ requirejs([
  "jqueryUi",
  "bootstrap",
  "underscore", 
- "router", 
  'test'
-], function($, MainView ,ui ,b ,_, Router, t) {
-    new MainView;
+], function($, MainView ,ui ,b ,_, t) {
+	new MainView;
+
+    var MainRouter = Backbone.Router.extend({
+        routes: {
+			":dbname/$":         		'db_main_page'
+			, ":dbname/(:p/)$":         'db_work_dash_page'
+			, '*default': 				'default'
+        }
+    });
 
 	// 启动router
-	new Router();
+	var router = new MainRouter();
     Backbone.history.start( { pushState: true} );
 
-	t.start();
+	router.on('route:db_main_page', function(p) {
+	});
+
+	router.on('route:db_work_dash_page', function(p) {
+	});
+
+	router.on('route:default', function() {
+		alert('404')
+	});
+
+
+	//t.start();
+
+
+	// 为所有属性增加id
+	$.each( $("#mensions_list .mension, .measure"), function(i, obj) {
+		$(obj).attr("id", "db_property_" + i)
+	})
+
 
     //设置可自动排序
     $( "#column_sortable,#row_sortable" ).sortable({
