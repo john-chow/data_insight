@@ -3,6 +3,11 @@ define([
 , "model/vtron_model"
 ], function(Backbone, VtronModel) {
 
+	/*
+		数据格式:  只有一对key-value
+		其中，key是本model的id ['column', 'row']
+		value是属性值列表 []
+	*/
 	var AxesModel 	= VtronModel.extend({
 		urlRoot: 		"axes/"
 	});
@@ -82,6 +87,7 @@ define([
 			// 要判断是增加属性、还是只是排序
 			var draged 			= ui.item.html();
 			var modelContents 	= this.model.get(this.name) || []; 			
+			var backupModelList = modelContents;
 
 			if( $.inArray(draged, modelContents) < 0 ) {
 				modelContents.push(draged);
@@ -95,8 +101,14 @@ define([
 				tm.push( $(x).html() )
 			})
 
+			var self = this;
 			this.model.set(this.name, tm);
-			this.model.save()
+			this.model.save(null, {
+				"error":  function() {
+					self.model.set(self.name, backupModelList)
+					// TBD 	视图山按照原来的样式重新摆弄属性列表
+				}
+			})
 		}
 	});
 
