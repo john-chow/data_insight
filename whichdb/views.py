@@ -6,7 +6,7 @@ from django.utils import simplejson as json
 from django.template import RequestContext
 
 import pdb
-
+#test add 2014-4-2
 def showDbForChosen(request):
 	recentlyDbs = list( UsedDb.objects.all()[:4].values() )
 
