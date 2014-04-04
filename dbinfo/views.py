@@ -189,6 +189,10 @@ def rmSelect(request):
 		backData = {'succ': True, 'data': data}
 		return HttpResponse( json.dumps(backData), content_type='application/json' )
 
+
+def test():
+	return 
+
 	
 
 def dealFilter(request, id):

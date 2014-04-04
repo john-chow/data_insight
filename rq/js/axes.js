@@ -4,7 +4,7 @@ define([
 ], function(Backbone, VtronModel) {
 
 	var AxesModel 	= VtronModel.extend({
-		
+		urlRoot: 		"axes/"
 	});
 	
 
@@ -19,8 +19,8 @@ define([
 		),
 
 		initialize: function(opt) {
-			this.name = opt.name;
-			this.model = new AxesModel();
+			this.name 		= opt.name;
+			this.model = new AxesModel( {id: this.name} );
 			this.render();
 		},
 
@@ -39,7 +39,8 @@ define([
 			//设置可自动排序
 			var self = this;
 
-			this.$("#" + this.name + "_sortable").sortable({
+			this.sortObj 	= this.$("#" + this.name + "_sortable");
+			this.sortObj.sortable({
 				connectWith: ".connectedSortable",
 				//revert: true,
 				zIndex: "3000",
@@ -58,7 +59,7 @@ define([
 				},
 				stop: function(event,ui) { //这个事件在排序停止时触发.
 					self.$(".dragging-custom").removeClass("dragging-change-border");
-					console.log('zzzzzzzzz')
+					self.afterSort(event, ui)
 				},
 				update: function(event,ui) { //这个事件在用户停止排序并且DOM节点位置发生改变时出发.
 				},
@@ -80,14 +81,22 @@ define([
 		afterSort: function(ev, ui) {
 			// 要判断是增加属性、还是只是排序
 			var draged 			= ui.item.html();
-			var modelContents 	= this.model.get(this.name); 			
+			var modelContents 	= this.model.get(this.name) || []; 			
 
-			if( draged instanceof modelContents ) {
-				
+			if( $.inArray(draged, modelContents) < 0 ) {
+				modelContents.push(draged);
+				this.model.set(this.name, modelContents)
 			}
-			else {
-				this.model.set( this.name, modelContents.push(draged) )
-			}
+
+			// 这里从html页面上找寻属性顺序，原则上不合理，有待修改
+			var list = this.sortObj.children();
+			var tm = [];
+			$.each(list, function(i, x) {
+				tm.push( $(x).html() )
+			})
+
+			this.model.set(this.name, tm);
+			this.model.save()
 		}
 	});
 

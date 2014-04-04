@@ -12,8 +12,16 @@ define([
 			attributes    = attributes || {};
 		 
 			this.set(attributes);
+
+			var jsonModel = this.toJSON();
+			$.each(jsonModel, function(k, v) {
+				if (v instanceof Array) {
+					jsonModel[k] = JSON.stringify(v)
+				}
+			});
 		 
-			options.data  = this.toJSON();
+			options.data = jsonModel;
+			//options.data  = this.toJSON();
 		 
 			return Backbone.Model.prototype.save.call(this, attributes, options);
 		},
