@@ -39,7 +39,7 @@ define([
 			//设置可自动排序
 			var self = this;
 
-			this.sortObj 	= this.$("#" + this.name + "_sortable");
+			this.sortObj = this.$("#" + this.name + "_sortable");
 			this.sortObj.sortable({
 				connectWith: ".connectedSortable",
 				//revert: true,

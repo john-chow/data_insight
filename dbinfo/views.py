@@ -10,6 +10,7 @@ from django.template import RequestContext
 import psycopg2 as pysql
 import vincent
 import pandas as pd
+from common.tool import *
 
 import pdb
 
@@ -58,7 +59,7 @@ def tryIntoDb(request):
 		return render_to_response('index.html', context)
 	else:
 		msg = 'cant access into database'
-		return HttpResponse( json.dumps({'succ': False, 'msg':msg}), context )
+		return MyHttpJsonResponse( {'succ': False, 'msg': msg} )
 
 
 
@@ -135,59 +136,42 @@ def selectData(request):
 		conn.close()
 
 
-def addSelect(request):
-	# 如果时间过了很久，这里要判断session是否失效了
-
-	reqSelX 	= json.loads( request.POST.get('x', u'[]') )
-	reqSelY 	= json.loads( request.POST.get('y', u'[]') )
-	alreadyX 	= request.session.setdefault('_x_', [])
-	alreadyY 	= request.session.setdefault('_y_', [])
-
-	# 不接受相同变量
-	request.session['_x_'] = list( set(alreadyX + reqSelX) )
-	request.session['_y_'] = list( set(alreadyY + reqSelY) )
-
-	try:
-		data = generateBackData(request)
-	except Exception, e:
-		# 从session中roll back
-		rollBackSessionXY(request, alreadyX, alreadyY)
-		errorMsg = {'succ': False, 'msg': e.msg}
-		return HttpResponse( json.dumps(errorMsg), content_type='application/json' )
-	else:
-		backData = {'succ': True, 'data': data}
-		return HttpResponse( json.dumps(backData), content_type='application/json' )
+def reqCol(request):
+	return dealAxesReq(request, 'column')
 
 
-def rmSelect(request):
-	# 有相同变量也只考虑一次，因为add流程中保证了session_x_等都不会有重复值
-	reqSelX 	= list( set(json.loads( request.POST.get('x', u'[]') )) )
-	reqSelY 	= list( set(json.loads( request.POST.get('y', u'[]') )) )
+def reqRow(request):
+	return dealAxesReq(request, 'row')
+	
 
-	alreadyX 	= request.session.setdefault('_x_', [])
-	alreadyY 	= request.session.setdefault('_y_', [])
+def dealAxesReq(request, axes):
+	axes_to_ss_dic = {
+		'column':		'_col_'
+		, 'row':		'_row_'
+	}
+	axes_ss 	= axes_to_ss_dic.get('axes')
+	old_ss 		= request.session.setdefault(axes, u'[]')
+	
+	if 'POST' == request.method:
+		tmp_list = json.loads( request.POST.get(axes) )
+		request.session[axes_ss] = list( set(tmp_list) )
 
-	if bool(reqSelX):
-		if any(x in alreadyX for x in reqSelX):
-			request.session['_x_'] = alreadyX - reqSelX
+		try:
+			data = generateBackData(request)
+		except Exception, e:
+			rollBackSession(request, axes_ss, old_ss)
+			error_dict = {'succ': False, 'msg': e.msg}
+			return MyHttpJsonResponse(error_dict)
 		else:
-			msg = 'some unknown factor is in X axis'
-	elif bool(reqSelY):
-		if any(y in alreadyY for y in reqSelY):
-			request.session['_y_'] = alreadyY - reqSelY
-		else:
-			msg = 'some unknown factor is in Y axis'
+			backData = {'succ': True, 'data': data}
+			return MyHttpJsonResponse(backData)
 
-	try:
-		data = generateBackData(request)
-	except Exception, e:
-		# 从session中roll back
-		rollBackSessionXY(request, alreadyX, alreadyY)
-		errorMsg = {'succ': False, 'msg': e.msg}
-		return HttpResponse( json.dumps(errorMsg), content_type='application/json' )
 	else:
-		backData = {'succ': True, 'data': data}
-		return HttpResponse( json.dumps(backData), content_type='application/json' )
+		return
+	
+
+def rollBackSession(request, axes_ss, old_ss):
+	request.session[axes_ss] = old_ss
 
 
 def test():
@@ -198,49 +182,38 @@ def test():
 def dealFilter(request, id):
 	request.session.setdefault('_filter_', {})
 
-	pdb.set_trace()
 	if 'POST' == request.method:
 		post_data 		= request.POST
 		ajax_cmd 		= post_data['cmd']
-		id 				= post_data['id']
-		proty			= post_data['property']
-		val_list 		= json.loads( post_data['val_list'] )
-		
-		lll 	= [ (proty + '=' + str(x)) for x in val_list ]
-		sen 	= ' or '.join(lll)
-		request.session['_filter_'][id] = sen
+		if 'add' == ajax_cmd:
+			id 				= post_data['id']
+			proty			= post_data['property']
+			val_list 		= json.loads( post_data['val_list'] )
+			
+			lll 	= [ (proty + '=' + str(x)) for x in val_list ]
+			sen 	= ' or '.join(lll)
+			request.session['_filter_'][id] = sen
+		elif 'rm' == ajax_cmd:
+			id				= post_data['id']			
+			if request.session['_filter_'].has_key(id):
+				del request.session['_filter_'][id]
+				
+			else:
+				backData = {'succ': False, 'msg': 'Something not exist that you delete'}
+				return MyHttpJsonResponse(backData)
+	
 	else:
 		print 'request.method is %s' % request.method
 
 	data = generateBackData(request)
 	backData = {'succ': True, 'data': data}
 
-	return HttpResponse( json.dumps(backData), content_type='application/json' )
+	return MyHttpJsonResponse(backData)
 
 
 def addCalcFilter(request):
 	filters = json.loads( request.POST.get('f') )
 	request.session.setdefault('_filter_', {})
-
-
-def rmFilter(request):
-	filters 	= json.loads( request.POST.get('f') )
-	seFilters 	= request.session.setdefault('_filter_', {})
-
-	for key in filters:
-		if key in request.session['_filter_']:
-			del request.session['_filter_'][key]
-
-	try:
-		data = generateBackData(request)
-	except Exception, e:
-		# 从session中roll back
-		errorMsg = {'succ': False, 'msg': e.msg}
-		return HttpResponse( json.dumps(errorMsg), content_type='application/json' )
-	else:
-		backData = {'succ': True, 'data': data}
-		return HttpResponse( json.dumps(backData), content_type='application/json' )
-	
 
 
 def generateBackData(request):
@@ -249,12 +222,6 @@ def generateBackData(request):
 
 	data = readJsonFile('')
 	return data
-
-def rollBackSessionXY(request, alreadyX, alreadyY):
-	request.session['_x_'] = alreadyX
-	request.session['_y_'] = alreadyY
-	return 
-			
 
 	
 		
