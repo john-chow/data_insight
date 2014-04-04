@@ -14,7 +14,7 @@ define([
 		tagName:	"div",
 		className:	"dragging-custom design-column clearfix",
 		templateFun: _.template(
-			"<div><%= label %></div>" 	+
+			"<div class='test'><%= label %></div>" 	+
 			"<ul id='<%= name %>_sortable' ondragover='return false' class='connectedSortable clearfix'></ul>"
 		),
 
@@ -31,14 +31,15 @@ define([
 					, 'label':	label
 				})	
 			);
-			this.setDragProperty()
+
+			this.setDragProperty();
 		},
 
 		setDragProperty: function() {
 			//设置可自动排序
 			var self = this;
-			//this.$( "#column_sortable,#row_sortable" ).sortable({
-			this.$( "#" + this.name + "_sortable" ).sortable({
+
+			this.$("#" + this.name + "_sortable").sortable({
 				connectWith: ".connectedSortable",
 				//revert: true,
 				zIndex: "3000",
@@ -57,6 +58,7 @@ define([
 				},
 				stop: function(event,ui) { //这个事件在排序停止时触发.
 					self.$(".dragging-custom").removeClass("dragging-change-border");
+					console.log('zzzzzzzzz')
 				},
 				update: function(event,ui) { //这个事件在用户停止排序并且DOM节点位置发生改变时出发.
 				},
@@ -72,7 +74,20 @@ define([
 				},
 				deactivate: function(event,ui) { //这个事件发生在排序结束后,传播到所有可能的连接列表.
 				}
-			}).disableSelection();;
+			}).disableSelection()
+		},
+
+		afterSort: function(ev, ui) {
+			// 要判断是增加属性、还是只是排序
+			var draged 			= ui.item.html();
+			var modelContents 	= this.model.get(this.name); 			
+
+			if( draged instanceof modelContents ) {
+				
+			}
+			else {
+				this.model.set( this.name, modelContents.push(draged) )
+			}
 		}
 	});
 
