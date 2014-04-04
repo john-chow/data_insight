@@ -18,6 +18,7 @@ define([
 
         render: function() {
             this.$el.html(filterBoxHtml);
+			this.setDragProperty()
         },
 
 
@@ -36,6 +37,14 @@ define([
 				error: function(m, res, opt) {
 					self.collection.remove(m, {'silent': true})
 					// 发出错误警告消息
+				}
+			});
+		},
+
+		setDragProperty: function() {
+			//此代码删除了，触发不了drop，原因暂不明确
+			this.$('#filter_conditions').droppable({
+				drop: function(event, ui) {
 				}
 			});
 		}

@@ -27,6 +27,7 @@ define([
         onDbChanged: function() {
             this.render();
             this.$(".mension, .measure").on("dragstart", this.drag);
+			this.setDragProperty()
         },
 
         drag: function(ev) {
@@ -38,7 +39,31 @@ define([
 			};
 
             sessionStorage.dragment = JSON.stringify(data);
-        }
+        },
+
+		setDragProperty: function() {
+			var self = this;
+			this.$(".measure, .mension").draggable({
+				connectToSortable: "#column_sortable ,#row_sortable",
+				helper: "clone",
+				scroll: "false",
+				zIndex: "3000",
+				//revert: "invalid",
+				cursor: "default",
+				helper: function( event ) {
+					return $( "<li class='dragging-li ui-state-default'>"+ $(this).html()+"</li>" );
+				},
+				//所有的回调函数(start, stop, drag)接受两个参数: 浏览器事件和ui对象
+				start: function(event,ui) {
+					self.$(".dragging-custom").addClass("dragging-change-border");
+				},
+				drag: function(event,ui) {
+				},
+				stop: function(event,ui) {
+					self.$(".dragging-custom").removeClass("dragging-change-border");
+				}
+			});
+		}
 
     });
 

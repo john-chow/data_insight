@@ -37,6 +37,7 @@ requirejs([
 		$(obj).attr("id", "db_property_" + i)
 	})
 
+	/*
 
     //设置可自动排序
     $( "#column_sortable,#row_sortable" ).sortable({
@@ -51,40 +52,53 @@ requirejs([
             sessionStorage.dragContent=$(this).find("li").html();//把数据放在session 
           },
         sort: function(event,ui) {  //这个事件在排序时触发
+			console.log('aaaaaa');
             
           },
         change: function(event,ui) { //这个事件在排序时触发,但是仅仅在对象在DOM中的位置改变时才会触发.
+			console.log('aaaaaa');
            
           },
         beforeStop: function(event,ui) {  //这个事件在排序停止时触犯,但仅仅在placeholder/helper依然存在时触发.
+			console.log('aaaaaa');
             
           },
         stop: function(event,ui) { //这个事件在排序停止时触发.
             $(".dragging-custom").removeClass("dragging-change-border");
+			console.log('aaaaaa');
           },
         update: function(event,ui) { //这个事件在用户停止排序并且DOM节点位置发生改变时出发.
+			console.log('aaaaaa');
            
           },
         receive: function(event,ui) { //这个时间在一个已连接的sortable接收到来自另一个列表的元素时触发.
+			console.log('aaaaaa');
             
           },
         remove: function(event,ui) { //这个事件在sortable中的元素移除自身列表添加到另一个列表时触发.
+			console.log('aaaaaa');
             
           },
         over: function(event,ui) { //这个事件在一个元素添加到连接列表中时触发.
+			console.log('aaaaaa');
            
           },
         out: function(event,ui) { //这个事件在一个元素移除连接列表时触发.
+			console.log('aaaaaa');
            
           },
         activate: function(event,ui) { //这个事件发生在使用连接列表,每个连接列表在拖动开始准备接受它时触发.
+			console.log('aaaaaa');
            
           },
         deactivate: function(event,ui) { //这个事件发生在排序结束后,传播到所有可能的连接列表.
+			console.log('aaaaaa');
            
           }
     }).disableSelection();;
+	*/
 
+	/*
     //设置可拖动
     $(".measure, .mension").draggable({
       connectToSortable: "#column_sortable ,#row_sortable",
@@ -107,12 +121,15 @@ requirejs([
        $(".dragging-custom").removeClass("dragging-change-border");
       }
     });
+	*/
 
+		/*
       //此代码删除了，触发不了drop，原因暂不明确
       this.$('#filter_conditions').droppable({
           drop: function(event, ui) {
           }
       });
+		*/
    
     //自定义：先初始化高度和宽度；当屏幕大小改变时自适应改变高度宽度
     change_auto();
