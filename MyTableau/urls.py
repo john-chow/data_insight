@@ -15,6 +15,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-	url( '^$', whichdbView.showDbForChosen ),
-	url( 'indb/', include('dbinfo.url') ),
+	url( r'^$', 		whichdbView.showDbForChosen ),
+	url( r'indb/', 		include('dbinfo.url') ),
+	url( r'^test/$', 	whichdbView.test ),
 )

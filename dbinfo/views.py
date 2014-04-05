@@ -33,44 +33,50 @@ def getDbInfo(request):
 		, 'nan_fields':			nanFields
 	}
 
-
 	return HttpResponse( json.dumps(dbInfo), content_type="application/json" )
 
 
+
 def tryIntoDb(request):
+	print 'try into db'
+
+	if 'POST' == request.method:
+		if connectDb(request):
+			request.session[u'_ip_'] 		= ip
+			request.session[u'_port_'] 		= port
+			request.session[u'_db_'] 		= db
+			request.session[u'_user_'] 		= user
+			request.session[u'_pwd_'] 		= pwd
+			request.session[u'_table_'] 	= table
+
+			print 'redirect to indb'
+			return HttpResponseRedirect('/indb/')
+		else:
+			msg = 'cant access into database'
+			return MyHttpJsonResponse( {'succ': False, 'msg': msg} )
+	else:
+		context = RequestContext(request)
+		return render_to_response('index.html', context)
+
+
+
+def connectDb(request):
 	ip 		= request.POST.get('ip', 	'')
 	port 	= request.POST.get('port', 	'')
 	db 		= request.POST.get('db', 	'')
 	user 	= request.POST.get('user', 	'')
 	pwd 	= request.POST.get('pwd', 	'')
 	table 	= request.POST.get('table', '')
-	context = RequestContext(request)
 
-	connDbInput = (ip, port, db, user, pwd)
-	
-	if connectDb(connDbInput):
-		request.session[u'_ip_'] 		= ip
-		request.session[u'_port_'] 		= port
-		request.session[u'_db_'] 		= db
-		request.session[u'_user_'] 		= user
-		request.session[u'_pwd_'] 		= pwd
-		request.session[u'_table_'] 	= table
+	dbInput = (ip, port, db, user, pwd)
 
-		return render_to_response('index.html', context)
-	else:
-		msg = 'cant access into database'
-		return MyHttpJsonResponse( {'succ': False, 'msg': msg} )
-
-
-
-def connectDb(dbInput):
 	try:
 		conn = pysql.connect( 
 			'host=%s port=%s dbname=%s user=%s password=%s' % \
 			dbInput 
 		)
 	except Exception, e:
-		return None
+		return HttpResponseRedirect('/')
 	else:
 		return conn
 
@@ -78,13 +84,7 @@ def connectDb(dbInput):
 
 def selectData(request):
 	# 如果时间过了很久，这里要判断session是否失效了
-	conn = connectDb( 
-		( request.session[u'_ip_'] 	  
-		, request.session[u'_port_']  
-		, request.session[u'_db_'] 	  
-		, request.session[u'_user_']  
-		, request.session[u'_pwd_']  )
-	)
+	conn = connectDb(request)
 
 	if not conn:
 		raise Exception('Cant access into database')
@@ -244,6 +244,7 @@ def perpareBackData(xList, yList):
 		bar.to_json('111.json')
 		return 
 				
+
 def readJsonFile(file):
 	file = '111.json'
 	f = open(file, 'r')
