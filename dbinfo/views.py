@@ -18,7 +18,6 @@ import pdb
 def getDbInfo(request):
 	table = request.session.get('_table_')
 
-	pdb.set_trace()
 	conn 	= connectDb(request)
 	cursor 	= conn.cursor()
 	cursor.execute('select * from %s' % table)
