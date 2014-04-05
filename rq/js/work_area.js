@@ -12,7 +12,7 @@ define([
         className: "clearfix",
 
         initialize: function() {
-            var dbModel     = DbInfoModel.getInstance();
+            var dbModel     = new DbInfoModel;
             this.dbBarView  = new DbBarView( {model: dbModel} );
             this.panelView  = new PanelView( {dbModel: dbModel} );
             this.render();

@@ -14,27 +14,33 @@ from common.tool import *
 
 import pdb
 
+
 def getDbInfo(request):
-	tableName = Smart._meta.db_table
-	numFields = {}
-	nanFields = {}
+	table = request.session.get('_table_')
 
-	for each in Smart._meta.get_all_field_names():
-		fieldType = Smart._meta.get_field(each).get_internal_type()
-		if( (u'IntegerField' == fieldType) or (u'FloatField' == fieldType) ):
-			nanFields[each] = None
+	pdb.set_trace()
+	conn 	= connectDb(request)
+	cursor 	= conn.cursor()
+	cursor.execute('select * from %s' % table)
+
+	(dm_dict, me_dict) = ( {}, {} )
+	for col in cursor.description:
+		col_name = col[0]
+		val_list = list( set(col[1:]) )
+
+		if 'int' == type( val_list[0] ):
+			me_dict[col_name] = val_list
 		else:
-			values = list( Smart.objects.values(each).distinct().values_list(each, flat=True) )
-			numFields[each] = values
+			dm_dict[col_name] = val_list
 
-	dbInfo = {
-		'name': 				tableName
-		, 'num_fields':			numFields
-		, 'nan_fields':			nanFields
+	data = {
+		'name':		table
+		, 'dm':		dm_dict
+		, 'me':		me_dict
 	}
 
-	return HttpResponse( json.dumps(dbInfo), content_type="application/json" )
-
+	return MyHttpJsonResponse(data)
+			
 
 
 def tryIntoDb(request):
@@ -42,12 +48,12 @@ def tryIntoDb(request):
 
 	if 'POST' == request.method:
 		if connectDb(request):
-			request.session[u'_ip_'] 		= ip
-			request.session[u'_port_'] 		= port
-			request.session[u'_db_'] 		= db
-			request.session[u'_user_'] 		= user
-			request.session[u'_pwd_'] 		= pwd
-			request.session[u'_table_'] 	= table
+			request.session[u'_ip_'] 		= request.POST.get('ip', 	'')
+			request.session[u'_port_'] 		= request.POST.get('port', 	'')
+			request.session[u'_db_'] 		= request.POST.get('db', 	'')
+			request.session[u'_user_'] 		= request.POST.get('user', 	'')
+			request.session[u'_pwd_'] 		= request.POST.get('pwd', 	'')
+			request.session[u'_table_'] 	= request.POST.get('table', '')
 
 			print 'redirect to indb'
 			return HttpResponseRedirect('/indb/')
@@ -61,12 +67,21 @@ def tryIntoDb(request):
 
 
 def connectDb(request):
-	ip 		= request.POST.get('ip', 	'')
-	port 	= request.POST.get('port', 	'')
-	db 		= request.POST.get('db', 	'')
-	user 	= request.POST.get('user', 	'')
-	pwd 	= request.POST.get('pwd', 	'')
-	table 	= request.POST.get('table', '')
+	# 提交表单时，用表单内容连接数据库
+	if 'POST' == request.method:
+		ip 		= request.POST.get('ip', 	'')
+		port 	= request.POST.get('port', 	'')
+		db 		= request.POST.get('db', 	'')
+		user 	= request.POST.get('user', 	'')
+		pwd 	= request.POST.get('pwd', 	'')
+		table 	= request.POST.get('table', '')
+	else:
+		ip 		= request.session.get('_ip_', 		'')
+		port 	= request.session.get('_port_', 	'')
+		db 		= request.session.get('_db_', 		'')
+		user 	= request.session.get('_user_', 	'')
+		pwd 	= request.session.get('_pwd_', 		'')
+		table 	= request.session.get('_table_', 	'')
 
 	dbInput = (ip, port, db, user, pwd)
 

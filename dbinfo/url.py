@@ -3,6 +3,7 @@ from dbinfo import views
 
 urlpatterns = patterns('',
 	url( r'^$', 			views.tryIntoDb),
+	url( r'^content$', 		views.getDbInfo),
 	url( r'^filter/(\w+)$', views.dealFilter),
 	url( r'^axes/column$', 	views.reqCol),
 	url( r'^axes/row$', 	views.reqRow),

@@ -5,6 +5,8 @@ define([
 	var DB_INFO_BAR_MODEL = null;
 
     var DbinfoBarModel = Backbone.Model.extend({
+		urlRoot: '/indb/content',
+
         simulateData: function() {
             var dbInfo = {
                 name: "Coffee chain (Access)",
@@ -48,13 +50,5 @@ define([
         }
     });
 
-	return {
-		getInstance: function() {
-            if(!DB_INFO_BAR_MODEL) {
-                DB_INFO_BAR_MODEL = new DbinfoBarModel();
-                return DB_INFO_BAR_MODEL
-            }
-            return DB_INFO_BAR_MODEL
-        }
-	}
+	return DbinfoBarModel
 })

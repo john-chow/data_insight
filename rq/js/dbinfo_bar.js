@@ -17,7 +17,7 @@ define([
             this.listenTo(this.model, "change", this.onDbChanged);
 
             // 这里应该是model向服务器请求数据
-            this.model.simulateData();
+            this.model.fetch()
         },
 
         render: function() {
