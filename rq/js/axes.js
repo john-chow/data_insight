@@ -104,7 +104,15 @@ define([
 			var self = this;
 			this.model.set(this.name, tm);
 			this.model.save(null, {
-				"error":  function() {
+				"success": function(m, res, opt) {
+					if(res.succ) {
+						self.trigger("save_finished")
+					} else {
+						alert('11111');
+						self.model.set(self.name, backupModelList)
+					}
+				}
+				, "error":  function() {
 					self.model.set(self.name, backupModelList)
 					// TBD 	视图山按照原来的样式重新摆弄属性列表
 				}

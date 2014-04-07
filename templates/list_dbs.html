@@ -17,7 +17,6 @@
 		{% endfor %}
 	</ul>
 	<form id='conn_db_form' method='post' action='/indb/' enctype="multipart/form-data", style='display: none'>
-		{% csrf_token %}
 		{{ form.as_p }}
 		<input type='submit' value='连接' />
 	</form>

@@ -11,14 +11,19 @@ import psycopg2 as pysql
 import vincent
 import pandas as pd
 from common.tool import *
+from common.head import *
 
 import pdb
 
 
 def getDbInfo(request):
+	print 'getDbInfo'
 	table = request.session.get('_table_')
 
 	conn 			= connectDb(request)
+	if not conn:
+		return HttpResponseRedirect('http://10.1.50.125:9000/')
+
 	cursor 			= conn.cursor()
 	cursor.execute('select * from %s' % table)
 	results 		= cursor.fetchall()
@@ -71,7 +76,7 @@ def tryIntoDb(request):
 
 def connectDb(request):
 	# 提交表单时，用表单内容连接数据库
-	if 'POST' == request.method:
+	if request.POST.get('ip', 	''):
 		ip 		= request.POST.get('ip', 	'')
 		port 	= request.POST.get('port', 	'')
 		db 		= request.POST.get('db', 	'')
@@ -87,6 +92,8 @@ def connectDb(request):
 		table 	= request.session.get('_table_', 	'')
 
 	dbInput = (ip, port, db, user, pwd)
+	print 'conn db by %s, %s, %s, %s, %s' % \
+			(ip, port, db, user, pwd)
 
 	try:
 		conn = pysql.connect( 
@@ -94,7 +101,8 @@ def connectDb(request):
 			dbInput 
 		)
 	except Exception, e:
-		return HttpResponseRedirect('/')
+		print 'cant conn database'
+		return None
 	else:
 		return conn
 
@@ -102,14 +110,15 @@ def connectDb(request):
 
 def selectData(request):
 	# 如果时间过了很久，这里要判断session是否失效了
+	print 'selectData'
 	conn = connectDb(request)
 
 	if not conn:
 		raise Exception('Cant access into database')
 
 	''' 拼凑sql语句中查询x、y列表部分 '''
-	xList 		= request.session.setdefault('_x_', [])
-	yList 		= request.session.setdefault('_y_', [])
+	xList 		= request.session.setdefault('_col_', [])
+	yList 		= request.session.setdefault('_row_', [])
 	filterList 	= request.session.setdefault('_filter_', {})
 
 	table 	= request.session['_table_']
@@ -137,10 +146,12 @@ def selectData(request):
 
 		if bool(selX):
 			sqlX	= sel % (selX, table, filterSen)
+			print 'sqlX = %s' % sqlX
 			cursor.execute(sqlX)
 			resultsX = cursor.fetchall()
 		if bool(selY):
 			sqlY	= sel % (selY, table, filterSen)
+			print 'sqlY = %s' % sqlY
 			cursor.execute(sqlY)
 			resultsY = cursor.fetchall()
 
@@ -160,28 +171,39 @@ def reqCol(request):
 
 def reqRow(request):
 	return dealAxesReq(request, 'row')
+
+
+def reqDrawData(request):
+	data = readJsonFile(TEMP_DRAW_DATA_FILE)
+	return MyHttpJsonResponse(data)
 	
 
 def dealAxesReq(request, axes):
+	print 'dealAxesReq'
 	axes_to_ss_dic = {
 		'column':		'_col_'
 		, 'row':		'_row_'
 	}
-	axes_ss 	= axes_to_ss_dic.get('axes')
-	old_ss 		= request.session.setdefault(axes, u'[]')
-	
+	axes_ss 	= axes_to_ss_dic.get(axes)
+	old_ss 		= request.session.setdefault(axes_ss, u'[]')
+
 	if 'POST' == request.method:
 		tmp_list = json.loads( request.POST.get(axes) )
 		request.session[axes_ss] = list( set(tmp_list) )
 
-		try:
-			data = generateBackData(request)
-		except Exception, e:
-			rollBackSession(request, axes_ss, old_ss)
-			error_dict = {'succ': False, 'msg': e.msg}
-			return MyHttpJsonResponse(error_dict)
+		if IS_RELEASE:
+			try:
+				data = generateBackData(request)
+			except Exception, e:
+				rollBackSession(request, axes_ss, old_ss)
+				error_dict = {'succ': False, 'msg': u'数据查询时出错'}
+				return MyHttpJsonResponse(error_dict)
+			else:
+				backData = {'succ': True}
+				return MyHttpJsonResponse(backData)
 		else:
-			backData = {'succ': True, 'data': data}
+			data = generateBackData(request)
+			backData = {'succ': True}
 			return MyHttpJsonResponse(backData)
 
 	else:
@@ -197,7 +219,7 @@ def test():
 
 	
 
-def dealFilter(request, id):
+def dealFilter(request):
 	request.session.setdefault('_filter_', {})
 
 	if 'POST' == request.method:
@@ -224,7 +246,7 @@ def dealFilter(request, id):
 		print 'request.method is %s' % request.method
 
 	data = generateBackData(request)
-	backData = {'succ': True, 'data': data}
+	backData = {'succ': True}
 
 	return MyHttpJsonResponse(backData)
 
@@ -236,35 +258,45 @@ def addCalcFilter(request):
 
 def generateBackData(request):
 	(xList, yList) = selectData(request)
-	perpareBackData(xList, yList)
+	file = perpareBackData(xList, yList)
 
-	data = readJsonFile('')
+	data = readJsonFile(file)
 	return data
 
 	
 		
 def perpareBackData(xList, yList):
-	if bool(xList):
+	bool_x		= bool(xList)
+	bool_y		= bool(yList)
+
+
+	if bool_x and (not bool_y):
 		dataList = [ xt[0] for xt in xList ]
 		bar = vincent.Bar(dataList)
-		bar.to_json('111.json')
-		return
 
-	elif bool(yList):
-		list = vincent.Bar(xList[0])
-		bar = vincent.Bar(list)
-		bar.to_json('111.json')
-		return
+	elif bool_y and (not bool_x):
+		dataList = [ yt[0] for yt in yList ]
+		pdb.set_trace()
+		bar = vincent.Bar(dataList)
 
-	else:
+	elif bool_x and bool_y:
+		print 'To Be Done'
 		dict_of_iters = { 'x': xList[0], 'data': yList[0] }
 		bar = vincent.Bar(dict_of_iters, iter_idx='x')
-		bar.to_json('111.json')
-		return 
-				
+		
+	else:
+		return ''
+	
 
+	bar.to_json(TEMP_DRAW_DATA_FILE)
+	return TEMP_DRAW_DATA_FILE
+
+	
+				
 def readJsonFile(file):
-	file = '111.json'
+	if not file:
+		return {}
+
 	f = open(file, 'r')
 	jsonData = json.load(f, 'utf-8')
 	return jsonData

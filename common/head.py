@@ -6,5 +6,9 @@ TEMPLATE_PATH       	= os.path.join(PROJECT_ROOT_PATH, "templates")
 STATIC_PATH         	= os.path.join(PROJECT_ROOT_PATH, "static")
 REQUIREJS_MODULE_PATH	= os.path.join(PROJECT_ROOT_PATH, 'rq')
 
+TEMP_DRAW_DATA_FILE		= os.path.join(PROJECT_ROOT_PATH, 'temp/111.json')
+
+IS_RELEASE				= False
+
 	
 SUPPORTED_DBS = ['postgres', 'mysql']

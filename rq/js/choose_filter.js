@@ -56,7 +56,8 @@ define([
 				userFilterData["cmd"] 		= "add";
 			}
 
-			this.trigger("ensure_filter", userFilterData)
+			this.trigger("ensure_filter", userFilterData);
+			this.close()
         },
 
         chooseAll: function(){
