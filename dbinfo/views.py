@@ -30,8 +30,9 @@ def getDbInfo(request):
 			[ q[i] for q in results ] 	\
 		) )
 
-		if 'int' == type( val_list[0] ):
-			me_dict[name] = json.dumps(val_list, default=date_handler)
+		tmp = val_list[0]
+		if isinstance(tmp, int) or isinstance(tmp, float):
+			me_dict[name] = None
 		else:
 			dm_dict[name] = json.dumps(val_list, default=date_handler)
 

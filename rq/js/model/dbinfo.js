@@ -38,6 +38,7 @@ define([
         },
 
 		// 由于每个attribute对应的value有可能是array，所以要提前做好反序列化
+		// 下面实现内容是copy出backbone的源代码，只是修改了options.success
 		fetch: function(options) {
 			options = options ? _.clone(options) : {};
 			if (options.parse === void 0) options.parse = true;
