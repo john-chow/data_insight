@@ -18,19 +18,22 @@ import pdb
 def getDbInfo(request):
 	table = request.session.get('_table_')
 
-	conn 	= connectDb(request)
-	cursor 	= conn.cursor()
+	conn 			= connectDb(request)
+	cursor 			= conn.cursor()
 	cursor.execute('select * from %s' % table)
+	results 		= cursor.fetchall()
+	col_names 		= [ q[0] for q in cursor.description ]
 
 	(dm_dict, me_dict) = ( {}, {} )
-	for col in cursor.description:
-		col_name = col[0]
-		val_list = list( set(col[1:]) )
+	for i, name in enumerate(col_names):
+		val_list = list( set( 		\
+			[ q[i] for q in results ] 	\
+		) )
 
 		if 'int' == type( val_list[0] ):
-			me_dict[col_name] = val_list
+			me_dict[name] = json.dumps(val_list, default=date_handler)
 		else:
-			dm_dict[col_name] = val_list
+			dm_dict[name] = json.dumps(val_list, default=date_handler)
 
 	data = {
 		'name':		table

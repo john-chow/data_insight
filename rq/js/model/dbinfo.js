@@ -37,6 +37,31 @@ define([
             this.set(dbInfo);
         },
 
+		// 由于每个attribute对应的value有可能是array，所以要提前做好反序列化
+		fetch: function(options) {
+			options = options ? _.clone(options) : {};
+			if (options.parse === void 0) options.parse = true;
+			var model = this;
+			var success = options.success;
+			backbone_succ = function(resp) {
+				if (!model.set(model.parse(resp, options), options)) return false;
+				if (success) success(model, resp, options);
+				model.trigger('sync', model, resp, options);
+			};
+
+			options.success = function(resp) {
+				// 反序列化
+				$.each( resp['dm'], function(k, v) {
+					resp['dm'][k] = JSON.parse(v)
+				})
+				
+				backbone_succ(resp)
+			};
+
+			//wrapError(this, options);
+			return this.sync('read', this, options);
+		},
+
         getContentsBykey: function(key) {
             var dmFounded = this.get("dm")[key];
             if(dmFounded) {

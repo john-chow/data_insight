@@ -7,6 +7,10 @@ define([
 			"update":		"create"
 		},
 		
+		/* 
+			1、通过修改option值，避免backbone的model自动为元素序列化操作
+			2、对于array属性的元素，自动进行序列化
+		*/
 		save: function (attributes, options) {
 			options       = options || {};
 			attributes    = attributes || {};
