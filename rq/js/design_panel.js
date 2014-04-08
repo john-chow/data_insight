@@ -1,12 +1,10 @@
 define([
-"jquery"
-, "backbone"
-, "underscore"
+"backbone"
 , "draw_workplace"
 , "choose_filter"
 , "bootstrap"
 , "filter_box"
-], function($, Backbone, _, DrawPlaceView, ChooseFilterView, b, 
+], function(Backbone, DrawPlaceView, ChooseFilterView, b, 
             filterBoxView) {
 
     var FilterModel = Backbone.Model.extend({
@@ -37,7 +35,11 @@ define([
                 { model: new ( Backbone.Model.extend({}) ) }
             );
             this.chooseFilterView.on("choose_filter", this.addFilter);
-
+			this.chooseFilterView.on( "ensure_filter", 
+										_.bind(this.ensureFilter, this) );
+			this.filterBoxView.collection.on("add", 
+										_.bind(this.filterBoxView.afterModelAdded, this.filterBoxView), 
+										this);
 
             this.render();
             //this.$("#column_sortable, #row_sortable").on("drop", this.dropInPlots);
@@ -64,9 +66,15 @@ define([
 
         chooseFilter: function(ev) {
             //var data = ev.originalEvent.dataTransfer.getData("text/plain");
-            var data=sessionStorage.dragContent;
-            this.chooseFilterView.model.set( {"fil": this.dbModel.getContentsBykey(data)} ); 
-            this.chooseFilterView.model.set( {"title":data} );
+			var data = JSON.parse(sessionStorage.dragment);
+			var title = data['content'];
+			var proId = data['pro_id'];
+
+            this.chooseFilterView.model.set( {
+				"title":		title
+				, "fil": 		this.dbModel.getContentsBykey(title)
+				, "pro_id": 	proId
+			} ); 
             this.chooseFilterView.render();
         },
 
@@ -78,7 +86,11 @@ define([
             );
 
             this.filterModel.save();
-        }
+        },
+
+		ensureFilter: function(data) {
+			this.filterBoxView.collection.add(data)
+		}
     });
 
     return DesignPanelView;

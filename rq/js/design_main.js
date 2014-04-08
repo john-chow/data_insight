@@ -1,9 +1,11 @@
 define([
-"jquery"
-, "backbone"
+"backbone"
 , "design_menus"
 , "work_area"
-], function($, Backbone, MenusView, WorkareaView) {
+], function(Backbone, MenusView, WorkareaView) {
+
+	// 使model save时，数据是object型
+	Backbone.emulateJSON = true;
     
     var MainView = Backbone.View.extend({
         el: "#content",

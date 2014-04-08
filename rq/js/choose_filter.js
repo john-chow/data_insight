@@ -1,13 +1,10 @@
 define([
-"jquery"
-, "backbone"
-, "underscore"
+"backbone"
 , "bootstrap"
 , "text!../template/choose_filter.html" 
-], function($, Backbone, _, b, cfTemplate) {
+], function(Backbone, b, cfTemplate) {
 
     var ChooseFilter = Backbone.View.extend({
-
 
         template: cfTemplate,
 
@@ -20,6 +17,8 @@ define([
         },
 
         initialize: function() {
+			// model 在初始化时由外部传入
+
             //this.listenTo(this.model, "change", this.render);
            /* this.$el.modal({
                 show: false
@@ -40,8 +39,25 @@ define([
         },
 
         ensureFilter: function() {
-          //  this.trigger( "choose_filter", {} );
+			// 抓取用户选中的内容
+			var userFilterData = {};
+			userFilterData["property"] = this.model.get("title");
 
+			var valList = []
+			// 属性过滤
+			if( this.model.get("fil") ) {
+				$.each( this.$("#filter_convention [type='checkbox']:checked")
+						, function(i, ck) {
+					valList.push(ck.value)
+				});
+
+				userFilterData["val_list"] 	= JSON.stringify(valList);	
+				userFilterData["id"] 		= this.model.get("pro_id");
+				userFilterData["cmd"] 		= "add";
+			}
+
+			this.trigger("ensure_filter", userFilterData);
+			this.close()
         },
 
         chooseAll: function(){

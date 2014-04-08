@@ -38,7 +38,26 @@ define([
 			}
 			, success: function(json) {
 				showPic(json);
-				alert('xxxx');
+				sendFilter()
+			}
+			, error: function() {
+				//alert("yyyyy")
+			}
+		})
+	}
+
+	function yyy() {
+		$.ajax({
+			type:	'post'
+			, url:	'http://10.1.50.125:9000/indb/select/'
+			, dataType: 'json'
+			, data:	{
+				'x':	JSON.stringify(['sale'])
+			}
+			, success: function(json) {
+				showPic(json);
+				alert('yyy');
+				xxx()
 				//sendFilter()
 			}
 			, error: function() {
@@ -50,7 +69,7 @@ define([
 	function sendFilter() {
 		$.ajax({
 			type:	'post'
-			, url:	'http://10.1.50.125:9000/indb/filter/property/'
+			, url:	'http://10.1.50.125:9000/indb/filter/add/'
 			, dataType: 'json'
 			, data:	{
 				'f':	JSON.stringify([
@@ -72,7 +91,7 @@ define([
 	function showPic(json) {
 		if(json.succ) {
 			vg.parse.spec(json.data, function(chart) {
-				d3.select("#vis").selectAll("*").remove();
+				d3.select("#draw_panel").selectAll("*").remove();
 				var view = chart({
 					el: "#draw_panel"
 					, data: undefined

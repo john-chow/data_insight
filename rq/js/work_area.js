@@ -1,11 +1,10 @@
 define([
-"jquery"
-, "backbone"
+"backbone"
 , "dbinfo_bar"
 , "design_panel"
 , "bootstrap"
 , "model/dbinfo"
-], function($, Backbone, DbBarView, PanelView, b, DbInfoModel) {
+], function(Backbone, DbBarView, PanelView, b, DbInfoModel) {
     var WorkAreaView = Backbone.View.extend({
 
         tagName: "div",
@@ -13,7 +12,7 @@ define([
         className: "clearfix",
 
         initialize: function() {
-            var dbModel     = new DbInfoModel();
+            var dbModel     = new DbInfoModel;
             this.dbBarView  = new DbBarView( {model: dbModel} );
             this.panelView  = new PanelView( {dbModel: dbModel} );
             this.render();

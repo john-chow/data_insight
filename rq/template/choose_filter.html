@@ -31,7 +31,7 @@
 
               <div class="tab-pane fade in active" id="filter_convention">
               <div class="filter-con-list">
-                <% _.each(model.fil, function(f) { %> <label><input type="checkbox"><%= f %></label> <% }); %>
+				  <% _.each(model.fil, function(f) { %> <label><input type="checkbox" value="<%= f %>"><%= f %></label> <% }); %>
               </div>
               <div class="filter-con-bton">
                 <button type="button" class="btn btn-primary" id="choose_filter_all">全部</button>
