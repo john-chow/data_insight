@@ -184,6 +184,7 @@
     background: transparent;
     font-size: 10px;
     margin: 8px 5px 0px 0;
+    padding: 6px 13px;
 }
 
 #info_workplace {
@@ -425,3 +426,128 @@ right: 2px;
 #draw_panel{
     background-color: white;
 }
+
+
+.intelligent-display {
+    float: right !important;
+    position:relative;
+}
+
+.intelligent-display>a {
+    margin-top: 8px;
+    padding: 0 65px !important;
+    margin-right: 25px;
+    cursor: pointer;
+    background-color: #F4F6FF;
+    border: 1px solid #AAA7AF;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    cursor: move;
+    z-index: 99;
+}
+
+.intelligent-display-name:hover {
+    background-color: #F4F6FF !important;
+}
+
+.intelligent-display-pic {
+    position:absolute;
+    width: 186px;
+    height: 300px;
+    background-color: #FFFFFF;
+    box-shadow: 0px 1px 2px #888888;
+    top: 100%;
+    z-index: 99;
+    left: 1px;
+    display: none;
+}
+
+.intelligent-display>div>button {
+    background: transparent;
+    font-size: 10px;
+    margin: 10px 0px 0px 6px;
+}
+
+.intelligent-display>div>div {
+    padding:15px;
+}
+
+
+#design_menu .navbar-nav {
+    width:100%;
+}
+
+#filter_tag .dropdown {
+    display: inline-block;
+    height: 36px;
+}
+
+.minicolors {
+margin-right: 4px;
+}
+
+.ui-slider {
+border-bottom-right-radius: 4px;
+border-bottom-left-radius: 4px;
+border-top-right-radius: 4px;
+border-top-left-radius: 4px;
+border: 1px solid #aaaaaa;
+color: #222222;
+background: #ffffff repeat-x;
+position: relative;
+text-align: left;
+}
+
+.ui-slider-range {
+border-bottom-right-radius: 4px;
+border-bottom-left-radius: 4px;
+border-top-right-radius: 4px;
+border-top-left-radius: 4px;
+top: 0;
+height: 100%;
+left: 0;
+border: 1px solid #aaaaaa;
+background: #cccccc repeat-x;
+color: #222222;
+font-weight: bold;
+}
+
+.ui-slider-handle {
+border: 1px solid #d3d3d3;
+background: #e6e6e6 url(images/ui-bg_glass_75_e6e6e6_1x400.png) 50% 50% repeat-x;
+font-weight: normal;
+color: #555555;
+border-bottom-right-radius: 4px;
+border-bottom-left-radius: 4px;
+border-top-right-radius: 4px;
+border-top-left-radius: 4px;
+}
+
+#draw_panel {
+    overflow: auto;
+}
+
+.gridster ul{
+    list-style: none;
+}
+
+.gridster li {
+    background-color: #004756;
+    cursor: pointer;
+    color:#fff;
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center;
+    line-height: 100%;
+}
+
+.gridster {
+    margin: 0 auto;
+    opacity: .8;
+    -webkit-transition: opacity .6s;
+    -moz-transition: opacity .6s;
+    -o-transition: opacity .6s;
+    -ms-transition: opacity .6s;
+    transition: opacity .6s;
+}
+

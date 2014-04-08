@@ -10,6 +10,38 @@ requirejs([
 
 	t.start();
 
+   // 颜色板
+     $('.colorBoard').each( function() {
+        $(this).minicolors({
+          control: $(this).attr('data-control') || 'hue',
+          defaultValue: $(this).attr('data-defaultValue') || '',
+          inline: $(this).attr('data-inline') === 'true',
+          letterCase: $(this).attr('data-letterCase') || 'lowercase',
+          opacity: $(this).attr('data-opacity'),
+          position: $(this).attr('data-position') || 'bottom left',
+          change: function(hex, opacity) {
+            if( !hex ) return;
+            if( opacity ) hex += ', ' + opacity;
+            try {
+            } catch(e) {}
+          },
+          theme: 'bootstrap'
+        });
+                
+    });
+
+     //流动布局
+     gridster = $(".gridster ul").gridster({
+      //widget_selector: "li",                        //确定哪个元素是widget
+      widget_margins: [5, 5],                       //margin大小
+      widget_base_dimensions: [140, 140],           //面积大小
+      helper:'clone',
+      autogrow_cols: true,
+      resize:{
+        enabled: true
+      },
+    }).data('gridster');
+
     //设置可自动排序
     $( "#column_sortable,#row_sortable" ).sortable({
         connectWith: ".connectedSortable",
