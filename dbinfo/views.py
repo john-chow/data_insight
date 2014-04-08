@@ -276,7 +276,7 @@ def perpareBackData(xList, yList):
 
 	elif bool_y and (not bool_x):
 		dataList = [ yt[0] for yt in yList ]
-		pdb.set_trace()
+		#pdb.set_trace()
 		bar = vincent.Bar(dataList)
 
 	elif bool_x and bool_y:

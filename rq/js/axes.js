@@ -1,7 +1,8 @@
 define([
 "backbone"
 , "model/vtron_model"
-], function(Backbone, VtronModel) {
+, "common/tools"
+], function(Backbone, VtronModel, _t) {
 
 	/*
 		数据格式:  只有一对key-value
@@ -23,9 +24,19 @@ define([
 			"<ul id='<%= name %>_sortable' ondragover='return false' class='connectedSortable clearfix'></ul>"
 		),
 
+		events: {
+			"mouseenter .connectedSortable":	"showClose"
+			, "mouseleave .connectedSortable":	"hideClose"
+			, "click .plots_close":				"deleteLi"
+			, "mouseout .plots_close":			"hideCloseByOut" 
+		},
+		
 		initialize: function(opt) {
-			this.name 		= opt.name;
-			this.model = new AxesModel( {id: this.name} );
+			this.name 			= opt.name;
+			this.sortObjId		= "#" + this.name + "_sortable";
+
+			this.model 		= new AxesModel( {id: this.name} );
+			this.listenTo(this.model, 'change', this.updateToSev);
 			this.render();
 		},
 
@@ -40,12 +51,27 @@ define([
 			this.setDragProperty();
 		},
 
+        showClose: function(ev) {
+            $(ev.target).append("<button type='button' class='plots_close'>&times;</button>");
+        },
+
+        hideClose: function(ev) {
+            $(ev.target).find("button").remove();
+        },
+
+        hideCloseByOut: function(ev) {
+            $(ev.target).remove();
+        },
+
+        deleteLi: function(ev) {
+            $(ev.target).parent().remove();
+        },
+
 		setDragProperty: function() {
 			//设置可自动排序
 			var self = this;
 
-			this.sortObj = this.$("#" + this.name + "_sortable");
-			this.sortObj.sortable({
+			this.$(this.sortObjId).sortable({
 				connectWith: ".connectedSortable",
 				//revert: true,
 				zIndex: "3000",
@@ -64,6 +90,7 @@ define([
 				},
 				stop: function(event,ui) { //这个事件在排序停止时触发.
 					self.$(".dragging-custom").removeClass("dragging-change-border");
+					console.log('sort stop');
 					self.afterSort(event, ui)
 				},
 				update: function(event,ui) { //这个事件在用户停止排序并且DOM节点位置发生改变时出发.
@@ -83,26 +110,8 @@ define([
 			}).disableSelection()
 		},
 
-		afterSort: function(ev, ui) {
-			// 要判断是增加属性、还是只是排序
-			var draged 			= ui.item.html();
-			var modelContents 	= this.model.get(this.name) || []; 			
-			var backupModelList = modelContents;
-
-			if( $.inArray(draged, modelContents) < 0 ) {
-				modelContents.push(draged);
-				this.model.set(this.name, modelContents)
-			}
-
-			// 这里从html页面上找寻属性顺序，原则上不合理，有待修改
-			var list = this.sortObj.children();
-			var tm = [];
-			$.each(list, function(i, x) {
-				tm.push( $(x).html() )
-			})
-
+		updateToSev: function() {
 			var self = this;
-			this.model.set(this.name, tm);
 			this.model.save(null, {
 				"success": function(m, res, opt) {
 					if(res.succ) {
@@ -117,6 +126,29 @@ define([
 					// TBD 	视图山按照原来的样式重新摆弄属性列表
 				}
 			})
+		},
+
+		afterSort: function(ev, ui) {
+			/*
+			// 要判断是增加属性、还是只是排序
+			var draged 			= ui.item.html();
+			var modelContents 	= this.model.get(this.name) || []; 			
+			var backupModelList = modelContents;
+
+			if( $.inArray(draged, modelContents) < 0 ) {
+				modelContents.push(draged);
+				this.model.set(this.name, modelContents)
+			}
+			*/
+
+			// 这里从html页面上找寻属性顺序，原则上不合理，有待修改
+			var list = this.$(this.sortObjId).children();
+			var tm = [];
+			$.each(list, function(i, x) {
+				tm.push( $(x).html() )
+			})
+
+			this.model.set(this.name, tm);
 		}
 	});
 
