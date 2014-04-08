@@ -32,11 +32,6 @@ requirejs([
 	//t.start();
 
 
-	// 为所有属性增加id
-	$.each( $("#mensions_list .mension, .measure"), function(i, obj) {
-		$(obj).attr("id", "db_property_" + i)
-	})
-
 	/*
 
     //设置可自动排序
