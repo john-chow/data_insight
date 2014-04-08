@@ -9,13 +9,13 @@
 <div id="dimensions" class="panel panel-default">
     <div class="panel-heading">维度</div>
     <ul id="mensions_list" class="panel-body">
-		<% _.each(model.dm, function(v, k) { %> <li class="mension ui-state-highlight" ><%= k %></li> <% }); %>
+		<% _.each(model.dm, function(v, k) { %> <li class="mension ui-state-highlight" ><span class='attr'><%= k %></span></li> <% }); %>
     </ul>
 </div>
 
 <div id="measures" class="panel panel-default">
     <div class="panel-heading">度量</div>
     <ul id="measures_list"  class="panel-body">
-        <% _.each(model.me, function(v, k) { %> <li class="measure" draggable="true"><%= k %></li> <% }); %>
+        <% _.each(model.me, function(v, k) { %> <li class="measure" draggable="true"><span class='attr'><%= k %></span></li> <% }); %>
     </ul>
 </div>

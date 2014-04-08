@@ -25,10 +25,10 @@ define([
 		),
 
 		events: {
-			"mouseenter .connectedSortable":	"showClose"
-			, "mouseleave .connectedSortable":	"hideClose"
-			, "click .plots_close":				"deleteLi"
-			, "mouseout .plots_close":			"hideCloseByOut" 
+			"mouseenter 	.connectedSortable":	"showClose"
+			, "mouseleave 	.connectedSortable":	"hideClose"
+			, "click 		.plots_close":			"rmAttr"
+			, "mouseout 	.plots_close":			"hideCloseByOut" 
 		},
 		
 		initialize: function(opt) {
@@ -36,7 +36,7 @@ define([
 			this.sortObjId		= "#" + this.name + "_sortable";
 
 			this.model 		= new AxesModel( {id: this.name} );
-			this.listenTo(this.model, 'change', this.updateToSev);
+			this.listenTo(this.model, 'change:'+this.name, this.updateToSev);
 			this.render();
 		},
 
@@ -63,8 +63,13 @@ define([
             $(ev.target).remove();
         },
 
-        deleteLi: function(ev) {
+        rmAttr: function(ev) {
+			var attr = $(ev.target).siblings('.attr').html();
             $(ev.target).parent().remove();
+
+			var attrList = this.model.get(this.name);
+			var newAttrList = Delete_from_array(attrList, attr);
+			this.model.set(this.name, newAttrList);
         },
 
 		setDragProperty: function() {
@@ -110,24 +115,6 @@ define([
 			}).disableSelection()
 		},
 
-		updateToSev: function() {
-			var self = this;
-			this.model.save(null, {
-				"success": function(m, res, opt) {
-					if(res.succ) {
-						self.trigger("save_finished")
-					} else {
-						alert('11111');
-						self.model.set(self.name, backupModelList)
-					}
-				}
-				, "error":  function() {
-					self.model.set(self.name, backupModelList)
-					// TBD 	视图山按照原来的样式重新摆弄属性列表
-				}
-			})
-		},
-
 		afterSort: function(ev, ui) {
 			/*
 			// 要判断是增加属性、还是只是排序
@@ -142,14 +129,34 @@ define([
 			*/
 
 			// 这里从html页面上找寻属性顺序，原则上不合理，有待修改
-			var list = this.$(this.sortObjId).children();
+			var list = this.$(this.sortObjId).find('.attr');
 			var tm = [];
 			$.each(list, function(i, x) {
 				tm.push( $(x).html() )
 			})
 
 			this.model.set(this.name, tm);
+		},
+
+		updateToSev: function() {
+			console.log('update to server');
+			var self = this;
+			this.model.save(null, {
+				"success": function(m, res, opt) {
+					if(res.succ) {
+						self.trigger("save_finished")
+					} else {
+						alert('11111');
+						self.model.set(self.name, backupModelList)
+					}
+				}
+				, "error":  function() {
+					//self.model.set(self.name, backupModelList)
+					// TBD 	视图山按照原来的样式重新摆弄属性列表
+				}
+			})
 		}
+
 	});
 
 	return AxesView

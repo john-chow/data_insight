@@ -11,8 +11,8 @@ define([
         id:         "draw_workplace",
 
         events: {
-            "dblclick"                                           : "open",
-            "click .icon.doc"                                    : "select",
+            "dblclick"                               : "open",
+            "click .icon.doc"                        : "select",
           },
 
         initialize: function() {
