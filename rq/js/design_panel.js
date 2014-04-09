@@ -40,6 +40,9 @@ define([
 			this.filterBoxView.collection.on("add", 
 										_.bind(this.filterBoxView.afterModelAdded, this.filterBoxView), 
 										this);
+			this.filterBoxView.on("save_finished", _.bind( function() {
+										this.trigger("save_finished")
+									}, this.drawPlaceView) );
 
             this.render();
             //this.$("#column_sortable, #row_sortable").on("drop", this.dropInPlots);

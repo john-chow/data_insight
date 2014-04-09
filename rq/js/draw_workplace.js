@@ -13,13 +13,14 @@ define([
         events: {
             "dblclick"                               : "open",
             "click .icon.doc"                        : "select",
-          },
+        },
 
         initialize: function() {
 			this.xAxesView 		= new AxesView( {'name': 'column'} );
 			this.yAxesView 		= new AxesView( {'name': 'row'} );
 			this.drawPanelView	= new DrawPanelView();
 
+			this.on( "save_finished", _.bind(this.drawPanelView.updateData, this.drawPanelView) );
 			this.xAxesView.on( "save_finished", _.bind(this.drawPanelView.updateData, this.drawPanelView) );
 			this.yAxesView.on( "save_finished", _.bind(this.drawPanelView.updateData, this.drawPanelView) );
 

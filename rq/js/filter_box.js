@@ -32,7 +32,8 @@ define([
 			var self = this;
 			model.save(null, {
 				success: function(m, res, opt) {
-					self.$("#filter_body").append('<label>xxx</label>')
+					self.$("#filter_body").append('<label>xxx</label>');
+					self.trigger("save_finished")
 				},
 				error: function(m, res, opt) {
 					self.collection.remove(m, {'silent': true})

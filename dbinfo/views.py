@@ -121,7 +121,7 @@ def selectData(request):
 	xList 		= request.session.setdefault('_col_', [])
 	yList 		= request.session.setdefault('_row_', [])
 	filterList 	= request.session.setdefault('_filter_', {})
-	pdb.set_trace()
+	#pdb.set_trace()
 
 	table 	= request.session['_table_']
 	sel		= 'select %s from %s %s' 
