@@ -6,6 +6,7 @@ from django.utils import simplejson as json
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
+from psycopg2.extensions import adapt
 
 import psycopg2 as pysql
 import vincent
@@ -120,6 +121,7 @@ def selectData(request):
 	xList 		= request.session.setdefault('_col_', [])
 	yList 		= request.session.setdefault('_row_', [])
 	filterList 	= request.session.setdefault('_filter_', {})
+	pdb.set_trace()
 
 	table 	= request.session['_table_']
 	sel		= 'select %s from %s %s' 
@@ -226,15 +228,16 @@ def dealFilter(request):
 		post_data 		= request.POST
 		ajax_cmd 		= post_data['cmd']
 		if 'add' == ajax_cmd:
-			id 				= post_data['id']
+			id 				= post_data['pro_id']
 			proty			= post_data['property']
 			val_list 		= json.loads( post_data['val_list'] )
 			
-			lll 	= [ (proty + '=' + str(x)) for x in val_list ]
+			lll 	= [( adapt(proty).getquoted() + '=' + adapt(str(x)).getquoted() ) for x in val_list]
 			sen 	= ' or '.join(lll)
+			print 'filter sen is: %s' % sen
 			request.session['_filter_'][id] = sen
 		elif 'rm' == ajax_cmd:
-			id				= post_data['id']			
+			id				= post_data['pro_id']			
 			if request.session['_filter_'].has_key(id):
 				del request.session['_filter_'][id]
 				
@@ -276,7 +279,6 @@ def perpareBackData(xList, yList):
 
 	elif bool_y and (not bool_x):
 		dataList = [ yt[0] for yt in yList ]
-		#pdb.set_trace()
 		bar = vincent.Bar(dataList)
 
 	elif bool_x and bool_y:

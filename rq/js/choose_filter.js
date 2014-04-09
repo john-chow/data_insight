@@ -52,7 +52,7 @@ define([
 				});
 
 				userFilterData["val_list"] 	= JSON.stringify(valList);	
-				userFilterData["id"] 		= this.model.get("pro_id");
+				userFilterData["pro_id"] 	= this.model.get("pro_id");
 				userFilterData["cmd"] 		= "add";
 			}
 

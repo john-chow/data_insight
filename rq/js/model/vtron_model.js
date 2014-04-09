@@ -5,6 +5,7 @@ define([
 		
 		method_map: {
 			"update":		"create"
+			, "create":		"create"
 		},
 		
 		/* 
