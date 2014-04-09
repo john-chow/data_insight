@@ -20,10 +20,6 @@ define([
 			this.yAxesView 		= new AxesView( {'name': 'row'} );
 			this.drawPanelView	= new DrawPanelView();
 
-			this.on( "save_finished", _.bind(this.drawPanelView.updateData, this.drawPanelView) );
-			this.xAxesView.on( "save_finished", _.bind(this.drawPanelView.updateData, this.drawPanelView) );
-			this.yAxesView.on( "save_finished", _.bind(this.drawPanelView.updateData, this.drawPanelView) );
-
             this.render();
         },
 

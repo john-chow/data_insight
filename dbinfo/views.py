@@ -201,11 +201,11 @@ def dealAxesReq(request, axes):
 				error_dict = {'succ': False, 'msg': u'数据查询时出错'}
 				return MyHttpJsonResponse(error_dict)
 			else:
-				backData = {'succ': True}
+				backData = {'succ': True, 'data': data}
 				return MyHttpJsonResponse(backData)
 		else:
 			data = generateBackData(request)
-			backData = {'succ': True}
+			backData = {'succ': True, 'data': data}
 			return MyHttpJsonResponse(backData)
 
 	else:
@@ -249,7 +249,7 @@ def dealFilter(request):
 		print 'request.method is %s' % request.method
 
 	data = generateBackData(request)
-	backData = {'succ': True}
+	backData = {'succ': True, 'data': data}
 
 	return MyHttpJsonResponse(backData)
 
@@ -289,6 +289,7 @@ def perpareBackData(xList, yList):
 	else:
 		return ''
 	
+	print 'xList, yList length is %s, %s' % ( len(xList), len(yList) )
 
 	bar.to_json(TEMP_DRAW_DATA_FILE)
 	return TEMP_DRAW_DATA_FILE

@@ -144,7 +144,7 @@ define([
 			this.model.save(null, {
 				"success": function(m, res, opt) {
 					if(res.succ) {
-						self.trigger("save_finished")
+						Backbone.Events.trigger("draw:ready", res.data)
 					} else {
 						alert('11111');
 						self.model.set(self.name, backupModelList)
