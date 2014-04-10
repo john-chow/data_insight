@@ -200,9 +200,19 @@
     position: absolute;
     bottom: 0;
     width: 100%;
+    border-top: 1px solid #ddd;
     background-color: white;
     line-height: 28px;
     padding: 0 10px;
+}
+
+#info_workplace span {
+border: 1px solid #ddd;
+padding: 2px;
+border-top-left-radius: 8px;
+border-top-right-radius: 8px;
+background-color: #FCFFFA;
+cursor: pointer;
 }
 
 #design_panel {
@@ -549,5 +559,56 @@ border-top-left-radius: 4px;
     -o-transition: opacity .6s;
     -ms-transition: opacity .6s;
     transition: opacity .6s;
+}
+
+body {
+    font-family: "Microsoft Yahei", "LiHei Pro", "SimSun", Helvetica, Arial, sans-serif !important;
+}
+
+#show_area {
+    display: none;
+}
+
+#show_area_bar {
+    float: left;
+    width: 161px;
+    overflow: auto;
+    border-right:1px solid #888888;
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+}
+
+#show_area_panel {
+    margin-left: 161px;
+    position: relative;
+}
+
+#choosed_chart ul {
+    list-style-type: none;
+    padding:10px 0;
+    margin:0;
+}
+
+#choosed_chart li:hover {
+    background-color: #E5F1FB;
+    border-radius: 5px;
+    border: 1px solid #CCC5EC;
+}
+
+#choosed_chart li {
+    padding:3px 0;
+    border: 1px solid white;
+    padding: 3px 0 3px 14px;
+    cursor: pointer;
+}
+
+#choosed_chart {
+    margin: 0;
+    border: none;
+    box-shadow: none;
+}
+
+#show_area_chart {
+    overflow: auto;
 }
 

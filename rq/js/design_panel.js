@@ -4,8 +4,9 @@ define([
 , "choose_filter"
 , "bootstrap"
 , "filter_box"
+, "info_workplace"
 ], function(Backbone, DrawPlaceView, ChooseFilterView, b, 
-            filterBoxView) {
+            filterBoxView, infoWorkplaceView) {
 
     var FilterModel = Backbone.Model.extend({
     });
@@ -29,6 +30,7 @@ define([
             this.filterModel = new FilterModel();
 
             this.filterBoxView = new filterBoxView();
+            this.infoWorkplaceView = new infoWorkplaceView();
 
             this.drawPlaceView = new DrawPlaceView();
             this.chooseFilterView = new ChooseFilterView( 
@@ -52,7 +54,7 @@ define([
             this.$el.append(
                 this.filterBoxView.el
                 , this.drawPlaceView.el
-                , "<div id='info_workplace'>工作表1</div>"
+                , this.infoWorkplaceView.el
             );
         },
 

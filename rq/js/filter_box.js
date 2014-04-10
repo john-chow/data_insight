@@ -2,8 +2,10 @@ define([
 "backbone"
 , "bootstrap"
 , "model/filter_boxes"
+, "color"
+, "jquery"
 , "text!../template/filter_box.html"
-], function(Backbone, b, FiltersCollection, filterBoxHtml) {
+], function(Backbone, b, FiltersCollection, color, jquery, filterBoxHtml) {
 
     var FilterBoxView = Backbone.View.extend({
 
@@ -18,7 +20,33 @@ define([
 
         render: function() {
             this.$el.html(filterBoxHtml);
-			this.setDragProperty()
+			this.setDragProperty();
+			 // 颜色板
+			this.$('.colorBoard').each( function() {
+		        $(this).minicolors({
+		          control: $(this).attr('data-control') || 'hue',
+		          defaultValue: $(this).attr('data-defaultValue') || '',
+		          inline: $(this).attr('data-inline') === 'true',
+		          letterCase: $(this).attr('data-letterCase') || 'lowercase',
+		          opacity: $(this).attr('data-opacity'),
+		          position: $(this).attr('data-position') || 'bottom left',
+		          change: function(hex, opacity) {
+		            if( !hex ) return;
+		            if( opacity ) hex += ', ' + opacity;
+		            try {
+		            } catch(e) {}
+		          },
+		          theme: 'bootstrap'
+		        });
+		                
+		    });
+			 // 大小控制条
+			this.$( "#master" ).slider({
+			      value: 50,
+			      orientation: "horizontal",
+			      range: "min",
+			      animate: true
+			});
         },
 
 		/* 

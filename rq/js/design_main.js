@@ -2,7 +2,8 @@ define([
 "backbone"
 , "design_menus"
 , "work_area"
-], function(Backbone, MenusView, WorkareaView) {
+, "show_area"
+], function(Backbone, MenusView, WorkareaView, ShowAreaView) {
 
 	// 使model save时，数据是object型
 	Backbone.emulateJSON = true;
@@ -13,6 +14,7 @@ define([
         initialize: function() {
             this.menusView      = new MenusView();
             this.workareaView   = new WorkareaView();
+            this.showAreaView   = new ShowAreaView();
 
             this.render();
         },
@@ -22,6 +24,7 @@ define([
             this.$el.append(
                 this.menusView.el
                 , this.workareaView.el
+                , this.showAreaView.el
             );
         }
     });

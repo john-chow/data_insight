@@ -1,9 +1,11 @@
 requirejs([
+ "jquery",
+ "gridster",
  "main",
  "jqueryUi",
  "bootstrap",
  'test'
-], function(MainView ,ui ,b ,t) {
+], function($, g, MainView ,ui ,b ,t) {
 	new MainView;
 
     var MainRouter = Backbone.Router.extend({
@@ -37,27 +39,6 @@ requirejs([
 		$(obj).attr("id", "db_property_" + i)
 	})
 
-	/*
-
-   // 颜色板
-     $('.colorBoard').each( function() {
-        $(this).minicolors({
-          control: $(this).attr('data-control') || 'hue',
-          defaultValue: $(this).attr('data-defaultValue') || '',
-          inline: $(this).attr('data-inline') === 'true',
-          letterCase: $(this).attr('data-letterCase') || 'lowercase',
-          opacity: $(this).attr('data-opacity'),
-          position: $(this).attr('data-position') || 'bottom left',
-          change: function(hex, opacity) {
-            if( !hex ) return;
-            if( opacity ) hex += ', ' + opacity;
-            try {
-            } catch(e) {}
-          },
-          theme: 'bootstrap'
-        });
-                
-    });
 
      //流动布局
      gridster = $(".gridster ul").gridster({
@@ -71,6 +52,7 @@ requirejs([
       },
     }).data('gridster');
 
+/*
     //设置可自动排序
     $( "#column_sortable,#row_sortable" ).sortable({
         connectWith: ".connectedSortable",
@@ -173,6 +155,7 @@ requirejs([
 function change_auto(){
     change_dbinfo_bar();
     change_design_panel();
+    change_show_area();
 }
 
 function change_dbinfo_bar(){
@@ -185,6 +168,19 @@ function change_design_panel(){
     $("#row_sortable").width(change_line_width());
     $("#design_panel").height(change_design_panel_height());
     $("#draw_panel").height(change_draw_panel_height());
+    $("#draw_panel").width($("#row_sortable").width()+75);
+    $("#design_panel").width(document.documentElement.clientWidth-161-3);
+}
+
+function change_show_area(){
+    var clientHeight = document.documentElement.clientHeight;
+    var logoHeight=$("#header").height();
+    var menuHeight=$("#design_menu").height();
+    var footerHeight=$("#footer").height()+1;     //border-top:1px
+    var areaHeight = clientHeight-logoHeight-menuHeight-footerHeight;
+    $("#show_area_bar").height(areaHeight);
+    $("#show_area_panel").height(areaHeight);
+    $("#show_area_chart").height(areaHeight-28);//28是info_workplace高度
 }
 
  function change_dbinfo_height(){
@@ -199,9 +195,9 @@ function change_design_panel(){
 
 function change_line_width(){
     var clientWidth = document.documentElement.clientWidth;
-    var barWidth = $("#dbinfo_bar").width()+1; //border-right:1px 
+    var barWidth = $("#dbinfo_bar").width()+1; //border-right:1px 默认161px 
     var boxWidth = $("#filter_box").width();
-    clientWidth=clientWidth-boxWidth-barWidth-3-2-1-75;//margin: 3px 0 3px 3px;border:1px;border-right: 1px;width: 75px;
+    clientWidth=clientWidth-boxWidth-161-3-2-1-75-10;//margin: 3px 0 3px 3px;border:1px;border-right: 1px;width: 75px;
     return clientWidth;
 }
 

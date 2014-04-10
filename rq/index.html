@@ -20,6 +20,9 @@
     </body>
 </html>
 <script>
+//window.onload的作用，确保requirejs.config在require.js加载完之后运行
+//否则按照chrome加载顺序是一起加载的
+window.onload = function (){
 	requirejs.config({
 		baseUrl: "{% static 'js' %}",
 
@@ -60,7 +63,7 @@
 	// 启动js脚本
 	requirejs(['app'], function(app) {
 	})
+}
 </script>
-    
-});
+
 

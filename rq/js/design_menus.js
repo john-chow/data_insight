@@ -2,8 +2,9 @@ define([
 "jquery"
 , "backbone"
 , "bootstrap"
+, "link_db_modal"
 , "text!../template/design_menu.html" 
-], function($, Backbone, x, menuHtml) {
+], function($, Backbone, x, linkDbModal, menuHtml) {
 
     var MenusView = Backbone.View.extend({
 
@@ -17,7 +18,9 @@ define([
         },
 
         initialize: function() {
+            this.linkDbModal = new linkDbModal();
             this.render();
+            this.$("#menu_link_db").on( "click", _.bind(this.showLinkDbModal, this) );
         },
 
         render: function() {
@@ -33,7 +36,13 @@ define([
 
         showTips: function(ev) {
             this.$(".intelligent-display-tips").html("提示："+$(ev.target).attr("title"));
+        },
+
+        showLinkDbModal: function(ev){
+            this.linkDbModal.render();
         }
+
+
 
     });
 

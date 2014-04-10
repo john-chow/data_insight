@@ -22,6 +22,7 @@ define([
 
         render: function() {
             this.$el.html( _.template(this.template, this.model.toJSON(), {variable: "model"}) );
+            change_auto();
         },
 
         onDbChanged: function() {

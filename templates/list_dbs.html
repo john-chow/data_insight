@@ -5,21 +5,138 @@
 	<meta charset='utf-8'>
 </head>
 <body>
-	<p>Welcome</p>
-	<ul id='supported_dbs_list'>
-		{% for db in supported_dbs %}
-		<li class='db'>{{ db }}</li>
-		{% endfor %}
-	</ul>
-	<ul>
-		{% for i in dbs %}
-			<li>{{i.ip}}  -----  {{i.tablename}}</li>
-		{% endfor %}
-	</ul>
-	<form id='conn_db_form' method='post' action='/indb/' enctype="multipart/form-data", style='display: none'>
-		{{ form.as_p }}
-		<input type='submit' value='连接' />
-	</form>
+	<!-- LOGO -->
+	<div id="header">LOGO</div>
+
+	<!-- 菜单栏  -->
+	<div id="list_db_menu">
+			<nav class="navbar navbar-default" role="navigation">
+   			 <div class="collapse navbar-collapse">
+       		 <ul class="nav navbar-nav">
+             <li class="dropdown">
+            	<a href="#" class="dropdown-toggle" data-toggle="dropdown">文件<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">新建</a></li>
+                    <li><a href="#">打开</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#">退出</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+            	<a href="#" class="dropdown-toggle" data-toggle="dropdown">数据<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">连接数据库</a></li>
+                    <li><a href="#">粘贴数据</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+            	<a href="#" class="dropdown-toggle" data-toggle="dropdown">帮助<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">说明</a></li>
+                    <li><a href="#">制作方</a></li>
+                    <li><a href="#">反馈</a></li>
+                </ul>
+            </li>
+        	</ul>
+       		</div>
+			</nav>
+	</div>
+
+	<!-- 内容栏 -->
+    <div id="list_db_content">
+    	<div class="row">
+		  <div class="col-md-3 col-xs-3">
+			  <div class="list-dbs-info">
+			  	<div>数据</div>
+			  	<div id="list_link_to_db">
+			  		<div id="list_link_to_db_head">连接到数据库<span class="glyphicon glyphicon-chevron-right"></span></div>
+			  		<ul id="list_link_dbs" style="display:none;">
+						<li class='db'>Sample-CofeeChan</li>
+						<li class='db'>Sample-CofeeChan</li>
+						<li class='db'>Sample-CofeeChan</li>
+						<li class='db'>Sample-CofeeChan</li>
+						<li class='db'>Sample-CofeeChan</li>
+						<li class='db'>Sample-CofeeChan</li>
+						<li class='db'>Sample-CofeeChan</li>
+						<li class='db'>Sample-CofeeChan</li>
+						<li class='db'>Sample-CofeeChan</li>
+						<li class='db'>Sample-CofeeChan</li>
+						<li class='db'>Sample-CofeeChan</li>
+						<li class='db'>Sample-CofeeChan</li>
+						<li class='db'>Sample-CofeeChan</li>
+						<li class='db'>Sample-CofeeChan</li>
+			  			
+			  		</ul>
+			  	</div>
+			  	<div id="list_saved_dbs">
+			  		<div>已保存数据源</div>
+			  		<ul>
+			  			<li ><a href="#"><span class="glyphicon glyphicon-tasks" ></span>Sample-CofeeChan</a></li>
+			  			<li><a href="#"><span class="glyphicon glyphicon-tasks" ></span>Sample-CofeeChan</a></li>
+			  			<li><a href="#"><span class="glyphicon glyphicon-tasks" ></span>Sample-CofeeChan</a></li>
+			  			<li><a href="#"><span class="glyphicon glyphicon-tasks" ></span>Sample-CofeeChan</a></li>
+			  			<li><a href="#"><span class="glyphicon glyphicon-tasks" ></span>Sample-CofeeChan</a></li>
+			  		</ul>
+			  	</div>
+		      </div>
+		   </div>
+		  <div class="col-md-9 col-xs-9">
+		  	<div class="welcome_workbook">
+		  		<div>工作簿</div>
+		    </div>
+		  </div>
+		</div>
+		<!--
+			<ul id='supported_dbs_list'>
+				{% for db in supported_dbs %}
+				<li class='db'>{{ db }}</li>
+				{% endfor %}
+			</ul>
+			<ul>
+				{% for i in dbs %}
+					<li>{{i.ip}}  -----  {{i.tablename}}</li>
+				{% endfor %}
+			</ul>
+			<form id='conn_db_form' method='post' action='/indb/' enctype="multipart/form-data", style='display: none'>
+				{{ form.as_p }}
+				<input type='submit' value='连接' />
+			</form>-->
+	</div>
+
+	<!-- 模态框 -->
+	<div class="modal fade" id="list_link_db_modal" tabindex="-1" role="dialog" aria-labelledby="listLinkDbModal" aria-hidden="true">
+	    <div class="modal-dialog">
+	     	<div class="modal-content">
+
+		      <!--模态框header-->
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		        <h4 class="modal-title">
+		         连接数据库
+		        </h4>
+		      </div>
+
+		      <!--模态框body-->
+		      <div class="modal-body">
+		      <form id='conn_db_form' method='post' action='/indb/' enctype="multipart/form-data">
+					{{ form.as_p }}
+			  </form>
+		      </div>
+
+		      <!--模态框footer-->
+		      <div class="modal-footer">
+		          <button type="button" class="list_link_db btn btn-primary">连接</button>
+		          <button type="button" class="list_cancel_modal btn btn-default">取消</button>
+		      </div>
+    
+	  		</div>
+		</div>
+	</div>
+	<div><img style="width:100%;" src='{% static "img/test.PNG" %}' /></div>
 </body>
 <script src='{% static "js/jquery-2.1.0.js" %}'></script>
 <script src='{% static "js/which_db.js" %}'></script>
+<script src='{% static "js/lib/bootstrap.js" %}'></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/list_dbs.css' %}">
