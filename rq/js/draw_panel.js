@@ -11,7 +11,8 @@ define([
 
 		initialize: function() {
 			this.model = new DrawModel();
-			this.listenTo(this.model, "change", this.render)
+			//this.listenTo(this.model, "change", this.render);
+			Backbone.Events.on( "draw:ready", _.bind(this.updateData, this) )
 		},
 
 		render: function() {
@@ -27,8 +28,10 @@ define([
 			});
 		},
 
-		updateData: function() {
-			this.model.fetch()
+
+		updateData: function(data) {
+			this.model.clear({"silent": true}).set(data);
+			this.render()
 		}
 	});
 

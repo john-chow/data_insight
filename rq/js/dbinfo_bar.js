@@ -27,6 +27,11 @@ define([
 
         onDbChanged: function() {
             this.render();
+			// 为所有属性增加id
+			$.each( this.$(".mension, .measure"), function(i, obj) {
+				$(obj).attr("id", "db_property_" + i)
+			})
+
             this.$(".mension, .measure").on("dragstart", this.drag);
 			this.setDragProperty()
         },
@@ -36,7 +41,7 @@ define([
 			$tar = $(ev.target);
 			data = {
 				"pro_id": 		$tar.attr("id")
-				, "content": 	$tar.html()
+				, "content": 	$tar.find(".attr").html()
 			};
 
             sessionStorage.dragment = JSON.stringify(data);

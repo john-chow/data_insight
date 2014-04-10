@@ -60,7 +60,11 @@ define([
 			var self = this;
 			model.save(null, {
 				success: function(m, res, opt) {
-					self.$("#filter_body").append('<label>xxx</label>')
+					if(res.succ) {
+						self.$("#filter_body").append('<label>xxx</label>');
+						Backbone.Events.trigger("draw:ready", res.data)
+					} else {
+					}
 				},
 				error: function(m, res, opt) {
 					self.collection.remove(m, {'silent': true})
