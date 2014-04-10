@@ -16,16 +16,20 @@ define([
 		},
 
 		render: function() {
+			var self = this;
 			var data = this.model.toJSON();
-			vg.parse.spec(data, function(chart) {
-				d3.select("#draw_panel").selectAll("*").remove();
-				var view = chart({
-					el: "#draw_panel"
-					, data: undefined
-					, renderer: 'canvas'
+			
+			d3.select("#draw_panel").selectAll("*").remove();
+			if( Object.keys(data).length > 0 ) {
+				vg.parse.spec(data, function(chart) {
+					var view = chart({
+						el: "#draw_panel"
+						, data: undefined
+						, renderer: 'canvas'
+					});
+					view.update();
 				});
-				view.update();
-			});
+			}
 		},
 
 
