@@ -166,6 +166,82 @@ def selectData(request):
 	finally:
 		conn.close()
 
+def spellSql(request):
+	x_name_list = request.session.setdefault('_col_', [])
+	y_name_list = request.session.setdefault('_row_', [])
+	filter_list = request.session.setdefault('_filter_', {})
+	table 		= request.session['_table_']
+
+	sql_format   = 'select {col} from {table} {filter} {option}'
+
+	filter_sentence	= ''
+	if bool(filter_list):
+		filter_list = request.session['_filter_'].values()
+		filter_sentence	= 'where ' + ' and '.join(filter_list)
+
+	sql_list = []
+	print 'x_name_list, y_name_list length is %s, %s' % \
+						(len(x_name_list), len(y_name_list))
+
+	if len(x_name_list) <= 0:
+		for y in y_name_list:
+			sql = sql_format.format(col='sum(%s) %s' % (y, y), \
+									table=table, filter=filter_sentence, \
+									option='')
+			sql_list.append(sql)
+			print 'sql is %s' % sql
+	elif len(y_name_list) <= 0:
+		for x in x_name_list:
+			sql = sql_format.format(col='sum(%s) %s' % (x, x), \
+									table=table, filter=filter_sentence, \
+									option='')
+			sql_list.append(sql)
+			print 'sql is %s' % sql
+
+	elif len(x_name_list) > 0 and len(y_name_list) > 0:
+		x_y_list = [(x, y) for x in x_name_list for y in y_name_list] 
+		for (x, y) in x_y_list:
+			sql = sql_format.format(col=x+', sum(%s) %s' % (y, y), 
+									table=table, filter=filter_sentence, \
+									option='group by %s' % x)
+			sql_list.append(sql)
+			print 'sql is %s' % sql
+	else:
+		print '0, 0'
+
+
+	return sql_list
+
+
+def excSqlForData(request, sql_list):
+	conn = connectDb(request)
+	if not conn:
+		raise Exception('Cant access into database')
+
+	cursor = conn.cursor()
+
+	if HAVE_PDB:
+		pdb.set_trace()
+
+	(heads_list, data_list) = ([], [])
+	try:
+		for sql in sql_list:
+			cursor.execute(sql)
+			head = [ q[0] for q in cursor.description ]
+			data = cursor.fetchall()
+
+			heads_list.append(head)
+			data_list.append(data)
+	except Exception, e:
+		# 继续抛出异常
+		raise Exception(e.msg)
+		pass
+	else:
+		return (heads_list, data_list)
+	finally:
+		conn.close()
+
+
 
 def reqCol(request):
 	return dealAxesReq(request, 'column')
@@ -216,10 +292,6 @@ def rollBackSession(request, axes_ss, old_ss):
 	request.session[axes_ss] = old_ss
 
 
-def test():
-	return 
-
-	
 
 def dealFilter(request):
 	request.session.setdefault('_filter_', {})
@@ -260,11 +332,37 @@ def addCalcFilter(request):
 
 
 def generateBackData(request):
-	(xList, yList) = selectData(request)
-	file = perpareBackData(xList, yList)
+	sql_list	= spellSql(request)
+	(heads_list, data_list) = excSqlForData(request, sql_list)
+	bar 		= vincentlizeData( (heads_list, data_list), format='bar' )
+	bar.to_json(TEMP_DRAW_DATA_FILE)
+	data_json	= readJsonFile(TEMP_DRAW_DATA_FILE)
+	return data_json
 
-	data = readJsonFile(file)
-	return data
+
+def vincentlizeData(data, format):
+	(heads_list, data_list) = data
+
+	dict = {}
+	for (heads, data) in zip(heads_list, data_list):
+		val_list = zip(*data)
+		dict['head'] = heads
+
+		if HAVE_PDB:
+			pdb.set_trace()
+		for (h, t) in zip(heads, val_list):
+			dict[h] = list(t)
+
+	if len( dict['head'] ) == 1:
+		head = dict['head'][0]
+		bar = vincent.Bar( dict[head] )
+	elif len( dict['head'] ) > 1:
+		[x_label, y_label] = dict.pop('head', None)
+		bar = vincent.Bar(dict, iter_idx=x_label)
+		bar.axis_titles(x=x_label, y=y_label)
+		bar.legend(title='xxxx')
+	
+	return bar
 
 	
 		
