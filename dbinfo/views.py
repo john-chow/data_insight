@@ -11,8 +11,8 @@ from psycopg2.extensions import adapt
 import psycopg2 as pysql
 import vincent
 import pandas as pd
-from common.tool import *
 from common.head import *
+from common.tool import *
 
 import pdb
 
@@ -166,49 +166,74 @@ def selectData(request):
 	finally:
 		conn.close()
 
-def spellSql(request):
+def getDataFromDb(request):
+	conn = connectDb(request)
+	if not conn:
+		raise Exception('Cant access into database')
+
+	cursor = conn.cursor()
+
 	x_name_list = request.session.setdefault('_col_', [])
 	y_name_list = request.session.setdefault('_row_', [])
 	filter_list = request.session.setdefault('_filter_', {})
 	table 		= request.session['_table_']
 
-	sql_format   = 'select {col} from {table} {filter} {option}'
+	sql_sample_format 	= 'select {col} from {table} limit 1'
+	sql_format   		= 'select {col} from {table} {filter} {option}'
 
 	filter_sentence	= ''
 	if bool(filter_list):
 		filter_list = request.session['_filter_'].values()
 		filter_sentence	= 'where ' + ' and '.join(filter_list)
 
-	sql_list = []
 	print 'x_name_list, y_name_list length is %s, %s' % \
 						(len(x_name_list), len(y_name_list))
 
-	if len(x_name_list) <= 0:
-		for y in y_name_list:
-			sql = sql_format.format(col='sum(%s) %s' % (y, y), \
-									table=table, filter=filter_sentence, \
-									option='')
-			sql_list.append(sql)
-			print 'sql is %s' % sql
-	elif len(y_name_list) <= 0:
-		for x in x_name_list:
-			sql = sql_format.format(col='sum(%s) %s' % (x, x), \
-									table=table, filter=filter_sentence, \
-									option='')
-			sql_list.append(sql)
-			print 'sql is %s' % sql
+	def fetchOne(col_name):
+		sql_sample = sql_sample_format.format(col=col_name, table=table)
+		cursor.execute(sql_sample)
+		re = cursor.fetchone()[0]
+		return re
 
-	elif len(x_name_list) > 0 and len(y_name_list) > 0:
+
+	if(HAVE_PDB):	pdb.set_trace()
+
+	(bool_x, bool_y) = ( bool(x_name_list), bool(y_name_list) )
+	sql_list = []
+
+	if bool_x and bool_y:
 		x_y_list = [(x, y) for x in x_name_list for y in y_name_list] 
 		for (x, y) in x_y_list:
-			sql = sql_format.format(col=x+', sum(%s) %s' % (y, y), 
+			[x_re, y_re] = map(fetchOne, (x, y))
+
+			if isNumerical(x_re) and isNumerical(y_re):
+				sql = sql_format.format(col=x+', sum(%s) %s' % (y, y), 
 									table=table, filter=filter_sentence, \
 									option='group by %s' % x)
-			sql_list.append(sql)
-			print 'sql is %s' % sql
-	else:
-		print '0, 0'
+			elif isNumerical(x_re) and not isNumerical(y_re):
+				sql = sql_format.format(col=y+', sum(%s) %s' % (x, x), 
+										table=table, filter=filter_sentence, \
+										option='group by %s' % y)
+			elif not isNumerical(x_re) and isNumerical(y_re):
+				sql = sql_format.format(col=x+', sum(%s) %s' % (y, y), 
+										table=table, filter=filter_sentence, \
+										option='group by %s' % x)
+			if(sql):
+				sql_list.append(sql)
+	
+	elif bool_x or bool_y:
+		x_name_list.extend(y_name_list)
+		for x in x_name_list:
+			sql_sample = sql_sample_format.format(col=x, table=table)
+			cursor.execute(sql_sample)
+			re = cursor.fetchone()[0]
+			if isNumerical(re):
+				sql = sql_format.format(col='sum(%s) %s' % (x, x), \
+										table=table, filter=filter_sentence, \
+										option='')
+				sql_list.append(sql)
 
+	conn.close()
 
 	return sql_list
 
@@ -332,11 +357,14 @@ def addCalcFilter(request):
 
 
 def generateBackData(request):
-	sql_list	= spellSql(request)
+	sql_list	= getDataFromDb(request)
 	(heads_list, data_list) = excSqlForData(request, sql_list)
 	bar 		= vincentlizeData( (heads_list, data_list), format='bar' )
-	bar.to_json(TEMP_DRAW_DATA_FILE)
-	data_json	= readJsonFile(TEMP_DRAW_DATA_FILE)
+
+	data_json = {}
+	if bar:
+		bar.to_json(TEMP_DRAW_DATA_FILE)
+		data_json	= readJsonFile(TEMP_DRAW_DATA_FILE)
 	return data_json
 
 
@@ -353,16 +381,20 @@ def vincentlizeData(data, format):
 		for (h, t) in zip(heads, val_list):
 			dict[h] = list(t)
 
-	if len( dict['head'] ) == 1:
-		head = dict['head'][0]
-		bar = vincent.Bar( dict[head] )
-	elif len( dict['head'] ) > 1:
-		[x_label, y_label] = dict.pop('head', None)
-		bar = vincent.Bar(dict, iter_idx=x_label)
-		bar.axis_titles(x=x_label, y=y_label)
-		bar.legend(title='xxxx')
+	if not dict:
+		return None
+
+	if 'bar' == format:
+		if len( dict['head'] ) == 1:
+			head = dict['head'][0]
+			chart = vincent.Bar( dict[head] )
+		elif len( dict['head'] ) > 1:
+			[x_label, y_label] = dict.pop('head', None)
+			chart = vincent.Bar(dict, iter_idx=x_label)
+			chart.axis_titles(x=x_label, y=y_label)
+			chart.legend(title='xxxx')
 	
-	return bar
+	return chart
 
 	
 		
@@ -392,7 +424,6 @@ def perpareBackData(xList, yList):
 	bar.to_json(TEMP_DRAW_DATA_FILE)
 	return TEMP_DRAW_DATA_FILE
 
-	
 				
 def readJsonFile(file):
 	if not file:
@@ -402,3 +433,8 @@ def readJsonFile(file):
 	jsonData = json.load(f, 'utf-8')
 	return jsonData
 	
+
+def isNumerical(arg):
+	return type(arg) in (int, float)
+
+

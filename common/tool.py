@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.utils import simplejson as json
+import pdb
 
 
 def MyHttpJsonResponse(data):
@@ -12,3 +13,6 @@ def MyHttpJsonResponse(data):
 
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
+
+
+
