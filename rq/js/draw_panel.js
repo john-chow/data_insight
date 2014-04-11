@@ -12,7 +12,7 @@ define([
 		initialize: function() {
 			this.model = new DrawModel();
 			//this.listenTo(this.model, "change", this.render);
-			Backbone.Events.on( "draw:ready", _.bind(this.updateData, this) )
+			Backbone.Events.on( "panel:draw_data", _.bind(this.updateData, this) )
 		},
 
 		render: function() {

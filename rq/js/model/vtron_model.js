@@ -2,7 +2,7 @@ define([
 	'backbone'
 ], function(Backbone) {
 	var VtronModel = Backbone.Model.extend({
-		
+
 		method_map: {
 			"update":		"create"
 			, "create":		"create"
@@ -34,6 +34,10 @@ define([
 		sync: function(method, model, options) {
 			method = this.method_map[method];
 			return Backbone.Model.prototype.sync.call(this, method, model, options);
+		},
+
+		myPass: function() {
+			Backbone.Events.trigger( "area:user_action", this.toJSON() )
 		}
 
 	});

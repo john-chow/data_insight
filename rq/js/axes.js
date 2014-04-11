@@ -35,8 +35,10 @@ define([
 			this.name 			= opt.name;
 			this.sortObjId		= "#" + this.name + "_sortable";
 
-			this.model 		= new AxesModel( {id: this.name} );
-			this.listenTo(this.model, 'change:'+this.name, this.updateToSev);
+			//this.model 		= new AxesModel( {id: this.name} );
+			//this.listenTo(this.model, 'change:'+this.name, this.updateToSev);
+			this.model = new AxesModel();
+			this.listenTo(this.model, 'change:'+this.name, this.passToTotal);
 			this.render();
 		},
 
@@ -138,6 +140,11 @@ define([
 			this.model.set(this.name, tm);
 		},
 
+		passToTotal: function() {
+			this.model.myPass()
+		}	
+
+		/* 
 		updateToSev: function() {
 			console.log('update to server');
 			var self = this;
@@ -156,6 +163,7 @@ define([
 				}
 			})
 		}
+		*/
 
 	});
 

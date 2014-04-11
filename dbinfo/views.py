@@ -19,9 +19,9 @@ import pdb
 
 def getDbInfo(request):
 	print 'getDbInfo'
-	table = request.session.get('_table_')
+	table = request.session.get('table')
 
-	conn 			= connectDb(request)
+	conn 			= connDb(request)
 	if not conn:
 		return HttpResponseRedirect('http://10.1.50.125:9000/')
 
@@ -56,13 +56,13 @@ def tryIntoDb(request):
 	print 'try into db'
 
 	if 'POST' == request.method:
-		if connectDb(request):
-			request.session[u'_ip_'] 		= request.POST.get('ip', 	'')
-			request.session[u'_port_'] 		= request.POST.get('port', 	'')
-			request.session[u'_db_'] 		= request.POST.get('db', 	'')
-			request.session[u'_user_'] 		= request.POST.get('user', 	'')
-			request.session[u'_pwd_'] 		= request.POST.get('pwd', 	'')
-			request.session[u'_table_'] 	= request.POST.get('table', '')
+		if connDb(request):
+			request.session[u'ip'] 		= request.POST.get('ip', 	'')
+			request.session[u'port'] 	= request.POST.get('port', 	'')
+			request.session[u'db'] 		= request.POST.get('db', 	'')
+			request.session[u'user'] 	= request.POST.get('user', 	'')
+			request.session[u'pwd'] 	= request.POST.get('pwd', 	'')
+			request.session[u'table'] 	= request.POST.get('table', '')
 
 			print 'redirect to indb'
 			return HttpResponseRedirect('/indb/')
@@ -75,7 +75,8 @@ def tryIntoDb(request):
 
 
 
-def connectDb(request):
+def __connectDb(request):
+	if HAVE_PDB: 		pdb.set_trace()
 	# 提交表单时，用表单内容连接数据库
 	if request.POST.get('ip', 	''):
 		ip 		= request.POST.get('ip', 	'')
@@ -176,7 +177,7 @@ def getDataFromDb(request):
 	x_name_list = request.session.setdefault('_col_', [])
 	y_name_list = request.session.setdefault('_row_', [])
 	filter_list = request.session.setdefault('_filter_', {})
-	table 		= request.session['_table_']
+	table 		= request.session['table']
 
 	sql_sample_format 	= 'select {col} from {table} limit 1'
 	sql_format   		= 'select {col} from {table} {filter} {option}'
@@ -239,7 +240,7 @@ def getDataFromDb(request):
 
 
 def excSqlForData(request, sql_list):
-	conn = connectDb(request)
+	conn = connDb(request)
 	if not conn:
 		raise Exception('Cant access into database')
 
@@ -276,12 +277,32 @@ def reqRow(request):
 	return dealAxesReq(request, 'row')
 
 
-def reqDrawData(request):
-	data = readJsonFile(TEMP_DRAW_DATA_FILE)
-	return MyHttpJsonResponse(data)
+def connDb(request):
+	# 提交表单时在POST字段中找寻登陆信息
+	# 其他时候都在session中找
+	including_login_dict = request.POST if request.POST.get('ip')\
+										else request.session
+
+	[ip, port, table, db, user, pwd] = \
+		map( lambda i: including_login_dict.get(i, ''), \
+			('ip', 'port', 'table', 'db', 'user', 'pwd') \
+		)
+	
+	conn_str = 'host={i} port={p} dbname={d} user={u} password={pw}'\
+					.format(i=ip, p=port, d=db, u=user, pw=pwd)
+
+	try:
+		conn = pysql.connect(conn_str)
+	except Exception, e:
+		print 'cant conn database'
+		return None
+	else:
+		return conn
+
+
 	
 
-def dealAxesReq(request, axes):
+def __dealAxesReq(request, axes):
 	print 'dealAxesReq'
 	axes_to_ss_dic = {
 		'column':		'_col_'
@@ -318,7 +339,7 @@ def rollBackSession(request, axes_ss, old_ss):
 
 
 
-def dealFilter(request):
+def __dealFilter(request):
 	request.session.setdefault('_filter_', {})
 
 	if 'POST' == request.method:
@@ -351,13 +372,113 @@ def dealFilter(request):
 	return MyHttpJsonResponse(backData)
 
 
-def addCalcFilter(request):
-	filters = json.loads( request.POST.get('f') )
-	request.session.setdefault('_filter_', {})
+
+
+def reqDrawData(request):
+	if 'POST' == request.method:
+		if IS_RELEASE:
+			try:
+				data = generateBackData(request)
+			except Exception, e:
+				error_dict = {'succ': False, 'msg': u'数据查询时出错'}
+				return MyHttpJsonResponse(error_dict)
+			else:
+				backData = {'succ': True, 'data': data}
+				return MyHttpJsonResponse(backData)
+		else:
+			data = generateBackData(request)
+			backData = {'succ': True, 'data': data}
+			return MyHttpJsonResponse(backData)
+
+	else:
+		return
+
+
+
+def concertrateSqls(request):
+	conn = connDb(request)
+	if not conn:
+		raise Exception('Cant access into database')
+	cursor = conn.cursor()
+
+
+	table = request.session.get('table')
+	[raw_x_name_list, raw_y_name_list, raw_filter_list] = \
+			map( lambda i: request.POST.get(i, []), \
+				('column', 'row', 'filter') )
+
+	[x_name_list, y_name_list] = \
+			map( lambda i: json.loads(i) if i else i , \
+				(raw_x_name_list, raw_y_name_list) )
+			
+
+	sql_sample_format 	= 'select {col} from {table} limit 1'
+	sql_format   		= 'select {col} from {table} {filter} {option}'
+
+	filter_sentence	= ''
+
+	'''
+	if bool(filter_list):
+		filter_list = request.session['_filter_'].values()
+		filter_sentence	= 'where ' + ' and '.join(filter_list)
+	'''
+
+	print 'x_name_list, y_name_list length is %s, %s' % \
+						(len(x_name_list), len(y_name_list))
+
+	def fetchOne(col_name):
+		sql_sample = sql_sample_format.format(col=col_name, table=table)
+		cursor.execute(sql_sample)
+		re = cursor.fetchone()[0]
+		return re
+
+
+	if(HAVE_PDB):	pdb.set_trace()
+
+	(bool_x, bool_y) = ( bool(x_name_list), bool(y_name_list) )
+	sql_list = []
+
+	if bool_x and bool_y:
+		x_y_list = [(x, y) for x in x_name_list for y in y_name_list] 
+		for (x, y) in x_y_list:
+			[x_re, y_re] = map(fetchOne, (x, y))
+
+			if isNumerical(x_re) and isNumerical(y_re):
+				sql = sql_format.format(col=x+', sum(%s) %s' % (y, y), 
+									table=table, filter=filter_sentence, \
+									option='group by %s' % x)
+			elif isNumerical(x_re) and not isNumerical(y_re):
+				sql = sql_format.format(col=y+', sum(%s) %s' % (x, x), 
+										table=table, filter=filter_sentence, \
+										option='group by %s' % y)
+			elif not isNumerical(x_re) and isNumerical(y_re):
+				sql = sql_format.format(col=x+', sum(%s) %s' % (y, y), 
+										table=table, filter=filter_sentence, \
+										option='group by %s' % x)
+			if(sql):
+				sql_list.append(sql)
+	
+	elif bool_x or bool_y:
+		one_name_list = x_name_list + y_name_list
+		for one in one_name_list:
+			sql_sample = sql_sample_format.format(col=one, table=table)
+			cursor.execute(sql_sample)
+			re = cursor.fetchone()[0]
+			if isNumerical(re):
+				sql = sql_format.format(col='sum(%s) %s' % (one, one), \
+										table=table, filter=filter_sentence, \
+										option='')
+				sql_list.append(sql)
+
+	conn.close()
+
+	return sql_list
+
+
 
 
 def generateBackData(request):
-	sql_list	= getDataFromDb(request)
+	sql_list	= concertrateSqls(request)
 	(heads_list, data_list) = excSqlForData(request, sql_list)
 	bar 		= vincentlizeData( (heads_list, data_list), format='bar' )
 
