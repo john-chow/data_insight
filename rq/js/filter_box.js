@@ -12,7 +12,7 @@ define([
         tagName:    "div",
         id:         "filter_box",
         template:   filterBoxHtml,
-		item_template:	"<label></label>",
+		item_template:	"<label></label><br/>",
 
         initialize: function() {
 			this.collection = new FiltersCollection();
