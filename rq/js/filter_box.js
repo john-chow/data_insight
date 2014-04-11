@@ -12,6 +12,7 @@ define([
         tagName:    "div",
         id:         "filter_box",
         template:   filterBoxHtml,
+		item_template:	"<label></label>",
 
         initialize: function() {
 			this.collection = new FiltersCollection();
@@ -38,23 +39,29 @@ define([
 		          },
 		          theme: 'bootstrap'
 		        });
-		                
-		    });
-			 // 大小控制条
-			this.$( "#master" ).slider({
-			      value: 50,
-			      orientation: "horizontal",
-			      range: "min",
-			      animate: true
-			});
-        },
+			})
+		},
 
-		/* 
-			增加过滤条件的机制：
-			选中某过滤条件后，点击"确定",触发过滤框的collection增加model;
+
+		/*            
+		    中某过滤条件后，点击"确定",触发过滤框的collection增加model;
 			监听collection的add事件，触发后，把新增的model提交服务器
 			监听model提交的success事件，触发后，把新增的内容显示出来
 		*/
+
+		afterModelAdded: function(model) {
+			this.addFilterItem(model);
+			this.collection.myPass("area:user_action")
+		},
+
+		addFilterItem: function(model) {
+			this.$("#filter_body").append(
+				$(this.item_template)
+						.html( model.toJSON()["property"] )
+			);
+		},
+
+		/*
 		afterModelAdded: function(model) {
 			// 更新到服务器
 			var self = this;
@@ -72,6 +79,7 @@ define([
 				}
 			});
 		},
+		*/
 
 		setDragProperty: function() {
 			//此代码删除了，触发不了drop，原因暂不明确
