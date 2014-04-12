@@ -4,6 +4,9 @@ define([
 , "text!../template/choose_filter.html" 
 ], function(Backbone, b, cfTemplate) {
 
+    var FilterModel = Backbone.Model.extend({
+    });
+
     var ChooseFilter = Backbone.View.extend({
 
         template: cfTemplate,
@@ -17,22 +20,20 @@ define([
         },
 
         initialize: function() {
-			// model 在初始化时由外部传入
-
-            //this.listenTo(this.model, "change", this.render);
-           /* this.$el.modal({
-                show: false
-                //, keyboard: false
-            });*/
+			this.model = new FilterModel();
         },
 
         render: function() {
-            this.remove();
+            //this.remove();
             this.setElement( 
                 _.template(this.template, this.model.toJSON(), {"variable": "model"}) 
             );
-            this.$el.modal("show");
+            this.show()
         },
+
+		show: function() {
+			this.$el.modal("show")
+		},
 
         close: function() {
             this.$el.modal("hide");
@@ -56,7 +57,7 @@ define([
 				userFilterData["cmd"] 		= "add";
 			}
 
-			this.trigger("ensure_filter", userFilterData);
+			Backbone.Events.trigger("ensure_filter", userFilterData);
 			this.close()
         },
 

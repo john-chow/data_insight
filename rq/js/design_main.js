@@ -3,7 +3,9 @@ define([
 , "design_menus"
 , "work_area"
 , "show_area"
-], function(Backbone, MenusView, WorkareaView, ShowAreaView) {
+, "modal_manager"
+], function(Backbone, MenusView, WorkareaView
+			, ShowAreaView, ModalManager) {
 
 	// 使model save时，数据是object型
 	Backbone.emulateJSON = true;

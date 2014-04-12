@@ -1,16 +1,12 @@
 define([
 "backbone"
 , "draw_workplace"
-, "choose_filter"
 , "bootstrap"
 , "filter_box"
 , "info_workplace"
-], function(Backbone, DrawPlaceView, ChooseFilterView, b, 
-            filterBoxView, infoWorkplaceView) {
+], function(Backbone, DrawPlaceView, b, filterBoxView
+			, infoWorkplaceView) {
 
-    var FilterModel = Backbone.Model.extend({
-    });
-    
     var DesignPanelView = Backbone.View.extend({
 
         tagName:            "div",
@@ -26,28 +22,37 @@ define([
         */
 
         initialize: function(opt) {
-            this.dbModel = opt.dbModel;
-            this.filterModel = new FilterModel();
+            //this.dbModel = opt.dbModel;
+            //this.filterModel = new FilterModel();
 
             this.filterBoxView = new filterBoxView();
             this.infoWorkplaceView = new infoWorkplaceView();
 
             this.drawPlaceView = new DrawPlaceView();
+			/*
             this.chooseFilterView = new ChooseFilterView( 
                 { model: new ( Backbone.Model.extend({}) ) }
             );
             this.chooseFilterView.on("choose_filter", this.addFilter);
 			this.chooseFilterView.on( "ensure_filter", 
 										_.bind(this.ensureFilter, this) );
+			*/
 			this.filterBoxView.collection.on("add", 
 										_.bind(this.filterBoxView.afterModelAdded, this.filterBoxView), 
 										this);
+
+			this.startListeners();
 
             this.render();
             //this.$("#column_sortable, #row_sortable").on("drop", this.dropInPlots);
             //_.bind(function, object, [*arguments]) :绑定函数 function到对象object 上,也就是无论何时调用函数, 函数里的this都指向这个object
             this.$("#filter_conditions").on( "drop", _.bind(this.chooseFilter, this) );
         },
+
+		startListeners: function() {
+			Backbone.Events.on("choose_filter", this.addFilter);
+			Backbone.Events.on( "ensure_filter", _.bind(this.ensureFilter, this) )
+		},
 
         render: function() {
            this.$el.html("");
@@ -58,6 +63,10 @@ define([
             );
         },
 
+		searchData: function() {
+			
+		},
+
         dropInPlots: function(ev) {
             // 先把数据放进text里面，然后ajax到服务器
             //var data = ev.originalEvent.dataTransfer.getData("text/plain");
@@ -67,6 +76,12 @@ define([
         },
 
         chooseFilter: function(ev) {
+			Backbone.Events.trigger(
+				"modal:show_filter"
+				, JSON.parse(sessionStorage.dragment)
+			)
+
+			/*
             //var data = ev.originalEvent.dataTransfer.getData("text/plain");
 			var data = JSON.parse(sessionStorage.dragment);
 			var title = data['content'];
@@ -78,6 +93,7 @@ define([
 				, "pro_id": 	proId
 			} ); 
             this.chooseFilterView.render();
+			*/
         },
 
         addFilter: function(ev) {
@@ -87,7 +103,7 @@ define([
                 this.filterContentTem( {"content": data} )
             );
 
-            this.filterModel.save();
+            //this.filterModel.save();
         },
 
 		ensureFilter: function(data) {

@@ -1,5 +1,5 @@
 define([
-"backbone"
+	"backbone"
 ], function(Backbone) {
 
 	var DB_INFO_BAR_MODEL = null;
