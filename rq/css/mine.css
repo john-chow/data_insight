@@ -612,3 +612,24 @@ body {
     overflow: auto;
 }
 
+#filter_body ul {
+    list-style-type: none;
+    padding:0;
+    margin:0;
+}
+
+#filter_body {
+    padding:5px 0 !important;
+}
+
+#filter_body ul li {
+    padding: 0 0 0px 10px;
+    border: 1px solid white;
+    cursor: pointer;
+}
+
+#filter_body ul li:hover {
+   background-color: #E5F1FB;
+    border-radius: 5px;
+    border: 1px solid #CCC5EC;
+}
