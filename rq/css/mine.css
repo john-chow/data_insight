@@ -633,3 +633,11 @@ body {
     border-radius: 5px;
     border: 1px solid #CCC5EC;
 }
+
+.choosed-chart-style {
+    background-color: #e0e0e0 !important;
+    background-position: 0 -15px !important;
+    text-decoration: none !important;
+    color: #333 !important;
+    border: 1px solid #95AEDA !important;
+}

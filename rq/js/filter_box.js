@@ -64,7 +64,10 @@ define([
 				$(this.item_template)
 						.html( model.toJSON()["property"] )
 			);
-			this.$("#filter_body ul li").on( "click", this.showModal);
+			this.$("#filter_body ul li").on( "click", function(){
+				title=$(this).html();
+				$("#filter_modal[data="+title+"]").modal("show");
+			});
 		},
 
 		showModal: function() {

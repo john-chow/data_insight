@@ -1,4 +1,4 @@
-<div class="modal fade" id="filter_modal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+<div class="modal fade" data="<% if(model.fil){ %><%= model.title %><% } else { %><%= model.title %><% } %>" id="filter_modal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
     <div class="modal-dialog">
      <div class="modal-content">
 
@@ -109,7 +109,6 @@
         <div class="modal-footer">
            <% if(model.fil) { %>
            <button type="button" class="filter_ok btn btn-primary">确定</button>
-           <button type="button" class="filter_reset btn btn-default">重置</button>
            <% } else { %>
            <button type="button" class="filter_next btn btn-primary">下一步</button>
            <% } %>
