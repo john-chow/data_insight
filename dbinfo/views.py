@@ -189,30 +189,33 @@ def concertrateSqls(request):
 		return re
 
 
-	(bool_x, bool_y) = ( bool(x_name_list), bool(y_name_list) )
+	(x_len, y_len) = ( len(x_name_list), len(y_name_list) )
 	sql_list = []
 
-	if bool_x and bool_y:
+	# 两个列表长度都是１
+	if (1 == x_len) and (1 == y_len):
 		x_y_list = [(x, y) for x in x_name_list for y in y_name_list] 
 		for (x, y) in x_y_list:
 			[x_re, y_re] = map(fetchOne, (x, y))
 
+			sql = ''
 			if isNumerical(x_re) and isNumerical(y_re):
 				sql = sql_format.format(col=x+u', sum(%s) %s' % (y, y), 
 									table=table, filter=filter_sentence, \
-									option=u'group by %s' % x)
+									option=u'group by %s order by %s' % (x, y))
 			elif isNumerical(x_re) and not isNumerical(y_re):
 				sql = sql_format.format(col=y+u', sum(%s) %s' % (x, x), 
 										table=table, filter=filter_sentence, \
-										option=u'group by %s' % y)
+										option=u'group by %s order by %s' % (y, x))
 			elif not isNumerical(x_re) and isNumerical(y_re):
 				sql = sql_format.format(col=x+u', sum(%s) %s' % (y, y), 
 										table=table, filter=filter_sentence, \
-										option=u'group by %s' % x)
+										option=u'group by %s order by %s' % (x, y))
 			if(sql):
 				sql_list.append(sql)
 	
-	elif bool_x or bool_y:
+	# 一个列表长度１，一个是0
+	elif 1 == (x_len + y_len):
 		one_name_list = x_name_list + y_name_list
 		for one in one_name_list:
 			sql_sample = sql_sample_format.format(col=one, table=table)
@@ -221,12 +224,49 @@ def concertrateSqls(request):
 			if isNumerical(re):
 				sql = sql_format.format(col=u'sum(%s) %s' % (one, one), \
 										table=table, filter=filter_sentence, \
-										option=u'')
+										option=u'order by %s' % (one) )
 			else:
 				sql = sql_format.format(col=u'%s, count(*) %s' % (one, u'number'), \
 										table=table, filter=filter_sentence, \
-										option=u'group by %s' % one)
+										option=u'group by %s order by %s' % (one, u'number'))
 			sql_list.append(sql)
+	
+	'''
+	elif 2 == x_len * y_len:
+		(one_attr_list, two_attrs_list) = (x_name_list, y_name_list) \
+											if 1 == len(x_name_list) \
+											else (y_name_list, x_name_list)
+		(one_col, two_cols) = ( u'%s' % set(one_attr_list), u'%s, %s' % set(two_attrs_list) )
+		[one_sql, two_sqls] = map(lambda _col: sql_format.format(col=_col, \
+											table=table, filter=filter_sentence, \
+											option=u'') )
+		cursor.execute(one_sql)
+		one_re = cursor.fetchone()[0]
+		if not isNumerical(one_re):
+			raise Exception e
+
+		sql = sql_format.format(col=u'%s, %s, %s', table=table, \
+								filter=filter_sentence, option=jjjjjjjjj
+											
+
+		one_sql_format = sql_format.format(col=u'%s' % (one), \
+											table=table, filter=filter_sentence, \
+											option=u'')
+		one_re = cursor.execute(one_sql_format)
+		if not isNumerical(one_re):
+			raise Exception e
+
+		sql_iter = sql_format.format(col=u'%s' % (one), \
+										table=table, filter=filter_sentence, \
+										option=u'group by %s' % one)
+
+	
+	# 一个是1，一个长度大于１
+	elif x_len + y_len > 1:
+		raise Exception()
+	'''
+
+
 
 	conn.close()
 
@@ -263,7 +303,7 @@ def makeupFilterSql(filter_list):
 def generateBackData(request):
 	sql_list	= concertrateSqls(request)
 	(heads_list, data_list) = excSqlForData(request, sql_list)
-	bar 		= vincentlizeData( (heads_list, data_list), format=u'bar' )
+	bar 		= vincentlizeData( (heads_list, data_list), format=u'area' )
 
 	data_json = {}
 	if bar:
@@ -291,6 +331,8 @@ def vincentlizeData(data, format):
 	if not dict:
 		return None
 
+	if HAVE_PDB: 	pdb.set_trace()
+
 	if u'bar' == format:
 		if len( dict[u'head'] ) == 1:
 			head = dict[u'head'][0]
@@ -300,6 +342,33 @@ def vincentlizeData(data, format):
 			chart = vincent.Bar(dict, iter_idx=x_label)
 			chart.axis_titles(x=x_label, y=y_label)
 			chart.legend(title=u'xxxx')
+	if u'line' == format:
+		if len( dict[u'head'] ) == 1:
+			head = dict[u'head'][0]
+			chart = vincent.Line( dict[head] )
+		elif len( dict[u'head'] ) > 1:
+			[x_label, y_label] = dict.pop(u'head', None)
+			chart = vincent.Line(dict, iter_idx=x_label)
+			chart.axis_titles(x=x_label, y=y_label)
+			chart.legend(title=u'xxxx')
+	if u'area' == format:
+		if len( dict[u'head'] ) == 1:
+			head = dict[u'head'][0]
+			chart = vincent.Area( dict[head] )
+		elif len( dict[u'head'] ) > 1:
+			[x_label, y_label] = dict.pop(u'head', None)
+			chart = vincent.Area(dict, iter_idx=x_label)
+			chart.axis_titles(x=x_label, y=y_label)
+			chart.legend(title=u'xxxx')
+
+	if u'pie' == format:
+		if len( dict['head'] ) == 2:
+			[x_label, y_label] = dict.pop(u'head', None)
+			(x_list, y_list) = ( dict[x_label], dict[y_label] )
+			dict = dict( zip(x_list, y_list) )
+			chart = vincent.Pie(dict)
+			chart.legend(title=u'xxxx')
+			
 	
 	return chart
 
