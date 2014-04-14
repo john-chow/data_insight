@@ -18,15 +18,15 @@ import pdb
 
 
 def getDbInfo(request):
-	print 'getDbInfo'
-	table = request.session.get('table')
+	print u'getDbInfo'
+	table = request.session.get(u'table')
 
 	conn 			= connDb(request)
 	if not conn:
-		return HttpResponseRedirect('http://10.1.50.125:9000/')
+		return HttpResponseRedirect(u'http://10.1.50.125:9000/')
 
 	cursor 			= conn.cursor()
-	cursor.execute('select * from %s' % table)
+	cursor.execute(u'select * from %s' % table)
 	results 		= cursor.fetchall()
 	col_names 		= [ q[0] for q in cursor.description ]
 
@@ -43,16 +43,16 @@ def getDbInfo(request):
 			dm_dict[name] = json.dumps(val_list, default=date_handler)
 
 	data = {
-		'name':		table
-		, 'dm':		dm_dict
-		, 'me':		me_dict
+		u'name':		table
+		, u'dm':		dm_dict
+		, u'me':		me_dict
 	}
 
 	return MyHttpJsonResponse(data)
 
 
 def tryIntoDb(request):
-	print 'try into db'
+	print u'try into db'
 
 	if 'POST' == request.method:
 		if connDb(request):
@@ -64,24 +64,24 @@ def tryIntoDb(request):
 			request.session[u'table'] 	= request.POST.get('table', '')
 
 			print 'redirect to indb'
-			return HttpResponseRedirect('/indb/')
+			return HttpResponseRedirect(u'/indb/')
 		else:
-			msg = 'cant access into database'
-			return MyHttpJsonResponse( {'succ': False, 'msg': msg} )
+			msg = u'cant access into database'
+			return MyHttpJsonResponse( {u'succ': False, u'msg': msg} )
 	else:
 		context = RequestContext(request)
-		return render_to_response('index.html', context)
+		return render_to_response(u'index.html', context)
 
 
 def excSqlForData(request, sql_list):
 	conn = connDb(request)
 	if not conn:
-		raise Exception('Cant access into database')
+		raise Exception(u'Cant access into database')
 
 	cursor = conn.cursor()
 
 	for sql in sql_list:
-		print 'sql is   %s' % sql
+		print u'sql is   %s' % sql
 
 	if HAVE_PDB:	 pdb.set_trace()
 
@@ -92,8 +92,8 @@ def excSqlForData(request, sql_list):
 			head = [ q[0] for q in cursor.description ]
 			data = cursor.fetchall()
 
-			print 'head is %s' % len(head)
-			print 'data is %s' % len(data)
+			print u'head is %s' % len(head)
+			print u'data is %s' % len(data)
 
 			heads_list.append(head)
 			data_list.append(data)
@@ -118,13 +118,13 @@ def connDb(request):
 			('ip', 'port', 'table', 'db', 'user', 'pwd') \
 		)
 	
-	conn_str = 'host={i} port={p} dbname={d} user={u} password={pw}'\
+	conn_str = u'host={i} port={p} dbname={d} user={u} password={pw}'\
 					.format(i=ip, p=port, d=db, u=user, pw=pwd)
 
 	try:
 		conn = pysql.connect(conn_str)
 	except Exception, e:
-		print 'cant conn database'
+		print u'cant conn database'
 		return None
 	else:
 		return conn
@@ -137,14 +137,14 @@ def reqDrawData(request):
 			try:
 				data = generateBackData(request)
 			except Exception, e:
-				error_dict = {'succ': False, 'msg': u'数据查询时出错'}
+				error_dict = {u'succ': False, u'msg': u'数据查询时出错'}
 				return MyHttpJsonResponse(error_dict)
 			else:
-				backData = {'succ': True, 'data': data}
+				backData = {u'succ': True, u'data': data}
 				return MyHttpJsonResponse(backData)
 		else:
 			data = generateBackData(request)
-			backData = {'succ': True, 'data': data}
+			backData = {u'succ': True, u'data': data}
 			return MyHttpJsonResponse(backData)
 
 	else:
@@ -158,18 +158,18 @@ def concertrateSqls(request):
 		raise Exception('Cant access into database')
 	cursor = conn.cursor()
 
-	table = request.session.get('table')
+	table = request.session.get(u'table')
 	[raw_x_name_list, raw_y_name_list, raw_filter_list] = \
 			map( lambda i: request.POST.get(i, []), \
-				('column', 'row', 'filter') )
+				(u'column', u'row', u'filter') )
 
 	[x_name_list, y_name_list, filter_list] = \
 			map( lambda i: json.loads(i) if i else i , \
 				(raw_x_name_list, raw_y_name_list, raw_filter_list) )
 			
 
-	sql_sample_format 	= 'select {col} from {table} limit 1'
-	sql_format   		= 'select {col} from {table} {filter} {option}'
+	sql_sample_format 	= u'select {col} from {table} limit 1'
+	sql_format   		= u'select {col} from {table} {filter} {option}'
 
 	filter_sentence	= makeupFilterSql(filter_list)
 
@@ -179,7 +179,7 @@ def concertrateSqls(request):
 		filter_sentence	= 'where ' + ' and '.join(filter_list)
 	'''
 
-	print 'x_name_list, y_name_list length is %s, %s' % \
+	print u'x_name_list, y_name_list length is %s, %s' % \
 						(len(x_name_list), len(y_name_list))
 
 	def fetchOne(col_name):
@@ -198,17 +198,17 @@ def concertrateSqls(request):
 			[x_re, y_re] = map(fetchOne, (x, y))
 
 			if isNumerical(x_re) and isNumerical(y_re):
-				sql = sql_format.format(col=x+', sum(%s) %s' % (y, y), 
+				sql = sql_format.format(col=x+u', sum(%s) %s' % (y, y), 
 									table=table, filter=filter_sentence, \
-									option='group by %s' % x)
+									option=u'group by %s' % x)
 			elif isNumerical(x_re) and not isNumerical(y_re):
-				sql = sql_format.format(col=y+', sum(%s) %s' % (x, x), 
+				sql = sql_format.format(col=y+u', sum(%s) %s' % (x, x), 
 										table=table, filter=filter_sentence, \
-										option='group by %s' % y)
+										option=u'group by %s' % y)
 			elif not isNumerical(x_re) and isNumerical(y_re):
-				sql = sql_format.format(col=x+', sum(%s) %s' % (y, y), 
+				sql = sql_format.format(col=x+u', sum(%s) %s' % (y, y), 
 										table=table, filter=filter_sentence, \
-										option='group by %s' % x)
+										option=u'group by %s' % x)
 			if(sql):
 				sql_list.append(sql)
 	
@@ -219,10 +219,14 @@ def concertrateSqls(request):
 			cursor.execute(sql_sample)
 			re = cursor.fetchone()[0]
 			if isNumerical(re):
-				sql = sql_format.format(col='sum(%s) %s' % (one, one), \
+				sql = sql_format.format(col=u'sum(%s) %s' % (one, one), \
 										table=table, filter=filter_sentence, \
-										option='')
-				sql_list.append(sql)
+										option=u'')
+			else:
+				sql = sql_format.format(col=u'%s, count(*) %s' % (one, u'number'), \
+										table=table, filter=filter_sentence, \
+										option=u'group by %s' % one)
+			sql_list.append(sql)
 
 	conn.close()
 
@@ -234,30 +238,32 @@ def makeupFilterSql(filter_list):
 
 	if type(filter_list) != list \
 		or 0 == len(filter_list):
-		return ''
+		return u''
 
 	sens = []
 	for filter_dict in filter_list:
-		property = filter_dict.get('property')
-		calc	 = filter_dict.get('calc', '')
+		property = filter_dict.get(u'property')
+		calc	 = filter_dict.get(u'calc', '')
 
-		val_list = json.loads( filter_dict.get('val_list') )
+		val_list = json.loads( filter_dict.get(u'val_list') )
 
 		lll = []
 		for x in val_list:
-			x = x if type(x) == 'unicode' else unicode(x)  
-			lll.append( property + '=' + adapt(x).getquoted() ) 
+			if(HAVE_PDB):	pdb.set_trace()
+			x = x if type(x) == u'unicode' else unicode(x)  
+			#lll.append( property + '=' + adapt(x).getquoted() ) 
+			lll.append( property + u'=' + x ) 
 
-		sens.append( ' or '.join(lll) ) 
+		sens.append( u' or '.join(lll) ) 
 	
-	return 'where ' + ' and '.join(sens)
+	return u'where ' + u' and '.join(sens)
 
 
 
 def generateBackData(request):
 	sql_list	= concertrateSqls(request)
 	(heads_list, data_list) = excSqlForData(request, sql_list)
-	bar 		= vincentlizeData( (heads_list, data_list), format='bar' )
+	bar 		= vincentlizeData( (heads_list, data_list), format=u'bar' )
 
 	data_json = {}
 	if bar:
@@ -269,13 +275,13 @@ def generateBackData(request):
 def vincentlizeData(data, format):
 	(heads_list, data_list) = data
 
-	print '.......heads_list len = %s, data_list len is %s' % \
+	print u'.......heads_list len = %s, data_list len is %s' % \
 				( len(heads_list), len(data_list) )
 
 	dict = {}
 	for (heads, data) in zip(heads_list, data_list):
 		val_list = zip(*data)
-		dict['head'] = heads
+		dict[u'head'] = heads
 
 		if HAVE_PDB: 	pdb.set_trace()
 
@@ -285,15 +291,15 @@ def vincentlizeData(data, format):
 	if not dict:
 		return None
 
-	if 'bar' == format:
-		if len( dict['head'] ) == 1:
-			head = dict['head'][0]
+	if u'bar' == format:
+		if len( dict[u'head'] ) == 1:
+			head = dict[u'head'][0]
 			chart = vincent.Bar( dict[head] )
-		elif len( dict['head'] ) > 1:
-			[x_label, y_label] = dict.pop('head', None)
+		elif len( dict[u'head'] ) > 1:
+			[x_label, y_label] = dict.pop(u'head', None)
 			chart = vincent.Bar(dict, iter_idx=x_label)
 			chart.axis_titles(x=x_label, y=y_label)
-			chart.legend(title='xxxx')
+			chart.legend(title=u'xxxx')
 	
 	return chart
 
@@ -303,8 +309,8 @@ def readJsonFile(file):
 	if not file:
 		return {}
 
-	f = open(file, 'r')
-	jsonData = json.load(f, 'utf-8')
+	f = open(file, u'r')
+	jsonData = json.load(f, u'utf-8')
 	return jsonData
 	
 
