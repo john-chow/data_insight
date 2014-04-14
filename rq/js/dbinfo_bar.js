@@ -1,8 +1,9 @@
 define([
 "backbone"
+, "model/dbinfo"
 , "bootstrap"
 , "text!../template/dbinfo_bar.html" 
-], function(Backbone, b, dataAreaHtml) {
+], function(Backbone, DbinfoModel, b, dataAreaHtml) {
 
     var DbInfoBarView = Backbone.View.extend({
 
@@ -14,11 +15,21 @@ define([
         },
 
         initialize: function() {
+			this.model = new DbinfoModel();
             this.listenTo(this.model, "change", this.onDbChanged);
+			this.startListeners();
 
             // 这里应该是model向服务器请求数据
             this.model.fetch()
         },
+
+		startListeners: function() {
+			var self = this;
+			Backbone.Events.on("dbinfo:model_data", function(title) {
+				var data = self.model.getContentsBykey(title);
+				Backbone.Events.trigger("modal:filter_data", data)
+			})
+		},
 
         render: function() {
             this.$el.html( _.template(this.template, this.model.toJSON(), {variable: "model"}) );

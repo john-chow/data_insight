@@ -4,9 +4,7 @@ define([
 , "design_panel"
 , "bootstrap"
 , "model/vtron_model"
-, "model/dbinfo"
-], function(Backbone, DbBarView, PanelView, b, VtronModel, 
-	DbInfoModel) {
+], function(Backbone, DbBarView, PanelView, b, VtronModel) {
 
 	var WorkAreaModel = VtronModel.extend({
 		urlRoot: "/indb/draw/"
@@ -25,9 +23,13 @@ define([
 		  	);
 
 			this.model 		= new WorkAreaModel();
+			/*
             var dbModel     = new DbInfoModel;
             this.dbBarView  = new DbBarView( {model: dbModel} );
             this.panelView  = new PanelView( {dbModel: dbModel} );
+			*/
+            this.dbBarView  = new DbBarView();
+            this.panelView  = new PanelView();
             this.render();
         },
 
