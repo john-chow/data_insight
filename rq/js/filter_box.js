@@ -12,7 +12,7 @@ define([
         tagName:    "div",
         id:         "filter_box",
         template:   filterBoxHtml,
-		item_template:	"<label></label><br/>",
+		item_template:	"<li></li>",
 
         initialize: function() {
 			this.collection = new FiltersCollection();
@@ -55,10 +55,20 @@ define([
 		},
 
 		addFilterItem: function(model) {
-			this.$("#filter_body").append(
+			//判断判断条件之前是否存在
+			$("#filter_body ul li").each(function(ev){
+			   if($(this).html()==model.toJSON()["property"])
+			   		$(this).remove();
+			 });
+			this.$("#filter_body ul").append(
 				$(this.item_template)
 						.html( model.toJSON()["property"] )
 			);
+			this.$("#filter_body ul li").on( "click", this.showModal);
+		},
+
+		showModal: function() {
+			$("#filter_modal").modal("show");
 		},
 
 		/*

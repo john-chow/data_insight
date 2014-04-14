@@ -27,7 +27,7 @@ define([
         },
 
         render: function() {
-            this.remove();
+           // this.remove();
             this.setElement( 
                 _.template(this.template, this.model.toJSON(), {"variable": "model"}) 
             );
