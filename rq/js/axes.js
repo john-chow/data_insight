@@ -131,10 +131,17 @@ define([
 			*/
 
 			// 这里从html页面上找寻属性顺序，原则上不合理，有待修改
-			var list = this.$(this.sortObjId).find('.attr');
+			var list = this.$(this.sortObjId).find(".mension, .measure");
 			var tm = [];
 			$.each(list, function(i, x) {
-				tm.push( $(x).html() )
+				// 通过class判断是数值型的，还是文字型
+				var classes = $(x).attr("class");
+				var kind = ( classes.indexOf("measure") ) ? 0 : 1;
+
+				tm.push({
+					"kind": kind, 
+					"attr": $(x).find(".attr").html() 
+				})
 			})
 
 			this.model.set(this.name, tm);

@@ -1,8 +1,6 @@
 define([
   'jquery'
-  , 'lib/d3.v3.min'
-  , 'lib/vega'
-], function($, _d, _v) {
+], function($) {
 
 	t = {
 		start: function() {

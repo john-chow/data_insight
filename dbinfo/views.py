@@ -11,6 +11,8 @@ from psycopg2.extensions import adapt
 import psycopg2 as pysql
 import vincent
 import pandas as pd
+import logging
+from dbinfo.echart import *
 from common.head import *
 from common.tool import *
 
@@ -83,8 +85,6 @@ def excSqlForData(request, sql_list):
 	for sql in sql_list:
 		print u'sql is   %s' % sql
 
-	if HAVE_PDB:	 pdb.set_trace()
-
 	(heads_list, data_list) = ([], [])
 	try:
 		for sql in sql_list:
@@ -133,17 +133,13 @@ def connDb(request):
 
 def reqDrawData(request):
 	if 'POST' == request.method:
-		if IS_RELEASE:
-			try:
-				data = generateBackData(request)
-			except Exception, e:
-				error_dict = {u'succ': False, u'msg': u'数据查询时出错'}
-				return MyHttpJsonResponse(error_dict)
-			else:
-				backData = {u'succ': True, u'data': data}
-				return MyHttpJsonResponse(backData)
-		else:
+		try:
+			logging.debug('reqDrawData is running')
 			data = generateBackData(request)
+		except Exception, e:
+			error_dict = {u'succ': False, u'msg': u'数据查询时出错'}
+			return MyHttpJsonResponse(error_dict)
+		else:
 			backData = {u'succ': True, u'data': data}
 			return MyHttpJsonResponse(backData)
 
@@ -159,13 +155,13 @@ def concertrateSqls(request):
 	cursor = conn.cursor()
 
 	table = request.session.get(u'table')
-	[raw_x_name_list, raw_y_name_list, raw_filter_list] = \
-			map( lambda i: request.POST.get(i, []), \
-				(u'column', u'row', u'filter') )
 
 	[x_name_list, y_name_list, filter_list] = \
-			map( lambda i: json.loads(i) if i else i , \
-				(raw_x_name_list, raw_y_name_list, raw_filter_list) )
+			map( lambda i: json.loads(i), \
+				map( lambda i: request.POST.get(i, u'[]'), \
+						(u'column', u'row', u'filter') \
+					) \
+				)
 			
 
 	sql_sample_format 	= u'select {col} from {table} limit 1'
@@ -173,11 +169,6 @@ def concertrateSqls(request):
 
 	filter_sentence	= makeupFilterSql(filter_list)
 
-	'''
-	if bool(filter_list):
-		filter_list = request.session['_filter_'].values()
-		filter_sentence	= 'where ' + ' and '.join(filter_list)
-	'''
 
 	print u'x_name_list, y_name_list length is %s, %s' % \
 						(len(x_name_list), len(y_name_list))
@@ -230,42 +221,6 @@ def concertrateSqls(request):
 										table=table, filter=filter_sentence, \
 										option=u'group by %s order by %s' % (one, u'number'))
 			sql_list.append(sql)
-	
-	'''
-	elif 2 == x_len * y_len:
-		(one_attr_list, two_attrs_list) = (x_name_list, y_name_list) \
-											if 1 == len(x_name_list) \
-											else (y_name_list, x_name_list)
-		(one_col, two_cols) = ( u'%s' % set(one_attr_list), u'%s, %s' % set(two_attrs_list) )
-		[one_sql, two_sqls] = map(lambda _col: sql_format.format(col=_col, \
-											table=table, filter=filter_sentence, \
-											option=u'') )
-		cursor.execute(one_sql)
-		one_re = cursor.fetchone()[0]
-		if not isNumerical(one_re):
-			raise Exception e
-
-		sql = sql_format.format(col=u'%s, %s, %s', table=table, \
-								filter=filter_sentence, option=jjjjjjjjj
-											
-
-		one_sql_format = sql_format.format(col=u'%s' % (one), \
-											table=table, filter=filter_sentence, \
-											option=u'')
-		one_re = cursor.execute(one_sql_format)
-		if not isNumerical(one_re):
-			raise Exception e
-
-		sql_iter = sql_format.format(col=u'%s' % (one), \
-										table=table, filter=filter_sentence, \
-										option=u'group by %s' % one)
-
-	
-	# 一个是1，一个长度大于１
-	elif x_len + y_len > 1:
-		raise Exception()
-	'''
-
 
 
 	conn.close()
@@ -274,8 +229,6 @@ def concertrateSqls(request):
 
 
 def makeupFilterSql(filter_list):
-	if(HAVE_PDB):	pdb.set_trace()
-
 	if type(filter_list) != list \
 		or 0 == len(filter_list):
 		return u''
@@ -289,7 +242,6 @@ def makeupFilterSql(filter_list):
 
 		lll = []
 		for x in val_list:
-			if(HAVE_PDB):	pdb.set_trace()
 			x = x if type(x) == u'unicode' else unicode(x)  
 			#lll.append( property + '=' + adapt(x).getquoted() ) 
 			lll.append( property + u'=' + x ) 
@@ -301,6 +253,87 @@ def makeupFilterSql(filter_list):
 
 
 def generateBackData(request):
+	(data_from_db, attr_list) = searchDataFromDb(request)
+	echart_data = formatData(request, data_from_db, attr_list)
+
+	return echart_data
+
+
+
+def searchDataFromDb(request):
+	[col_kind_attr_list, row_kind_attr_list, filters_list] = \
+			map( lambda i: json.loads(i), \
+				map( lambda i: request.POST.get(i, u'[]'), \
+						(u'column', u'row', u'filter') \
+					) \
+				)
+
+	#col_kind_attr_list = [ {u'kind': 0, u'attr': u'color'}, {u'kind': 0, u'attr': u'cut'} ]
+	#row_kind_attr_list = [ {u'kind': 1, u'attr': u'price'} ]
+
+	# echart 最多支持 1*2 的属性
+	col_len, row_len =  len(col_kind_attr_list), len(row_kind_attr_list) 
+	if col_len > 2 or row_len > 2 or (col_len == 2 and row_len == 2):
+		raise Exception(u'Can not draw it in baidu-echart')
+	if 0 == col_len or 0 == row_len:
+		raise Exception(u'Thers is no value column')
+
+	filter_sentence	= makeupFilterSql(filters_list)
+	(category_attr_list, val_attr_list, kind_list) = ([], [], [])
+
+	len_col_attr_list = len(col_kind_attr_list)
+	for idx, kind_attr in enumerate(col_kind_attr_list + row_kind_attr_list):
+		col_row_flag = u'col' if idx < len_col_attr_list else u'row'
+		if 0 == kind_attr[u'kind']:
+			category_attr_list.append( (kind_attr[u'attr'], 0, col_row_flag) )
+			kind_list.append(0)
+		else:
+			val_attr_list.append( (kind_attr[u'attr'], 1, col_row_flag) )
+			kind_list.append(1)
+
+	sel_str_list = []
+	attr_list = val_attr_list + category_attr_list
+	for (attr_name, kind, x_y) in attr_list:
+		if 1 == kind:
+			sel_str_list.append( 'sum(%s) %s' % (attr_name, attr_name) )
+		else:
+			sel_str_list.append( '%s' % (attr_name) )
+	sel_str = u', '.join(sel_str_list)
+		
+
+	# 以第一个类目属性做group by参数，其他的全部做成where条件
+	sql_template = u'select {attrs} from {table} {filter} {option}'
+	#table_name = request.POST.get('table')
+	table_name = u'diamond'
+	option_group = 'group by ' + \
+						u','.join( [attr for (attr, _, _) in category_attr_list] ) \
+							if len(category_attr_list) > 0 else u''
+	sql = sql_template.format(attrs=sel_str, table=table_name, \
+								filter=filter_sentence, option=option_group)
+
+	conn = connDb(request)
+	cursor = conn.cursor()
+	cursor.execute(sql)
+	data = cursor.fetchall()
+
+	
+	return (data, attr_list)
+
+
+
+def formatData(request, data_from_db, attr_list):
+	shape = request.POST.get('shape', 'bar')
+	if 'bar' == shape:
+		bar = Bar()
+		rs = bar.makeData(data_from_db, attr_list)
+
+	return rs
+	
+	
+
+
+'''
+def generateBackData(request):
 	sql_list	= concertrateSqls(request)
 	(heads_list, data_list) = excSqlForData(request, sql_list)
 	bar 		= vincentlizeData( (heads_list, data_list), format=u'area' )
@@ -310,6 +343,7 @@ def generateBackData(request):
 		bar.to_json(TEMP_DRAW_DATA_FILE)
 		data_json	= readJsonFile(TEMP_DRAW_DATA_FILE)
 	return data_json
+'''
 
 
 def vincentlizeData(data, format):
