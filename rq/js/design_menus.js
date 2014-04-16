@@ -14,6 +14,8 @@ define([
         className: "container",
 
         events: {
+            "click #open_work_book" :      "openWorkBook",
+            "click #save_work_book" :      "saveWorkBook",
         },
 
         initialize: function() {
@@ -32,6 +34,14 @@ define([
 
         showLinkDbModal: function(ev){
             this.linkDbModal.render();
+        },
+
+        openWorkBook: function() {
+            Backbone.Events.trigger("work_book:open");
+        },
+
+        saveWorkBook: function() {
+            Backbone.Events.trigger("work_book:save");
         }
 
     });

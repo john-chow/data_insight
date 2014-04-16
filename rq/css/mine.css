@@ -180,7 +180,7 @@
     height: 30px;
 }
 
-#filter_box button {
+#filter_tag button {
     background: transparent;
     font-size: 10px;
     margin: 8px 5px 0px 0;
@@ -371,7 +371,9 @@ overflow: hidden;
 }
 
 .plots_close:hover,
-.plots_close:focus {
+.plots_close:focus,
+.filter-close:hover,
+.filter-close:focus {
 color: #000;
 text-decoration: none;
 cursor: pointer;
@@ -379,17 +381,20 @@ filter: alpha(opacity=50);
 opacity: .5;
 }
 
-button.plots_close {
+button.plots_close,
+button.filter-close {
 padding: 0;
 cursor: pointer;
 background: transparent;
 border: 0;
+margin:0;
 }
 
-.plots_close {
+.plots_close,
+.filter-close {
 float: right;
-font-size: 21px;
 font-weight: bold;
+font-size: 21px;
 line-height: 1;
 color: #000;
 text-shadow: 0 1px 0 #fff;
@@ -624,14 +629,13 @@ body {
 
 #filter_body ul li {
     padding: 0 0 0px 10px;
-    border: 1px solid white;
-    cursor: pointer;
+    border: 1px solid #CCC5EC;
+    background-color: #E5F1FB;
+    border-radius: 5px;
 }
 
 #filter_body ul li:hover {
-   background-color: #E5F1FB;
-    border-radius: 5px;
-    border: 1px solid #CCC5EC;
+    border: 1px solid #A9A3C9;
 }
 
 .choosed-chart-style {
@@ -640,4 +644,9 @@ body {
     text-decoration: none !important;
     color: #333 !important;
     border: 1px solid #95AEDA !important;
+}
+
+#filter_body ul li {
+    position: relative;
+    margin: 3px 0;
 }

@@ -1,11 +1,12 @@
 define([
 "backbone"
 , "bootstrap"
+, "underscore"
 , "model/filter_boxes"
 , "color"
 , "jquery"
 , "text!../template/filter_box.html"
-], function(Backbone, b, FiltersCollection, color, jquery, filterBoxHtml) {
+], function(Backbone, b, _, FiltersCollection, color, jquery, filterBoxHtml) {
 
     var FilterBoxView = Backbone.View.extend({
 
@@ -14,8 +15,24 @@ define([
         template:   filterBoxHtml,
 		item_template:	"<li></li>",
 
+		events: {
+			"mouseenter 	#filter_body ul li":	"showClose"
+			, "mouseleave 	#filter_body ul li":	"hideClose"
+			, "click 		.filter-close":			"rmAttr"
+			, "mouseout 	.filter-close":			"hideCloseByOut" 
+		},
+
         initialize: function() {
 			this.collection = new FiltersCollection();
+			//删除事件
+			var self = this;
+			Backbone.Events.on("collection:delete", function(title) {
+				rmmodel = _.find(self.collection.models, function(model){
+				 	return model.get("property")==title; 
+				});
+				self.collection.remove(rmmodel);
+				self.collection.myPass("area:user_action")
+			});
             this.render();
         },
 
@@ -39,7 +56,37 @@ define([
 		          },
 		          theme: 'bootstrap'
 		        });
-			})
+			});
+			// 大小控制条
+			this.$( "#master" ).slider({
+			      value: 50,
+			      orientation: "horizontal",
+			      range: "min",
+			      animate: true
+			});
+		},
+
+		showClose: function(ev) {
+			$(ev.target).append("<button type='button' class='filter-close'>×</button>");
+		},
+
+		hideClose: function(ev) {
+			$(ev.target).find("button").remove();
+		},
+
+		rmAttr: function(ev) {
+			var title = $(ev.target).siblings('span').html();
+			$(ev.target).parent().remove();
+			//1.把新的筛选器发送到服务器，更新数据
+			Backbone.Events.trigger("collection:delete", title)
+			//2.删除对应的模态框或者把对应的模态框的内容清除
+
+
+
+		},
+
+		hideCloseByOut: function(ev) {
+			$(ev.target).remove();
 		},
 
 
@@ -56,18 +103,17 @@ define([
 
 		addFilterItem: function(model) {
 			//判断判断条件之前是否存在
-			$("#filter_body ul li").each(function(ev){
+			$("#filter_body ul li span").each(function(ev){
 			   if($(this).html()==model.toJSON()["property"])
-			   		$(this).remove();
+			   		$(this).parent().remove();
 			 });
 			this.$("#filter_body ul").append(
-				$(this.item_template)
-						.html( model.toJSON()["property"] )
+				$(this.item_template).html("<span>"+ model.toJSON()["property"] +"</span>")
 			);
-			this.$("#filter_body ul li").on( "click", function(){
-				title=$(this).html();
+			/*this.$("#filter_body ul li").on( "click", function(){
+				title=$(this).find("span").html();
 				$("#filter_modal[data="+title+"]").modal("show");
-			});
+			});*/
 		},
 
 		showModal: function() {

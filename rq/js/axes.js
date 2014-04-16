@@ -25,8 +25,8 @@ define([
 		),
 
 		events: {
-			"mouseenter 	.connectedSortable":	"showClose"
-			, "mouseleave 	.connectedSortable":	"hideClose"
+			"mouseenter 	#column_sortable li,#row_sortable li":	"showClose"
+			, "mouseleave 	#column_sortable li,#row_sortable li":	"hideClose"
 			, "click 		.plots_close":			"rmAttr"
 			, "mouseout 	.plots_close":			"hideCloseByOut" 
 		},

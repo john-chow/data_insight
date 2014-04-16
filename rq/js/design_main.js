@@ -3,9 +3,10 @@ define([
 , "design_menus"
 , "work_area"
 , "show_area"
+, "submit_form"
 , "modal_manager"
 ], function(Backbone, MenusView, WorkareaView
-			, ShowAreaView, ModalManager) {
+			, ShowAreaView, submitFormView, ModalManager) {
 
 	// 使model save时，数据是object型
 	Backbone.emulateJSON = true;
@@ -17,6 +18,7 @@ define([
             this.menusView      = new MenusView();
             this.workareaView   = new WorkareaView();
             this.showAreaView   = new ShowAreaView();
+            this.submitFormView = new submitFormView();
 
             this.render();
         },
@@ -27,6 +29,7 @@ define([
                 this.menusView.el
                 , this.workareaView.el
                 , this.showAreaView.el
+                , this.submitFormView.el
             );
         }
     });

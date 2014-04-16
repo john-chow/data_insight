@@ -16,6 +16,7 @@ define([
 				view.model.set( {
 					"title":		title
 					, "fil": 		data
+					,"pro_id":      id
 				} ); 
 				view.render();
 				idToViewMap[id] = view

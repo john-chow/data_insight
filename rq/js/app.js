@@ -40,7 +40,7 @@ requirejs([
 	})
 
 
-     //流动布局
+   /*  //流动布局
      gridster = $(".gridster ul").gridster({
       //widget_selector: "li",                        //确定哪个元素是widget
       widget_margins: [5, 5],                       //margin大小
@@ -50,7 +50,7 @@ requirejs([
       resize:{
         enabled: true
       },
-    }).data('gridster');
+    }).data('gridster');*/
 
 /*
     //设置可自动排序

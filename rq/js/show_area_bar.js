@@ -10,7 +10,7 @@ define([
         id:                 "show_area_bar",
 
         events: {
-         
+          "click #choosed_chart li":         "addWidget",
         },
 
         initialize: function() {
@@ -19,6 +19,11 @@ define([
 
         render: function() {
             this.$el.html(showAreaBarHtml);
+        },
+
+        addWidget: function(ev) {
+            var data = $(ev.target).attr("data");
+            Backbone.Events.trigger("gridster:add", data);
         }
     });
 

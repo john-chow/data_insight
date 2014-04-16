@@ -107,7 +107,13 @@ define([
         },
 
 		ensureFilter: function(data) {
-			this.filterBoxView.collection.add(data)
+            var title=data.property;
+            rmmodel = _.find(this.filterBoxView.collection.models, function(model){
+                    return model.get("property")==title; 
+            });
+            if(rmmodel)
+                this.filterBoxView.collection.remove(rmmodel);
+			this.filterBoxView.collection.add(data);
 		}
     });
 
