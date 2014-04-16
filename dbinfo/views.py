@@ -85,8 +85,6 @@ def excSqlForData(request, sql_list):
 	for sql in sql_list:
 		print u'sql is   %s' % sql
 
-	if HAVE_PDB:	 pdb.set_trace()
-
 	(heads_list, data_list) = ([], [])
 	try:
 		for sql in sql_list:
@@ -135,18 +133,13 @@ def connDb(request):
 
 def reqDrawData(request):
 	if 'POST' == request.method:
-		if IS_RELEASE:
-			try:
-				logging.debug('reqDrawData is running')
-				data = generateBackData(request)
-			except Exception, e:
-				error_dict = {u'succ': False, u'msg': u'数据查询时出错'}
-				return MyHttpJsonResponse(error_dict)
-			else:
-				backData = {u'succ': True, u'data': data}
-				return MyHttpJsonResponse(backData)
-		else:
+		try:
+			logging.debug('reqDrawData is running')
 			data = generateBackData(request)
+		except Exception, e:
+			error_dict = {u'succ': False, u'msg': u'数据查询时出错'}
+			return MyHttpJsonResponse(error_dict)
+		else:
 			backData = {u'succ': True, u'data': data}
 			return MyHttpJsonResponse(backData)
 
@@ -275,24 +268,27 @@ def searchDataFromDb(request):
 					) \
 				)
 
-	col_kind_attr_list = [ {u'kind': 0, u'attr': u'color'}, {u'kind': 0, u'attr': u'cut'} ]
-	row_kind_attr_list = [ {u'kind': 1, u'attr': u'price'} ]
+	#col_kind_attr_list = [ {u'kind': 0, u'attr': u'color'}, {u'kind': 0, u'attr': u'cut'} ]
+	#row_kind_attr_list = [ {u'kind': 1, u'attr': u'price'} ]
 
 	# echart 最多支持 1*2 的属性
-	(col_len, row_len) = ( len(col_kind_attr_list), len(row_kind_attr_list) )
+	col_len, row_len =  len(col_kind_attr_list), len(row_kind_attr_list) 
 	if col_len > 2 or row_len > 2 or (col_len == 2 and row_len == 2):
 		raise Exception(u'Can not draw it in baidu-echart')
+	if 0 == col_len or 0 == row_len:
+		raise Exception(u'Thers is no value column')
 
 	filter_sentence	= makeupFilterSql(filters_list)
 	(category_attr_list, val_attr_list, kind_list) = ([], [], [])
 
-
-	for kind_attr in (col_kind_attr_list + row_kind_attr_list):
+	len_col_attr_list = len(col_kind_attr_list)
+	for idx, kind_attr in enumerate(col_kind_attr_list + row_kind_attr_list):
+		col_row_flag = u'col' if idx < len_col_attr_list else u'row'
 		if 0 == kind_attr[u'kind']:
-			category_attr_list.append( (kind_attr[u'attr'], 0, u'col') )
+			category_attr_list.append( (kind_attr[u'attr'], 0, col_row_flag) )
 			kind_list.append(0)
 		else:
-			val_attr_list.append( (kind_attr[u'attr'], 1, u'col') )
+			val_attr_list.append( (kind_attr[u'attr'], 1, col_row_flag) )
 			kind_list.append(1)
 
 	sel_str_list = []

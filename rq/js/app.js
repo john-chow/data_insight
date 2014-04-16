@@ -1,11 +1,10 @@
 requirejs([
  "jquery",
  "gridster",
- "main",
+ "design_main",
  "jqueryUi",
  "bootstrap",
- 'test'
-], function($, g, MainView ,ui ,b ,t) {
+], function($, g, MainView ,ui ,b) {
 	new MainView;
 
     var MainRouter = Backbone.Router.extend({
