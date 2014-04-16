@@ -3,8 +3,9 @@ define([
 , "backbone"
 , "bootstrap"
 , "link_db_modal"
+, "intelligent_display"
 , "text!../template/design_menu.html" 
-], function($, Backbone, x, linkDbModal, menuHtml) {
+], function($, Backbone, x, linkDbModal, intelligentDisplay, menuHtml) {
 
     var MenusView = Backbone.View.extend({
 
@@ -13,36 +14,25 @@ define([
         className: "container",
 
         events: {
-            "click .intelligent-display-name":                "changeIntelligentDisplay"
-            ,"mouseover .intelligent-display-pic button":     "showTips"
         },
 
         initialize: function() {
             this.linkDbModal = new linkDbModal();
+            this.intelligentDisplay=new intelligentDisplay();
             this.render();
             this.$("#menu_link_db").on( "click", _.bind(this.showLinkDbModal, this) );
         },
 
         render: function() {
             this.$el.html(menuHtml);
-        },
-
-        changeIntelligentDisplay: function(e) {
-            if(this.$(".intelligent-display-pic").css("display") == "none")
-                this.$(".intelligent-display-pic").slideDown("normal");
-            else
-                this.$(".intelligent-display-pic").slideUp("normal");
-        },
-
-        showTips: function(ev) {
-            this.$(".intelligent-display-tips").html("提示："+$(ev.target).attr("title"));
+            this.$el.find(".navbar-nav").append(
+                this.intelligentDisplay.el
+            );
         },
 
         showLinkDbModal: function(ev){
             this.linkDbModal.render();
         }
-
-
 
     });
 

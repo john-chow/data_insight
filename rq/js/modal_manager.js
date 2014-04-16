@@ -12,7 +12,7 @@ define([
 		var view = idToViewMap[id];
 		if (!view) {
 			view = new ChooseFilterView();
-			Backbone.Events.on("modal:filter_data", function(data) {
+			Backbone.Events.once("modal:filter_data", function(data) {
 				view.model.set( {
 					"title":		title
 					, "fil": 		data

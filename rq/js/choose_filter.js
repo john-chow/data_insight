@@ -13,7 +13,6 @@ define([
 
         events: {
             "click .filter_cancel":                "close"
-            , "click .filter_reset":               "render"
             , "click .filter_ok":                  "ensureFilter"
             , "click #choose_filter_all":          "chooseAll"
             , "click #choose_filter_none":         "chooseNone"
