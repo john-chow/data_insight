@@ -134,7 +134,14 @@ define([
 			var list = this.$(this.sortObjId).find('.attr');
 			var tm = [];
 			$.each(list, function(i, x) {
-				tm.push( $(x).html() )
+				// 通过class判断是数值型的，还是文字型
+				var classes = $(x).attr("class");
+				var kind = $.inArray("measure", classes) ? 1 : 0;
+
+				tm.push({
+					"kind": kind, 
+					"attr": $(x).html() 
+				})
 			})
 
 			this.model.set(this.name, tm);

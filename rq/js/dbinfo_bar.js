@@ -48,7 +48,6 @@ define([
         },
 
         drag: function(ev) {
-            //ev.originalEvent.dataTransfer.setData( "text/plain", $(ev.target).html() );
 			$tar = $(ev.target);
 			data = {
 				"pro_id": 		$tar.attr("id")
