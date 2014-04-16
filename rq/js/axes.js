@@ -35,8 +35,6 @@ define([
 			this.name 			= opt.name;
 			this.sortObjId		= "#" + this.name + "_sortable";
 
-			//this.model 		= new AxesModel( {id: this.name} );
-			//this.listenTo(this.model, 'change:'+this.name, this.updateToSev);
 			this.model = new AxesModel();
 			this.listenTo(this.model, 'change:'+this.name, this.passToTotal);
 			this.render();
@@ -66,13 +64,52 @@ define([
         },
 
         rmAttr: function(ev) {
+			/*
 			var attr = $(ev.target).siblings('.attr').html();
             $(ev.target).parent().remove();
+			*/
 
+			var $attrObj = $(ev.target).parent();
+			var attrDict = this.makeAttrData($attrObj);
+			$attrObj.remove();
+			
 			var attrList = this.model.get(this.name);
-			var newAttrList = Delete_from_array(attrList, attr);
+			var newAttrList = Delete_from_array(attrList, attrDict);
 			this.model.set(this.name, newAttrList);
         },
+
+		afterSort: function(ev, ui) {
+			// 这里从html页面上找寻属性顺序，原则上不合理，有待修改
+			var list = this.$(this.sortObjId).find(".mension, .measure");
+			var tm = [];
+			var self = this;
+			$.each(list, function(i, x) {
+				var attrDict = self.makeAttrData($(x));
+				tm.push(attrDict)
+
+				/*
+				// 通过class判断是数值型的，还是文字型
+				var classes = $(x).attr("class");
+				var kind = ( classes.indexOf("measure") ) ? 0 : 1;
+
+				tm.push({
+					"kind": kind, 
+					"attr": $(x).find(".attr").html() 
+				})
+				*/
+			})
+
+			this.model.set(this.name, tm);
+		},
+
+		makeAttrData: function($attrObj) {	
+			var classes = $attrObj.attr("class");
+			var kind = ( classes.indexOf("measure") ) ? 0 : 1;
+			return {
+				"kind": kind, 
+				"attr": $attrObj.find(".attr").html() 
+			}
+		},
 
 		setDragProperty: function() {
 			//设置可自动排序
@@ -117,60 +154,10 @@ define([
 			}).disableSelection()
 		},
 
-		afterSort: function(ev, ui) {
-			/*
-			// 要判断是增加属性、还是只是排序
-			var draged 			= ui.item.html();
-			var modelContents 	= this.model.get(this.name) || []; 			
-			var backupModelList = modelContents;
-
-			if( $.inArray(draged, modelContents) < 0 ) {
-				modelContents.push(draged);
-				this.model.set(this.name, modelContents)
-			}
-			*/
-
-			// 这里从html页面上找寻属性顺序，原则上不合理，有待修改
-			var list = this.$(this.sortObjId).find(".mension, .measure");
-			var tm = [];
-			$.each(list, function(i, x) {
-				// 通过class判断是数值型的，还是文字型
-				var classes = $(x).attr("class");
-				var kind = ( classes.indexOf("measure") ) ? 0 : 1;
-
-				tm.push({
-					"kind": kind, 
-					"attr": $(x).find(".attr").html() 
-				})
-			})
-
-			this.model.set(this.name, tm);
-		},
 
 		passToTotal: function() {
 			this.model.myPass()
 		}	
-
-		/* 
-		updateToSev: function() {
-			console.log('update to server');
-			var self = this;
-			this.model.save(null, {
-				"success": function(m, res, opt) {
-					if(res.succ) {
-						Backbone.Events.trigger("draw:ready", res.data)
-					} else {
-						alert('11111');
-						self.model.set(self.name, backupModelList)
-					}
-				}
-				, "error":  function() {
-					//self.model.set(self.name, backupModelList)
-					// TBD 	视图山按照原来的样式重新摆弄属性列表
-				}
-			})
-		}
-		*/
 
 	});
 

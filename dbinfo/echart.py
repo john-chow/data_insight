@@ -47,6 +47,7 @@ class EChart():
 class Bar(EChart):
 	def __init__(self):
 		EChart.__init__(self)
+		self.shape = u'bar'
 
 	def makeData(self, data_from_db, attr_list):
 		# echart 最多处理 1*2，至少一列是文字列，一列是数字列。
@@ -101,4 +102,9 @@ class Bar(EChart):
 				
 			
 				
+class Line(EChart):
+	def __init__(self):
+		EChart.__init__(self)
+		self.shape = u'line'
+
 
