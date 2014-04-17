@@ -9,16 +9,35 @@ function String_format(){
 }
 
 
+// 支持 [_, _, _, .....]和
+// [{}，{}，....]的删除操作
 function Delete_from_array(list, val) {
-	if( (list instanceof Array) 
-		&& val ) {
-
-		var cloned = list.slice(0);
-		var idx = cloned.indexOf(val);
-		if (idx >= 0) {
-			cloned.splice(idx, 1)
-		}
-
-		return cloned
+	if( !(list instanceof Array) ) {
+		return list
 	}
+	if(!val) {
+		return list
+	}
+
+	function splice_array(arr, idx) {
+		arr.splice(idx, 1);
+		return arr
+	}
+
+
+	var cloned = list.slice(0);
+	var idx = cloned.indexOf(val);
+	if (idx >= 0) {
+		return splice_array(cloned, idx)
+	}
+
+	if(val instanceof Object) {
+		for (var idx in list) {
+			if ( JSON.stringify(list[idx]) === JSON.stringify(val) )
+				return splice_array(cloned, idx)
+		}
+	}
+
+	return cloned
 }
+
