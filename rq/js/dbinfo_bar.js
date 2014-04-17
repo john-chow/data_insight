@@ -40,7 +40,8 @@ define([
             this.render();
 			// 为所有属性增加id
 			$.each( this.$(".mension, .measure"), function(i, obj) {
-				$(obj).attr("id", "db_property_" + i)
+				$(obj).attr("id", "db_property_" + i);
+				$(obj).attr("db-data", "db_property_" + i);
 			})
 
             this.$(".mension, .measure").on("dragstart", this.drag);

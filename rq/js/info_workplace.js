@@ -12,8 +12,10 @@ define([
         id:                 "info_workplace",
 
         events: {
-            "click .work-book"             :"openWorkBook",
-            "click .work-table"             :"openWorkTable",
+            "click .work-book"                :"openWorkBook",
+            "click .work-table"               :"openWorkTable",
+            "dblclick .work-book"             :"changeName",
+            "dblclick .work-table"            :"changeName",
          
         },
 
@@ -48,6 +50,7 @@ define([
             $("#work_area").hide();
             change_auto();
             Backbone.Events.trigger("gridster:init", "");
+            Backbone.Events.trigger("showarea:infowork");
             
         },
 
@@ -55,6 +58,26 @@ define([
             $("#show_area").hide();
             $("#work_area").show();
             change_auto();
+            Backbone.Events.trigger("workarea:infowork");
+        },
+
+        changeName: function(ev) {
+            $(ev.target).hide();
+            var $input = $(ev.target).siblings("input");
+            $input.show().focus();
+            $input.blur(function(){
+                var $span = $(this).siblings("span");
+                var oldName= $span.html();
+                var newName= $(this).val();
+                if(newName==""){
+                  $(this).val(oldName);
+                }
+                else{
+                  $span.html(newName)
+                }
+                $span.show();
+                $(this).hide();
+            });
         }
     });
 

@@ -34,9 +34,9 @@ requirejs([
 
 
 	// 为所有属性增加id
-	$.each( $("#mensions_list .mension, .measure"), function(i, obj) {
-		$(obj).attr("id", "db_property_" + i)
-	})
+	/*$.each( $("#mensions_list .mension, .measure"), function(i, obj) {
+		$(obj).attr("id", "db_property" + i);
+	})*/
 
 
    /*  //流动布局

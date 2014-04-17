@@ -26,7 +26,7 @@ define([
             //this.filterModel = new FilterModel();
 
             this.filterBoxView = new filterBoxView();
-            this.infoWorkplaceView = new infoWorkplaceView();
+            //this.infoWorkplaceView = new infoWorkplaceView();
 
             this.drawPlaceView = new DrawPlaceView();
 			/*
@@ -59,7 +59,7 @@ define([
             this.$el.append(
                 this.filterBoxView.el
                 , this.drawPlaceView.el
-                , this.infoWorkplaceView.el
+               //, this.infoWorkplaceView.el
             );
         },
 

@@ -13,13 +13,13 @@ define([
         tagName:    "div",
         id:         "filter_box",
         template:   filterBoxHtml,
-		item_template:	"<li></li>",
+		item_template:	"<li class='filter-li'></li>",
 
 		events: {
-			"mouseenter 	#filter_body ul li":	"showClose"
-			, "mouseleave 	#filter_body ul li":	"hideClose"
-			, "click 		.filter-close":			"rmAttr"
-			, "mouseout 	.filter-close":			"hideCloseByOut" 
+			"click .filter-remove"           :"rmAttr",
+			"click .filter-show-old"         :"showFilterOld",
+			"mouseenter .filter-li"         :"showMenuB",
+			"mouseleave .filter-li"         :"hideMenuB"
 		},
 
         initialize: function() {
@@ -66,27 +66,26 @@ define([
 			});
 		},
 
-		showClose: function(ev) {
-			$(ev.target).append("<button type='button' class='filter-close'>×</button>");
+		showMenuB: function(ev){
+			$(ev.target).find("b").show();
 		},
 
-		hideClose: function(ev) {
-			$(ev.target).find("button").remove();
+		hideMenuB:function(ev){
+			$(ev.target).find("b").hide();
 		},
+
 
 		rmAttr: function(ev) {
-			var title = $(ev.target).siblings('span').html();
-			$(ev.target).parent().remove();
+			var title = $(ev.target).parents(".filter-li").children("span").html();
+			$(ev.target).parents(".filter-li").remove();
 			//1.把新的筛选器发送到服务器，更新数据
 			Backbone.Events.trigger("collection:delete", title)
 			//2.删除对应的模态框或者把对应的模态框的内容清除
-
-
-
 		},
 
-		hideCloseByOut: function(ev) {
-			$(ev.target).remove();
+		showFilterOld: function(ev) {
+			var title = $(ev.target).parents(".filter-li").children("span").html();
+			$("#filter_modal[data="+title+"]").modal("show");
 		},
 
 
@@ -103,13 +102,20 @@ define([
 
 		addFilterItem: function(model) {
 			//判断判断条件之前是否存在
-			$("#filter_body ul li span").each(function(ev){
+			$("#filter_body>ul>li span").each(function(ev){
 			   if($(this).html()==model.toJSON()["property"])
 			   		$(this).parent().remove();
 			 });
-			this.$("#filter_body ul").append(
-				$(this.item_template).html("<span>"+ model.toJSON()["property"] +"</span>")
-			);
+			this.$("#filter_body>ul").append(
+				$(this.item_template).html("<span>"
+					+ model.toJSON()["property"] +
+					"</span><b data-toggle='dropdown' class='glyphicon glyphicon-plus-sign dropdown-toggle'></b>"
+					+"<ul class='dropdown-menu'>"
+					+"<li class='filter-show-old'><a href='#''>筛选</a></li>"
+					+"<li class='filter-remove'><a href='#''>移除</a></li>"
+					+"</ul>")
+				);
+
 			/*this.$("#filter_body ul li").on( "click", function(){
 				title=$(this).find("span").html();
 				$("#filter_modal[data="+title+"]").modal("show");

@@ -25,10 +25,16 @@ define([
 		),
 
 		events: {
-			"mouseenter 	#column_sortable li,#row_sortable li":	"showClose"
-			, "mouseleave 	#column_sortable li,#row_sortable li":	"hideClose"
-			, "click 		.plots_close":			"rmAttr"
-			, "mouseout 	.plots_close":			"hideCloseByOut" 
+			"mouseenter .coordinate"            :"showMenuB",
+			"mouseleave .coordinate"            :"hideMenuB",
+			"click .coordinate-filter"          :"coordinateFilter",
+			"mouseenter .coordinate-measure"    :"coordinateMeasureShow",
+			"mouseleave .coordinate-measure"    :"coordinateMeasureHide",
+			"click .coordinate-remove"          :"coordinateRemove",
+			"mouseleave .coordinate-measure ul" :"coordinateMeasureUlHide",
+			"mouseenter .coordinate-measure ul" :"coordinateMeasureBackground",
+			"click .coordinate-max"             :"coordinateMax"
+
 		},
 		
 		initialize: function(opt) {
@@ -53,7 +59,60 @@ define([
 			this.setDragProperty();
 		},
 
-        showClose: function(ev) {
+
+		showMenuB: function(ev) {
+			$(ev.target).find("b").show();
+		},
+
+		hideMenuB: function(ev) {
+			$(ev.target).find("b").hide();
+		},
+
+		coordinateFilter: function(ev) {
+			var title = $(ev.target).parents(".coordinate").find(".attr").html();
+			var pro_id = $(ev.target).parents(".coordinate").attr("db-data");
+			data = {
+				"pro_id": 		pro_id
+				, "content": 	title
+			};
+			Backbone.Events.trigger("modal:show_filter",data);
+		},
+
+		coordinateMeasureShow: function(ev) {
+			$(ev.target).siblings("ul").show();
+		},
+
+		coordinateMeasureHide: function(ev) {
+			$(ev.target).siblings("ul").hide();
+		},
+
+		coordinateMeasureUlHide: function(ev) {
+			if($(ev.target).hasClass("dropdown-menu"))
+				$(ev.target).hide();
+			else
+				$(ev.target).parent().parent().hide();
+			$(ev.target).parents(".coordinate-measure").children("a").css("background-color","transparent");
+		},
+
+		coordinateRemove: function(ev) {
+			var attr = $(ev.target).parents(".coordinate").find(".attr").html();
+			$(ev.target).parents(".coordinate").remove();
+
+			var attrList = this.model.get(this.name);
+			var newAttrList = Delete_from_array(attrList, attr);
+			this.model.set(this.name, newAttrList);
+		},
+
+		coordinateMeasureBackground: function(ev) {
+			$(ev.target).parents(".coordinate-measure").children("a").css("background-color","#e8e8e8");
+		},
+
+		coordinateMax: function(ev) {
+			$(ev.target).parents(".mension").find("m").html("(最大值)");
+		},
+
+
+      /*  showClose: function(ev) {
             $(ev.target).append("<button type='button' class='plots_close'>&times;</button>");
         },
 
@@ -72,7 +131,7 @@ define([
 			var attrList = this.model.get(this.name);
 			var newAttrList = Delete_from_array(attrList, attr);
 			this.model.set(this.name, newAttrList);
-        },
+        },*/
 
 		setDragProperty: function() {
 			//设置可自动排序

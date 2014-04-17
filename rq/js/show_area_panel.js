@@ -17,7 +17,7 @@ define([
         },
 
         initialize: function() {
-           this.infoWorkplaceView = new infoWorkplaceView();
+           //this.infoWorkplaceView = new infoWorkplaceView();
            this.render();
            this.addWidget();
            this.openWorkBook();
@@ -26,7 +26,7 @@ define([
 
         render: function() {
             this.$el.html(showAreaPanelHtml);
-            this.$el.append(this.infoWorkplaceView.el);
+            //this.$el.append(this.infoWorkplaceView.el);
         },
 
         addWidget: function() {

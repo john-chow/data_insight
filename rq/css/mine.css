@@ -119,7 +119,7 @@
     margin-bottom: 12px;
     margin-top: 2px;
     border-top-left-radius: 8px;
-    overflow: hidden;
+/*    overflow: hidden;*/
 }
 
 .design-column>div,
@@ -206,13 +206,27 @@
     padding: 0 10px;
 }
 
-#info_workplace span {
-border: 1px solid #ddd;
-padding: 2px;
-border-top-left-radius: 8px;
-border-top-right-radius: 8px;
-background-color: #FCFFFA;
-cursor: pointer;
+#info_workplace>span {
+    border: 1px solid #ddd;
+    padding: 2px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    background-color: #FCFFFA;
+    cursor: default;
+    margin-right: 5px;
+}
+
+#info_workplace>span>span {
+    text-align: center;
+    width: 80px;
+    display: inline-block;
+}
+
+#info_workplace>span>input {
+    text-align: center;
+    width: 80px;
+    border:none;
+    height:28px;
 }
 
 #design_panel {
@@ -274,13 +288,13 @@ padding: 10px;
      padding: 0; 
  }
 
-#column_sortable li ,
-#row_sortable li { 
+#column_sortable>li ,
+#row_sortable>li { 
     margin: 1px 0 1px 1px;
     border-radius: 6px;
-    padding: 0;
+    padding: 0px;
     float: left;
-    width: 150px;
+    width:160px;
     height: 23px;
     text-align: center;
     background: none;
@@ -290,12 +304,12 @@ padding: 10px;
     -moz-transition: background-color 0.3s, border 0.3s; /* Firefox 4 */
     -webkit-transition: background-color 0.3s, border 0.3s; /* Safari and Chrome */
     -o-transition: background-color 0.3s, border 0.3s; /* Opera */
-    overflow: hidden;
+/*    overflow: hidden;*/
     position: relative;
 }
 
-#column_sortable li:hover,
-#row_sortable li:hover { 
+#column_sortable>li:hover,
+#row_sortable>li:hover { 
     background-color: #CAE4FC;
     border: 1px solid #AA9DEB;
 }
@@ -312,16 +326,24 @@ list-style-type: none;
 #mensions_list li,
 #measures_list li,
 #db_name {
-padding-left: 10px;
-border: 1px solid #fff;;
-cursor: default;
+    padding-left: 10px;
+    border: 1px solid #fff;;
+    cursor: default;
+}
+
+#mensions_list>li,
+#measures_list>li,
+#db_name {
+    height: 25px;
+    overflow: hidden;
+    line-height: 25px;
 }
 
 #mensions_list li:hover,
 #measures_list li:hover {
-background-color: #E5F1FB;
-border-radius: 5px;
-border: 1px solid #CCC5EC;
+    background-color: #E5F1FB;
+    border-radius: 5px;
+    border: 1px solid #CCC5EC;
 }
 
 #using_db_name ul {
@@ -627,14 +649,14 @@ body {
     padding:5px 0 !important;
 }
 
-#filter_body ul li {
+#filter_body>ul>li {
     padding: 0 0 0px 10px;
     border: 1px solid #CCC5EC;
     background-color: #E5F1FB;
     border-radius: 5px;
 }
 
-#filter_body ul li:hover {
+#filter_body>ul>li:hover {
     border: 1px solid #A9A3C9;
 }
 
@@ -649,4 +671,52 @@ body {
 #filter_body ul li {
     position: relative;
     margin: 3px 0;
+}
+
+#info_workplace input { 
+    display: none;
+}
+
+#filter_body b , 
+#draw_plots b {
+    position: absolute;
+    right: 3px;
+    top: 3px;
+    cursor: pointer;
+    opacity: 0.9;
+    display: none;
+}
+
+#filter_body .dropdown-menu ,
+#draw_plots .dropdown-menu {
+    top:115%;
+}
+
+#dbinfo_bar b[data-toggle="dropdown"] {
+    display:none;
+}
+
+#draw_plots .dropdown-menu {
+    min-width: 148px;
+}
+
+.coordinate-measure ul {
+    position: absolute;
+    list-style: none;
+    background-color: white;
+    left: 146px;
+    width: 150px;
+    top: 30px !important;
+    padding: 0;
+    display: none;
+}
+
+.coordinate-measure>a {
+    position: relative;
+}
+
+.coordinate-measure>a>span {
+    position: absolute;
+    top: 6px;
+    right: 6px;
 }
