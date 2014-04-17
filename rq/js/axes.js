@@ -107,6 +107,7 @@ define([
 			var kind = ( classes.indexOf("measure") ) ? 0 : 1;
 			return {
 				"kind": kind, 
+				"cmd": 	"rgl", 
 				"attr": $attrObj.find(".attr").html() 
 			}
 		},

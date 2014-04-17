@@ -137,6 +137,7 @@ def reqDrawData(request):
 			logging.debug('reqDrawData is running')
 			data = generateBackData(request)
 		except Exception, e:
+			print "catch Exception: %s" % e
 			error_dict = {u'succ': False, u'msg': u'数据查询时出错'}
 			return MyHttpJsonResponse(error_dict)
 		else:
@@ -253,23 +254,29 @@ def makeupFilterSql(filter_list):
 
 
 def generateBackData(request):
-	(data_from_db, attr_list) = searchDataFromDb(request)
-	echart_data = formatData(request, data_from_db, attr_list)
+	# 先看请求里面分别有多少个文字类和数字类的属性
+	(ctg_attr_list, val_attr_list) = calc_ctg_val_list(request)
+
+	# 判断出哪些图形适合，以及使用哪个
+	(shape_list, shape_in_use) = judgeWhichShape( len(ctg_attr_list), len(val_attr_list) )
+
+	# 从数据库中找出该图形要画得数据
+	data_from_db = searchDataFromDb(request, ctg_attr_list, val_attr_list)
+
+	# 用echart格式化数据
+	attr_list = val_attr_list + ctg_attr_list
+	echart_data = formatData(request, data_from_db, attr_list, shape_in_use)
 
 	return echart_data
 
 
-
-def searchDataFromDb(request):
-	[col_kind_attr_list, row_kind_attr_list, filters_list] = \
+def calc_ctg_val_list(request):
+	[col_kind_attr_list, row_kind_attr_list] = \
 			map( lambda i: json.loads(i), \
 				map( lambda i: request.POST.get(i, u'[]'), \
-						(u'column', u'row', u'filter') \
+						(u'column', u'row') \
 					) \
 				)
-
-	#col_kind_attr_list = [ {u'kind': 0, u'attr': u'color'}, {u'kind': 0, u'attr': u'cut'} ]
-	#row_kind_attr_list = [ {u'kind': 1, u'attr': u'price'} ]
 
 	# echart 最多支持 1*2 的属性
 	col_len, row_len =  len(col_kind_attr_list), len(row_kind_attr_list) 
@@ -278,72 +285,87 @@ def searchDataFromDb(request):
 	if 0 == col_len or 0 == row_len:
 		raise Exception(u'Thers is no value column')
 
-	filter_sentence	= makeupFilterSql(filters_list)
-	(category_attr_list, val_attr_list, kind_list) = ([], [], [])
+	ctg_attr_list, val_attr_list = [], []
 
 	len_col_attr_list = len(col_kind_attr_list)
-	for idx, kind_attr in enumerate(col_kind_attr_list + row_kind_attr_list):
+	for idx, kind_attr_cmd in enumerate(col_kind_attr_list + row_kind_attr_list):
 		col_row_flag = u'col' if idx < len_col_attr_list else u'row'
-		if 0 == kind_attr[u'kind']:
-			category_attr_list.append( (kind_attr[u'attr'], 0, col_row_flag) )
-			kind_list.append(0)
+		if 0 == kind_attr_cmd[u'kind']:
+			ctg_attr_list.append( (kind_attr_cmd[u'attr'], 0, \
+									kind_attr_cmd[u'cmd'], col_row_flag) )
 		else:
-			val_attr_list.append( (kind_attr[u'attr'], 1, col_row_flag) )
-			kind_list.append(1)
+			val_attr_list.append( (kind_attr_cmd[u'attr'], 1, \
+									kind_attr_cmd[u'cmd'], col_row_flag) )
+	
+	return (ctg_attr_list, val_attr_list)
+	
 
-	sel_str_list = []
-	attr_list = val_attr_list + category_attr_list
-	for (attr_name, kind, x_y) in attr_list:
-		if 1 == kind:
+
+def searchDataFromDb(request, ctg_attr_list, val_attr_list):
+	filters_list 	= json.loads( request.POST.get(u'filter', u'[]') )
+	filter_sentence	= makeupFilterSql(filters_list)
+
+	sel_str_list, combine_flag = [], False
+	attr_list = val_attr_list + ctg_attr_list
+	for (attr_name, kind, cmd, x_y) in attr_list:
+		if 'sum' == cmd and 1 == kind:
 			sel_str_list.append( 'sum(%s) %s' % (attr_name, attr_name) )
+			combine_flag = True
+		elif 'avg' == cmd and 1 == kind:
+			sel_str_list.append( 'avg(%s) %s' % (attr_name, attr_name) )
+			combine_flag = True
 		else:
-			sel_str_list.append( '%s' % (attr_name) )
-	sel_str = u', '.join(sel_str_list)
-		
-
+			sel_str_list.append(attr_name)
+			
 	# 以第一个类目属性做group by参数，其他的全部做成where条件
 	sql_template = u'select {attrs} from {table} {filter} {option}'
-	#table_name = request.POST.get('table')
-	table_name = u'diamond'
-	option_group = 'group by ' + \
-						u','.join( [attr for (attr, _, _) in category_attr_list] ) \
-							if len(category_attr_list) > 0 else u''
-	sql = sql_template.format(attrs=sel_str, table=table_name, \
-								filter=filter_sentence, option=option_group)
+	table_name 	 = u'diamond'
+
+	if combine_flag and len(ctg_attr_list) > 0:
+		option_group = 'group by ' + u','.join( [attr for (attr, _, _,  _) in ctg_attr_list] ) 
+	else:
+		option_group = u''
+
+	sel_str = u', '.join(sel_str_list)
+	sql 	= sql_template.format(attrs=sel_str, table=table_name, \
+									filter=filter_sentence, option=option_group)
 
 	conn = connDb(request)
 	cursor = conn.cursor()
 	cursor.execute(sql)
 	data = cursor.fetchall()
-
 	
-	return (data, attr_list)
+	return data
+
+
+def judgeWhichShape(ctg_len, val_len):
+	if 1 == ctg_len and 1 == val_len:
+		shape_list = []
+	elif 1 == ctg_len and 2 == val_len:
+		shape_list = []
+	elif 2 == ctg_len and 1 == val_len:
+		shape_list = []
+	else:
+		shape_list = []
+	
+	return (shape_list, '')
 
 
 
-def formatData(request, data_from_db, attr_list):
-	shape = request.POST.get('shape', 'bar')
-	if 'bar' == shape:
+def formatData(request, data_from_db, attr_list, shape_in_use):
+	shape_in_use = u'scatter'
+	if 'bar' == shape_in_use:
 		bar = Bar()
 		rs = bar.makeData(data_from_db, attr_list)
+	elif 'line' == shape_in_use:
+		line = Line()
+		rs = line.makeData(data_from_db, attr_list)
+	elif 'scatter' == shape_in_use:
+		scatter = Scatter()
+		rs = scatter.makeData(data_from_db, attr_list)
 
 	return rs
 	
-	
-
-
-'''
-def generateBackData(request):
-	sql_list	= concertrateSqls(request)
-	(heads_list, data_list) = excSqlForData(request, sql_list)
-	bar 		= vincentlizeData( (heads_list, data_list), format=u'area' )
-
-	data_json = {}
-	if bar:
-		bar.to_json(TEMP_DRAW_DATA_FILE)
-		data_json	= readJsonFile(TEMP_DRAW_DATA_FILE)
-	return data_json
-'''
 
 
 def vincentlizeData(data, format):
