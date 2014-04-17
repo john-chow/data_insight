@@ -93,11 +93,12 @@ define([
 		},
 
 		coordinateRemove: function(ev) {
-			var attr = $(ev.target).parents(".coordinate").find(".attr").html();
-			$(ev.target).parents(".coordinate").remove();
-
+			var $attrObj = $(ev.target).parents(".coordinate");
+			var attrDict = this.makeAttrData($attrObj);
+			$attrObj.remove();
+			
 			var attrList = this.model.get(this.name);
-			var newAttrList = Delete_from_array(attrList, attr);
+			var newAttrList = Delete_from_array(attrList, attrDict);
 			this.model.set(this.name, newAttrList);
 		},
 
@@ -123,10 +124,10 @@ define([
         },
 
         rmAttr: function(ev) {
-			/*
+
 			var attr = $(ev.target).siblings('.attr').html();
             $(ev.target).parent().remove();
-			*/
+			
 
 			var $attrObj = $(ev.target).parent();
 			var attrDict = this.makeAttrData($attrObj);
