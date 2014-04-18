@@ -222,4 +222,37 @@ class Scatter(EChart):
 						self.option[u'legend'][u'data'].append(legend)
 
 		return self.option
+
+
+class Pie(EChart):
+	def __init__(self):
+		EChart.__init__(self)
+		self.shape = u'pie'
 					
+	def makeData(self, data_from_db, attr_list):
+		if 2 != len(attr_list):
+			raise Exception(u'cant draw pie')
+
+		(attr_name, attr_kind, attr_cmd, attr_axis) = attr_list[0]
+
+		if 'rgl' == attr_cmd:
+			legend_idx, value_idx = 0, 1
+		else:
+			legend_idx, value_idx = 1, 0
+
+		legend_data = [ data[legend_idx] for data in data_from_db ]
+		self.option[u'legend'][u'data'].append(legend_data)
+		self.option[u'legend'][u'x'] = u'left'
+
+		self.option[u'series'].append({
+			u'name': attr_list[legend_idx][0]
+			, u'type': u'pie'
+			, u'radius': u'55%'
+			, u'center': ['50%', 225]
+			, u'data': [ {u'value': i, u'name': j} for (i, j) in data_from_db ]
+		})
+
+		return self.option
+
+
+

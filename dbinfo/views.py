@@ -353,7 +353,7 @@ def judgeWhichShape(ctg_len, val_len):
 
 
 def formatData(request, data_from_db, attr_list, shape_in_use):
-	shape_in_use = u'scatter'
+	shape_in_use = u'pie'
 	if 'bar' == shape_in_use:
 		bar = Bar()
 		rs = bar.makeData(data_from_db, attr_list)
@@ -363,6 +363,9 @@ def formatData(request, data_from_db, attr_list, shape_in_use):
 	elif 'scatter' == shape_in_use:
 		scatter = Scatter()
 		rs = scatter.makeData(data_from_db, attr_list)
+	elif 'pie' == shape_in_use:
+		pie = Pie()
+		rs = pie.makeData(data_from_db, attr_list)
 
 	return rs
 	

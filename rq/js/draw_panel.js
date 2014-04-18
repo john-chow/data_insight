@@ -5,7 +5,8 @@ define([
 , "echarts/chart/bar"
 , "echarts/chart/line"
 , "echarts/chart/scatter"
-], function(Backbone, DrawModel, ec, _b, _l, _s) {
+, "echarts/chart/pie"
+], function(Backbone, DrawModel, ec, _b, _l, _s, _p) {
 		
 	var DrawPanelView = Backbone.View.extend({
 		tagName: 		"div",
