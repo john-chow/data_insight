@@ -321,8 +321,8 @@ def searchDataFromDb(request, msn_list, msu_list, group_list):
 	filters_list 	= json.loads( request.POST.get(u'filter', u'[]') )
 	filter_sentence	= makeupFilterSql(filters_list)
 
-	if HAVE_PDB:		pdb.set_trace()
-	sel_str_list, combine_flag = [], False
+	# 处理 msu_list
+	sel_str_list, group_str_list, combine_flag = [], [], False
 	for (attr_name, kind, cmd, x_y) in msu_list:
 		if 'sum' == cmd:
 			sel_str_list.append( 'sum(%s) %s' % (attr_name, attr_name) )
@@ -333,28 +333,29 @@ def searchDataFromDb(request, msn_list, msu_list, group_list):
 		else:
 			sel_str_list.append(attr_name)
 
-	group_attr_list = []
+	if HAVE_PDB:		pdb.set_trace()
+
+	# 处理 msn_list
 	for (attr_name, kind, cmd, x_y) in msn_list:
 		if combine_flag:
-			group_attr_list.append(attr_name)
+			group_str_list.append(attr_name)
 		else:
 			sel_str_list.append(attr_name)
 
-	map(lambda i: i.extend([attr for (attr, _, _, _) in group_list]), \
-												(sel_str_list, group_attr_list) )
+	# 处理 group_list
+	group_str_list.extend( [ attr_name for (attr_name, _, _, __) in group_list ] )
+	sel_str_list += group_str_list
 
-	"""
-	sel_str_list.extend( [attr for (attr, _, _, _) in group_list] )
-	group_attr_list.extend( [attr for (attr, _, _, _) in group_list] )
-	"""
+	#map(lambda i: i.extend([attr for (attr, _, _, _) in group_list]), \
+												#(sel_str_list, group_attr_list) )
 
 	# 以第一个类目属性做group by参数，其他的全部做成where条件
 	sql_template = u'select {attrs} from {table} {filter} {option}'
 	table_name 	 = u'diamond'
 
 	group_str = u''
-	if len(group_attr_list) > 0:
-		group_str = 'group by ' + u','.join(group_attr_list)
+	if len(group_str_list) > 0:
+		group_str = 'group by ' + u','.join(group_str_list)
 
 	sel_str = u', '.join(sel_str_list)
 	sql 	= sql_template.format(attrs=sel_str, table=table_name, \

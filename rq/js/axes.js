@@ -164,11 +164,12 @@ define([
 
 		makeAttrData: function($attrObj) {	
 			var classes = $attrObj.attr("class");
-			var kind = ( classes.indexOf("measure") ) ? 0 : 1;
+			var kind = ( classes.indexOf("measure") < 0 ) ? 0 : 1;
+			var cmd = (0 == kind) ? "rgl" : "sum";
 			return {
-				"attr": $attrObj.find(".attr").html(),
-				"kind": kind, 
-				"cmd": 	"sum" 
+				"attr": 	$attrObj.find(".attr").html()
+				, "kind": 	kind
+				, "cmd": 	cmd
 			}
 		},
 

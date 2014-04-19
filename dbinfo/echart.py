@@ -62,6 +62,7 @@ class Bar(EChart):
 		# 产生从[length-1, ..., 0]的数字
 		legend_dict, iter_axis, val_axis = {}, [], []
 		
+		if HAVE_PDB: 	pdb.set_trace()
 
 		for idx in range(all_len -1, -1, -1):
 			(attr_name, attr_kind, attr_cmd, attr_axis) = all_list[idx]
@@ -73,7 +74,7 @@ class Bar(EChart):
 				group_iter_idx = idx
 
 			elif idx > msu_len - 1 and idx < msu_len + msn_len:
-				self.option[u'xAxis'] if u'col' == attr_axis \
+				iter_axis = self.option[u'xAxis'] if u'col' == attr_axis \
 														else self.option[u'yAxis']
 				option_type = u'category' if 0 == attr_kind else u'value'
 				attr_iter_list = list( set(all_data[idx]) )
@@ -83,9 +84,9 @@ class Bar(EChart):
 				})
 
 			else:
-				(iter_axis, val_axis) = ( self.option[u'xAxis'], self.option[u'yAxis'] ) \
+				(iter_axis, val_axis) = ( self.option[u'yAxis'], self.option[u'xAxis'] ) \
 														if u'col' == attr_axis else \
-											( self.option[u'yAxis'], self.option[u'xAxis'] )
+											( self.option[u'xAxis'], self.option[u'yAxis'] )
 
 				option_type = u'category' if 0 == attr_kind else u'value'
 				val_axis.append({
@@ -116,6 +117,7 @@ class Bar(EChart):
 			]
 		else:
 			for le in legend_dict[u'data']:
+				one_legend_list = []
 				for tmp_attr in iter_axis[0][u'data']:
 					[one_value] = [ value for (value, attr, group) in data_from_db if \
 										attr == tmp_attr and group == le ]
@@ -128,7 +130,6 @@ class Bar(EChart):
 					, u'data': 	one_legend_list
 				})
 
-		if HAVE_PDB: 	pdb.set_trace()
 		# 根据echart，无论如何，迭代的轴上必须有属性和data
 		if 0 == len(iter_axis):
 			iter_axis.append({
