@@ -354,7 +354,7 @@ def searchDataFromDb(request, msn_list, msu_list, group_list):
 	table_name 	 = u'diamond'
 
 	group_str = u''
-	if len(group_str_list) > 0:
+	if len(group_str_list) > 0 and combine_flag:
 		group_str = 'group by ' + u','.join(group_str_list)
 
 	sel_str = u', '.join(sel_str_list)
@@ -377,7 +377,7 @@ def judgeWhichShape(msn_list, msu_list):
 
 
 def formatData(request, data_from_db, msu_list, msn_list, group_list):
-	shape_in_use = u'bar'
+	shape_in_use = u'scatter'
 	if 'bar' == shape_in_use:
 		bar = Bar()
 		rs = bar.makeData(data_from_db, msu_list, msn_list, group_list)
