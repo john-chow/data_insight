@@ -7,8 +7,19 @@ define([
 ], function(Backbone, DbBarView, PanelView, b, VtronModel) {
 
 	var WorkAreaModel = VtronModel.extend({
-		urlRoot: "/indb/draw/"
+		urlRoot: "/indb/draw/",
+		
+		// 临时使用
+		default: {
+			"color":	"color"
+		},
+		
+		initialize: function() {
+			this.set(this.default)
+		}	
 	});
+
+
 
     var WorkAreaView = Backbone.View.extend({
 
@@ -23,11 +34,6 @@ define([
 		  	);
 
 			this.model 		= new WorkAreaModel();
-			/*
-            var dbModel     = new DbInfoModel;
-            this.dbBarView  = new DbBarView( {model: dbModel} );
-            this.panelView  = new PanelView( {dbModel: dbModel} );
-			*/
             this.dbBarView  = new DbBarView();
             this.panelView  = new PanelView();
             this.render();

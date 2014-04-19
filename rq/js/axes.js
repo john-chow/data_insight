@@ -166,9 +166,9 @@ define([
 			var classes = $attrObj.attr("class");
 			var kind = ( classes.indexOf("measure") ) ? 0 : 1;
 			return {
+				"attr": $attrObj.find(".attr").html(),
 				"kind": kind, 
-				"cmd": 	"sum", 
-				"attr": $attrObj.find(".attr").html() 
+				"cmd": 	"sum" 
 			}
 		},
 

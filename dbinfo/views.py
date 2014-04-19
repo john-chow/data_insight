@@ -7,6 +7,7 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from psycopg2.extensions import adapt
+from collections import OrderedDict
 
 import psycopg2 as pysql
 import vincent
@@ -158,7 +159,7 @@ def concertrateSqls(request):
 	table = request.session.get(u'table')
 
 	[x_name_list, y_name_list, filter_list] = \
-			map( lambda i: json.loads(i), \
+			map( lambda i: json.loads(i, object_pairs_hook=OrderedDict), \
 				map( lambda i: request.POST.get(i, u'[]'), \
 						(u'column', u'row', u'filter') \
 					) \
@@ -255,24 +256,32 @@ def makeupFilterSql(filter_list):
 
 def generateBackData(request):
 	# 先看请求里面分别有多少个文字类和数字类的属性
-	(ctg_attr_list, val_attr_list) = calc_ctg_val_list(request)
+	(msn_list, msu_list, group_list) = calc_msu_msn_list(request)
 
 	# 判断出哪些图形适合，以及使用哪个
-	(shape_list, shape_in_use) = judgeWhichShape( len(ctg_attr_list), len(val_attr_list) )
+	#(shape_list, shape_in_use) = judgeWhichShape(request, msn_list, msu_list)
 
 	# 从数据库中找出该图形要画得数据
-	data_from_db = searchDataFromDb(request, ctg_attr_list, val_attr_list)
+	data_from_db = searchDataFromDb(request, msn_list, msu_list, group_list)
 
 	# 用echart格式化数据
-	attr_list = val_attr_list + ctg_attr_list
-	echart_data = formatData(request, data_from_db, attr_list, shape_in_use)
+	echart_data = formatData(request, data_from_db, msu_list, msn_list, group_list)
 
 	return echart_data
 
 
-def calc_ctg_val_list(request):
+def calc_msu_msn_list(request):
+	""" 
+	计算出 measure_list, mension_list, group_list
+	这里每个List里面单元的构造是 (name, kind, cmd, x_y)
+	name: 表示属性名字; 
+	kind: 表示是文字列还是数字列，0表示
+	cmd:  表示运算符号，'sum','avg'等等
+	x_y:  表示属于哪个轴，值有x、y，还有'group'
+	"""
+
 	[col_kind_attr_list, row_kind_attr_list] = \
-			map( lambda i: json.loads(i), \
+			map( lambda i: json.loads(i, object_pairs_hook=OrderedDict), \
 				map( lambda i: request.POST.get(i, u'[]'), \
 						(u'column', u'row') \
 					) \
@@ -282,53 +291,74 @@ def calc_ctg_val_list(request):
 	col_len, row_len =  len(col_kind_attr_list), len(row_kind_attr_list) 
 	if col_len > 2 or row_len > 2 or (col_len == 2 and row_len == 2):
 		raise Exception(u'Can not draw it in baidu-echart')
-	if 0 == col_len or 0 == row_len:
+	if 0 == col_len and 0 == row_len:
 		raise Exception(u'Thers is no value column')
 
-	ctg_attr_list, val_attr_list = [], []
+	msn_list, msu_list = [], []
 
 	len_col_attr_list = len(col_kind_attr_list)
-	for idx, kind_attr_cmd in enumerate(col_kind_attr_list + row_kind_attr_list):
+	for idx, attr_kind_cmd in enumerate(col_kind_attr_list + row_kind_attr_list):
 		col_row_flag = u'col' if idx < len_col_attr_list else u'row'
-		if 0 == kind_attr_cmd[u'kind']:
-			ctg_attr_list.append( (kind_attr_cmd[u'attr'], 0, \
-									kind_attr_cmd[u'cmd'], col_row_flag) )
-		else:
-			val_attr_list.append( (kind_attr_cmd[u'attr'], 1, \
-									kind_attr_cmd[u'cmd'], col_row_flag) )
-	
-	return (ctg_attr_list, val_attr_list)
+		attr_kind_cmd_tuple = tuple( attr_kind_cmd.values() )
+		tmp_attr_list = msn_list if u'rgl' == attr_kind_cmd[u'cmd'] \
+										else msu_list
+		tmp_attr_list.append( attr_kind_cmd_tuple + (col_row_flag,) )
+
+	# xxx
+	group_list = []
+	color_attr = request.POST.get( u'color', u'' )
+	if color_attr:
+		group_list.append( (color_attr, 2, u'', u'group') )
+
+	return (msn_list, msu_list, group_list)
 	
 
 
-def searchDataFromDb(request, ctg_attr_list, val_attr_list):
+def searchDataFromDb(request, msn_list, msu_list, group_list):
+	"""
+	要保证select的顺序是 measure、mension、group
+	"""
 	filters_list 	= json.loads( request.POST.get(u'filter', u'[]') )
 	filter_sentence	= makeupFilterSql(filters_list)
 
+	if HAVE_PDB:		pdb.set_trace()
 	sel_str_list, combine_flag = [], False
-	attr_list = val_attr_list + ctg_attr_list
-	for (attr_name, kind, cmd, x_y) in attr_list:
-		if 'sum' == cmd and 1 == kind:
+	for (attr_name, kind, cmd, x_y) in msu_list:
+		if 'sum' == cmd:
 			sel_str_list.append( 'sum(%s) %s' % (attr_name, attr_name) )
 			combine_flag = True
-		elif 'avg' == cmd and 1 == kind:
+		elif 'avg' == cmd:
 			sel_str_list.append( 'avg(%s) %s' % (attr_name, attr_name) )
 			combine_flag = True
 		else:
 			sel_str_list.append(attr_name)
-			
+
+	group_attr_list = []
+	for (attr_name, kind, cmd, x_y) in msn_list:
+		if combine_flag:
+			group_attr_list.append(attr_name)
+		else:
+			sel_str_list.append(attr_name)
+
+	map(lambda i: i.extend([attr for (attr, _, _, _) in group_list]), \
+												(sel_str_list, group_attr_list) )
+
+	"""
+	sel_str_list.extend( [attr for (attr, _, _, _) in group_list] )
+	group_attr_list.extend( [attr for (attr, _, _, _) in group_list] )
+	"""
+
 	# 以第一个类目属性做group by参数，其他的全部做成where条件
 	sql_template = u'select {attrs} from {table} {filter} {option}'
 	table_name 	 = u'diamond'
 
-	if combine_flag and len(ctg_attr_list) > 0:
-		option_group = 'group by ' + u','.join( [attr for (attr, _, _,  _) in ctg_attr_list] ) 
-	else:
-		option_group = u''
+	group_str = u''
+	if len(group_attr_list) > 0:
+		group_str = 'group by ' + u','.join(group_attr_list)
 
 	sel_str = u', '.join(sel_str_list)
 	sql 	= sql_template.format(attrs=sel_str, table=table_name, \
-									filter=filter_sentence, option=option_group)
+									filter=filter_sentence, option=group_str)
 
 	conn = connDb(request)
 	cursor = conn.cursor()
@@ -338,34 +368,27 @@ def searchDataFromDb(request, ctg_attr_list, val_attr_list):
 	return data
 
 
-def judgeWhichShape(ctg_len, val_len):
-	if 1 == ctg_len and 1 == val_len:
-		shape_list = []
-	elif 1 == ctg_len and 2 == val_len:
-		shape_list = []
-	elif 2 == ctg_len and 1 == val_len:
-		shape_list = []
-	else:
-		shape_list = []
+def judgeWhichShape(msn_list, msu_list):
+	shape_list = []
 	
 	return (shape_list, '')
 
 
 
-def formatData(request, data_from_db, attr_list, shape_in_use):
-	shape_in_use = u'pie'
+def formatData(request, data_from_db, msu_list, msn_list, group_list):
+	shape_in_use = u'bar'
 	if 'bar' == shape_in_use:
 		bar = Bar()
-		rs = bar.makeData(data_from_db, attr_list)
+		rs = bar.makeData(data_from_db, msu_list, msn_list, group_list)
 	elif 'line' == shape_in_use:
 		line = Line()
-		rs = line.makeData(data_from_db, attr_list)
+		rs = line.makeData(data_from_db, msu_list, msn_list, group_list)
 	elif 'scatter' == shape_in_use:
 		scatter = Scatter()
-		rs = scatter.makeData(data_from_db, attr_list)
+		rs = scatter.makeData(data_from_db, msu_list, msn_list, group_list)
 	elif 'pie' == shape_in_use:
 		pie = Pie()
-		rs = pie.makeData(data_from_db, attr_list)
+		rs = pie.makeData(data_from_db, msu_list, msn_list, group_list)
 
 	return rs
 	

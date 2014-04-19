@@ -48,54 +48,92 @@ class Bar(EChart):
 		EChart.__init__(self)
 		self.shape = u'bar'
 
-	def makeData(self, data_from_db, attr_list):
-		# echart 最多处理 1*2，至少一列是文字列，一列是数字列。
-		# 最后一列如果存在，也必须是文字列
-		if( len(attr_list) > 3):
-			raise Exception(u'1234213515')
+	def makeData(self, data_from_db, msu_list, msn_list, group_list):
+		# 根据Tableau，能画bar图，至少要有1列measure
+		if( len(msu_list) < 1 ):
+			raise Exception(u'cant draw bar')
+
+		all_list = msu_list + msn_list + group_list
+		all_len, msu_len, msn_len, group_len = \
+						len(all_list), len(msu_list), len(msn_list), len(group_list)
 
 		all_data = map( list, zip(*data_from_db) )
 
-		has_iter = False
-		for idx, (attr_name, attr_kind, attr_cmd, attr_axis) in enumerate(attr_list):
-			if HAVE_PDB: 	pdb.set_trace()
-			if (0 == attr_kind) and (not has_iter):
-				this_iters = list( set(all_data[idx]) )
-				this_axis = {u'type': 'category', u'data': this_iters}
-				option_axis = self.option[u'xAxis'] if u'col' == attr_axis \
-														else self.option[u'yAxis']
-				option_axis.append(this_axis)
-				has_iter = True
+		# 产生从[length-1, ..., 0]的数字
+		legend_dict, iter_axis, val_axis = {}, [], []
+		
 
-			elif (0 == attr_kind) and has_iter:
-				this_attrs = list( set(all_data[idx]) )
-				for one_attr in this_attrs:
-					self.option[u'legend'][u'data'].append(one_attr)
-					one_legend_list = []
-					for one_iter in this_iters:
-						[one_value] = [ value for (value, x, y) in data_from_db if \
-											x == one_iter and y == one_attr ]
-						one_legend_list.append(one_value)
+		if HAVE_PDB: 	pdb.set_trace()
+		for idx in range(all_len -1, -1, -1):
+			(attr_name, attr_kind, attr_cmd, attr_axis) = all_list[idx]
+			if idx > msu_len + msn_len - 1:
+				group_iter_list = list( set(all_data[idx]) )
+				legend_dict = self.option[u'legend'] = {
+					u'data':	group_iter_list
+				}
+				group_iter_idx = idx
+
+			elif idx > msu_len - 1 and idx < msu_len + msn_len:
+				iter_axis = self.option[u'xAxis'] if u'col' == attr_axis \
+														else self.option[u'yAxis']
+				option_type = u'category' if 0 == attr_kind else u'value'
+				attr_iter_list = list( set(all_data[idx]) )
+				iter_axis.append({
+					u'type':	option_type
+					, u'data':	attr_iter_list
+				})
+
+			else:
+				val_axis = self.option[u'xAxis'] if u'col' == attr_axis \
+														else self.option[u'yAxis']
+				option_type = u'category' if 0 == attr_kind else u'value'
+				val_axis.append({
+					u'type':	option_type
+				})
+
+		# 根据echart，无论如何，迭代的轴上必须有属性和data
+		if 0 == len(iter_axis):
+			iter_axis.append({
+				u'type':	u'category'
+				, u'data':	['']
+			})
+
+		if (not legend_dict) and (not iter_axis):
+			self.option[u'series'].append({
+				u'name':		attr_name
+				, u'type':		u'bar'
+				, u'stack': 	u'总量'
+				, u'data':		all_data
+			})
+		elif (not legend_dict) and iter_axis:
+			self.option[u'series'].append({
+				u'name':		attr_name
+				, u'type':		u'bar'
+				, u'stack': 	u'总量'
+				, u'data':		all_data[0]
+			})
+		elif (legend_dict) and (not iter_axis):
+			self.option[u'series'] = [{
+					u'name':		attr_name
+					, u'type':		u'bar'
+					, u'stack': 	u'总量'
+					, u'data':		num
+				} for num in all_data[0] 
+			]
+		else:
+			for le in legend_dict[u'data']:
+				for tmp_attr in iter_axis[0][u'data']:
+					[one_value] = [ value for (value, attr, group) in data_from_db if \
+										attr == tmp_attr and group == le ]
+					one_legend_list.append(one_value)
 
 					self.option[u'series'].append({
 						u'name': 	one_attr
-						, u'type': 	'bar'
+						, u'type': 	u'bar'
+						, u'stack': u'总量'
 						, u'data': 	one_legend_list
 					})
-			else: 
-				this_data = all_data[idx]
-				this_axis = {
-					u'type': 'value'
-					, u'splitArea': {u'show' : True}
-				}
-				option_axis = self.option[u'xAxis'] if u'col' == attr_axis \
-														else self.option[u'yAxis']
-				option_axis.append(this_axis)
-				self.option[u'series'].append({
-					u'name': 	attr_name
-					, u'type': 	'bar'
-					, u'data': 	this_data
-				})
+
 			
 		return self.option
 				
