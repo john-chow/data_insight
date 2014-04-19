@@ -63,7 +63,6 @@ class Bar(EChart):
 		legend_dict, iter_axis, val_axis = {}, [], []
 		
 
-		if HAVE_PDB: 	pdb.set_trace()
 		for idx in range(all_len -1, -1, -1):
 			(attr_name, attr_kind, attr_cmd, attr_axis) = all_list[idx]
 			if idx > msu_len + msn_len - 1:
@@ -74,7 +73,7 @@ class Bar(EChart):
 				group_iter_idx = idx
 
 			elif idx > msu_len - 1 and idx < msu_len + msn_len:
-				iter_axis = self.option[u'xAxis'] if u'col' == attr_axis \
+				self.option[u'xAxis'] if u'col' == attr_axis \
 														else self.option[u'yAxis']
 				option_type = u'category' if 0 == attr_kind else u'value'
 				attr_iter_list = list( set(all_data[idx]) )
@@ -84,19 +83,14 @@ class Bar(EChart):
 				})
 
 			else:
-				val_axis = self.option[u'xAxis'] if u'col' == attr_axis \
-														else self.option[u'yAxis']
+				(iter_axis, val_axis) = ( self.option[u'xAxis'], self.option[u'yAxis'] ) \
+														if u'col' == attr_axis else \
+											( self.option[u'yAxis'], self.option[u'xAxis'] )
+
 				option_type = u'category' if 0 == attr_kind else u'value'
 				val_axis.append({
 					u'type':	option_type
 				})
-
-		# 根据echart，无论如何，迭代的轴上必须有属性和data
-		if 0 == len(iter_axis):
-			iter_axis.append({
-				u'type':	u'category'
-				, u'data':	['']
-			})
 
 		if (not legend_dict) and (not iter_axis):
 			self.option[u'series'].append({
@@ -114,11 +108,11 @@ class Bar(EChart):
 			})
 		elif (legend_dict) and (not iter_axis):
 			self.option[u'series'] = [{
-					u'name':		attr_name
+					u'name':		le
 					, u'type':		u'bar'
 					, u'stack': 	u'总量'
-					, u'data':		num
-				} for num in all_data[0] 
+					, u'data':		[num]
+				} for (num, le) in data_from_db
 			]
 		else:
 			for le in legend_dict[u'data']:
@@ -127,13 +121,20 @@ class Bar(EChart):
 										attr == tmp_attr and group == le ]
 					one_legend_list.append(one_value)
 
-					self.option[u'series'].append({
-						u'name': 	one_attr
-						, u'type': 	u'bar'
-						, u'stack': u'总量'
-						, u'data': 	one_legend_list
-					})
+				self.option[u'series'].append({
+					u'name': 	le
+					, u'type': 	u'bar'
+					, u'stack': u'总量'
+					, u'data': 	one_legend_list
+				})
 
+		if HAVE_PDB: 	pdb.set_trace()
+		# 根据echart，无论如何，迭代的轴上必须有属性和data
+		if 0 == len(iter_axis):
+			iter_axis.append({
+				u'type':	u'category'
+				, u'data':	['']
+			})
 			
 		return self.option
 				
