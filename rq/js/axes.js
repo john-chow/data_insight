@@ -169,7 +169,7 @@ define([
 			return {
 				"attr": 	$attrObj.find(".attr").html()
 				, "kind": 	kind
-				, "cmd": 	'rgl'
+				, "cmd": 	cmd
 			}
 		},
 
@@ -195,11 +195,10 @@ define([
 				beforeStop: function(event,ui) {  //这个事件在排序停止时触犯,但仅仅在placeholder/helper依然存在时触发.
 				},
 				stop: function(event,ui) { //这个事件在排序停止时触发.
-					self.$(".dragging-custom").removeClass("dragging-change-border");
-					console.log('sort stop');
-					self.afterSort(event, ui)
 				},
 				update: function(event,ui) { //这个事件在用户停止排序并且DOM节点位置发生改变时出发.
+					self.$(".dragging-custom").removeClass("dragging-change-border");
+					self.afterSort(event, ui)
 				},
 				receive: function(event,ui) { //这个时间在一个已连接的sortable接收到来自另一个列表的元素时触发.
 				},

@@ -131,7 +131,6 @@ def connDb(request):
 		return conn
 
 
-
 def reqDrawData(request):
 	if 'POST' == request.method:
 		try:
@@ -147,7 +146,6 @@ def reqDrawData(request):
 
 	else:
 		return
-
 
 
 def concertrateSqls(request):
@@ -377,7 +375,7 @@ def judgeWhichShape(msn_list, msu_list):
 
 
 def formatData(request, data_from_db, msu_list, msn_list, group_list):
-	shape_in_use = u'scatter'
+	shape_in_use = u'bar'
 	if 'bar' == shape_in_use:
 		bar = Bar()
 		rs = bar.makeData(data_from_db, msu_list, msn_list, group_list)

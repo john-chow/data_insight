@@ -52,6 +52,7 @@ define([
 					if (resp.succ) {
 						Backbone.Events.trigger("panel:draw_data", resp.data)
 					} else {
+						Backbone.Events.trigger("panel:draw_data", {})
 					}
 				}, error: function() {
 				}
