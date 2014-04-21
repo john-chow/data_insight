@@ -9,11 +9,6 @@ define([
 	var WorkAreaModel = VtronModel.extend({
 		urlRoot: "/indb/draw/",
 		
-		// 临时使用
-		default: {
-			"color":	"color"
-		},
-		
 		initialize: function() {
 			this.set(this.default)
 		}	

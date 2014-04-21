@@ -169,7 +169,7 @@ define([
 			return {
 				"attr": 	$attrObj.find(".attr").html()
 				, "kind": 	kind
-				, "cmd": 	cmd
+				, "cmd": 	'rgl'
 			}
 		},
 
