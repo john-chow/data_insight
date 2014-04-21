@@ -720,3 +720,22 @@ body {
     top: 6px;
     right: 6px;
 }
+
+#filter_tag_choosed {
+    list-style: none;
+    margin: 10px 0 20px 5px;
+    padding: 0;
+}
+
+#filter_tag_choosed li {
+    background-color: #E5F1FB;
+    border-radius: 5px;
+    border: 1px solid #CCC5EC;
+    margin-top: 10px;
+}
+
+.filter_tag_color b{
+    padding: 0;
+    font-size: 18px;
+    margin: 2px 2px 0 0;
+}

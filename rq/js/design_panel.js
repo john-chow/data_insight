@@ -46,7 +46,7 @@ define([
             this.render();
             //this.$("#column_sortable, #row_sortable").on("drop", this.dropInPlots);
             //_.bind(function, object, [*arguments]) :绑定函数 function到对象object 上,也就是无论何时调用函数, 函数里的this都指向这个object
-            this.$("#filter_conditions").on( "drop", _.bind(this.chooseFilter, this) );
+            
         },
 
 		startListeners: function() {
@@ -75,12 +75,6 @@ define([
             });*/
         },
 
-        chooseFilter: function(ev) {
-			Backbone.Events.trigger(
-				"modal:show_filter"
-				, JSON.parse(sessionStorage.dragment)
-			)
-
 			/*
             //var data = ev.originalEvent.dataTransfer.getData("text/plain");
 			var data = JSON.parse(sessionStorage.dragment);
@@ -94,8 +88,6 @@ define([
 			} ); 
             this.chooseFilterView.render();
 			*/
-        },
-
         addFilter: function(ev) {
             //var data = ev.originalEvent.dataTransfer.getData("text/plain");
             var data=sessionStorage.dragContent;

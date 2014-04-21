@@ -5,8 +5,9 @@ define([
 , "model/filter_boxes"
 , "color"
 , "jquery"
+, "jqueryUi"
 , "text!../template/filter_box.html"
-], function(Backbone, b, _, FiltersCollection, color, jquery, filterBoxHtml) {
+], function(Backbone, b, _, FiltersCollection, color, jquery, jqueryUi, filterBoxHtml) {
 
     var FilterBoxView = Backbone.View.extend({
 
@@ -18,8 +19,9 @@ define([
 		events: {
 			"click .filter-remove"           :"rmAttr",
 			"click .filter-show-old"         :"showFilterOld",
-			"mouseenter .filter-li"         :"showMenuB",
-			"mouseleave .filter-li"         :"hideMenuB"
+			"mouseenter .filter-li"          :"showMenuB",
+			"mouseleave .filter-li"          :"hideMenuB",
+			"click .filter_tag_color .close"      :"removeColor"
 		},
 
         initialize: function() {
@@ -34,6 +36,9 @@ define([
 				self.collection.myPass("area:user_action")
 			});
             this.render();
+            this.$("#filter_conditions").on( "drop", _.bind(this.chooseFilter, this) );
+            this.$("#filter_page").on( "drop", this.choosePage);
+            this.$("#filter_tag_color").on( "drop", this.chooseColor);
         },
 
         render: function() {
@@ -66,6 +71,13 @@ define([
 			});
 		},
 
+		chooseFilter: function(ev) {
+			Backbone.Events.trigger(
+				"modal:show_filter"
+				, JSON.parse(sessionStorage.dragment)
+			)
+		},
+
 		showMenuB: function(ev){
 			$(ev.target).find("b").show();
 		},
@@ -86,6 +98,27 @@ define([
 		showFilterOld: function(ev) {
 			var title = $(ev.target).parents(".filter-li").children("span").html();
 			$("#filter_modal[data="+title+"]").modal("show");
+		},
+
+		chooseColor: function(ev, ui) {
+			$(".filter_tag_color").remove();
+			var title =$(ui.draggable).find(".attr").html();
+			var button ="<b class='close'>×</b>";
+			var insert = "<li class='filter_tag_color'>颜色：<span data='color'>"+title+"</span>"+button+"</li>";
+			$("#filter_tag_choosed").append(insert);
+			Backbone.Events.trigger(
+				"area:user_action"
+				, {"color":title}
+			)
+		},
+
+		choosePage: function(ev) {
+			//测试
+			$(ev.target).find("#filter_body").html("插入页面");
+		},
+
+		removeColor: function(ev) {
+			$(".filter_tag_color").remove();
 		},
 
 
@@ -148,7 +181,7 @@ define([
 
 		setDragProperty: function() {
 			//此代码删除了，触发不了drop，原因暂不明确
-			this.$('#filter_conditions').droppable({
+			this.$('#filter_conditions, #filter_page, #filter_tag_color').droppable({
 				drop: function(event, ui) {
 				}
 			});

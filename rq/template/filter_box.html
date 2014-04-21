@@ -1,7 +1,7 @@
 
-    <div class="panel panel-default dragging-custom" id="filter_page">
+ <div class="panel panel-default dragging-custom" id="filter_page">
         <div class="panel-heading">页面</div>
-        <div class="panel-body" ondragover="return false"> </div>
+        <div class="panel-body" id="filter_body" ondragover="return false"> </div>
     </div>
     <div class="panel panel-default dragging-custom" id="filter_conditions">
         <div class="panel-heading">筛选器</div>
@@ -24,7 +24,7 @@
                 </div>
             </form>
             <span class="form-group">
-                 <button id="hue-demo" value="#1F77B4" data-opacity="1" class="form-control colorBoard" data-control="hue">颜色</button>
+                 <button id="filter_tag_color" ondragover="return false" value="#1F77B4" data-opacity="1" class="form-control colorBoard" data-control="hue">颜色</button>
             </span>
 
             <span class="dropdown">
@@ -51,6 +51,9 @@
                     详细信息
                 </div>
             </span>
+
+            <ul id="filter_tag_choosed">
+            </ul>
         </div>
     </div>
 
