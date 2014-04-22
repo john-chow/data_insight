@@ -60,7 +60,7 @@ define([
 
 		setDragProperty: function() {
 			var self = this;
-			this.$(".measure, .mension").draggable({
+			this.$(".measure").draggable({
 				connectToSortable: "#column_sortable, #row_sortable",
 				helper: "clone",
 				scroll: "false",
@@ -68,7 +68,27 @@ define([
 				//revert: "invalid",
 				cursor: "default",
 				helper: function( event ) {
-					return $( "<li class='dragging-li ui-state-default'>"+ $(this).html()+"</li>" );
+					return $( "<li class='dragging-li-measure ui-state-default'>"+ $(this).html()+"</li>" );
+				},
+				//所有的回调函数(start, stop, drag)接受两个参数: 浏览器事件和ui对象
+				start: function(event,ui) {
+					$(".dragging-custom").addClass("dragging-change-border");
+				},
+				drag: function(event,ui) {
+				},
+				stop: function(event,ui) {
+					$(".dragging-custom").removeClass("dragging-change-border");
+				}
+			});
+			this.$(".mension").draggable({
+				connectToSortable: "#column_sortable, #row_sortable",
+				helper: "clone",
+				scroll: "false",
+				zIndex: "3000",
+				//revert: "invalid",
+				cursor: "default",
+				helper: function( event ) {
+					return $( "<li class='dragging-li-mension ui-state-default'>"+ $(this).html()+"</li>" );
 				},
 				//所有的回调函数(start, stop, drag)接受两个参数: 浏览器事件和ui对象
 				start: function(event,ui) {

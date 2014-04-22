@@ -104,9 +104,10 @@ define([
 
 		chooseColor: function(ev, ui) {
 			$(".filter_tag_color").remove();
+			var type=$(ui.draggable).attr("type");
 			var title =$(ui.draggable).find(".attr").html();
 			var button ="<b class='close'>×</b>";
-			var insert = "<li class='filter_tag_color'>颜色：<span data='color'>"+title+"</span>"+button+"</li>";
+			var insert = "<li class='filter_tag_color' type='"+type+"'>颜色：<span data='color'>"+title+"</span>"+button+"</li>";
 			$("#filter_tag_choosed").append(insert);
 			Backbone.Events.trigger(
 				"area:user_set_action"
@@ -116,9 +117,10 @@ define([
 
 		chooseSize: function(ev, ui) {
 			$(".filter_tag_size").remove();
+			var type=$(ui.draggable).attr("type");
 			var title =$(ui.draggable).find(".attr").html();
 			var button ="<b class='close'>×</b>";
-			var insert = "<li class='filter_tag_size'>大小：<span data='size'>"+title+"</span>"+button+"</li>";
+			var insert = "<li class='filter_tag_size' type='"+type+"'>大小：<span data='size'>"+title+"</span>"+button+"</li>";
 			$("#filter_tag_choosed").append(insert);
 			Backbone.Events.trigger(
 				"area:user_set_action"
@@ -132,21 +134,13 @@ define([
 		},
 
 		removeColor: function(ev) {
-			var title=$(".filter_tag_color").find("span").html();
 			$(".filter_tag_color").remove();
-			Backbone.Events.trigger(
-				"area:user_unset_action"
-				, {"color":title}
-			)
+			Backbone.Events.trigger("area:user_unset_action", "color")
 		},
 
 		removeSize: function(ev) {
-			var title=$(".filter_tag_size").find("span").html();
 			$(".filter_tag_size").remove();	
-			Backbone.Events.trigger(
-				"area:user_unset_action"
-				, {"size":title}
-			)
+			Backbone.Events.trigger("area:user_unset_action", "size")
 		},
 
 
