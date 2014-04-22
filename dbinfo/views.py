@@ -375,7 +375,7 @@ def judgeWhichShape(msn_list, msu_list):
 
 
 def formatData(request, data_from_db, msu_list, msn_list, group_list):
-	shape_in_use = u'bar'
+	shape_in_use = request.POST.get(u'shape', u'bar')
 	if 'bar' == shape_in_use:
 		bar = Bar()
 		rs = bar.makeData(data_from_db, msu_list, msn_list, group_list)
