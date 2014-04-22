@@ -21,7 +21,8 @@ define([
 			"click .filter-show-old"         :"showFilterOld",
 			"mouseenter .filter-li"          :"showMenuB",
 			"mouseleave .filter-li"          :"hideMenuB",
-			"click .filter_tag_color .close"      :"removeColor"
+			"click .filter_tag_color .close"      :"removeColor",
+			"click .filter_tag_size .close"       :"removeSize",
 		},
 
         initialize: function() {
@@ -33,12 +34,13 @@ define([
 				 	return model.get("property")==title; 
 				});
 				self.collection.remove(rmmodel);
-				self.collection.myPass("area:user_action")
+				self.collection.myPass("area:user_set_action")
 			});
             this.render();
             this.$("#filter_conditions").on( "drop", _.bind(this.chooseFilter, this) );
             this.$("#filter_page").on( "drop", this.choosePage);
             this.$("#filter_tag_color").on( "drop", this.chooseColor);
+            this.$("#filter_tag_size").on( "drop", this.chooseSize);
         },
 
         render: function() {
@@ -107,8 +109,20 @@ define([
 			var insert = "<li class='filter_tag_color'>颜色：<span data='color'>"+title+"</span>"+button+"</li>";
 			$("#filter_tag_choosed").append(insert);
 			Backbone.Events.trigger(
-				"area:user_action"
+				"area:user_set_action"
 				, {"color":title}
+			)
+		},
+
+		chooseSize: function(ev, ui) {
+			$(".filter_tag_size").remove();
+			var title =$(ui.draggable).find(".attr").html();
+			var button ="<b class='close'>×</b>";
+			var insert = "<li class='filter_tag_size'>大小：<span data='size'>"+title+"</span>"+button+"</li>";
+			$("#filter_tag_choosed").append(insert);
+			Backbone.Events.trigger(
+				"area:user_set_action"
+				, {"size":title}
 			)
 		},
 
@@ -118,7 +132,21 @@ define([
 		},
 
 		removeColor: function(ev) {
+			var title=$(".filter_tag_color").find("span").html();
 			$(".filter_tag_color").remove();
+			Backbone.Events.trigger(
+				"area:user_unset_action"
+				, {"color":title}
+			)
+		},
+
+		removeSize: function(ev) {
+			var title=$(".filter_tag_size").find("span").html();
+			$(".filter_tag_size").remove();	
+			Backbone.Events.trigger(
+				"area:user_unset_action"
+				, {"size":title}
+			)
 		},
 
 
@@ -130,7 +158,7 @@ define([
 
 		afterModelAdded: function(model) {
 			this.addFilterItem(model);
-			this.collection.myPass("area:user_action")
+			this.collection.myPass("area:user_set_action")
 		},
 
 		addFilterItem: function(model) {
@@ -181,7 +209,7 @@ define([
 
 		setDragProperty: function() {
 			//此代码删除了，触发不了drop，原因暂不明确
-			this.$('#filter_conditions, #filter_page, #filter_tag_color').droppable({
+			this.$('#filter_conditions, #filter_page, #filter_tag_color, #filter_tag_size').droppable({
 				drop: function(event, ui) {
 				}
 			});
