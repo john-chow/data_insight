@@ -42,6 +42,16 @@ define([
 			return Backbone.Model.prototype.sync.call(this, method, model, options);
 		},
 
+		// 在model.save时，所有从服务器返回的数据都会被默认放进model里面
+		// 加上1个开关，可以选择阻止上述默认行为
+		parse: function(resp, options) {
+			if ( options["no_feeding"] ) {
+				return {}
+			}
+
+			return Backbone.Model.prototype.parse.call(this, resp, options);
+		},
+
 		myPass: function() {
 			Backbone.Events.trigger( "area:user_set_action", this.toJSON() )
 		}
