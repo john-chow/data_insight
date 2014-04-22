@@ -18,7 +18,12 @@ define([
 		 
 			this.set(attributes);
 
-			var jsonModel = this.toJSON();
+			var jsonModel 		= this.toJSON();
+			var strJsonModel 	= JSON.stringify(jsonModel);
+			options.data = {'data':	strJsonModel };
+
+
+			/*
 			$.each(jsonModel, function(k, v) {
 				if (v instanceof Array) {
 					jsonModel[k] = JSON.stringify(v)
@@ -27,6 +32,7 @@ define([
 		 
 			options.data = jsonModel;
 			//options.data  = this.toJSON();
+			*/
 		 
 			return Backbone.Model.prototype.save.call(this, attributes, options);
 		},
