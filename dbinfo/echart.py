@@ -188,6 +188,7 @@ class Scatter(EChart):
 				u'name':		''
 				, u'type':		self.shape
 				, u'data': 		data_from_db
+				, u'large':		True
 			}]
 
 		return self.option

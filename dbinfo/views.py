@@ -20,6 +20,22 @@ from common.tool import *
 import pdb
 
 
+def getTableList(request):
+	conn 			= connDb(request)
+	if not conn:
+		return HttpResponseRedirect(u'http://10.1.50.125:9000/')
+	cursor 			= conn.cursor()
+	cursor.execute(u'SELECT table_name FROM information_schema.tables \
+												WHERE table_schema="public"')
+	results 		= cursor.fetchall()
+	table_list 		= [ q[0] for q in results ]
+	str_table_list 	= json.dumps(table_list)
+	data = {u'tables':	str_table_list}
+
+	return MyHttpJsonResponse(data)
+
+
+
 def getDbInfo(request):
 	print u'getDbInfo'
 	table = request.session.get(u'table')
@@ -125,7 +141,7 @@ def connDb(request):
 	try:
 		conn = pysql.connect(conn_str)
 	except Exception, e:
-		print u'cant conn database'
+		raise Exception(u'search db error')
 		return None
 	else:
 		return conn
@@ -138,7 +154,7 @@ def reqDrawData(request):
 			data = generateBackData(request)
 		except Exception, e:
 			print "catch Exception: %s" % e
-			error_dict = {u'succ': False, u'msg': u'数据查询时出错'}
+			error_dict = {u'succ': False, u'msg': str(e)}
 			return MyHttpJsonResponse(error_dict)
 		else:
 			backData = {u'succ': True, u'data': data}
@@ -151,7 +167,7 @@ def reqDrawData(request):
 def concertrateSqls(request):
 	conn = connDb(request)
 	if not conn:
-		raise Exception('Cant access into database')
+		raise Exception(u'Cant access into database')
 	cursor = conn.cursor()
 
 	table = request.session.get(u'table')
@@ -388,6 +404,8 @@ def formatData(request, data_from_db, msu_list, msn_list, group_list):
 	elif 'pie' == shape_in_use:
 		pie = Pie()
 		rs = pie.makeData(data_from_db, msu_list, msn_list, group_list)
+	else:
+		raise Exception(u'Unknown pictrue shape')
 
 	return rs
 	
