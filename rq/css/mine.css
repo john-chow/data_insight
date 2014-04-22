@@ -292,21 +292,52 @@
     height: 23px;
     text-align: center;
     background: none;
-    background-color: #C9DBF5;
-    border: 1px solid #C9DBF5;
     transition: background-color 0.3s ,border 0.3s;
-    -moz-transition: background-color 0.3s, border 0.3s; /* Firefox 4 */
-    -webkit-transition: background-color 0.3s, border 0.3s; /* Safari and Chrome */
-    -o-transition: background-color 0.3s, border 0.3s; /* Opera */
+    -moz-transition: background-color 0.3s, border 0.3s;
+    -webkit-transition: background-color 0.3s, border 0.3s;
+    -o-transition: background-color 0.3s, border 0.3s;
 /*    overflow: hidden;*/
     position: relative;
 }
 
-#column_sortable>li:hover,
-#row_sortable>li:hover { 
+#column_sortable>li[type='mension'] ,
+#row_sortable>li[type='mension'] { 
+    background-color: #C9DBF5;
+    border: 1px solid #C9DBF5;
+}
+
+#column_sortable>li[type='measure'] ,
+#row_sortable>li[type='measure'] { 
+    background-color: #E0E7CB;
+    border: 1px solid #CAD8B7;
+}
+
+#column_sortable>li:hover[type='mension'],
+#row_sortable>li:hover[type='mension'] { 
     background-color: #CAE4FC;
     border: 1px solid #AA9DEB;
 }
+
+#column_sortable>li:hover[type='measure'],
+#row_sortable>li:hover[type='measure'] { 
+    background-color: #E1EBC5;
+    border: 1px solid #45E759;
+}
+
+#filter_tag_choosed li[type='mension'] {
+   background-color: #E5F1FB;
+    border-radius: 5px;
+    border: 1px solid #CCC5EC;
+    margin-top: 14px;
+}
+
+#filter_tag_choosed li[type='measure'] {
+    border-radius: 5px;
+    background-color: #E1EBC5;
+    border: 1px solid #45E759;
+    margin-top: 14px;
+}
+
 
 #column_sortable,
 #row_sortable {
@@ -333,11 +364,16 @@ list-style-type: none;
     line-height: 25px;
 }
 
-#mensions_list li:hover,
-#measures_list li:hover {
+#mensions_list li:hover {
     background-color: #E5F1FB;
     border-radius: 5px;
     border: 1px solid #CCC5EC;
+}
+
+#measures_list li:hover {
+    border-radius: 5px;
+    background-color: #E0E7CB;
+    border: 1px solid #CAD8B7;
 }
 
 #using_db_name ul {
@@ -346,8 +382,23 @@ list-style-type: none;
     list-style-type: none;
 }
 
-.dragging-li {
+
+.dragging-li-measure {
     margin: 1px 0 1px 1px;
+    border-radius: 6px;
+    padding: 0;
+    float: left;
+    width: 150px;
+    height: 23px;
+    text-align: center;
+    background: none;
+    background-color: #E0E7CB;
+    border: 1px solid #CAD8B7;
+    overflow: hidden;
+}
+
+.dragging-li-mension {
+     margin: 1px 0 1px 1px;
     border-radius: 6px;
     padding: 0;
     float: left;
@@ -357,6 +408,7 @@ list-style-type: none;
     background: none;
     background-color: #C9DBF5;
     border: 1px solid #C9DBF5;
+
     overflow: hidden;
 }
 
@@ -729,13 +781,6 @@ body {
     list-style: none;
     margin: 10px 0 20px 0px;
     padding: 0;
-}
-
-#filter_tag_choosed li {
-   background-color: #E5F1FB;
-    border-radius: 5px;
-    border: 1px solid #CCC5EC;
-    margin-top: 14px;
 }
 
 #filter_tag .close{

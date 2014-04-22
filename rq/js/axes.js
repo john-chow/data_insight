@@ -2,7 +2,8 @@ define([
 "backbone"
 , "model/vtron_model"
 , "common/tools"
-], function(Backbone, VtronModel, _t) {
+, "underscore"
+], function(Backbone, VtronModel, _t, _) {
 
 	/*
 		数据格式:  只有一对key-value
@@ -110,29 +111,44 @@ define([
 			$(ev.target).parents(".coordinate-measure").children("a").css("background-color","#e8e8e8");
 		},
 
+		coordinateMathSet: function(self) {
+        	var list = self.$(self.sortObjId).find(".mension, .measure");
+        	var tm = [];
+			$.each(list, function(i, x) {
+				var attrDict = self.makeAttrData($(x));
+				tm.push(attrDict)
+			})
+			self.model.set(self.name, tm);
+        },
+
 		coordinateMax: function(ev) {
 			$(ev.target).parents(".coordinate").find(".axes-math").html("(最大值)");
 			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","max");
+			this.coordinateMathSet(this);
 		},
 
 		coordinateMin: function(ev) {
 			$(ev.target).parents(".coordinate").find(".axes-math").html("(最小值)");
 			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","min");
+			this.coordinateMathSet(this);
 		},
 
 		coordinateCount: function(ev) {
 			$(ev.target).parents(".coordinate").find(".axes-math").html("(计数)");
 			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","count");
+			this.coordinateMathSet(this);
 		},
 
 		coordinateSum: function(ev) {
 			$(ev.target).parents(".coordinate").find(".axes-math").html("(求和)");
 			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","sum");
+			this.coordinateMathSet(this);
 		},
 
 		coordinateAvg: function(ev) {
 			$(ev.target).parents(".coordinate").find(".axes-math").html("(平均)");
 			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","avg");
+			this.coordinateMathSet(this);
 		},
 
 
@@ -165,32 +181,13 @@ define([
 
 		afterSort: function(ev, ui) {
 			// 这里从html页面上找寻属性顺序，原则上不合理，有待修改
-			var list = this.$(this.sortObjId).find(".mension, .measure");
-			var tm = [];
-			var self = this;
-			$.each(list, function(i, x) {
-				var attrDict = self.makeAttrData($(x));
-				tm.push(attrDict)
-
-				/*
-				// 通过class判断是数值型的，还是文字型
-				var classes = $(x).attr("class");
-				var kind = ( classes.indexOf("measure") ) ? 0 : 1;
-
-				tm.push({
-					"kind": kind, 
-					"attr": $(x).find(".attr").html() 
-				})
-				*/
-			})
-
-			this.model.set(this.name, tm);
+			this.coordinateMathSet(this);
 		},
 
 		makeAttrData: function($attrObj) {	
-			var classes = $attrObj.attr("class");
-			var kind = ( classes.indexOf("measure") < 0 ) ? 0 : 1;
-			var cmd = (0 == kind) ? "rgl" : "sum";
+			var kind = $attrObj.attr("type");
+			var cmd = $attrObj.find(".axes-math").attr("data");
+			var cmd =(cmd=="")?"rgl":cmd;
 			return {
 				"attr": 	$attrObj.find(".attr").html()
 				, "kind": 	kind
