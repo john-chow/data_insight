@@ -10,7 +10,7 @@ define([
 		/* 取出全部model的json内容，做序列化 */
 		myPass: function() {
 			Backbone.Events.trigger(
-				"area:user_action"
+				"area:user_set_action"
 				, {"filter": JSON.stringify(this)}
 			)
 		}

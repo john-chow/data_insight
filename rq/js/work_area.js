@@ -24,8 +24,13 @@ define([
 
         initialize: function() {
 			Backbone.Events.on(
-				"area:user_action"
-				, _.bind(this.updateToSev, this)
+				"area:user_set_action"
+				, _.bind(this.setToSev, this)
+		  	);
+
+		  	Backbone.Events.on(
+				"area:user_unset_action"
+				, _.bind(this.unsetToSev, this)
 		  	);
 
 			this.model 		= new WorkAreaModel();
@@ -40,7 +45,7 @@ define([
             );
         },
 
-		updateToSev: function(data) {
+		setToSev: function(data) {
 			this.model.set(data);
 			this.model.save(null, {
 				success: function(m, resp, opt) {
@@ -52,7 +57,21 @@ define([
 				}, error: function() {
 				}
 			})
-		}	
+		},
+
+		unsetToSev: function(data) {
+			this.model.unset(data);
+			this.model.save(null, {
+				success: function(m, resp, opt) {
+					if (resp.succ) {
+						Backbone.Events.trigger("panel:draw_data", resp.data)
+					} else {
+						Backbone.Events.trigger("panel:draw_data", {})
+					}
+				}, error: function() {
+				}
+			})
+		}		
 
     });
 

@@ -2,7 +2,7 @@
     <div class="panel-heading">数据</div>
     <!--<div id="db_name"><%= model.name %></div>-->
     <ul>
-        <li id="db_name" draggable="true" class="ui-state-highlight"><%= model.name %></li>
+        <li id="db_name" class="ui-state-highlight"><%= model.name %></li>
     </ul>
 </div>
 
@@ -11,7 +11,7 @@
     <ul id="mensions_list" class="panel-body">
 		<% _.each(model.dm, function(v, k) { %> 
             <li class="mension ui-state-highlight coordinate" >
-            <m></m>
+            <m class="axes-math" data=""></m>
             <span class='attr'><%= k %></span>
             <b data-toggle='dropdown' class='glyphicon glyphicon-plus-sign dropdown-toggle'></b>
             <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
@@ -36,7 +36,7 @@
     <ul id="measures_list"  class="panel-body">
         <% _.each(model.me, function(v, k) { %> 
             <li class="measure coordinate" draggable="true">
-            <m></m>
+            <m class="axes-math" data=""></m>
             <span class='attr'><%= k %></span>
             <b data-toggle='dropdown' class='glyphicon glyphicon-plus-sign dropdown-toggle'></b>
             <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">

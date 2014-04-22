@@ -15,9 +15,9 @@ define([
         el: "#content",
 
         initialize: function() {
-            this.menusView      = new MenusView();
-            this.workareaView   = new WorkareaView();
-            this.showAreaView   = new ShowAreaView();
+            this.menusView         = new MenusView();
+            this.workareaView      = new WorkareaView();
+            this.showAreaView      = new ShowAreaView();
             this.infoWorkplaceView = new InfoWorkplaceView();
             Backbone.Events.on(
                 "workarea:infowork"

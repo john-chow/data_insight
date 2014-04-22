@@ -33,7 +33,11 @@ define([
 			"click .coordinate-remove"          :"coordinateRemove",
 			"mouseleave .coordinate-measure ul" :"coordinateMeasureUlHide",
 			"mouseenter .coordinate-measure ul" :"coordinateMeasureBackground",
-			"click .coordinate-max"             :"coordinateMax"
+			"click .coordinate-max"             :"coordinateMax",
+			"click .coordinate-min"             :"coordinateMin",
+			"click .coordinate-count"           :"coordinateCount",
+			"click .coordinate-sum"             :"coordinateSum",
+			"click .coordinate-avg"             :"coordinateAvg",
 
 		},
 		
@@ -107,7 +111,28 @@ define([
 		},
 
 		coordinateMax: function(ev) {
-			$(ev.target).parents(".mension").find("m").html("(最大值)");
+			$(ev.target).parents(".coordinate").find(".axes-math").html("(最大值)");
+			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","max");
+		},
+
+		coordinateMin: function(ev) {
+			$(ev.target).parents(".coordinate").find(".axes-math").html("(最小值)");
+			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","min");
+		},
+
+		coordinateCount: function(ev) {
+			$(ev.target).parents(".coordinate").find(".axes-math").html("(计数)");
+			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","count");
+		},
+
+		coordinateSum: function(ev) {
+			$(ev.target).parents(".coordinate").find(".axes-math").html("(求和)");
+			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","sum");
+		},
+
+		coordinateAvg: function(ev) {
+			$(ev.target).parents(".coordinate").find(".axes-math").html("(平均)");
+			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","avg");
 		},
 
 

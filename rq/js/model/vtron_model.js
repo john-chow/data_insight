@@ -37,7 +37,7 @@ define([
 		},
 
 		myPass: function() {
-			Backbone.Events.trigger( "area:user_action", this.toJSON() )
+			Backbone.Events.trigger( "area:user_set_action", this.toJSON() )
 		}
 
 	});
