@@ -26,8 +26,6 @@ define([
 		),
 
 		events: {
-			"mouseenter .coordinate"            :"showMenuB",
-			"mouseleave .coordinate"            :"hideMenuB",
 			"click .coordinate-filter"          :"coordinateFilter",
 			"mouseenter .coordinate-measure"    :"coordinateMeasureShow",
 			"mouseleave .coordinate-measure"    :"coordinateMeasureHide",
@@ -63,13 +61,13 @@ define([
 		},
 
 
-		showMenuB: function(ev) {
+		/*showMenuB: function(ev) {
 			$(ev.target).find("b").show();
 		},
 
 		hideMenuB: function(ev) {
 			$(ev.target).find("b").hide();
-		},
+		},*/
 
 		coordinateFilter: function(ev) {
 			var title = $(ev.target).parents(".coordinate").find(".attr").html();
