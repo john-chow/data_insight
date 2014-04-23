@@ -269,24 +269,34 @@ def makeupFilterSql(filter_list):
 
 
 def generateBackData(request):
-	# 先看请求里面分别有多少个文字类和数字类的属性
-	(msn_list, msu_list, group_list) = calc_msu_msn_list(request)
+	if HAVE_PDB:		pdb.set_trace()
+	post_data 					= json.loads(request.POST.get(u'data', u'{}'), \
+												object_pairs_hook=OrderedDict)
+	shape_list, shape_in_use 	= judgeWhichShapes(post_data)
+	shape_in_use 				= post_data.get(u'shape', u'bar')
+	chart_data 					= getDrawData(post_data, shape_in_use, request)
 
-	# 判断出哪些图形适合，以及使用哪个
-	#(shape_list, shape_in_use) = judgeWhichShape(request, msn_list, msu_list)
+	return chart_data
+
+
+def getDrawData(post_data, shape_in_use, request):
+	# 先看请求里面分别有多少个文字类和数字类的属性
+	msn_list, msu_list, group_list = calc_msu_msn_list(post_data)
 
 	# 从数据库中找出该图形要画得数据
-	data_from_db = searchDataFromDb(request, msn_list, msu_list, group_list)
+	data_from_db = searchDataFromDb(request, post_data, msu_list, msn_list, group_list)
 
 	# 用echart格式化数据
 	echart_data = formatData(request, data_from_db, msu_list, msn_list, group_list)
 
 	return echart_data
 
+	
 
-def calc_msu_msn_list(request):
+
+def calc_msu_msn_list(post_data):
 	""" 
-	计算出 measure_list, mension_list, group_list
+	计算出 measure_list, mension_list
 	这里每个List里面单元的构造是 (name, kind, cmd, x_y)
 	name: 表示属性名字; 
 	kind: 表示是文字列还是数字列，0表示
@@ -295,11 +305,10 @@ def calc_msu_msn_list(request):
 	"""
 
 	[col_kind_attr_list, row_kind_attr_list] = \
-			map( lambda i: json.loads(i, object_pairs_hook=OrderedDict), \
-				map( lambda i: request.POST.get(i, u'[]'), \
-						(u'column', u'row') \
-					) \
-				)
+			map( lambda i: post_data.get(i, []), \
+					(u'column', u'row') \
+				) 
+
 
 	# echart 最多支持 1*2 的属性
 	col_len, row_len =  len(col_kind_attr_list), len(row_kind_attr_list) 
@@ -320,20 +329,22 @@ def calc_msu_msn_list(request):
 
 	# xxx
 	group_list = []
-	color_attr = request.POST.get( u'color', u'' )
+	color_attr = post_data.get( u'color', u'' )
 	if color_attr:
 		group_list.append( (color_attr, 2, u'', u'group') )
 
-	return (msn_list, msu_list, group_list)
+
+	return msn_list, msu_list, group_list
 	
 
 
-def searchDataFromDb(request, msn_list, msu_list, group_list):
+def searchDataFromDb(request, post_data, msu_list, msn_list, group_list):
 	"""
 	要保证select的顺序是 measure、mension、group
 	"""
-	filters_list 	= json.loads( request.POST.get(u'filter', u'[]') )
+	filters_list 	= json.loads( post_data.get(u'filter', u'[]') )
 	filter_sentence	= makeupFilterSql(filters_list)
+
 
 	# 处理 msu_list
 	sel_str_list, group_str_list, combine_flag = [], [], False
@@ -375,15 +386,15 @@ def searchDataFromDb(request, msn_list, msu_list, group_list):
 	sql 	= sql_template.format(attrs=sel_str, table=table_name, \
 									filter=filter_sentence, option=group_str)
 
-	conn = connDb(request)
-	cursor = conn.cursor()
+	conn 		= connDb(request)
+	cursor 		= conn.cursor()
 	cursor.execute(sql)
-	data = cursor.fetchall()
+	data 		= cursor.fetchall()
 	
 	return data
 
 
-def judgeWhichShape(msn_list, msu_list):
+def judgeWhichShapes(post_data):
 	shape_list = []
 	
 	return (shape_list, '')

@@ -55,7 +55,8 @@ define([
 						Backbone.Events.trigger("panel:draw_data", {})
 					}
 				}, error: function() {
-				}
+				},
+				no_feeding: true
 			})
 		},
 
@@ -69,7 +70,8 @@ define([
 						Backbone.Events.trigger("panel:draw_data", {})
 					}
 				}, error: function() {
-				}
+				},
+				no_feeding: true
 			})
 		}		
 

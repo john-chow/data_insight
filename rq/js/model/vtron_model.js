@@ -18,7 +18,12 @@ define([
 		 
 			this.set(attributes);
 
-			var jsonModel = this.toJSON();
+			var jsonModel 		= this.toJSON();
+			var strJsonModel 	= JSON.stringify(jsonModel);
+			options.data = {'data':	strJsonModel };
+
+
+			/*
 			$.each(jsonModel, function(k, v) {
 				if (v instanceof Array) {
 					jsonModel[k] = JSON.stringify(v)
@@ -27,6 +32,7 @@ define([
 		 
 			options.data = jsonModel;
 			//options.data  = this.toJSON();
+			*/
 		 
 			return Backbone.Model.prototype.save.call(this, attributes, options);
 		},
@@ -34,6 +40,16 @@ define([
 		sync: function(method, model, options) {
 			method = this.method_map[method];
 			return Backbone.Model.prototype.sync.call(this, method, model, options);
+		},
+
+		// 在model.save时，所有从服务器返回的数据都会被默认放进model里面
+		// 加上1个开关，可以选择阻止上述默认行为
+		parse: function(resp, options) {
+			if ( options["no_feeding"] ) {
+				return {}
+			}
+
+			return Backbone.Model.prototype.parse.call(this, resp, options);
 		},
 
 		myPass: function() {
