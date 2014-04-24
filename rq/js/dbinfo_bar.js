@@ -5,39 +5,84 @@ define([
 , "text!../template/dbinfo_bar.html" 
 ], function(Backbone, DbinfoModel, b, dataAreaHtml) {
 
+	var TablesCollection = Backbone.Collection.extend({
+		url:	"/indb/content",
+
+		// 丰富用户的success回调
+		fetch:	function(options) {
+			var success = options.success;
+			var backupThis = this.models;
+			options.success = function(collection, resp, options) {
+				// 因为backbone源代码里面已经直接用resp给collection赋值了
+				// 这里就是撤回上述操作
+				collection.reset(backupThis, {"silent": true});
+				if(resp.succ) {
+					resp = resp.data;
+					var method = options.reset ? 'reset' : 'set';
+					collection[method](resp, options);
+				
+					// 调用在使用fetch时，填的success回调函数
+					success(collection, resp, options)
+				} else {
+					alert(resp.msg)
+				}
+			}
+
+			return Backbone.Collection.prototype.fetch.call(this, options)
+		}
+	});
+
     var DbInfoBarView = Backbone.View.extend({
 
-        tagName:    "div",
-        id:         "dbinfo_bar",
-        template:   dataAreaHtml,
-
+        tagName:    			"div",
+        id:         			"dbinfo_bar",
+		
+		tablesTemplate:			_.template( $(dataAreaHtml).filter("#table_list_wrap").html() ),
+		mensionsTemplate: 		_.template( $(dataAreaHtml).filter("#mensions_list_wrap").html() ),
+		measuresTemplate:		_.template( $(dataAreaHtml).filter("#measures_list_wrap").html() ),
+ 
         events: {
         },
 
-        initialize: function() {
-			this.model = new DbinfoModel();
-            this.listenTo(this.model, "change", this.onDbChanged);
-			this.startListeners();
+		initialize: function() {
+			_.bindAll(this, "onTablesFetch", "onTableClicked");
 
-            // 这里应该是model向服务器请求数据
-            this.model.fetch()
-        },
+			this.collection = new TablesCollection();
+			this.collection.fetch({
+				"reset": true
+				, success: this.onTablesFetch
+			});
+		},
 
-		startListeners: function() {
+		onTablesFetch: function() {
+			this.render();
 			var self = this;
-			Backbone.Events.on("dbinfo:model_data", function(title) {
-				var data = self.model.getContentsBykey(title);
-				Backbone.Events.trigger("modal:filter_data", data)
+			
+			this.$(".table_name").each( function(idx, ele) {
+				var model = self.collection.at(idx);
+				$(ele).on("click", model, self.onTableClicked)
 			})
 		},
 
-        render: function() {
-            this.$el.html( _.template(this.template, this.model.toJSON(), {variable: "model"}) );
-            change_auto();
-        },
+		render: function(ev) {
+			if(ev) {
+				var modelJson = ev.data.toJSON();
+				this.$("#mensions_list").html( 
+					this.mensionsTemplate(modelJson)
+				);
+				this.$("#measures_list").html( 
+					this.measuresTemplate(modelJson)
+				)
+			} else {
+				var namesList = $.map(this.collection.models, function(m) {
+					return m.get("name")
+				});
+				this.$el.html( this.tablesTemplate({"names": namesList}) )
+			}
+		},
 
-        onDbChanged: function() {
-            this.render();
+		onTableClicked: function(model) {
+			this.render(model);
 			// 为所有属性增加id
 			$.each( this.$(".mension, .measure"), function(i, obj) {
 				$(obj).attr("id", "db_property_" + i);
@@ -46,7 +91,7 @@ define([
 
             this.$(".mension, .measure").on("dragstart", this.drag);
 			this.setDragProperty()
-        },
+		},
 
         drag: function(ev) {
 			$tar = $(ev.target);
