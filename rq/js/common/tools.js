@@ -41,3 +41,12 @@ function Delete_from_array(list, val) {
 	return cloned
 }
 
+//统一显示错误
+function show_error_meassage(message, level){
+	$(".error_level").html(level);
+	$(".error_message").html(message);
+	$("#error_modal>div").modal();
+}
+
+
+

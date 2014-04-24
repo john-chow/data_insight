@@ -856,3 +856,21 @@ body {
 #graph_pie.choosed-chart-style {
      background-image: url(../images/pie-hover.PNG);
 }
+
+#error_modal .modal-title{
+    text-align: center;
+    color: rgb(238, 45, 45);
+    font-weight: bold;
+}
+
+#error_modal .modal-body{
+    font-size: 16px;
+}
+
+#error_modal .modal-footer{
+    margin-top: 0;
+}
+
+#error_modal .modal-body span{
+    color: rgb(235, 30, 30);
+}
