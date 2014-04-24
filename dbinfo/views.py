@@ -10,8 +10,6 @@ from psycopg2.extensions import adapt
 from collections import OrderedDict
 
 import psycopg2 as pysql
-import vincent
-import pandas as pd
 import logging
 from dbinfo.echart import *
 from common.head import *
@@ -21,57 +19,65 @@ import pdb
 
 
 def getTableList(request):
+	print '********		getTableList  *********'
 	conn 			= connDb(request)
 	if not conn:
+		print 'redirect to login'
 		return HttpResponseRedirect(u'http://10.1.50.125:9000/')
 	cursor 			= conn.cursor()
-	cursor.execute(u'SELECT table_name FROM information_schema.tables \
-												WHERE table_schema="public"')
+	cursor.execute(u"SELECT table_name FROM information_schema.tables \
+												WHERE table_schema='public'")
 	results 		= cursor.fetchall()
 	table_list 		= [ q[0] for q in results ]
-	str_table_list 	= json.dumps(table_list)
-	data = {u'tables':	str_table_list}
-
-	return MyHttpJsonResponse(data)
+	return table_list
 
 
 
-def getDbInfo(request):
-	print u'getDbInfo'
-	table = request.session.get(u'table')
+
+def getTableInfo(request):
+	print '********		getTableInfo  *********'
+	#tables = request.session.get(u'table')
+	tables = [u'test', u'diamond']
 
 	conn 			= connDb(request)
 	if not conn:
+		print 'redirect to login'
 		return HttpResponseRedirect(u'http://10.1.50.125:9000/')
-
 	cursor 			= conn.cursor()
-	cursor.execute(u'select * from %s' % table)
-	results 		= cursor.fetchall()
-	col_names 		= [ q[0] for q in cursor.description ]
 
-	(dm_dict, me_dict) = ( {}, {} )
-	for i, name in enumerate(col_names):
-		val_list = list( set( 		\
-			[ q[i] for q in results ] 	\
-		) )
+	data_list = []
+	for t in tables:
+		cursor.execute(u'select * from %s' % t)
+		results 		= cursor.fetchall()
+		col_names 		= [ q[0] for q in cursor.description ]
 
-		tmp = val_list[0]
-		if isinstance(tmp, int) or isinstance(tmp, float):
-			me_dict[name] = None
-		else:
-			dm_dict[name] = json.dumps(val_list, default=date_handler)
+		(dm_dict, me_dict) = ( {}, {} )
+		for i, name in enumerate(col_names):
+			val_list = list( set( 		\
+				[ q[i] for q in results ] 	\
+			) )
 
-	data = {
-		u'name':		table
-		, u'dm':		dm_dict
-		, u'me':		me_dict
-	}
+			tmp = val_list[0]
+			if isinstance(tmp, int) or isinstance(tmp, float):
+				me_dict[name] = None
+			else:
+				#dm_dict[name] = json.dumps(val_list, default=date_handler)
+				dm_dict[name] = val_list
 
-	return MyHttpJsonResponse(data)
+		data = {
+			u'name':		t
+			, u'dm':		dm_dict
+			, u'me':		me_dict
+		}
+		data_list.append(data)
+	
+	res_dict = {u'succ': True, u'data':	data_list}
+
+	return MyHttpJsonResponse(res_dict)
 
 
 def tryIntoDb(request):
-	print u'try into db'
+	print '********		tryIntoDb  		*********'
 
 	if 'POST' == request.method:
 		if connDb(request):
@@ -80,10 +86,11 @@ def tryIntoDb(request):
 			request.session[u'db'] 		= request.POST.get('db', 	'')
 			request.session[u'user'] 	= request.POST.get('user', 	'')
 			request.session[u'pwd'] 	= request.POST.get('pwd', 	'')
-			request.session[u'table'] 	= request.POST.get('table', '')
+			#request.session[u'table'] 	= request.POST.get('table', '')
 
-			print 'redirect to indb'
-			return HttpResponseRedirect(u'/indb/')
+			tables_list = getTableList(request)
+			return MyHttpJsonResponse( {u'succ': True, \
+										u'data': json.dumps(tables_list)} )
 		else:
 			msg = u'cant access into database'
 			return MyHttpJsonResponse( {u'succ': False, u'msg': msg} )
@@ -92,7 +99,26 @@ def tryIntoDb(request):
 		return render_to_response(u'index.html', context)
 
 
+def chooseTable(request):
+	print '********		chooseTable  	*********'
+	chosen_tables 	= json.loads( request.POST.get(u'table', u'[]') )
+	tables_list 	= getTableList(request)
+
+	# 注意传多个来怎么办
+	unkonwn_tables = list(set(chosen_tables) - set(tables_list))
+
+	if 0 == len(unkonwn_tables):
+		request.session[u'tables'] 	= 	chosen_tables
+		print 'redirect to indb'
+		return HttpResponseRedirect(u'/indb/')
+	else:
+		res_dict = {u'succ': False, u'msg': u'xxxxx'}
+		return HttpResponse(res_dict, content_type='application/json')
+
+
+
 def excSqlForData(request, sql_list):
+	print '********		excSqlForData  *********'
 	conn = connDb(request)
 	if not conn:
 		raise Exception(u'Cant access into database')
@@ -125,6 +151,7 @@ def excSqlForData(request, sql_list):
 
 
 def connDb(request):
+	print '********		connDb  *********'
 	# 提交表单时在POST字段中找寻登陆信息
 	# 其他时候都在session中找
 	including_login_dict = request.POST if request.POST.get('ip')\
@@ -148,6 +175,7 @@ def connDb(request):
 
 
 def reqDrawData(request):
+	print '********		reqDrawData  *********'
 	if 'POST' == request.method:
 		try:
 			logging.debug('reqDrawData is running')
@@ -162,86 +190,6 @@ def reqDrawData(request):
 
 	else:
 		return
-
-
-def concertrateSqls(request):
-	conn = connDb(request)
-	if not conn:
-		raise Exception(u'Cant access into database')
-	cursor = conn.cursor()
-
-	table = request.session.get(u'table')
-
-	[x_name_list, y_name_list, filter_list] = \
-			map( lambda i: json.loads(i, object_pairs_hook=OrderedDict), \
-				map( lambda i: request.POST.get(i, u'[]'), \
-						(u'column', u'row', u'filter') \
-					) \
-				)
-			
-
-	sql_sample_format 	= u'select {col} from {table} limit 1'
-	sql_format   		= u'select {col} from {table} {filter} {option}'
-
-	filter_sentence	= makeupFilterSql(filter_list)
-
-
-	print u'x_name_list, y_name_list length is %s, %s' % \
-						(len(x_name_list), len(y_name_list))
-
-	def fetchOne(col_name):
-		sql_sample = sql_sample_format.format(col=col_name, table=table)
-		cursor.execute(sql_sample)
-		re = cursor.fetchone()[0]
-		return re
-
-
-	(x_len, y_len) = ( len(x_name_list), len(y_name_list) )
-	sql_list = []
-
-	# 两个列表长度都是１
-	if (1 == x_len) and (1 == y_len):
-		x_y_list = [(x, y) for x in x_name_list for y in y_name_list] 
-		for (x, y) in x_y_list:
-			[x_re, y_re] = map(fetchOne, (x, y))
-
-			sql = ''
-			if isNumerical(x_re) and isNumerical(y_re):
-				sql = sql_format.format(col=x+u', sum(%s) %s' % (y, y), 
-									table=table, filter=filter_sentence, \
-									option=u'group by %s order by %s' % (x, y))
-			elif isNumerical(x_re) and not isNumerical(y_re):
-				sql = sql_format.format(col=y+u', sum(%s) %s' % (x, x), 
-										table=table, filter=filter_sentence, \
-										option=u'group by %s order by %s' % (y, x))
-			elif not isNumerical(x_re) and isNumerical(y_re):
-				sql = sql_format.format(col=x+u', sum(%s) %s' % (y, y), 
-										table=table, filter=filter_sentence, \
-										option=u'group by %s order by %s' % (x, y))
-			if(sql):
-				sql_list.append(sql)
-	
-	# 一个列表长度１，一个是0
-	elif 1 == (x_len + y_len):
-		one_name_list = x_name_list + y_name_list
-		for one in one_name_list:
-			sql_sample = sql_sample_format.format(col=one, table=table)
-			cursor.execute(sql_sample)
-			re = cursor.fetchone()[0]
-			if isNumerical(re):
-				sql = sql_format.format(col=u'sum(%s) %s' % (one, one), \
-										table=table, filter=filter_sentence, \
-										option=u'order by %s' % (one) )
-			else:
-				sql = sql_format.format(col=u'%s, count(*) %s' % (one, u'number'), \
-										table=table, filter=filter_sentence, \
-										option=u'group by %s order by %s' % (one, u'number'))
-			sql_list.append(sql)
-
-
-	conn.close()
-
-	return sql_list
 
 
 def makeupFilterSql(filter_list):
@@ -419,81 +367,4 @@ def formatData(request, data_from_db, msu_list, msn_list, group_list):
 		raise Exception(u'Unknown pictrue shape')
 
 	return rs
-	
-
-
-def vincentlizeData(data, format):
-	(heads_list, data_list) = data
-
-	print u'.......heads_list len = %s, data_list len is %s' % \
-				( len(heads_list), len(data_list) )
-
-	dict = {}
-	for (heads, data) in zip(heads_list, data_list):
-		val_list = zip(*data)
-		dict[u'head'] = heads
-
-		if HAVE_PDB: 	pdb.set_trace()
-
-		for (h, t) in zip(heads, val_list):
-			dict[h] = list(t)
-
-	if not dict:
-		return None
-
-	if HAVE_PDB: 	pdb.set_trace()
-
-	if u'bar' == format:
-		if len( dict[u'head'] ) == 1:
-			head = dict[u'head'][0]
-			chart = vincent.Bar( dict[head] )
-		elif len( dict[u'head'] ) > 1:
-			[x_label, y_label] = dict.pop(u'head', None)
-			chart = vincent.Bar(dict, iter_idx=x_label)
-			chart.axis_titles(x=x_label, y=y_label)
-			chart.legend(title=u'xxxx')
-	if u'line' == format:
-		if len( dict[u'head'] ) == 1:
-			head = dict[u'head'][0]
-			chart = vincent.Line( dict[head] )
-		elif len( dict[u'head'] ) > 1:
-			[x_label, y_label] = dict.pop(u'head', None)
-			chart = vincent.Line(dict, iter_idx=x_label)
-			chart.axis_titles(x=x_label, y=y_label)
-			chart.legend(title=u'xxxx')
-	if u'area' == format:
-		if len( dict[u'head'] ) == 1:
-			head = dict[u'head'][0]
-			chart = vincent.Area( dict[head] )
-		elif len( dict[u'head'] ) > 1:
-			[x_label, y_label] = dict.pop(u'head', None)
-			chart = vincent.Area(dict, iter_idx=x_label)
-			chart.axis_titles(x=x_label, y=y_label)
-			chart.legend(title=u'xxxx')
-
-	if u'pie' == format:
-		if len( dict['head'] ) == 2:
-			[x_label, y_label] = dict.pop(u'head', None)
-			(x_list, y_list) = ( dict[x_label], dict[y_label] )
-			dict = dict( zip(x_list, y_list) )
-			chart = vincent.Pie(dict)
-			chart.legend(title=u'xxxx')
-			
-	
-	return chart
-
-	
-		
-def readJsonFile(file):
-	if not file:
-		return {}
-
-	f = open(file, u'r')
-	jsonData = json.load(f, u'utf-8')
-	return jsonData
-	
-
-def isNumerical(arg):
-	return type(arg) in (int, float)
-
 

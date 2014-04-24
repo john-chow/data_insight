@@ -19,12 +19,67 @@ $("#list_link_to_db_head").on('click', function(ev) {
 
 //模态框确定事件
 $('.list_link_db').on('click', function(ev) {
-	$("#conn_db_form").submit();
+	$form = $("#conn_db_form");
+	//$form.submit()
+	/*
+	$form.ajaxComplete( function(e, xhr, settings) {
+		console.log("xxx")
+	})
+	*/
+
+	var formdata = $form.serialize();
+	$.ajax({
+		url:		"/indb/"
+		, type: 	"POST"
+		, data:		formdata
+		, success:  function(data) {
+			var tables = JSON.parse(data['data'])
+			showTables(tables)
+		}
+		, error: 	function() {
+		}
+	});
 });
 
 //模态框取消事件
 $('.list_cancel_modal').on('click', function(ev) {
 	$("#list_link_db_modal").modal("hide");
 });
+
+// 通过数据库验证后显示table列表
+function showTables(tables) {
+	$obj = $("<ul id=tables_list></ul>");
+	$.each(tables, function(idx, table) {
+		var tableEle = "<li class=table>__name__</li>".replace("__name__", table);
+		$obj.append(tableEle)
+	})
+	$("#conn_db_form").replaceWith($obj)
+	$(".table").on("click", chooseTable);
+}
+
+
+function chooseTable(ev) {
+	var names = $(ev.target).html();
+	var strNames = JSON.stringify([names]);
+
+	$.ajax({
+		url:		"/indb/choose/table"
+		, type:		"POST"
+		, data:		{
+			table:	strNames
+		}
+		, success: function() {
+			$("#list_link_db_modal").modal("hide")
+		}
+		, error: function(data) {
+			alert(data.msg)
+		}
+	})
+}
+
+
+
+
+
 
 
