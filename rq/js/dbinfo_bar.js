@@ -6,6 +6,7 @@ define([
 ], function(Backbone, DbinfoModel, b, dataAreaHtml) {
 
 	var TablesCollection = Backbone.Collection.extend({
+		model: 	DbinfoModel, 
 		url:	"/indb/content",
 
 		// 丰富用户的success回调
@@ -60,7 +61,12 @@ define([
 			
 			this.$(".table_name").each( function(idx, ele) {
 				var model = self.collection.at(idx);
-				$(ele).on("click", model, self.onTableClicked)
+				//此处有Bug，不能绑定多个
+				Backbone.Events.on("dbinfo:model_data", function(title) {
+					var data = model.getContentsBykey(title);
+					Backbone.Events.trigger("modal:filter_data", data)
+				})
+				$(ele).on("click", model, self.onTableClicked);
 			})
 		},
 
@@ -79,6 +85,7 @@ define([
 				});
 				this.$el.html( this.tablesTemplate({"names": namesList}) )
 			}
+			change_auto();
 		},
 
 		onTableClicked: function(model) {

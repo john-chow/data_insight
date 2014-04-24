@@ -186,7 +186,7 @@ function change_show_area(){
     var clientHeight = document.documentElement.clientHeight;
     var logoHeight=$("#header").height();
     var menuHeight=$("#design_menu").height();
-    var dbHeight=$("#using_db_name").height();
+    var dbHeight=$("#table_name").height();
     var footerHeight=$("#footer").height()+1;     //border-top:1px
     var titleHeight=$("#dimensions .panel-heading").height()+1+6; //border-bottom:1px,padding:3px 15px
     return (clientHeight-logoHeight-menuHeight-dbHeight-footerHeight)/2-titleHeight-10;  //padding:10px 0 0 0         

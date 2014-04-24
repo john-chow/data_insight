@@ -874,3 +874,25 @@ body {
 #error_modal .modal-body span{
     color: rgb(235, 30, 30);
 }
+
+#table_name ul {
+    margin-bottom: 0px;
+    list-style: none;
+    padding: 5px 0;
+    max-height: 112px;
+    overflow-y: auto;
+}
+
+#table_name ul li {
+    padding: 3px 0 3px 10px;
+    height: 25px;
+    overflow: hidden;
+    border: 1px solid #fff;
+    cursor: default;
+}
+
+#table_name ul li:hover {
+    background-color: #FFF7F8;
+    border-radius: 5px;
+    border: 1px solid #F0C1D3;
+}
