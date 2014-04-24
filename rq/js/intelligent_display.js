@@ -47,7 +47,7 @@ define([
             $(".choosed-chart-style").removeClass("choosed-chart-style");
             $(ev.target).addClass("choosed-chart-style");
             var chartStyle = $(ev.target).attr("chartName");
-            this.model.set("shape", chartStyle);
+            this.model.set("graph", chartStyle);
             this.model.myPass();
         }
 

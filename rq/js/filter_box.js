@@ -19,10 +19,9 @@ define([
 		events: {
 			"click .filter-remove"           :"rmAttr",
 			"click .filter-show-old"         :"showFilterOld",
-			"mouseenter .filter-li"          :"showMenuB",
-			"mouseleave .filter-li"          :"hideMenuB",
 			"click .filter_tag_color .close"      :"removeColor",
 			"click .filter_tag_size .close"       :"removeSize",
+			"click .filter_tag_shape .close"       :"removeShape",
 		},
 
         initialize: function() {
@@ -41,6 +40,7 @@ define([
             this.$("#filter_page").on( "drop", this.choosePage);
             this.$("#filter_tag_color").on( "drop", this.chooseColor);
             this.$("#filter_tag_size").on( "drop", this.chooseSize);
+            this.$("#filter_tag_shape").on( "drop", this.chooseShape);
         },
 
         render: function() {
@@ -80,13 +80,13 @@ define([
 			)
 		},
 
-		showMenuB: function(ev){
+		/*showMenuB: function(ev){
 			$(ev.target).find("b").show();
 		},
 
 		hideMenuB:function(ev){
 			$(ev.target).find("b").hide();
-		},
+		},*/
 
 
 		rmAttr: function(ev) {
@@ -128,6 +128,19 @@ define([
 			)
 		},
 
+		chooseShape: function(ev, ui) {
+			$(".filter_tag_shape").remove();
+			var type=$(ui.draggable).attr("type");
+			var title =$(ui.draggable).find(".attr").html();
+			var button ="<b class='close'>×</b>";
+			var insert = "<li class='filter_tag_shape' type='"+type+"'>形状：<span data='size'>"+title+"</span>"+button+"</li>";
+			$("#filter_tag_choosed").append(insert);
+			Backbone.Events.trigger(
+				"area:user_set_action"
+				, {"shape":title}
+			)
+		},
+
 		choosePage: function(ev) {
 			//测试
 			$(ev.target).find("#filter_body").html("插入页面");
@@ -141,6 +154,11 @@ define([
 		removeSize: function(ev) {
 			$(".filter_tag_size").remove();	
 			Backbone.Events.trigger("area:user_unset_action", "size")
+		},
+
+		removeShape: function(ev) {
+			$(".filter_tag_shape").remove();	
+			Backbone.Events.trigger("area:user_unset_action", "shape")
 		},
 
 
@@ -203,7 +221,7 @@ define([
 
 		setDragProperty: function() {
 			//此代码删除了，触发不了drop，原因暂不明确
-			this.$('#filter_conditions, #filter_page, #filter_tag_color, #filter_tag_size').droppable({
+			this.$('#filter_conditions, #filter_page, #filter_tag_color, #filter_tag_size, #filter_tag_shape').droppable({
 				drop: function(event, ui) {
 				}
 			});

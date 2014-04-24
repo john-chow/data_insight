@@ -548,6 +548,8 @@ button.filter-close {
 .intelligent-display>div>button {
     background: transparent;
     font-size: 10px;
+    height: 30px;
+    width: 50px;
     margin: 10px 0px 0px 6px;
 }
 
@@ -716,13 +718,6 @@ body {
     border: 1px solid #A9A3C9;
 }
 
-.choosed-chart-style {
-    background-color: #e0e0e0 !important;
-    background-position: 0 -15px !important;
-    text-decoration: none !important;
-    color: #333 !important;
-    border: 1px solid #95AEDA !important;
-}
 
 #filter_body ul li {
     position: relative;
@@ -739,8 +734,13 @@ body {
     right: 3px;
     top: 3px;
     cursor: pointer;
-    opacity: 0.9;
-    display: none;
+    opacity: 0.1;
+    display: block;
+}
+
+#filter_body b:hover , 
+#draw_plots b:hover {
+    opacity: 0.8;
 }
 
 #filter_body .dropdown-menu ,
@@ -787,4 +787,72 @@ body {
     padding: 0;
     font-size: 18px;
     margin: 2px 2px 0 0;
+}
+
+#graph_bar {
+    background-image: url(../images/bar.png);
+    background-repeat: no-repeat;
+    background-size: 50px 30px;
+}
+
+#graph_bar:hover {
+    background-position:0 0;
+    background-color:white;
+}
+
+#graph_line {
+    background-image: url(../images/line.png);
+    background-repeat: no-repeat;
+    background-size: 50px 30px;
+}
+
+#graph_line:hover {
+    background-position:0 0;
+    background-color:white;
+}
+
+#graph_scatter {
+    background-image: url(../images/scatter.png);
+    background-repeat: no-repeat;
+    background-size: 50px 30px;
+}
+
+#graph_scatter:hover {
+    background-position:0 0;
+    background-color:white;
+}
+
+#graph_pie {
+    background-image: url(../images/pie.png);
+    background-repeat: no-repeat;
+    background-size: 50px 30px;
+}
+
+#graph_pie:hover {
+    background-position:0 0;
+    background-color:white;
+}
+
+.choosed-chart-style {
+    background-color: #e0e0e0 !important;
+    text-decoration: none !important;
+    color: #333 !important;
+    border: 1px solid #95AEDA !important;
+    background-position:0 0 !important;
+}
+
+#graph_bar.choosed-chart-style {
+     background-image: url(../images/bar-hover.png);
+}
+
+#graph_line.choosed-chart-style {
+     background-image: url(../images/line-hover.PNG);
+}
+
+#graph_scatter.choosed-chart-style {
+     background-image: url(../images/scatter-hover.PNG);
+}
+
+#graph_pie.choosed-chart-style {
+     background-image: url(../images/pie-hover.PNG);
 }
