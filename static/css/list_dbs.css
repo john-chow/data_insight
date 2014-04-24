@@ -116,3 +116,29 @@
 #list_link_db_modal .modal-footer {
 	text-align: center;
 }
+
+#list_link_db_modal #tables_list {
+	padding: 0;
+	list-style: none;
+}
+
+#list_link_db_modal #tables_list li {
+	padding: 0 30px;
+	margin: 0;
+	line-height: 30px;
+	cursor: pointer;
+}
+
+#list_link_db_modal #tables_list li:hover{
+	background-color: #F1DCDC;
+	border-radius: 5px;
+}
+
+#list_link_db_modal #tables_list li.table-choosed {
+	background-color: #F1DCDC;
+	border-radius: 5px;
+}
+
+#list_link_db_modal .modal-footer {
+	margin-top: 0px;
+}
