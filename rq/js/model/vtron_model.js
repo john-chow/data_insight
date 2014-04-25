@@ -61,7 +61,7 @@ define([
 		 // 从外监听事件
 		onOut: function(ev, callback) {
 		  	VtronEvents.on(this.sheetId + ev, callback)
-		}
+		},
 
 		myPass: function() {
 			this.triggerOut( "area:user_set_action", this.toJSON() )

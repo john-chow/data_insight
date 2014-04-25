@@ -19,7 +19,7 @@ define([
 
 
 
-    var WorkAreaView = Backbone.View.extend({
+    var WorkAreaView = BaseSheetView.extend({
 
         tagName: 	"div",
         id: 		"work_area",
@@ -53,13 +53,15 @@ define([
 
 		setToSev: function(data) {
 			this.model.set(data);
+
+			var self = this;
 			this.model.save(null, {
 				success: function(m, resp, opt) {
 					if (resp.succ) {
-						this.triggerOut("panel:draw_data", resp.data)
+						self.triggerOut("panel:draw_data", resp.data)
 						//Backbone.Events.trigger("panel:draw_data", resp.data)
 					} else {
-						this.triggerOut("panel:draw_data", {})
+						self.triggerOut("panel:draw_data", {})
 						//Backbone.Events.trigger("panel:draw_data", {})
 					}
 				}, error: function() {

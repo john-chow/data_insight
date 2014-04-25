@@ -2,14 +2,19 @@ define([
 "backbone"
 , "base_sheet"
 , "bootstrap"
-, "underscore"
-, "model/filter_boxes"
+, "model/vtron_collection"
+, 'model/filter_box'
 , "color"
 , "jquery"
 , "jqueryUi"
 , "text!../template/filter_box.html"
-], function(Backbone, BaseSheetView, b, _, FiltersCollection, color, jquery
-			, jqueryUi, filterBoxHtml) {
+], function(Backbone, BaseSheetView, b, VtronCollection, FilterModel, 
+			color, jquery, jqueryUi, filterBoxHtml) {
+
+	var FiltersCollection = VtronCollection.extend({
+		model: FilterModel
+	});
+
 
     var FilterBoxView = BaseSheetView.extend({
 
@@ -27,6 +32,9 @@ define([
 		},
 
         initialize: function() {
+			_.bindAll(this, "chooseFilter", "choosePage", "chooseColor"
+							, "chooseSize", "chooseShape");
+
 			this.collection = new FiltersCollection();
 			//删除事件
 			var self = this;
@@ -38,7 +46,7 @@ define([
 				self.collection.myPass("area:user_set_action")
 			});
             this.render();
-            this.$("#filter_conditions").on( "drop", _.bind(this.chooseFilter, this) );
+            this.$("#filter_conditions").on( "drop", this.chooseFilter );
             this.$("#filter_page").on( "drop", this.choosePage);
             this.$("#filter_tag_color").on( "drop", this.chooseColor);
             this.$("#filter_tag_size").on( "drop", this.chooseSize);
@@ -81,7 +89,7 @@ define([
 				, {"sheetId": this.sheetId} 
 			);
 
-			Backbone.Events.trigger("modal:show_filter", data)
+			VtronEvents.trigger("modal:show_filter", data)
 		},
 
 		/*showMenuB: function(ev){
@@ -167,7 +175,7 @@ define([
 
 		removeShape: function(ev) {
 			$(".filter_tag_shape").remove();	
-			.trigger("area:user_unset_action", "shape")
+			this.triggerOut("area:user_unset_action", "shape")
 			//Backbone.Events.trigger("area:user_unset_action", "shape")
 		},
 

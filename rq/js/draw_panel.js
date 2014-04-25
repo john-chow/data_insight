@@ -9,7 +9,7 @@ define([
 , "echarts/chart/pie"
 ], function(Backbone, BaseSheetView, DrawModel, ec, _b, _l, _s, _p) {
 		
-	var DrawPanelView = Backbone.View.extend({
+	var DrawPanelView = BaseSheetView.extend({
 		tagName: 		"div",
 		id:				"draw_panel",
 

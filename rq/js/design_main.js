@@ -4,11 +4,14 @@ define([
 , "work_area"
 , "show_area"
 , "info_workplace"
+, "modal_manager"
 , "error_message"
 , "base_sheet"
+, "model/vtron_model"
+, "model/vtron_collection"
 ], function(Backbone, MenusView, WorkareaView
-			, ShowAreaView, InfoWorkplaceView
-			, MessageView, BaseSheetView) {
+			, ShowAreaView, InfoWorkplaceView, _Modal
+			, MessageView, BaseSheetView, VtronModel, VtronCollection) {
 
 	// 使model save时，数据是object型
 	Backbone.emulateJSON = true;
@@ -64,7 +67,9 @@ define([
 
 		addWorkTable: function() {
 			this.sheetNumber += 1;
-			BaseSheetView.prototype.sheetId = this.sheetNumber;
+			BaseSheetView.prototype.sheetId 	= this.sheetNumber;
+			VtronModel.prototype.sheetId 		= this.sheetNumber;
+			VtronCollection.prototype.sheetId 	= this.sheetNumber;
 		},
 
 		addWorkBook: function() {

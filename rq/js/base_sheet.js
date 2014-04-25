@@ -14,7 +14,6 @@ define([
 		  onOut: function(ev, callback) {
 		  	  VtronEvents.on(this.sheetId + ev, callback)
 		  }
-
 	});
 
 	BaseSheetView.prototype.sheetId = 1;

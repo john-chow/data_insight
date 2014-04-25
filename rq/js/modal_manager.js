@@ -1,18 +1,21 @@
 define([
-	'backbone'
+	'vtron_events'
 	, "choose_filter"
-], function(Backbone, ChooseFilterView) {
+], function(VtronEvents, ChooseFilterView) {
 
 	var idToViewMap = {
 	};
 
-	Backbone.Events.on("modal:show_filter", function(data) {
+
+	VtronEvents.on("modal:show_filter", function(data) {
+		var sheetId = data["sheetId"];
 		var id 		= data["pro_id"];
 		var title 	= data["content"];
 		var view 	= idToViewMap[id];
 		if (!view) {
 			view = new ChooseFilterView();
-			Backbone.Events.once("modal:filter_data", function(data) {
+			/*
+			VtronEvents.once("modal:filter_data", function(data) {
 				view.model.set( {
 					"title":		title
 					, "fil": 		data
@@ -21,7 +24,28 @@ define([
 				view.render();
 				idToViewMap[id] = view
 			});
-			Backbone.Events.trigger("dbinfo:model_data", title)
+			*/
+
+			var renderFilter = function() {
+				var tmpView 	= view;
+				var tmpTitle 	= title;
+				var tmpId 		= id
+				var f = function(data) {
+					tmpView.model.set( {
+						"title":		tmpTitle
+						, "fil": 		data
+						, "pro_id":     tmpId
+					} ); 
+					tmpView.render();
+				};
+
+				return f
+			}
+
+			VtronEvents.trigger(sheetId + "dbinfo:model_data", {
+				"title": title, "callback": renderFilter()
+			})
+			idToViewMap[id] = view
 		}
 		else {
 			view.show()

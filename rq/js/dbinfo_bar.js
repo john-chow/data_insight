@@ -64,11 +64,18 @@ define([
 			
 			this.$(".table_name").each( function(idx, ele) {
 				var model = self.collection.at(idx);
+				self.onOut("dbinfo:model_data", function(ev) {
+					var data = model.getContentsBykey(ev.title);
+					ev.callback(data)
+				})
+
+				/*
 				//此处有Bug，不能绑定多个
 				Backbone.Events.on("dbinfo:model_data", function(title) {
 					var data = model.getContentsBykey(title);
 					Backbone.Events.trigger("modal:filter_data", data)
 				})
+				*/
 				$(ele).on("click", model, self.onTableClicked);
 			});
 
