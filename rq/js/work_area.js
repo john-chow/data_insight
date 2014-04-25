@@ -1,11 +1,12 @@
 define([
 "backbone"
+, "base_sheet"
 , "dbinfo_bar"
 , "design_panel"
 , "bootstrap"
 , "model/vtron_model"
 , "vtron_events"
-], function(Backbone, DbBarView, PanelView, b, VtronModel
+], function(Backbone,BaseSheetView, DbBarView, PanelView, b, VtronModel
 			, VtronEvents) {
 
 	var WorkAreaModel = VtronModel.extend({
@@ -26,12 +27,14 @@ define([
 
         initialize: function() {
 
-			Backbone.Events.on(
+			//Backbone.Events.on(
+			this.onOut(
 				"area:user_set_action"
 				, _.bind(this.setToSev, this)
 		  	);
 
-		  	Backbone.Events.on(
+		  	//Backbone.Events.on(
+		  	this.onOut(
 				"area:user_unset_action"
 				, _.bind(this.unsetToSev, this)
 		  	);
@@ -53,9 +56,11 @@ define([
 			this.model.save(null, {
 				success: function(m, resp, opt) {
 					if (resp.succ) {
-						Backbone.Events.trigger("panel:draw_data", resp.data)
+						this.triggerOut("panel:draw_data", resp.data)
+						//Backbone.Events.trigger("panel:draw_data", resp.data)
 					} else {
-						Backbone.Events.trigger("panel:draw_data", {})
+						this.triggerOut("panel:draw_data", {})
+						//Backbone.Events.trigger("panel:draw_data", {})
 					}
 				}, error: function() {
 				},
@@ -68,9 +73,11 @@ define([
 			this.model.save(null, {
 				success: function(m, resp, opt) {
 					if (resp.succ) {
-						Backbone.Events.trigger("panel:draw_data", resp.data)
+						this.triggerOut("panel:draw_data", resp.data)
+						//Backbone.Events.trigger("panel:draw_data", resp.data)
 					} else {
-						Backbone.Events.trigger("panel:draw_data", {})
+						this.triggerOut("panel:draw_data", {})
+						//Backbone.Events.trigger("panel:draw_data", {})
 					}
 				}, error: function() {
 				},

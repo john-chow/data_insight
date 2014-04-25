@@ -1,6 +1,7 @@
 define([
 	'backbone'
-], function(Backbone) {
+	, "vtron_events" 
+], function(Backbone, VtronEvents) {
 	var VtronModel = Backbone.Model.extend({
 
 		method_map: {
@@ -52,8 +53,19 @@ define([
 			return Backbone.Model.prototype.parse.call(this, resp, options);
 		},
 
+		// 对外传递事件
+		triggerOut: function(ev, data) {
+		  	VtronEvents.trigger(this.sheetId + ev, data)
+		},
+
+		 // 从外监听事件
+		onOut: function(ev, callback) {
+		  	VtronEvents.on(this.sheetId + ev, callback)
+		}
+
 		myPass: function() {
-			Backbone.Events.trigger( "area:user_set_action", this.toJSON() )
+			this.triggerOut( "area:user_set_action", this.toJSON() )
+			//Backbone.Events.trigger( "area:user_set_action", this.toJSON() )
 		}
 
 	});

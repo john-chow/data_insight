@@ -1,8 +1,9 @@
 define([
 "backbone"
+, "base_sheet"
 , "bootstrap"
 , "text!../template/choose_filter.html" 
-], function(Backbone, b, cfTemplate) {
+], function(Backbone, BaseSheetView, b, cfTemplate) {
 
     var FilterModel = Backbone.Model.extend({
     });
@@ -56,7 +57,8 @@ define([
 				userFilterData["cmd"] 		= "add";
 			}
 
-			Backbone.Events.trigger("ensure_filter", userFilterData);
+            this.triggerOut("ensure_filter", userFilterData)
+			//Backbone.Events.trigger("ensure_filter", userFilterData);
 			this.close()
         },
 

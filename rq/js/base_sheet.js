@@ -1,12 +1,20 @@
 define([
 	"backbone"
-], function(Backbone) {
+	, "vtron_events" 
+], function(Backbone, VtronEvents) {
 
 	var BaseSheetView = Backbone.View.extend({
 
-		getSheetId:	function() {
-			return this.sheetId
-		}
+		  // 对外传递事件
+		  triggerOut: function(ev, data) {
+		  	  VtronEvents.trigger(this.sheetId + ev, data)
+		  },
+
+		  // 从外监听事件
+		  onOut: function(ev, callback) {
+		  	  VtronEvents.on(this.sheetId + ev, callback)
+		  }
+
 	});
 
 	BaseSheetView.prototype.sheetId = 1;

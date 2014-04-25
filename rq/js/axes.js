@@ -1,9 +1,10 @@
 define([
 "backbone"
+, "base_sheet"
 , "model/vtron_model"
 , "common/tools"
 , "underscore"
-], function(Backbone, VtronModel, _t, _) {
+], function(Backbone, BaseSheetView, VtronModel, _t, _) {
 
 	/*
 		数据格式:  只有一对key-value
@@ -15,7 +16,7 @@ define([
 	});
 	
 
-	var AxesView = Backbone.View.extend({
+	var AxesView = BaseSheetView.extend({
 
 		name:		"",				// [column, row]
 		tagName:	"div",
@@ -76,7 +77,8 @@ define([
 				"pro_id": 		pro_id
 				, "content": 	title
 			};
-			Backbone.Events.trigger("modal:show_filter",data);
+			this.triggerOut("modal:show_filter",data)
+			//Backbone.Events.trigger("modal:show_filter",data);
 		},
 
 		coordinateMeasureShow: function(ev) {

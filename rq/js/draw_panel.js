@@ -1,12 +1,13 @@
 define([
 "backbone"
+, "base_sheet"
 , "model/draw_data"
 , "echarts"
 , "echarts/chart/bar"
 , "echarts/chart/line"
 , "echarts/chart/scatter"
 , "echarts/chart/pie"
-], function(Backbone, DrawModel, ec, _b, _l, _s, _p) {
+], function(Backbone, BaseSheetView, DrawModel, ec, _b, _l, _s, _p) {
 		
 	var DrawPanelView = Backbone.View.extend({
 		tagName: 		"div",
@@ -15,7 +16,8 @@ define([
 		initialize: function() {
 			this.model = new DrawModel();
 			this.listenTo(this.model, "change", this.render);
-			Backbone.Events.on( "panel:draw_data", _.bind(this.updateData, this) );
+			this.onOut("panel:draw_data", _.bind(this.updateData, this))
+			//Backbone.Events.on( "panel:draw_data", _.bind(this.updateData, this) );
 		},
 
 		render: function() {

@@ -30,7 +30,7 @@ define([
 			this.collection = new FiltersCollection();
 			//删除事件
 			var self = this;
-			Backbone.Events.on("collection:delete", function(title) {
+			this.on("collection:delete", function(title) {
 				rmmodel = _.find(self.collection.models, function(model){
 				 	return model.get("property")==title; 
 				});
@@ -76,10 +76,12 @@ define([
 		},
 
 		chooseFilter: function(ev) {
-			Backbone.Events.trigger(
-				"modal:show_filter"
-				, JSON.parse(sessionStorage.dragment)
-			)
+			var data = $.extend( 
+				JSON.parse(sessionStorage.dragment)
+				, {"sheetId": this.sheetId} 
+			);
+
+			Backbone.Events.trigger("modal:show_filter", data)
 		},
 
 		/*showMenuB: function(ev){
@@ -95,7 +97,7 @@ define([
 			var title = $(ev.target).parents(".filter-li").children("span").html();
 			$(ev.target).parents(".filter-li").remove();
 			//1.把新的筛选器发送到服务器，更新数据
-			Backbone.Events.trigger("collection:delete", title)
+			this.trigger("collection:delete", title)
 			//2.删除对应的模态框或者把对应的模态框的内容清除
 		},
 
@@ -111,7 +113,8 @@ define([
 			var button ="<b class='close'>×</b>";
 			var insert = "<li class='filter_tag_color' type='"+type+"'>颜色：<span data='color'>"+title+"</span>"+button+"</li>";
 			$("#filter_tag_choosed").append(insert);
-			Backbone.Events.trigger(
+			this.triggerOut(
+			//Backbone.Events.trigger(
 				"area:user_set_action"
 				, {"color":title}
 			)
@@ -124,7 +127,8 @@ define([
 			var button ="<b class='close'>×</b>";
 			var insert = "<li class='filter_tag_size' type='"+type+"'>大小：<span data='size'>"+title+"</span>"+button+"</li>";
 			$("#filter_tag_choosed").append(insert);
-			Backbone.Events.trigger(
+			this.triggerOut(
+			//Backbone.Events.trigger(
 				"area:user_set_action"
 				, {"size":title}
 			)
@@ -137,7 +141,8 @@ define([
 			var button ="<b class='close'>×</b>";
 			var insert = "<li class='filter_tag_shape' type='"+type+"'>形状：<span data='size'>"+title+"</span>"+button+"</li>";
 			$("#filter_tag_choosed").append(insert);
-			Backbone.Events.trigger(
+			this.triggerOut(
+			//Backbone.Events.trigger(
 				"area:user_set_action"
 				, {"shape":title}
 			)
@@ -150,17 +155,20 @@ define([
 
 		removeColor: function(ev) {
 			$(".filter_tag_color").remove();
-			Backbone.Events.trigger("area:user_unset_action", "color")
+			this.triggerOut("area:user_unset_action", "color")
+			//Backbone.Events.trigger("area:user_unset_action", "color")
 		},
 
 		removeSize: function(ev) {
 			$(".filter_tag_size").remove();	
-			Backbone.Events.trigger("area:user_unset_action", "size")
+			this.triggerOut("area:user_unset_action", "size")
+			//Backbone.Events.trigger("area:user_unset_action", "size")
 		},
 
 		removeShape: function(ev) {
 			$(".filter_tag_shape").remove();	
-			Backbone.Events.trigger("area:user_unset_action", "shape")
+			.trigger("area:user_unset_action", "shape")
+			//Backbone.Events.trigger("area:user_unset_action", "shape")
 		},
 
 

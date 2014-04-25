@@ -51,8 +51,10 @@ define([
         },
 
 		startListeners: function() {
-			Backbone.Events.on("choose_filter", this.addFilter);
-			Backbone.Events.on( "ensure_filter", _.bind(this.ensureFilter, this) )
+            this.onOut("choose_filter", this.addFilter);
+            this.onOut( "ensure_filter", _.bind(this.ensureFilter, this) )
+			//Backbone.Events.on("choose_filter", this.addFilter);
+			//Backbone.Events.on( "ensure_filter", _.bind(this.ensureFilter, this) )
 		},
 
         render: function() {
