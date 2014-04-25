@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from whichdb import views as whichdbView
+from whichdb import views
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -15,8 +15,6 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-	url( r'^$', 		whichdbView.showDbForChosen ),
-	url( r'^login/', 	include('whichdb.url') ),
-	url( r'indb/', 		include('dbinfo.url') ),
-	url( r'^test/$', 	whichdbView.test ),
+	url( r'^db/$', 				views.connectDb ),
+	url( r'^tables/$', 			views.selectTables ),
 )

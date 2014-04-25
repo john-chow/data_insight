@@ -93,7 +93,8 @@ def tryIntoDb(request):
 										u'data': json.dumps(tables_list)} )
 		else:
 			msg = u'cant access into database'
-			return MyHttpJsonResponse( {u'succ': False, u'msg': msg} )
+			#return MyHttpJsonResponse( {u'succ': False, u'msg': msg} )
+
 	else:
 		context = RequestContext(request)
 		return render_to_response(u'index.html', context)
