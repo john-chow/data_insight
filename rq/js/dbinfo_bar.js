@@ -1,9 +1,11 @@
 define([
 "backbone"
+, "base_sheet"
 , "model/dbinfo"
 , "bootstrap"
+, "vtron_events"
 , "text!../template/dbinfo_bar.html" 
-], function(Backbone, DbinfoModel, b, dataAreaHtml) {
+], function(Backbone, BaseSheetView, DbinfoModel, b, VtronEvents, dataAreaHtml) {
 
 	var TablesCollection = Backbone.Collection.extend({
 		model: 	DbinfoModel, 
@@ -33,7 +35,8 @@ define([
 		}
 	});
 
-    var DbInfoBarView = Backbone.View.extend({
+
+    var DbInfoBarView = BaseSheetView.extend({
 
         tagName:    			"div",
         id:         			"dbinfo_bar",
@@ -67,7 +70,10 @@ define([
 					Backbone.Events.trigger("modal:filter_data", data)
 				})
 				$(ele).on("click", model, self.onTableClicked);
-			})
+			});
+
+			// 默认查看第一表中的列
+			this.$(".table_name:first").trigger("click")
 		},
 
 		render: function(ev) {

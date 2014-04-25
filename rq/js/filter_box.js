@@ -1,5 +1,6 @@
 define([
 "backbone"
+, "base_sheet"
 , "bootstrap"
 , "underscore"
 , "model/filter_boxes"
@@ -7,9 +8,10 @@ define([
 , "jquery"
 , "jqueryUi"
 , "text!../template/filter_box.html"
-], function(Backbone, b, _, FiltersCollection, color, jquery, jqueryUi, filterBoxHtml) {
+], function(Backbone, BaseSheetView, b, _, FiltersCollection, color, jquery
+			, jqueryUi, filterBoxHtml) {
 
-    var FilterBoxView = Backbone.View.extend({
+    var FilterBoxView = BaseSheetView.extend({
 
         tagName:    "div",
         id:         "filter_box",
@@ -17,11 +19,11 @@ define([
 		item_template:	"<li class='filter-li'></li>",
 
 		events: {
-			"click .filter-remove"           :"rmAttr",
-			"click .filter-show-old"         :"showFilterOld",
-			"click .filter_tag_color .close"      :"removeColor",
-			"click .filter_tag_size .close"       :"removeSize",
-			"click .filter_tag_shape .close"       :"removeShape",
+			"click .filter-remove"           		:"rmAttr",
+			"click .filter-show-old"         		:"showFilterOld",
+			"click .filter_tag_color .close"      	:"removeColor",
+			"click .filter_tag_size .close"       	:"removeSize",
+			"click .filter_tag_shape .close"       	:"removeShape",
 		},
 
         initialize: function() {

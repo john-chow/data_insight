@@ -1,11 +1,12 @@
 define([
 "backbone"
+, "base_sheet"
 , "bootstrap"
 , "draw_panel"
 , "axes"
-], function(Backbone, b, DrawPanelView, AxesView) {
+], function(Backbone, BaseSheetView, b, DrawPanelView, AxesView) {
 
-    var DrawWorkspaceView = Backbone.View.extend({
+    var DrawWorkspaceView = BaseSheetView.extend({
         
         tagName:    "div",
         id:         "draw_workplace",

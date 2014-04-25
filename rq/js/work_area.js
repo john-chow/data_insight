@@ -4,7 +4,9 @@ define([
 , "design_panel"
 , "bootstrap"
 , "model/vtron_model"
-], function(Backbone, DbBarView, PanelView, b, VtronModel) {
+, "vtron_events"
+], function(Backbone, DbBarView, PanelView, b, VtronModel
+			, VtronEvents) {
 
 	var WorkAreaModel = VtronModel.extend({
 		urlRoot: "/indb/draw/",
@@ -23,6 +25,7 @@ define([
         className: 	"clearfix",
 
         initialize: function() {
+
 			Backbone.Events.on(
 				"area:user_set_action"
 				, _.bind(this.setToSev, this)

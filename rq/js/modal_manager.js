@@ -7,9 +7,9 @@ define([
 	};
 
 	Backbone.Events.on("modal:show_filter", function(data) {
-		var id = data["pro_id"];
-		var title = data["content"];
-		var view = idToViewMap[id];
+		var id 		= data["pro_id"];
+		var title 	= data["content"];
+		var view 	= idToViewMap[id];
 		if (!view) {
 			view = new ChooseFilterView();
 			Backbone.Events.once("modal:filter_data", function(data) {
@@ -27,8 +27,6 @@ define([
 			view.show()
 		}
 	});
-
-
 
 })
 

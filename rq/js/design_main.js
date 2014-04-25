@@ -3,11 +3,12 @@ define([
 , "design_menus"
 , "work_area"
 , "show_area"
-, "modal_manager"
 , "info_workplace"
 , "error_message"
+, "base_sheet"
 ], function(Backbone, MenusView, WorkareaView
-			, ShowAreaView, ModalManager, InfoWorkplaceView, MessageView) {
+			, ShowAreaView, InfoWorkplaceView
+			, MessageView, BaseSheetView) {
 
 	// 使model save时，数据是object型
 	Backbone.emulateJSON = true;
@@ -15,7 +16,16 @@ define([
     var MainView = Backbone.View.extend({
         el: "#content",
 
+		sheetNumber:		1,
+		dashboardNumber:	1,
+
+		events: {
+			"click .add_work_table":	"addWorkTable"
+			, "click .add_work_book":	"addWorkBook"
+		},
+
         initialize: function() {
+			this.addWorkTable();
             this.menusView         = new MenusView();
             this.workareaView      = new WorkareaView();
             this.showAreaView      = new ShowAreaView();
@@ -50,7 +60,15 @@ define([
 
         showWorkbookInfo: function() {
             this.$el.find("#show_area_panel").append(this.infoWorkplaceView.el);
-        }
+        },
+
+		addWorkTable: function() {
+			this.sheetNumber += 1;
+			BaseSheetView.prototype.sheetId = this.sheetNumber;
+		},
+
+		addWorkBook: function() {
+		}
 
     });
 

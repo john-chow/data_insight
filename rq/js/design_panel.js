@@ -1,13 +1,14 @@
 define([
 "backbone"
+, "base_sheet"
 , "draw_workplace"
 , "bootstrap"
 , "filter_box"
 , "info_workplace"
-], function(Backbone, DrawPlaceView, b, filterBoxView
+], function(Backbone, BaseSheetView, DrawPlaceView, b, filterBoxView
 			, infoWorkplaceView) {
 
-    var DesignPanelView = Backbone.View.extend({
+    var DesignPanelView = BaseSheetView.extend({
 
         tagName:            "div",
         id:                 "design_panel",

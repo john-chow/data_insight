@@ -1,12 +1,12 @@
 define([
-"jquery"
-, "backbone"
+"backbone"
+, "base_sheet"
 , "bootstrap"
 , "gridster"
 , "text!../template/info_workplace.html" 
-], function($, Backbone, b, g, infoWorkplaceHtml) {
+], function(Backbone, BaseSheetView, b, g, infoWorkplaceHtml) {
 
-    var infoWorkplaceView = Backbone.View.extend({
+    var infoWorkplaceView = BaseSheetView.extend({
 
         tagName:            "div",
         id:                 "info_workplace",
