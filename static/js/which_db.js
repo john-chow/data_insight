@@ -69,6 +69,12 @@ $('.list_link_db').on('click', function(ev) {
 	}
 });
 
+/*//数据库表选择事件
+$("#list_link_db_modal #tables_list li").on('click',function(ev) {
+	$(".table-choosed").removeClass('table-choosed');
+	$(ev.target).addClass('table-choosed');
+});*/
+
 //模态框取消事件
 $('.list_cancel_modal').on('click', function(ev) {
 	$("#list_link_db_modal").modal("hide");
@@ -129,6 +135,9 @@ function showTables(tables) {
 	})
 	$("#conn_db_form").html($obj)
 	//$(".table").on("click", chooseTable);
+	$("#conn_db_form").hide();
+	//$("#conn_table_form").append($obj)
+	$(".table").on("click", chooseTable);
 }
 
 

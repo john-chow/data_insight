@@ -5,8 +5,9 @@ define([
 , "show_area"
 , "modal_manager"
 , "info_workplace"
+, "error_message"
 ], function(Backbone, MenusView, WorkareaView
-			, ShowAreaView, ModalManager, InfoWorkplaceView) {
+			, ShowAreaView, ModalManager, InfoWorkplaceView, MessageView) {
 
 	// 使model save时，数据是object型
 	Backbone.emulateJSON = true;
@@ -19,6 +20,7 @@ define([
             this.workareaView      = new WorkareaView();
             this.showAreaView      = new ShowAreaView();
             this.infoWorkplaceView = new InfoWorkplaceView();
+            this.messageView       = new MessageView();
             Backbone.Events.on(
                 "workarea:infowork"
                 , _.bind(this.showWorktableInfo, this)
@@ -37,6 +39,7 @@ define([
                 this.menusView.el
                 , this.workareaView.el
                 , this.showAreaView.el
+                , this.messageView.el
             );
             this.$el.find("#design_panel").append(this.infoWorkplaceView.el);
         },
