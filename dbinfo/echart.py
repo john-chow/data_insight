@@ -3,6 +3,37 @@
 import pdb
 from common.head import *
 
+
+class EChartManager():
+	def __init(self):
+		pass
+
+	def get_echart(self, shape=u'bar'):
+		if u'bar' == shape: 
+			return Bar()
+
+		elif u'stack_bar' == shape:
+			return Bar(stacked=True)
+
+		elif u'line' == shape:
+			return Line()
+
+		elif u'stack_line' == shape:
+			return Line(stacked=True)
+
+		elif u'scatter' == shape:
+			return Scatter()
+
+		elif u'pie' == shape:
+			return Pie()
+
+		else:
+			raise Exception(u'Unknown pictrue shape')
+
+
+
+
+
 class EChart():
 	def __init__(self):
 		self.option = {
@@ -49,7 +80,7 @@ class EChart():
 
 		if name:
 			unit[u'name'] 	= name
-		if hasattr(self, u'stack'):
+		if hasattr(self, u'stack') and self.stack:
 			unit[u'stack'] 	= self.stack
 
 		return unit
@@ -146,9 +177,10 @@ class Bar_Line_Base(EChart):
 
 
 class Bar(Bar_Line_Base):
-	def __init__(self):
+	def __init__(self, stacked=False):
 		Bar_Line_Base.__init__(self)
 		self.shape = u'bar'
+		self.stack = stacked
 
 
 				
