@@ -222,7 +222,7 @@ def generateBackData(request):
 	post_data 					= json.loads(request.POST.get(u'data', u'{}'), \
 												object_pairs_hook=OrderedDict)
 	shape_list, shape_in_use 	= judgeWhichShapes(post_data)
-	shape_in_use 				= post_data.get(u'shape', u'bar')
+	shape_in_use 				= post_data.get(u'graph', u'bar')
 	chart_data 					= getDrawData(post_data, shape_in_use, request)
 
 	return chart_data
@@ -236,7 +236,7 @@ def getDrawData(post_data, shape_in_use, request):
 	data_from_db = searchDataFromDb(request, post_data, msu_list, msn_list, group_list)
 
 	# 用echart格式化数据
-	echart_data = formatData(request, data_from_db, msu_list, msn_list, group_list)
+	echart_data = formatData(data_from_db, msu_list, msn_list, group_list, shape_in_use)
 
 	return echart_data
 
@@ -352,8 +352,8 @@ def judgeWhichShapes(post_data):
 
 
 
-def formatData(request, data_from_db, msu_list, msn_list, group_list):
-	shape_in_use = request.POST.get(u'shape', u'bar')
+def formatData(data_from_db, msu_list, msn_list, group_list, shape_in_use):
+	#shape_in_use = request.POST.get(u'shape', u'bar')
 	if 'bar' == shape_in_use:
 		bar = Bar()
 		rs = bar.makeData(data_from_db, msu_list, msn_list, group_list)
