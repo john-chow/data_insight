@@ -19,16 +19,17 @@ define([
     var MainView = Backbone.View.extend({
         el: "#content",
 
-		sheetNumber:		1,
-		dashboardNumber:	1,
-
 		events: {
-			"click .add_work_table":	"addWorkTable"
-			, "click .add_work_book":	"addWorkBook"
 		},
 
         initialize: function() {
-			this.addWorkTable();
+			// 先写在这里，以后都是会在info_workplace里面
+			this.sheetNumber = 1;
+			BaseSheetView.prototype.sheetId 	= this.sheetNumber;
+			VtronModel.prototype.sheetId 		= this.sheetNumber;
+			VtronCollection.prototype.sheetId 	= this.sheetNumber;
+
+
             this.menusView         = new MenusView();
             this.workareaView      = new WorkareaView();
             this.showAreaView      = new ShowAreaView();
@@ -42,6 +43,19 @@ define([
                 "showarea:infowork"
                 , _.bind(this.showWorkbookInfo, this)
             );
+
+			VtronEvents.on(
+				"main:add_show_worktable"
+                , _.bind(this.showWorktableInfo, this) 
+			);
+			VtronEvents.on(
+				"main:add_worktable"
+                , _.bind(this.addWorkTable, this) 
+			);
+			VtronEvents.on(
+				"main:add_workbook"
+                , _.bind(this.addWorkBook, this) 
+			);
 
             this.render();
         },
@@ -58,6 +72,7 @@ define([
         },
 
         showWorktableInfo: function() {
+			// 要先根据sheetId查找，有就show，没有就new+append
             this.$el.find("#design_panel").append(this.infoWorkplaceView.el);
         },
 
@@ -65,14 +80,10 @@ define([
             this.$el.find("#show_area_panel").append(this.infoWorkplaceView.el);
         },
 
-		addWorkTable: function() {
-			this.sheetNumber += 1;
-			BaseSheetView.prototype.sheetId 	= this.sheetNumber;
-			VtronModel.prototype.sheetId 		= this.sheetNumber;
-			VtronCollection.prototype.sheetId 	= this.sheetNumber;
+		addWorkBook: function() {
 		},
 
-		addWorkBook: function() {
+		addWorkTable: function() {
 		}
 
     });

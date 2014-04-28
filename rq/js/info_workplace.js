@@ -1,27 +1,48 @@
 define([
 "backbone"
 , "base_sheet"
+, "model/vtron_collection"
+, "model/vtron_model"
+, "vtron_events"
 , "bootstrap"
 , "gridster"
 , "text!../template/info_workplace.html" 
-], function(Backbone, BaseSheetView, b, g, infoWorkplaceHtml) {
+], function(Backbone, BaseSheetView, VtronCollection, VtronModel, 
+			VtronEvents, b, g, infoWorkplaceHtml) {
+
+	var TableModel = VtronModel.extend({}), 
+		BookModel  = VtronModel.extend({});
+
+	var TableCollection = VtronCollection.extend({
+			model: TableModel
+		}),
+		BookCollection = VtronCollection.extend({
+			model: BookModel
+		});
+
 
     var infoWorkplaceView = BaseSheetView.extend({
 
         tagName:            "div",
         id:                 "info_workplace",
 
+		sheetNumber:		1,
+		dashboardNumber:	1,
+
         events: {
             "click .work-book"                :"openWorkBook",
             "click .work-table"               :"openWorkTable",
             "dblclick .work-book"             :"changeName",
             "dblclick .work-table"            :"changeName",
-         
+			"click .add_work_table"		      :"readyForNewTable"
+			, "click .add_work_book"		  :"readyForNewBook"
         },
 
         initialize: function() {
-           this.render();
-           this.gridsterInit();
+			this.tableCollection = new TableCollection();
+			this.bookCollection = new BookCollection();
+            this.render();
+            this.gridsterInit();
         },
 
         render: function() {
@@ -78,7 +99,21 @@ define([
                 $span.show();
                 $(this).hide();
             });
-        }
+        },
+
+		readyForNewTable: function() {
+			this.sheetNumber += 1;
+			BaseSheetView.prototype.sheetId 	= this.sheetNumber;
+			VtronModel.prototype.sheetId 		= this.sheetNumber;
+			VtronCollection.prototype.sheetId 	= this.sheetNumber;
+			VtronEvents.trigger("main:add_worktable", this.sheetNumber);
+		},
+
+		readyForNewBook: function() {
+			this.dashboardId += 1;
+			VtronEvents.trigger("main:add_workbook", this.sheetNumber);
+		}
+
     });
 
     return infoWorkplaceView;
