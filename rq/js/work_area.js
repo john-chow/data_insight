@@ -39,6 +39,11 @@ define([
 				, _.bind(this.unsetToSev, this)
 		  	);
 
+			this.onOut(
+				"area:change_table"
+				, _.bind(this.changeTable, this)
+			);
+
 			this.model 		= new WorkAreaModel();
             this.dbBarView  = new DbBarView();
             this.panelView  = new PanelView();
@@ -85,7 +90,11 @@ define([
 				},
 				no_feeding: true
 			})
-		}		
+		},
+
+		changeTable: function(data) {
+			this.model.set(data)
+		}
 
     });
 
