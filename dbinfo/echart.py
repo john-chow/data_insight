@@ -41,7 +41,30 @@ class EChart():
 			u'series' : []
 		}
 
+	def make_series_unit(self, name=u'', data=[]):
+		unit = {
+			u'type':		self.shape
+			, u'data':		data
+		}
+
+		if name:
+			unit[u'name'] 	= name
+		if hasattr(self, u'stack'):
+			unit[u'stack'] 	= self.stack
+
+		return unit
+
+				
+
+class Bar_Line_Base(EChart):
+	def __init__(self):
+		EChart.__init__(self)
+
 	def makeData(self, data_from_db, msu_list, msn_list, group_list):
+		# 根据Tableau，能画bar图，至少要有1列measure
+		if( len(msu_list) < 1 ):
+			raise Exception(u'cant draw %s' , self.shape)
+
 		all_list = msu_list + msn_list + group_list
 		all_len, msu_len, msn_len, group_len = \
 						len(all_list), len(msu_list), len(msn_list), len(group_list)
@@ -82,28 +105,23 @@ class EChart():
 					u'type':	option_type
 				})
 
+
 		if (not legend_dict) and (not iter_axis):
-			self.option[u'series'].append({
-				u'name':		attr_name
-				, u'type':		self.shape
-				, u'stack': 	u'总量'
-				, u'data':		all_data
-			})
+			self.option[u'series'].append(
+				self.make_series_unit(name=attr_name, data=all_data)
+			)
+			
 		elif (not legend_dict) and iter_axis:
-			self.option[u'series'].append({
-				u'name':		attr_name
-				, u'type':		self.shape
-				, u'stack': 	u'总量'
-				, u'data':		all_data[0]
-			})
+			self.option[u'series'].append(
+				self.make_series_unit(name=attr_name, data=all_data[0])
+			)
+
 		elif (legend_dict) and (not iter_axis):
-			self.option[u'series'] = [{
-					u'name':		le
-					, u'type':		self.shape
-					, u'stack': 	u'总量'
-					, u'data':		[num]
-				} for (num, le) in data_from_db
+			self.option[u'series'] = [ \
+				self.make_series_unit(name=le, data=[num]) \
+				for (num, le) in data_from_db \
 			]
+			
 		else:
 			for le in legend_dict[u'data']:
 				one_legend_list = []
@@ -112,12 +130,9 @@ class EChart():
 										attr == tmp_attr and group == le ]
 					one_legend_list.append(one_value)
 
-				self.option[u'series'].append({
-					u'name': 	le
-					, u'type': 	self.shape
-					, u'stack': u'总量'
-					, u'data': 	one_legend_list
-				})
+				self.option[u'series'].append(
+					self.make_series_unit(name=le, data=one_legend_list)
+				)
 
 		# 根据echart，无论如何，迭代的轴上必须有属性和data
 		if 0 == len(iter_axis):
@@ -127,27 +142,19 @@ class EChart():
 			})
 			
 		return self.option
-				
 
 
 
-class Bar(EChart):
+class Bar(Bar_Line_Base):
 	def __init__(self):
-		EChart.__init__(self)
+		Bar_Line_Base.__init__(self)
 		self.shape = u'bar'
 
-	def makeData(self, data_from_db, msu_list, msn_list, group_list):
-		# 根据Tableau，能画bar图，至少要有1列measure
-		if( len(msu_list) < 1 ):
-			raise Exception(u'cant draw bar')
-
-		return EChart.makeData(self, data_from_db, msu_list, msn_list, group_list)
-
 
 				
-class Line(EChart):
+class Line(Bar_Line_Base):
 	def __init__(self):
-		EChart.__init__(self)
+		Bar_Line_Base.__init__(self)
 		self.shape = u'line'
 
 
