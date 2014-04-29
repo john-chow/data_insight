@@ -18,21 +18,6 @@ from common.tool import *
 import pdb
 
 
-def getTableList(request):
-	print '********		getTableList  *********'
-	conn 			= connDb(request)
-	if not conn:
-		print 'redirect to login'
-		return HttpResponseRedirect(u'http://10.1.50.125:9000/')
-	cursor 			= conn.cursor()
-	cursor.execute(u"SELECT table_name FROM information_schema.tables \
-												WHERE table_schema='public'")
-	results 		= cursor.fetchall()
-	table_list 		= [ q[0] for q in results ]
-	return table_list
-
-
-
 
 def getTableInfo(request):
 	print '********		getTableInfo  *********'
@@ -85,7 +70,6 @@ def tryIntoDb(request):
 			request.session[u'db'] 		= request.POST.get('db', 	'')
 			request.session[u'user'] 	= request.POST.get('user', 	'')
 			request.session[u'pwd'] 	= request.POST.get('pwd', 	'')
-			#request.session[u'table'] 	= request.POST.get('table', '')
 
 			tables_list = getTableList(request)
 			return MyHttpJsonResponse( {u'succ': True, \
@@ -97,81 +81,6 @@ def tryIntoDb(request):
 	else:
 		context = RequestContext(request)
 		return render_to_response(u'index.html', context)
-
-
-def chooseTable(request):
-	print '********		chooseTable  	*********'
-	chosen_tables 	= json.loads( request.POST.get(u'table', u'[]') )
-	tables_list 	= getTableList(request)
-
-	# 注意传多个来怎么办
-	unkonwn_tables = list(set(chosen_tables) - set(tables_list))
-
-	if 0 == len(unkonwn_tables):
-		request.session[u'tables'] 	= 	chosen_tables
-		print 'redirect to indb'
-		return HttpResponseRedirect(u'/indb/')
-	else:
-		res_dict = {u'succ': False, u'msg': u'xxxxx'}
-		return HttpResponse(res_dict, content_type='application/json')
-
-
-
-def excSqlForData(request, sql_list):
-	print '********		excSqlForData  *********'
-	conn = connDb(request)
-	if not conn:
-		raise Exception(u'Cant access into database')
-
-	cursor = conn.cursor()
-
-	for sql in sql_list:
-		print u'sql is   %s' % sql
-
-	(heads_list, data_list) = ([], [])
-	try:
-		for sql in sql_list:
-			cursor.execute(sql)
-			head = [ q[0] for q in cursor.description ]
-			data = cursor.fetchall()
-
-			print u'head is %s' % len(head)
-			print u'data is %s' % len(data)
-
-			heads_list.append(head)
-			data_list.append(data)
-	except Exception, e:
-		# 继续抛出异常
-		raise Exception(e.msg)
-		pass
-	else:
-		return (heads_list, data_list)
-	finally:
-		conn.close()
-
-
-def connDb(request):
-	print '********		connDb  *********'
-	# 提交表单时在POST字段中找寻登陆信息
-	# 其他时候都在session中找
-	including_login_dict = request.POST if request.POST.get('ip')\
-										else request.session
-
-	[ip, port, table, db, user, pwd] = \
-		map( lambda i: including_login_dict.get(i, ''), \
-			('ip', 'port', 'table', 'db', 'user', 'pwd') \
-		)
-	
-	conn_str = u'host={i} port={p} dbname={d} user={u} password={pw}'\
-					.format(i=ip, p=port, d=db, u=user, pw=pwd)
-
-	try:
-		conn = pysql.connect(conn_str)
-	except Exception, e:
-		raise Exception(u'search db error')
-		return None
-	else:
-		return conn
 
 
 def reqDrawData(request):

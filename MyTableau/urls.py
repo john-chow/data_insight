@@ -17,6 +17,6 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
 	url( r'^$', 		whichdbView.showDbForChosen ),
 	url( r'^login/', 	include('whichdb.url') ),
-	url( r'indb/', 		include('dbinfo.url') ),
+	url( r'main/', 		include('dbinfo.url') ),
 	url( r'^test/$', 	whichdbView.test ),
 )
