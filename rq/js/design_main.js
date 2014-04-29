@@ -35,6 +35,7 @@ define([
             this.showAreaView      = new ShowAreaView();
             this.infoWorkplaceView = new InfoWorkplaceView();
             this.messageView       = new MessageView();
+
             Backbone.Events.on(
                 "workarea:infowork"
                 , _.bind(this.showWorktableInfo, this)
@@ -62,22 +63,26 @@ define([
 
         render: function() {
             this.$el.html("");
+
+            var $area = $("<div id='area'></div>");
+            $area.append(this.workareaView.el, this.showAreaView.el);
+
             this.$el.append(
                 this.menusView.el
-                , this.workareaView.el
-                , this.showAreaView.el
+                , $area
+                , this.infoWorkplaceView.el
                 , this.messageView.el
             );
-            this.$el.find("#design_panel").append(this.infoWorkplaceView.el);
+/*            this.$el.find("#design_panel").append(this.infoWorkplaceView.el);*/
         },
 
         showWorktableInfo: function() {
 			// 要先根据sheetId查找，有就show，没有就new+append
-            this.$el.find("#design_panel").append(this.infoWorkplaceView.el);
+            //this.$el.find("#design_panel").append(this.infoWorkplaceView.el);
         },
 
         showWorkbookInfo: function() {
-            this.$el.find("#show_area_panel").append(this.infoWorkplaceView.el);
+            //this.$el.find("#show_area_panel").append(this.infoWorkplaceView.el);
         },
 
 		addWorkBook: function() {

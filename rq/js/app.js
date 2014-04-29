@@ -144,7 +144,7 @@ requirejs([
       });
 		*/
    
-    //自定义：先初始化高度和宽度；当屏幕大小改变时自适应改变高度宽度
+    //自定义：先初始化高度；当屏幕大小改变时自适应改变高度
     change_auto();
     $(window).resize(function() {
           change_auto();
@@ -163,12 +163,12 @@ function change_dbinfo_bar(){
 }
 
 function change_design_panel(){
-    $("#column_sortable").width(change_line_width());
-    $("#row_sortable").width(change_line_width());
-    $("#design_panel").height(change_design_panel_height());
+    //$("#column_sortable").width(change_line_width());
+    //$("#row_sortable").width(change_line_width());
+    $("#design_panel").height(change_design_panel_height()-28);
     $("#draw_panel").height(change_draw_panel_height());
-    $("#draw_panel").width($("#row_sortable").width()+75);
-    $("#design_panel").width(document.documentElement.clientWidth-161-3);
+    //$("#draw_panel").width($("#row_sortable").width()+75);
+    //$("#design_panel").width(document.documentElement.clientWidth-161-3);
 }
 
 function change_show_area(){
@@ -178,7 +178,7 @@ function change_show_area(){
     var footerHeight=$("#footer").height()+1;     //border-top:1px
     var areaHeight = clientHeight-logoHeight-menuHeight-footerHeight;
     $("#show_area_bar").height(areaHeight);
-    $("#show_area_panel").height(areaHeight);
+    $("#show_area_panel").height(areaHeight-28);
     $("#show_area_chart").height(areaHeight-28);//28是info_workplace高度
 }
 

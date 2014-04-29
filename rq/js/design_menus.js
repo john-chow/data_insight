@@ -27,7 +27,7 @@ define([
 
         render: function() {
             this.$el.html(menuHtml);
-            this.$el.find(".navbar-nav").append(
+            this.$el.find("#design_menu_option>ul").append(
                 this.intelligentDisplay.el
             );
         },

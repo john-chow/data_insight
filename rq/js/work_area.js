@@ -23,7 +23,7 @@ define([
 
         tagName: 	"div",
         id: 		"work_area",
-        className: 	"clearfix",
+    /*    className: 	"clearfix",*/
 
         initialize: function() {
 
