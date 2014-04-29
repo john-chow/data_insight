@@ -96,7 +96,7 @@ function renderForm(data, from) {
 		$obj = $("<div id=tables_list></div>");
 
 		$.each(data, function(idx, table) {
-			var tableEle = "<input type='checkbox' name='table' value=__name__  />__name__"
+			var tableEle = "<div class='table-div'><input type='checkbox' name='table' value=__name__  />__name__"
 																	.replace(/__name__/g, table);
 			$obj.append(tableEle)
 		})
@@ -105,6 +105,17 @@ function renderForm(data, from) {
 		$form.html($obj)
 		$title.html("选择数据表");
 		$modal_submit_btn.attr("value", "table")
+
+		//选择数据表
+		$(".table-div").on('click', function(ev) {
+			if($(this).find("input").attr("checked")) {
+				$(this).find("input").removeAttr("checked"); 
+			}
+			else {
+				$(this).find("input").attr("checked",true); 
+				$(this).find("input").prop('checked',true);
+			}
+		});
 	}
 }
 

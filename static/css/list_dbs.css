@@ -142,3 +142,27 @@
 #list_link_db_modal .modal-footer {
 	margin-top: 0px;
 }
+
+
+#conn_db_form #tables_list input {
+	margin: 0 10px 0 5px;
+}
+
+#conn_db_form #tables_list {
+	max-height: 500px;
+	overflow-y: auto;
+}
+
+#conn_db_form #tables_list>div:hover {
+	background-color: #ddd;
+}	
+
+#conn_db_form #tables_list>div {
+	cursor: pointer;
+}	
+
+.table-div {
+line-height: 25px;
+font-size: 17px;
+border-radius: 3px;
+}
