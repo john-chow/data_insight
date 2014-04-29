@@ -23,7 +23,7 @@ define([
         },
 
         addWidget: function(ev) {
-            var data = $("#draw_panel").html();
+            var data = $("#draw_panel").children();
             this.triggerOut("gridster:add", data);
         }
     });
