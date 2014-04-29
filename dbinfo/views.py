@@ -353,6 +353,7 @@ def judgeWhichShapes(post_data):
 
 
 def formatData(data_from_db, msu_list, msn_list, group_list, shape_in_use):
+	shape_in_use = u'china_map'
 	echart = EChartManager().get_echart(shape_in_use)
 	return echart.makeData(data_from_db, msu_list, msn_list, group_list)
 

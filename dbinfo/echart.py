@@ -42,7 +42,7 @@ class EChart():
 			, u'series' : []
 		}
 
-	def make_series_unit(self, **args):
+	def makeSeriesUnit(self, **args):
 		return dict(args.items() + self.serial.items())
 
 				
@@ -100,17 +100,17 @@ class Bar_Line_Base(EChart):
 
 		if (not legend_dict) and (not iter_axis):
 			self.option[u'series'].append(
-				self.make_series_unit(name=attr_name, data=all_data)
+				self.makeSeriesUnit(name=attr_name, data=all_data)
 			)
 			
 		elif (not legend_dict) and iter_axis:
 			self.option[u'series'].append(
-				self.make_series_unit(name=attr_name, data=all_data[0])
+				self.makeSeriesUnit(name=attr_name, data=all_data[0])
 			)
 
 		elif (legend_dict) and (not iter_axis):
 			self.option[u'series'] = [ \
-				self.make_series_unit(name=le, data=[num]) \
+				self.makeSeriesUnit(name=le, data=[num]) \
 				for (num, le) in data_from_db \
 			]
 			
@@ -123,7 +123,7 @@ class Bar_Line_Base(EChart):
 					one_legend_list.append(one_value)
 
 				self.option[u'series'].append(
-					self.make_series_unit(name=le, data=one_legend_list)
+					self.makeSeriesUnit(name=le, data=one_legend_list)
 				)
 
 		# 判断是否需要填充bar的空白处
@@ -344,9 +344,37 @@ class Radar(EChart):
 				
 
 		return self.option
-			
-			
 
+
+
+class Map(EChart):
+	def __init__(self):
+		EChart.__init__(self)
+		self.serial[u'type'] 	= u'map'
+
+	def makeData(self, data_from_db, msu_list, msn_list, group_list):
+		self.option[u'series'].append( \
+			self.makeSeriesUnit() \
+		)
+
+		return self.option
+		
+
+
+class ChinaMap(Map):
+	def __init__(self):
+		Map.__init__(self)
+		self.serial[u'mapType'] 	= u'china'
+		self.serial[u'itemStyle'] 	= {
+			u'normal':		{u'label': {u'show':True}},
+            u'emphasis':	{u'label': {u'show':True}}
+		}
+		self.serial[u'data'] = []
+			
+			
+class WorldMap(Map):
+	def __init__(self):
+		pass
 
 
 
@@ -384,6 +412,9 @@ class EChartManager():
 
 		elif u'radar' == shape:
 			return Radar()
+		
+		elif u'china_map' == shape:
+			return ChinaMap()
 
 		else:
 			raise Exception(u'Unknown pictrue shape')
