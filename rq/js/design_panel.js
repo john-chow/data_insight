@@ -12,7 +12,7 @@ define([
 
         tagName:            "div",
         id:                 "design_panel",
-        className:          "clearfix",
+       /* className:          "clearfix",*/
         filterContentTem:   _.template("<span class='filter_content'><%= content %></span><br />"),
 
         /*
