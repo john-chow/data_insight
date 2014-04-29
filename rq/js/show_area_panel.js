@@ -1,13 +1,14 @@
 define([
 "backbone"
-, "jquery"
+, "base_sheet"
 , "bootstrap"
 , "gridster"
 , "info_workplace"
 , "text!../template/show_area_panel.html" 
-], function(Backbone, $, b, g, infoWorkplaceView, showAreaPanelHtml) {
+], function(Backbone, BaseSheetView, b, g, infoWorkplaceView
+			, showAreaPanelHtml) {
 
-    var showAreaPanelView = Backbone.View.extend({
+    var showAreaPanelView = BaseSheetView.extend({
 
         tagName:            "div",
         id:                 "show_area_panel",
@@ -30,9 +31,14 @@ define([
         },
 
         addWidget: function() {
-            Backbone.Events.on("gridster:add", function(data) {
+			var self = this;
+            this.onOut("gridster:add", function(data) {
+				var newPicObj = $("<li class='gs-w'>"+data+"</li>");
+				self.reDrawCanvas(newPicObj);
                 var gridster = $(".gridster ul").gridster().data('gridster');//获取对象
-                gridster.add_widget("<li class='gs-w'><div>"+data+"</div></li>", 2, 1);//增加一个
+                gridster.add_widget(jquery_to_html(newPicObj), 2, 1);//增加一个
+
+                //gridster.add_widget("<li class='gs-w'><div>"+data+"</div></li>", 2, 1);//增加一个
             });
         },
 
@@ -68,8 +74,18 @@ define([
                 alert("保存成功！");
 
             });
-        }
+        },
+
+		reDrawCanvas: function($obj) {
+			$.map( $obj.find("canvas"), function(cvs) {
+				$(cvs).replaceWith( clone_canvas(cvs) )
+			} )
+		}
+
     });
 
     return showAreaPanelView;
 })
+
+
+

@@ -69,23 +69,16 @@ define([
 					ev.callback(data)
 				})
 
-				/*
-				//此处有Bug，不能绑定多个
-				Backbone.Events.on("dbinfo:model_data", function(title) {
-					var data = model.getContentsBykey(title);
-					Backbone.Events.trigger("modal:filter_data", data)
-				})
-				*/
-				$(ele).on("click", model, self.onTableClicked);
+				$(ele).on("click", {"model": model}, self.onTableClicked);
 			});
 
 			// 默认查看第一表中的列
 			this.$(".table_name:first").trigger("click")
 		},
 
-		render: function(ev) {
-			if(ev) {
-				var modelJson = ev.data.toJSON();
+		render: function(model) {
+			if(model) {
+				var modelJson = model.toJSON();
 				this.$("#mensions_list").html( 
 					this.mensionsTemplate(modelJson)
 				);
@@ -101,7 +94,8 @@ define([
 			change_auto();
 		},
 
-		onTableClicked: function(model) {
+		onTableClicked: function(ev) {
+			var model = ev.data.model;
 			this.render(model);
 			// 为所有属性增加id
 			$.each( this.$(".mension, .measure"), function(i, obj) {
@@ -110,7 +104,10 @@ define([
 			})
 
             this.$(".mension, .measure").on("dragstart", this.drag);
-			this.setDragProperty()
+			this.setDragProperty();
+
+			// 记录选中的表明
+			model.passTableName()
 		},
 
         drag: function(ev) {

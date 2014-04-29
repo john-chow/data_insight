@@ -1,10 +1,9 @@
 define([
 	"backbone"
-], function(Backbone) {
+	, "model/vtron_model"
+], function(Backbone, VtronModel) {
 
-	var DB_INFO_BAR_MODEL = null;
-
-    var DbinfoBarModel = Backbone.Model.extend({
+    var DbinfoBarModel = VtronModel.extend({
 		urlRoot: '/indb/content',
 
         simulateData: function() {
@@ -73,7 +72,13 @@ define([
             if(meFounded) {
                 return meFounded
             }
-        }
+        },
+
+		passTableName: function() {
+			var table = this.get("name");
+			this.triggerOut( "area:change_table"
+							, {"table": table} )
+		}
     });
 
 	return DbinfoBarModel

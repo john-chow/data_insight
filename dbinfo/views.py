@@ -288,6 +288,8 @@ def calc_msu_msn_list(post_data):
 
 
 def searchDataFromDb(request, post_data, msu_list, msn_list, group_list):
+	if HAVE_PDB:		pdb.set_trace()
+
 	"""
 	要保证select的顺序是 measure、mension、group
 	"""
@@ -325,7 +327,7 @@ def searchDataFromDb(request, post_data, msu_list, msn_list, group_list):
 
 	# 以第一个类目属性做group by参数，其他的全部做成where条件
 	sql_template = u'select {attrs} from {table} {filter} {option}'
-	table_name 	 = u'diamond'
+	table_name 	 = post_data[u'table']
 
 	group_str = u''
 	if len(group_str_list) > 0 and combine_flag:
