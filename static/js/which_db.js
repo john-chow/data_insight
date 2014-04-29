@@ -94,11 +94,14 @@ function renderForm(data, from) {
 	else {
 		$form.attr("action", "/login/tables/");
 		$obj = $("<div id=tables_list></div>");
+
 		$.each(data, function(idx, table) {
 			var tableEle = "<input type='checkbox' name='table' value=__name__  />__name__"
 																	.replace(/__name__/g, table);
 			$obj.append(tableEle)
 		})
+
+
 		$form.html($obj)
 		$title.html("选择数据表");
 		$modal_submit_btn.attr("value", "table")

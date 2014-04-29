@@ -54,7 +54,7 @@ def connectDb(request):
 
 def selectTables(request):
 	if u'POST' == request.method:
-		chosen_tables 	= json.loads( request.POST.get(u'table', u'[]') )
+		chosen_tables 	= request.POST.getlist(u'table', u'[]')
 		tables_list 	= getTableList(request)
 
 		# 注意传多个来怎么办

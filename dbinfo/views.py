@@ -36,8 +36,7 @@ def getTableList(request):
 
 def getTableInfo(request):
 	print '********		getTableInfo  *********'
-	#tables = request.session.get(u'table')
-	tables = [u'test', u'diamond']
+	tables = request.session.get(u'tables')
 
 	conn 			= connDb(request)
 	if not conn:
