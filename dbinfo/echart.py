@@ -4,86 +4,46 @@ import pdb
 from common.head import *
 
 
-class EChartManager():
-	def __init(self):
-		pass
-
-	def get_echart(self, shape=u'bar'):
-		if u'bar' == shape: 
-			return Bar()
-
-		elif u'stack_bar' == shape:
-			return Bar(stacked=True)
-
-		elif u'line' == shape:
-			return Line()
-
-		elif u'stack_line' == shape:
-			return Line(stacked=True)
-
-		elif u'scatter' == shape:
-			return Scatter()
-
-		elif u'pie' == shape:
-			return Pie()
-
-		else:
-			raise Exception(u'Unknown pictrue shape')
-
-
-
-
-
 class EChart():
 	def __init__(self):
+		# 表明是属于serial数组中的属性
+		self.serial = {}
+
 		self.option = {
 			u'tooltip' : {
 				u'show': True
 				, u'trigger': 'item'
-			},
-			u'legend': {
-				u'data':[]
-			},
-			u'toolbox': {
-				u'show' : True,
-				u'feature': {
+			}
+			, u'toolbox': {
+				u'show' : True
+				, u'feature': {
 					u'mark': {
 						u'show': True
-					},
-					u'dataView' : {
+					}
+					, u'dataView' : {
 						u'show': True
 						, u'readOnly': False
-					},
-					u'magicType' : {
+					}
+					, u'magicType' : {
 						u'show': True
 						, u'type': ['line', 'bar', 'stack', 'tiled']
-					},
-					u'restore' : {
+					}
+					, u'restore' : {
 						u'show': True
-					},
-					u'saveAsImage' : {
+					}
+					, u'saveAsImage' : {
 						u'show': True
 					}
 				}
-			},
-			u'calculable' : True,
-			u'xAxis' : [],
-			u'yAxis' : [],
-			u'series' : []
+			}
+			, u'calculable' : True
+			, u'xAxis' : []
+			, u'yAxis' : []
+			, u'series' : []
 		}
 
-	def make_series_unit(self, name=u'', data=[]):
-		unit = {
-			u'type':		self.shape
-			, u'data':		data
-		}
-
-		if name:
-			unit[u'name'] 	= name
-		if hasattr(self, u'stack') and self.stack:
-			unit[u'stack'] 	= self.stack
-
-		return unit
+	def make_series_unit(self, **args):
+		return dict(args.items() + self.serial.items())
 
 				
 
@@ -91,10 +51,11 @@ class Bar_Line_Base(EChart):
 	def __init__(self):
 		EChart.__init__(self)
 
+
 	def makeData(self, data_from_db, msu_list, msn_list, group_list):
 		# 根据Tableau，能画bar图，至少要有1列measure
 		if( len(msu_list) < 1 ):
-			raise Exception(u'cant draw %s' , self.shape)
+			raise Exception(u'cant draw %s', self.serial[u'type'])
 
 		all_list = msu_list + msn_list + group_list
 		all_len, msu_len, msn_len, group_len = \
@@ -165,6 +126,10 @@ class Bar_Line_Base(EChart):
 					self.make_series_unit(name=le, data=one_legend_list)
 				)
 
+		# 判断是否需要填充bar的空白处
+		if hasattr(self, u'placed'):
+			self.fillPlacehold()
+
 		# 根据echart，无论如何，迭代的轴上必须有属性和data
 		if 0 == len(iter_axis):
 			iter_axis.append({
@@ -177,24 +142,67 @@ class Bar_Line_Base(EChart):
 
 
 class Bar(Bar_Line_Base):
-	def __init__(self, stacked=False):
+	def __init__(self, stacked=False, placed=False):
 		Bar_Line_Base.__init__(self)
-		self.shape = u'bar'
-		self.stack = stacked
+		self.serial[u'type'] = u'bar'
+		if stacked:	
+			self.serial.stack = stacked
+		if placed:
+			self[u'placed'] = placed
+
+
+	def fillPlacehold():
+		placeHoledStyle = {
+			u'normal':{
+				u'borderColor':	'rgba(0,0,0,0)',
+				u'color':		'rgba(0,0,0,0)'
+			},
+			u'emphasis':{
+				u'borderColor':	'rgba(0,0,0,0)',
+				u'color':		'rgba(0,0,0,0)'
+			}
+		}
+		dataStyle = { 
+			u'normal': {
+				u'label': {
+					u'show': 		True,
+					u'position': 	u'inside',
+					u'formatter': 	u'{c}%'
+				}
+			}
+		}
+
+		series_list 	= self.option.series
+		iter_list 		= range(len(series_list)).reverse()
+		for i in iter_list:
+			series_unit 			= self.option.series[i].copy()
+			placehold_data 			= [100 - idx for idx in series_unit.data]
+			series_unit.data 		= placehold_data
+			series_unit.itemStyle 	= placeHoledStyle
+			self.option.series.insert(i+1, series_unit)
+			
+
 
 
 				
 class Line(Bar_Line_Base):
 	def __init__(self):
 		Bar_Line_Base.__init__(self)
-		self.shape = u'line'
+		self.serial[u'type'] = u'line'
 
+class Area(Bar_Line_Base):
+	def __init__(self):
+		Bar_Line_Base.__init__(self)
+		self.serial[u'type'] = u'line'
+		self.serial.smooth = True
+		self.serial.itemStyle = \
+				{normal: {areaStyle: {type: 'default'}}}
 
 
 class Scatter(EChart):
 	def __init__(self):
 		EChart.__init__(self)
-		self.shape = 'scatter'
+		self.serial[u'type'] = 'scatter'
 		self.option[u'xAxis'] = self.option[u'yAxis'] = [{
 			u'type' : 		u'value',
             u'power': 		1,
@@ -219,13 +227,13 @@ class Scatter(EChart):
 				for le in legend_list:
 					self.option[u'series'].append({
 						u'name':	le
-						, u'type':		self.shape
+						, u'type':		self.serial[u'type']
 						, u'data':		[ x[:-1] for x in data_from_db if x[-1] == le ]
 					})
 		else:
 			self.option[u'series'] = [{
 				u'name':		''
-				, u'type':		self.shape
+				, u'type':		self.serial[u'type']
 				, u'data': 		data_from_db
 				, u'large':		True
 			}]
@@ -237,7 +245,7 @@ class Scatter(EChart):
 class Pie(EChart):
 	def __init__(self):
 		EChart.__init__(self)
-		self.shape = u'pie'
+		self.serial[u'type'] = u'pie'
 					
 	def makeData(self, data_from_db, msu_list, msn_list, group_list):
 		if len(msu_list) < 1 or len(msn_list) < 1:
@@ -262,6 +270,123 @@ class Pie(EChart):
 		})
 
 		return self.option
+
+
+class Radar(EChart):
+	def __init__(self):
+		EChart.__init__(self)
+		self.option[u'polar'] = []
+		pass
+
+	def makeData(self, data_from_db, msu_list, msn_list, group_list):
+		# 画图的条件应该是至少要有1个measure列，2个mension列
+		if len(msn_list) < 1 or len(msu_list) < 1:
+			raise Exception(u'cant draw radar')
+			
+		msu_list_len, msn_list_len, group_list_len = map( len, [msu_list, msn_list, group_list] )
+		all_list		= msu_list + msn_list + group_list
+		all_len 		= len(all_list)
+
+		all_data 		= map(list, zip(*data_from_db))
+
+		for idx in range(all_len -1, -1, -1):
+			(attr_name, attr_kind, attr_cmd, attr_axis) = all_list[idx]
+			if idx >= all_len - group_list_len:
+				legend_data = list(set(all_data[idx]))
+				self.option[u'legend'] = {
+					u'orient': 	u'vertical',
+					u'x': 		u'right',
+					u'y': 		u'bottom',
+					u'data':	legend_data
+				}
+
+			elif idx >= msu_list_len and idx < all_len - group_list_len:
+				one_indicator = []
+				text_list = list(set(all_data[idx]))
+				one_indicator = [ {u'text': t} for t in text_list ]
+				self.option[u'polar'].append({
+					u'indicator': 	one_indicator
+				})
+
+			else:
+				# 如果没有legend，也就是没有group的属性
+				#if not hasattr(self.option, u'legend'):
+				if not u'legend' in self.option.keys():
+					self.option[u'series'].append({
+						u'type':		u'radar'
+						, u'data':		{
+							u'value':	all_data[idx]
+						}
+					})
+				else:
+					series_unit = {
+						u'type':	u'radar'
+						, u'data':	[]
+					}
+
+					series_data = []
+					for le in self.option[u'legend'][u'data']:
+						series_data_unit = {
+							u'name':	le
+						}
+						indicator_list = self.option[u'polar'][0][u'indicator']
+						series_data_unit[u'value'] = [value for d in indicator_list \
+														for (value, attr, group) in data_from_db \
+															if le == group and attr == d[u'text']]
+						series_data.append(series_data_unit)
+
+					self.option[u'series'].append({
+						u'type':		u'radar'
+						, u'data':		series_data
+					})
+
+				# 添加max值进去		TBD
+				
+
+		return self.option
+			
+			
+
+
+
+
+class EChartManager():
+	def __init__(self):
+		pass
+
+	def get_echart(self, shape=u'bar'):
+		if u'bar' == shape: 
+			return Bar()
+
+		elif u'stack_bar' == shape:
+			return Bar(stacked=True)
+
+		elif u'placehold_bar' == shape:
+			return Bar(placed=True)
+
+		elif u'line' == shape:
+			return Line()
+
+		elif u'stack_line' == shape:
+			return Line(stacked=True)
+
+		elif u'area' == shape:
+			return Area()
+
+		elif u'stack_area' == shape:
+			return Area(stacked=True)
+
+		elif u'scatter' == shape:
+			return Scatter()
+
+		elif u'pie' == shape:
+			return Pie()
+
+		elif u'radar' == shape:
+			return Radar()
+
+		else:
+			raise Exception(u'Unknown pictrue shape')
 
 
 

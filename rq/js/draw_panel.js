@@ -7,7 +7,8 @@ define([
 , "echarts/chart/line"
 , "echarts/chart/scatter"
 , "echarts/chart/pie"
-], function(Backbone, BaseSheetView, DrawModel, ec, _b, _l, _s, _p) {
+, "echarts/chart/radar"
+], function(Backbone, BaseSheetView, DrawModel, ec, _b, _l, _s, _p, _r) {
 		
 	var DrawPanelView = BaseSheetView.extend({
 		tagName: 		"div",
