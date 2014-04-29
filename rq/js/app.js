@@ -196,7 +196,7 @@ function change_line_width(){
     var clientWidth = document.documentElement.clientWidth;
     var barWidth = $("#dbinfo_bar").width()+1; //border-right:1px 默认161px 
     var boxWidth = $("#filter_box").width();
-    clientWidth=clientWidth-boxWidth-161-3-2-1-75-10;//margin: 3px 0 3px 3px;border:1px;border-right: 1px;width: 75px;
+    clientWidth=clientWidth-boxWidth-161-3-2-1-75-10-5;//margin: 3px 0 3px 3px;border:1px;border-right: 1px;width: 75px;
     return clientWidth;
 }
 
