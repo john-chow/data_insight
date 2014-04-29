@@ -16,7 +16,7 @@ def showDbForChosen(request):
 	if 'POST' == request.method:
 		form = ConnDbForm(request.POST)
 		if form.is_valid():
-			return HttpResponseRedirect('/indb/')
+			return HttpResponseRedirect('/main/')
 	else:
 		form = ConnDbForm
 
@@ -62,8 +62,8 @@ def selectTables(request):
 
 		if 0 == len(unkonwn_tables):
 			request.session[u'tables'] 	= 	chosen_tables
-			print 'redirect to indb'
-			return HttpResponseRedirect(u'/indb/')
+			print 'redirect to main'
+			return HttpResponseRedirect(u'/main/')
 		else:
 			res_dict = {u'succ': False, u'msg': u'xxxxx'}
 			return HttpResponse(res_dict, content_type='application/json')

@@ -10,7 +10,7 @@ define([
 			, VtronEvents) {
 
 	var WorkAreaModel = VtronModel.extend({
-		urlRoot: "/indb/draw/",
+		urlRoot: "/main/draw/",
 		
 		initialize: function() {
 			this.set(this.default)
