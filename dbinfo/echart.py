@@ -48,8 +48,10 @@ class EChart():
 				
 
 class Bar_Line_Base(EChart):
-	def __init__(self):
+	def __init__(self, stacked=False):
 		EChart.__init__(self)
+		if stacked:	
+			self.serial[u'stack'] = stacked
 
 
 	def makeData(self, data_from_db, msu_list, msn_list, group_list):
@@ -143,10 +145,8 @@ class Bar_Line_Base(EChart):
 
 class Bar(Bar_Line_Base):
 	def __init__(self, stacked=False, placed=False):
-		Bar_Line_Base.__init__(self)
+		Bar_Line_Base.__init__(self, stacked)
 		self.serial[u'type'] = u'bar'
-		if stacked:	
-			self.serial[u'stack'] = stacked
 		if placed:
 			self[u'placed'] = placed
 
@@ -187,16 +187,16 @@ class Bar(Bar_Line_Base):
 				
 class Line(Bar_Line_Base):
 	def __init__(self, stacked=False):
-		Bar_Line_Base.__init__(self)
+		Bar_Line_Base.__init__(self, stacked)
 		self.serial[u'type'] = u'line'
 
 class Area(Bar_Line_Base):
 	def __init__(self, stacked=False):
-		Bar_Line_Base.__init__(self)
+		Bar_Line_Base.__init__(self, stacked)
 		self.serial[u'type'] 		= u'line'
 		self.serial[u'smooth'] 		= True
 		self.serial[u'itemStyle'] 	= \
-				{u'normal': {u'areaStyle': {type: 'default'}}}
+				{u'normal': {u'areaStyle': {u'type': 'default'}}}
 
 
 class Scatter(EChart):
