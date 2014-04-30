@@ -5,7 +5,6 @@ class ConnDbForm(forms.Form):
 	ip			= forms.GenericIPAddressField(initial='10.1.50.125')
 	port		= forms.IntegerField(max_value=65535, min_value=0, required=False, initial='5432')
 	db			= forms.CharField(initial='mytableau')
-	table		= forms.CharField(initial='test')
 	user		= forms.CharField(initial='postgres')
 	pwd			= forms.CharField(widget=forms.PasswordInput())
 
