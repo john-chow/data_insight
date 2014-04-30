@@ -41,13 +41,6 @@ function Delete_from_array(list, val) {
 	return cloned
 }
 
-//统一显示错误
-function show_error_meassage(message, level){
-	$(".error_level").html(level);
-	$(".error_message").html(message);
-	$("#error_modal>div").modal();
-}
-
 
 function clone_canvas(oldCanvas) {
     //create a new canvas
@@ -77,4 +70,34 @@ function jquery_to_html($obj) {
 	});
 	return tmp.html();
 }
+
+//统一显示错误
+function easy_dialog_error(message, level){
+	var str="<p>错误级别：<span id='error_level'>"+level+"</span></p>"+
+			"<p>错误信息：<span id='error_message'>"+message+"</span></p>";
+	easyDialog.open({
+	  container : {
+	    header : '错误提示&nbsp;&nbsp;&nbsp;(5秒后自动关闭)',
+	    content : str
+	  },
+	  overlay : false,
+	  autoClose : 5000
+	});
+}
+
+
+function easy_dialog_loading(){
+	var str="<img id='loading_img' src='../static/images/loading.gif' /><span>正在加载，请稍后~</span>";
+	easyDialog.open({
+        container : {
+    		content : str
+ 		 },
+    });
+}
+
+function easy_dialog_close(){
+	easyDialog.close();
+}
+
+
 

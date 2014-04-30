@@ -14,8 +14,10 @@ define([
         className: "container",
 
         events: {
-            "click #open_work_book" :      "openWorkBook",
-            "click #save_work_book" :      "saveWorkBook",
+            "click #open_work_book" :        "openWorkBook",
+            "click #save_work_book" :        "saveWorkBook",
+            "click #design_menu_ico_minus":  "minusCanvas",
+            "click #design_menu_ico_plus":   "plusCanvas",
         },
 
         initialize: function() {
@@ -42,7 +44,25 @@ define([
 
         saveWorkBook: function() {
             Backbone.Events.trigger("work_book:save");
-        }
+        },
+
+        minusCanvas: function() {
+            $("#draw_panel canvas,#draw_panel div").each(function(){
+                    var newWidth = ($(this).width())*0.9;
+                    $(this).width(newWidth);
+                    var newHeight = ($(this).height())*0.9;
+                    $(this).height(newHeight);
+                });
+        },
+
+        plusCanvas: function() {
+            $("#draw_panel canvas,#draw_panel div").each(function(){
+                    var newWidth = ($(this).width())*1.1;
+                    $(this).width(newWidth);
+                    var newHeight = ($(this).height())*1.1;
+                    $(this).height(newHeight);
+                });
+        },
 
     });
 
