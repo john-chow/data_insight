@@ -4,7 +4,8 @@ requirejs([
  "design_main",
  "jqueryUi",
  "bootstrap",
-], function($, g, MainView ,ui ,b) {
+ "easydialog",
+], function($, g, MainView ,ui ,b, e) {
 	new MainView;
 
     var MainRouter = Backbone.Router.extend({

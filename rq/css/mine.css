@@ -861,23 +861,35 @@ body {
 #graph_pie.choosed-chart-style {
      background-image: url(../images/pie-hover.PNG);
 }
+/*
+#error_layer {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 40%;
+    width: 400px;
+    padding: 8px 20px 20px 20px;
+    background-color: #FCFAE7;
+    border-radius: 15px;
+}
 
-#error_modal .modal-title{
+#error_layer h4{
     text-align: center;
     color: rgb(238, 45, 45);
     font-weight: bold;
 }
 
-#error_modal .modal-body{
+#error_layer div{
     font-size: 16px;
 }
 
-#error_modal .modal-footer{
-    margin-top: 0;
-}
-
-#error_modal .modal-body span{
+#error_layer span{
     color: rgb(235, 30, 30);
+}*/
+
+#loading_img {
+    width: 35px;
+    margin: 0 10px;
 }
 
 #table_name ul {
@@ -932,4 +944,8 @@ body {
 
 #intelligent_display {
     padding: 7px 0 0 0 !important;
+}
+
+#easyDialogTitle {
+    margin: 0 !important; 
 }
