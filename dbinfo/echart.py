@@ -207,7 +207,7 @@ class Scatter(EChart):
 			u'type' : 		u'value',
             u'power': 		1,
             u'precision': 	2,
-            u'scale':		True,
+            #u'scale':		True,
             u'axisLabel' : {
                 u'formatter': '{value}'
             },
@@ -235,7 +235,7 @@ class Scatter(EChart):
 				u'name':		''
 				, u'type':		self.serial[u'type']
 				, u'data': 		data_from_db
-				, u'large':		True
+				#, u'large':		True
 			}]
 
 		return self.option
