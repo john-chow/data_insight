@@ -23,7 +23,7 @@ define([
 		render: function() {
 			this.chart = ec.init(this.el)
 			var data = this.model.toJSON();
-
+			
 			// 如果是地图图形，要加在地图库；否则不需要
 			if ( !this.judgeIfMap(data) ) {
 				this.chart.setOption(data)

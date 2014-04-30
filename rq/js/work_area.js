@@ -33,12 +33,6 @@ define([
 				, _.bind(this.setToSev, this)
 		  	);
 
-		  	//Backbone.Events.on(
-		  	this.onOut(
-				"area:user_unset_action"
-				, _.bind(this.unsetToSev, this)
-		  	);
-
 			this.onOut(
 				"area:change_table"
 				, _.bind(this.changeTable, this)
@@ -64,27 +58,10 @@ define([
 				success: function(m, resp, opt) {
 					if (resp.succ) {
 						self.triggerOut("panel:draw_data", resp.data)
-						//Backbone.Events.trigger("panel:draw_data", resp.data)
 					} else {
+						easy_dialog_error(resp.msg)						
+						// 通知清空
 						self.triggerOut("panel:draw_data", {})
-						//Backbone.Events.trigger("panel:draw_data", {})
-					}
-				}, error: function() {
-				},
-				no_feeding: true
-			})
-		},
-
-		unsetToSev: function(data) {
-			this.model.unset(data);
-			this.model.save(null, {
-				success: function(m, resp, opt) {
-					if (resp.succ) {
-						this.triggerOut("panel:draw_data", resp.data)
-						//Backbone.Events.trigger("panel:draw_data", resp.data)
-					} else {
-						this.triggerOut("panel:draw_data", {})
-						//Backbone.Events.trigger("panel:draw_data", {})
 					}
 				}, error: function() {
 				},
