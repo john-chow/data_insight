@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 
 class UserModel(models.Model):
 	name 		= models.CharField(max_length=10)
@@ -10,5 +9,5 @@ class UserModel(models.Model):
 		('viewer',		'viewer11')
 		, ('designer', 	'designer11')
 	)
-	identity 	= models.CharField(max_length=2
-									, choices=IDENTITY_LIST)
+	identity 	= models.CharField(max_length=20
+									)

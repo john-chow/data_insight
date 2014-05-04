@@ -18,6 +18,6 @@ urlpatterns = patterns('',
 	url(r'^$', 			whichdbView.showDbForChosen),
 	url(r'^login/', 	include('whichdb.url')),
 	url(r'main/', 		include('dbinfo.url')),
-	url(r'user/', 		include('user.url')),
+	url(r'user/', 		include('myuser.url')),
 	url(r'^test/$', 	whichdbView.test),
 )

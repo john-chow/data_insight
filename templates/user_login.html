@@ -5,4 +5,8 @@
 	username: <input type='text' name='username' />
 	password: <input type='text' name='password' />
 	<input type='submit' value='提交' />
+
+	{% if not_allowed %}
+		<p>check and check</p>
+	{% endif %}
 </form>

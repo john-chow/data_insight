@@ -3,12 +3,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import simplejson as json
 from django.template import RequestContext, Template
 from django.contrib.auth import authenticate, login, logout
-from user.form import UserForm
+from myuser.forms import UserForm
 
 import pdb
 
 
-def login(request):
+def mylogin(request):
 	context = RequestContext(request)
 	if u'POST' == request.method:
 		user 	= request.POST.get(u'username')
@@ -19,27 +19,34 @@ def login(request):
 				login(request, user)
 				return HttpResponseRedirect('/')
 			else:
-				context_dict = {u'not_allowe': True}
+				context_dict = {u'not_allowed': True}
 				return render_to_response(u'user_login.html', context_dict, context)
 		else:
-			context_dict = {u'not_allowe': True}
+			context_dict = {u'not_allowed': True}
 			return render_to_response(u'user_login.html', context_dict, context)
-
 
 	else:
 		context = RequestContext(request)
 		return render_to_response(u'user_login.html', context)
 
 
-def register(request):
-	pass
-"""
-	context = context(request)
+def myregister(request):
+	context = RequestContext(request)
 	context_dict = {}
 	if u'POST' == request.method:
-
-
+		user_form = UserForm(data = request.POST)
+		if user_form.is_valid():
+			user = user_form.save()
+			user.set_password(request.POST.get(u'password'))
+			user.save()
+			return HttpResponseRedirect('/')
+		else:
+			print '1111111111'
 	else:
-		context_dict['form'] = UserForm
-		return render_to_response(u'user_register.html', context_dict, context)
-"""
+		user_form = UserForm()
+
+	context_dict['form'] = user_form
+	return render_to_response(u'user_register.html', context_dict, context)
+
+
+
