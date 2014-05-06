@@ -9,32 +9,97 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from common.tool import cvtDateTimeToStr
+from datetime import datetime
 
-class Smart(models.Model):
-    is_smart = models.CharField(max_length=5, blank=True)
-    version = models.CharField(max_length=20, blank=True)
-    size = models.FloatField(null=True, blank=True)
-    market_time = models.DateField(null=True, blank=True)
-    price = models.IntegerField(null=True, blank=True)
-    net = models.CharField(max_length=20, blank=True)
-    camera = models.IntegerField(null=True, blank=True)
-    outlook = models.CharField(max_length=10, blank=True)
-    os_all = models.CharField(max_length=20, blank=True)
-    battery = models.IntegerField(null=True, blank=True)
-    logo = models.CharField(max_length=10, blank=True)
-    ratio = models.CharField(max_length=20, blank=True)
-    color = models.CharField(max_length=8, blank=True)
-    prototype = models.CharField(max_length=20, blank=True)
-    cpu_hz = models.IntegerField(null=True, blank=True)
-    camera_2 = models.IntegerField(null=True, blank=True)
-    cpu_num = models.CharField(max_length=8, blank=True)
-    run_ram = models.IntegerField(null=True, blank=True)
-    nfc = models.CharField(max_length=8, blank=True)
-    otg = models.CharField(max_length=8, blank=True)
-    ram = models.IntegerField(null=True, blank=True)
-    skuid = models.CharField(max_length=10, blank=True)
-    os = models.CharField(max_length=10, blank=True)
-    os_version = models.CharField(max_length=5, blank=True)
-    class Meta:
-        db_table = 'smart'
+class ElementModel(models.Model):
+	ele_id = models.CharField(max_length=255)
+	name = models.CharField(max_length=20)
+	type = models.IntegerField()
+	owner = models.CharField(max_length=20)
+	create_time = models.DateTimeField()
+	is_distributed = models.BooleanField()
+
+	def __init__(self, user, name=u''):
+		now = datetime.now()
+		self.create_time = now
+		self.name = name
+		self.owner = user
+		self.id = str(self.type) + '_' + self.owner + '_' + cvtDateTimeToStr(now)
+
+	class Meta:
+		abstract = True
+
+
+
+class SubjectModel(ElementModel):
+	switch_effect = models.CharField(max_length=255)
+	scens_list = models.ManyToManyField('SceneModel')
+
+	def __init__(self, user, name=u''):
+		self.type = 0
+		ElementModel.__init__(self, name)
+
+	def getScnsList(self):
+		pass
+
+	def addScn(self, scn_id):
+		pass
+
+	def rmScn(self, scn_id):
+		pass
+	
+
+
+class SceneModel(ElementModel):
+	layout = models.CharField(max_length=50)
+	wis_list = models.ManyToManyField('WidgetModel')
+
+	def __init__(self, user, name=u''):
+		self.type = 0
+		ElementModel.__init__(self, name)
+
+	def getWisList(self):
+		pass
+
+	def addWi(self, wi_id):
+		pass
+
+	def rmWi(self, wi_id):
+		pass
+
+
+class WidgetModel(ElementModel):
+	draw_args = models.CharField(max_length=255)
+
+	def __init__(self, user, name=u''):
+		self.type = 0
+		ElementModel.__init__(self, name)
+
+
+
+"""
+class Relation(models.Model):
+	type = models.IntegerField()
+	sub_id = models.CharField(max_length=255)
+	scn_id = models.CharField(max_length=255)
+	wi_id  = models.CharField(max_length=255)
+	scn_order = models.IntegerField()
+	wi_order = models.IntegerField()
+
+	def getSubsList(**args):
+		pass
+
+	def getScnsList(**args):
+		pass
+
+	def getWisList(**args):
+		pass
+"""
+
+
+
+
+
+
 

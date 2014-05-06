@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.utils import simplejson as json
 import psycopg2 as pysql
+import datetime
 import pdb
 
 def connDb(request, source=u'session'):
@@ -34,5 +35,12 @@ def MyHttpJsonResponse(data):
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
+
+
+def cvtDateTimeToStr(dt=datetime.datetime.now()):
+	if not isinstance(dt, datetime.datetime):
+		return dt
+
+	return dt.format("%Y%m%d%H%M%S")
 
 
