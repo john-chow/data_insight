@@ -6,6 +6,9 @@
 #
 # Also note: You'll have to insert the output of 'django-admin.py sqlcustom [appname]'
 # into your database.
+
+# -*- coding: utf-8 -*-
+
 from __future__ import unicode_literals
 
 from django.db import models
@@ -20,13 +23,6 @@ class ElementModel(models.Model):
 	create_time = models.DateTimeField()
 	is_distributed = models.BooleanField()
 
-	def __init__(self, user, name=u''):
-		now = datetime.now()
-		self.create_time = now
-		self.name = name
-		self.owner = user
-		self.id = str(self.type) + '_' + self.owner + '_' + cvtDateTimeToStr(now)
-
 	class Meta:
 		abstract = True
 
@@ -34,30 +30,29 @@ class ElementModel(models.Model):
 
 class SubjectModel(ElementModel):
 	switch_effect = models.CharField(max_length=255)
-	scens_list = models.ManyToManyField('SceneModel')
-
-	def __init__(self, user, name=u''):
-		self.type = 0
-		ElementModel.__init__(self, name)
+	scens_list = models.ManyToManyField('SceneModel' \
+						, through='SubToScnRelationModel')
 
 	def getScnsList(self):
-		pass
+		return list(self.scens_list)
 
 	def addScn(self, scn_id):
-		pass
+		scnModel = SceneModel.object.filter(ele_id = scn_id)
+		self.scens_list.add(scnModel)
+		self.save()
+		
 
 	def rmScn(self, scn_id):
-		pass
+		scnModel = SceneModel.object.filter(ele_id = scn_id)
+		self.scens_list.remove(scnModel)
+		self.save()
 	
 
 
 class SceneModel(ElementModel):
 	layout = models.CharField(max_length=50)
-	wis_list = models.ManyToManyField('WidgetModel')
-
-	def __init__(self, user, name=u''):
-		self.type = 0
-		ElementModel.__init__(self, name)
+	wis_list = models.ManyToManyField('WidgetModel' \
+							, through='ScnToWiRelationModel')
 
 	def getWisList(self):
 		pass
@@ -72,33 +67,26 @@ class SceneModel(ElementModel):
 class WidgetModel(ElementModel):
 	draw_args = models.CharField(max_length=255)
 
-	def __init__(self, user, name=u''):
-		self.type = 0
-		ElementModel.__init__(self, name)
 
 
+class SubToScnRelationModel(models.Model):
+	sub = models.ForeignKey('SubjectModel')
+	scn = models.ForeignKey('SceneModel')
+	order = models.IntegerFiled()
 
-"""
-class Relation(models.Model):
-	type = models.IntegerField()
-	sub_id = models.CharField(max_length=255)
-	scn_id = models.CharField(max_length=255)
-	wi_id  = models.CharField(max_length=255)
-	scn_order = models.IntegerField()
-	wi_order = models.IntegerField()
-
-	def getSubsList(**args):
-		pass
-
-	def getScnsList(**args):
-		pass
-
-	def getWisList(**args):
-		pass
-"""
+	class Meta:
+		db_table = 'subject_to_scene'
+		order = ['sub', 'order']
 
 
+class ScnToWiRelationModel(models.Model):
+	scn = models.OneToOneField('SceneModel')
+	wi = models.OneToOneField('WidgetModel')
+	order = models.IntegerFiled()
 
+	class Meta:
+		db_table = 'scene_to_widget'
+		order = ['scn', 'order']
 
 
 
