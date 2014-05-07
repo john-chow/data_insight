@@ -16,12 +16,11 @@ from common.tool import cvtDateTimeToStr
 from datetime import datetime
 
 class ElementModel(models.Model):
-	ele_id = models.CharField(max_length=255)
-	name = models.CharField(max_length=20)
-	type = models.IntegerField()
-	owner = models.CharField(max_length=20)
-	create_time = models.DateTimeField()
-	is_distributed = models.BooleanField()
+	m_id = models.CharField(max_length=255)
+	m_name = models.CharField(max_length=20)
+	m_owner = models.CharField(max_length=20)
+	m_create_time = models.DateTimeField()
+	m_is_distributed = models.BooleanField()
 
 	class Meta:
 		abstract = True
@@ -29,29 +28,18 @@ class ElementModel(models.Model):
 
 
 class SubjectModel(ElementModel):
-	switch_effect = models.CharField(max_length=255)
-	scens_list = models.ManyToManyField('SceneModel' \
+	m_switch_effect = models.CharField(max_length=255)
+	m_relation_to_scn = models.ManyToManyField('SceneModel' \
 						, through='SubToScnRelationModel')
 
-	def getScnsList(self):
-		return list(self.scens_list)
-
-	def addScn(self, scn_id):
-		scnModel = SceneModel.object.filter(ele_id = scn_id)
-		self.scens_list.add(scnModel)
-		self.save()
-		
-
-	def rmScn(self, scn_id):
-		scnModel = SceneModel.object.filter(ele_id = scn_id)
-		self.scens_list.remove(scnModel)
-		self.save()
+	class Meta:
+		db_table = 'subjects'
 	
 
 
 class SceneModel(ElementModel):
-	layout = models.CharField(max_length=50)
-	wis_list = models.ManyToManyField('WidgetModel' \
+	m_layout = models.CharField(max_length=50)
+	m_relation_to_wi = models.ManyToManyField('WidgetModel' \
 							, through='ScnToWiRelationModel')
 
 	def getWisList(self):
@@ -63,30 +51,39 @@ class SceneModel(ElementModel):
 	def rmWi(self, wi_id):
 		pass
 
+	class Meta:
+		db_table = 'scenes'
+
 
 class WidgetModel(ElementModel):
-	draw_args = models.CharField(max_length=255)
+	m_draw_args = models.CharField(max_length=255)
+
+	class Meta:
+		db_table = 'widgets'
 
 
 
 class SubToScnRelationModel(models.Model):
-	sub = models.ForeignKey('SubjectModel')
-	scn = models.ForeignKey('SceneModel')
-	order = models.IntegerFiled()
+	m_sub = models.ForeignKey('SubjectModel')
+	m_scn = models.ForeignKey('SceneModel')
+	m_order = models.IntegerField()
 
 	class Meta:
 		db_table = 'subject_to_scene'
-		order = ['sub', 'order']
+		ordering = ['m_sub', 'm_order']
 
 
 class ScnToWiRelationModel(models.Model):
-	scn = models.OneToOneField('SceneModel')
-	wi = models.OneToOneField('WidgetModel')
-	order = models.IntegerFiled()
+	m_scn = models.ForeignKey('SceneModel')
+	m_wi = models.ForeignKey('WidgetModel')
+	m_order = models.IntegerField()
 
 	class Meta:
 		db_table = 'scene_to_widget'
-		order = ['scn', 'order']
+		ordering = ['m_scn', 'm_order']
+
+
+
 
 
 
