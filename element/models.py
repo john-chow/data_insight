@@ -1,20 +1,7 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#     * Rearrange models' order
-#     * Make sure each model has one field with primary_key=True
-# Feel free to rename the models, but don't rename db_table values or field names.
-#
-# Also note: You'll have to insert the output of 'django-admin.py sqlcustom [appname]'
-# into your database.
-
 # -*- coding: utf-8 -*-
 
-"""
-from __future__ import unicode_literals
-
+# Create your models here.
 from django.db import models
-from common.tool import cvtDateTimeToStr
-from datetime import datetime
 
 class ElementModel(models.Model):
 	m_id = models.CharField(max_length=255)
@@ -82,11 +69,3 @@ class ScnToWiRelationModel(models.Model):
 	class Meta:
 		db_table = 'scene_to_widget'
 		ordering = ['m_scn', 'm_order']
-
-"""
-
-
-
-
-
-

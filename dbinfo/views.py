@@ -7,12 +7,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from psycopg2.extensions import adapt
 from collections import OrderedDict
+from django.core.urlresolvers import reverse
 
 import psycopg2 as pysql
 import logging
 import datetime as dt
 import time
-from dbinfo.models import Widget,Scene,Subject
 from dbinfo.echart import EChartManager
 from common.head import *
 from common.tool import *
@@ -27,7 +27,8 @@ def getTableInfo(request):
 	conn 			= connDb(request)
 	if not conn:
 		print 'redirect to login'
-		return HttpResponseRedirect(u'http://10.1.50.125:9000/')
+		#return HttpResponseRedirect(u'http://10.1.50.125:9000/')
+		return HttpResponseRedirect(reverse('whichdb.showDbForChosen'))
 	cursor 			= conn.cursor()
 
 	data_list = []
@@ -82,94 +83,6 @@ def tryIntoDb(request):
 	else:
 		context = RequestContext(request)
 		return render_to_response(u'index.html', context)
-
-
-def reqSubjectInfo(request):
-	"""
-	有指定的主题id，那么取出该主题中所有内容
-	没有指定主题id，那么新建主题、场景和组件
-	"""
-	if u'subject' in request.POST:
-		pass
-	else:
-		subject_id 	= generateId(request)
-		scene_id 	= generateId(request)
-		widget_id 	= generateId(request)
-		saveSubjectInfo({u'wi_id': widget_id, u'scn_id':scene_id, 
-							u'sub_id': subject_id})
-		return MyHttpJsonResponse({
-			'sub_id':		subject_id
-			, 'scn_id':		scene_id
-			, 'wi_id':		widget_id
-		})
-
-
-def generateId(request):
-	"""
-	用户id + 当前时间 = widget_id
-	"""
-	user_id 		= request.user
-	now 			= dt.datetime.now()
-	now_sec 		= time.mktime(now.timetuple())
-	new_widget_id 	= user_id + now_sec
-	return new_widget_id
-
-
-def getWidgetInfo(request, widget_id=u''):
-	if widget_id:
-		raw_widget_info = Widget.objects.filter(w_id = widget_id).values()[0]
-		str_x, str_y = map(lambda i: raw_widget_info[i], ['x', 'y'])
-		wi['x'] = str_x.split(',')
-		wi['y'] = str_y.split(',')
-		return raw_widget_info
-	else:
-		return 
-
-
-def saveSubjectInfo(**args):
-	sub_id, scn_id, wi_id = map(lambda x: args[x] if x in args else u''
-							, [u'sub_id', u'scn_id', u'wi_id'])
-	subject = Subject(sub_id, scn_id, wi_id)
-
-	try:
-		subject.save()
-	except Exception e:
-		raise Exception(u'xxxxxxxxx')
-
-	saveSceneInfo(args)
-
-
-def saveSceneInfo(**args):
-	scn_id, wi_id = map(lambda x: args[x] if x in args else u''
-							, [u'scn_id', u'wi_id'])
-	scene = Scene(scn_id, wi_id)
-
-	try:
-		scene.save()
-	except Exception e:
-		raise Exception(u'xxxxxxxxx')
-	
-	saveWidgetInfo(args)
-
-
-def saveWidgetInfo(post_data):
-	wi_id 			= post_data[u'wi_id']
-	widget_list 	= Widget.object.filter(wi_id=wi_id)
-	
-	# 分为修改和创建两种保存原因
-	if len(widget_list) > 0:
-		widget 	= widget_list[0]
-		widget[u'x'] 		= ','.join(post_data.get(u'x'))
-		widget[u'y'] 		= ','.join(post_data.get(u'x'))
-		widget[u'color'] 	= post_data.get(u'color')
-		widget[u'size'] 	= post_data.get(u'size')
-	else:
-		widget = Widget(id=wi_id)
-	
-	try:
-		widget.save()
-	except:
-		raise Exception('xxxxxxxxxx')	
 
 
 
