@@ -8,6 +8,7 @@ define([
 , "base_sheet"
 , "model/vtron_model"
 , "model/vtron_collection"
+, "test"
 ], function(Backbone, MenusView, WorkareaView
 			, ShowAreaView, InfoWorkplaceView, _Modal
 			, BaseSheetView, VtronModel, VtronCollection) {
@@ -57,6 +58,9 @@ define([
 			);
 
             this.render();
+
+			// start little test
+			t.start()
         },
 
         render: function() {
