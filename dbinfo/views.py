@@ -89,20 +89,25 @@ def tryIntoDb(request):
 def reqDrawData(request):
 	print '********		reqDrawData  *********'
 	if 'POST' == request.method:
-		try:
-			logging.debug('reqDrawData is running')
+		if IS_RELEASE:
+			try:
+				logging.debug('reqDrawData is running')
+				post_data = json.loads(request.POST.get(u'data', u'{}'), 
+											object_pairs_hook=OrderedDict)
+				data = generateBackData(post_data, request)
+			except Exception, e:
+				print "catch Exception: %s" % e
+				error_dict = {u'succ': False, u'msg': str(e)}
+				return MyHttpJsonResponse(error_dict)
+			else:
+				backData = {u'succ': True, u'data': data}
+				return MyHttpJsonResponse(backData)
+		else:
 			post_data = json.loads(request.POST.get(u'data', u'{}'), 
 										object_pairs_hook=OrderedDict)
 			data = generateBackData(post_data, request)
-			saveWidgetInfo(post_data)
-		except Exception, e:
-			print "catch Exception: %s" % e
-			error_dict = {u'succ': False, u'msg': str(e)}
-			return MyHttpJsonResponse(error_dict)
-		else:
 			backData = {u'succ': True, u'data': data}
 			return MyHttpJsonResponse(backData)
-
 	else:
 		return
 
@@ -135,6 +140,13 @@ def generateBackData(post_data, request):
 	if HAVE_PDB:		pdb.set_trace()
 	#post_data 					= json.loads(request.POST.get(u'data', u'{}'), \
 	#											object_pairs_hook=OrderedDict)
+
+	# 地图先特殊对待
+	if 'china_map' == post_data.get(u'graph') or \
+			'world_map' == post_data.get(u'graph'):
+		data = formatData('', '', '', '', post_data.get(u'graph'))
+		return data
+
 	shape_list, shape_in_use 	= judgeWhichShapes(post_data)
 	shape_in_use 				= post_data.get(u'graph', u'bar')
 	chart_data 					= getDrawData(post_data, shape_in_use, request)

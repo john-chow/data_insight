@@ -2,6 +2,7 @@
 #Filename:	echart.py
 import pdb
 from common.head import *
+from dbinfo.map import getCityPM2dot5, getRailLine
 
 
 class EChart():
@@ -347,34 +348,103 @@ class Radar(EChart):
 
 
 
-class Map(EChart):
+class Map():
 	def __init__(self):
-		EChart.__init__(self)
-		self.serial[u'type'] 	= u'map'
+		self.option = {
+			u'title': {}
+			, u'tooltip': 		{}
+			, u'legend':		{
+				u'origent':		u'vertical'
+				, u'x':			u'left'
+				, u'data':		[]
+			}
+			, u'toolbox': 		{
+        		u'show' : 				True,
+				u'orient' : 			'vertical',
+				u'x': 					'right',
+				u'y': 					'center',
+				u'feature' : {
+					u'mark' : 			{u'show': True},
+					u'dataView' : 		{u'show': True, u'readOnly': False},
+					u'restore' : 		{u'show': True},
+					u'saveAsImage' : 	{u'show': True}
+				}
+			}
+			, u'series':		[
+			]
+		}
 
 	def makeData(self, data_from_db, msu_list, msn_list, group_list):
+		pass
+		"""
 		self.option[u'series'].append( \
 			self.makeSeriesUnit() \
 		)
+		"""
 
-		return self.option
+
+	def makeSeriesUnit(self, name='', mapType='china'):
+		series = {
+			u'name':			name
+			, u'type':			'map'
+			, u'mapType':		mapType
+			, u'verable': 		False
+			, u'roam':			True
+			, u'data': 			[]
+			, u'selectedMode':  'single'
+			, u'markPoint': 	{
+                u'symbolSize': 	5	
+				, u'itemStyle': {
+                    u'normal': {
+                        u'borderColor': '#87cefa',
+                        u'borderWidth': 1,            
+                        u'label': {
+                            u'show': 	False
+                        }
+                    }
+					, u'emphasis': {
+                        u'borderColor': '#1e90ff'
+						, u'borderWidth': 5
+						, u'label': {
+                            u'show': 	False
+                        }
+                    }
+                }
+				, u'data':		[]
+			}
+			, u'geoCoord':	{}
+		}
+		series[u'markPoint'][u'data'] = getCityPM2dot5()
+		series[u'geoCoord'] = getChinaMainCityCoord()
+		return series
 		
 
 
 class ChinaMap(Map):
 	def __init__(self):
 		Map.__init__(self)
-		self.serial[u'mapType'] 	= u'china'
-		self.serial[u'itemStyle'] 	= {
+		"""
+		self.series[u'mapType'] 	= u'china'
+		self.series[u'itemStyle'] 	= {
 			u'normal':		{u'label': {u'show':True}},
             u'emphasis':	{u'label': {u'show':True}}
 		}
-		self.serial[u'data'] = []
+		self.series[u'data'] = []
+		"""
+
+	def makeData(self, *args):
+		pmValue = getCityPM2dot5()
+		return {u'point_value': pmValue}
+		
 			
 			
 class WorldMap(Map):
 	def __init__(self):
 		pass
+
+	def makeData(self, *args):
+		railValue = getRailLine()
+		return {u'line_value': railValue}
 
 
 
@@ -415,6 +485,9 @@ class EChartManager():
 		
 		elif u'china_map' == shape:
 			return ChinaMap()
+
+		elif u'world_map' == shape:
+			return WorldMap()
 
 		else:
 			raise Exception(u'Unknown pictrue shape')

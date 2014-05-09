@@ -4,6 +4,7 @@ define([
 
 	t = {
 		start: function() {
+			/*
 			$.ajax({
 				type:	'POST'
 				, url:	'http://10.1.50.125:9000/subject/rm_scene/'
@@ -19,6 +20,7 @@ define([
 					alert("yyyyy")
 				}
 			})
+			*/
 		}
 	};
 
