@@ -129,7 +129,7 @@ define([
                        'borderColor': '#1e90ff'
 					   , 'borderWidth': 5
 						, 'label': {
-                            'show': 	false
+                            'show': 	true
                         }
                     }
                 }
@@ -153,52 +153,51 @@ define([
 		};
 
 		this.draw = function($place, data) {
+			// option属性来自原型，不可被改变
+			this.optionCloned = cloneObject(this.option);
 			this.place = $place;
 			var self = this;
 			var bool_china = false;
 			require(["echarts/chart/map", "echarts/config", "common/city"]
 					, function(_m, ecConfig, _t) {
-				for (var key in data) {
-					if ("point_value" === key) 	{
-						self.serial.markPoint.data = data[key];
-						self.serial.geoCoord = getChinaMainCityCoord();
-						self.map_kind = "point_map"
-					}
-					else if ("line_value" === key) {
-						self.serial.markLine.data = data[key]
-						self.serial.geoCoord = getChinaMainCityCoord();
-						self.map_kind = "line_map"
-					}
+
+				if ( data.hasOwnProperty("point_value") ) 	{
+					self.map_kind = "point_value"
+					self.serial.markPoint.data = data[self.map_kind];
 				}
-				// option属性来自原型，不可被改变
-				self.optionCloned = cloneObject(self.option);
+				else if ( data.hasOwnProperty("line_value") ) {
+					self.map_kind = "line_value"
+					self.serial.markLine.data = data[self.map_kind]
+				}
+				self.serial.geoCoord = getChinaMainCityCoord();
+
 				self.optionCloned.series.push(self.serial);
 				MapDrawer.prototype.draw.call(self, $place, self.optionCloned);
 				self.drawTopN(3);
+
+				// 响应点击事件，显示更详细信息
 				self.chart.on(ecConfig.EVENT.MAP_SELECTED, function(param){
-					var mapType, option;
-					var provOption = cloneObject(self.optionCloned);
+					var mapType;
+					var tmpOption = cloneObject(self.optionCloned);
 					if (!bool_china) {
 						for (var prov in param.selected) {
 							if (param.selected[prov]) {
 								mapType = prov;
 								bool_china = true;
-								provOption.series[1].data = provOption.series[1].markPoint.data.slice(0);	
+								tmpOption.series[0].data = tmpOption.series[0].markPoint.data.slice(0);	
 								// 移除这几项，否则显示不出图像
-								delete provOption.series[1].markLine;
-								delete provOption.series[1].markPoint;
-								delete provOption.series[1].geoCoord;
-								option = provOption
+								delete tmpOption.series[0].markLine;
+								delete tmpOption.series[0].markPoint;
+								delete tmpOption.series[0].geoCoord;
 							}
 						}
 					}
 					else {	
 						mapType = 'china';
 						bool_china = false;
-						option = self.optionCloned
 					}
-					option.series[1].mapType = mapType;	// 这里写1是因为不明白上面require会被调用两次
-					self.chart.setOption(option, true)
+					tmpOption.series[0].mapType = mapType;	// 这里写1是因为不明白上面require会被调用两次
+					self.chart.setOption(tmpOption, true)
 				})
 			})
 		};
@@ -264,23 +263,8 @@ define([
 	};
 
 
-	var PointMapDrawer = function() {
-		this.serialOpt = {
-		};
-
-		this.draw = function($place, data) {
-			this.serial = _.extend(this.serial, this.serialOpt);
-			PointMapDrawer.prototype.draw.call(this, $place, data)
-		}
-	};
-
 	MapDrawer.prototype = new BaseDrawer();
 	NormalDrawer.prototype = new BaseDrawer();
-	PointMapDrawer.prototype = new MapDrawer();
-
-
-
-		
 
 
 	return DrawPanelView

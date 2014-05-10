@@ -118,7 +118,9 @@ function cloneObject(obj) {
     var objClone;
     if (obj.constructor == Object){
         objClone = new obj.constructor(); 
-    }else{
+    } else if (obj instanceof Array) {
+		objClone = new Array()
+	} else{
         objClone = new obj.constructor(obj.valueOf()); 
     }
     for(var key in obj){
