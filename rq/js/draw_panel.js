@@ -111,8 +111,17 @@ define([
 			'name':				''
 			, 'type':			'map'
 			, 'mapType':		'china'
+            , 'roam': 			true
+			, itemStyle:{
+                normal:{
+                    borderColor:'rgba(100,149,237,1)',
+                    borderWidth:0.5,
+                    areaStyle:{
+                        color: '#666699'
+                    }
+                }
+            }
 			, 'verable': 		false
-			, 'roam':			true
 			, 'data': 			[]
 			, 'selectedMode':  	'single'
 			, 'markPoint': 		{
@@ -137,6 +146,18 @@ define([
 			}
 			, 'geoCoord':				{}
 			, 'markLine':				{
+                smooth:					true,
+                effect : 				{
+                    show: 				true,
+                    size: 				3,
+                    shadowColor: 		'yellow'
+                },
+                itemStyle : {
+                    normal: {
+                        borderWidth:1
+                    }
+                },
+				/*
 				'smooth':				true,
                 'symbol': 				['none', 'circle'],  
                 'symbolSize' : 			1,
@@ -147,6 +168,7 @@ define([
                         'borderColor':	'rgba(30,144,255,0.5)'
                     }
                 },
+				*/
                 'data' : [
 				]
 			}
@@ -156,24 +178,27 @@ define([
 			// option属性来自原型，不可被改变
 			this.optionCloned = cloneObject(this.option);
 			this.place = $place;
-			var self = this;
 			var bool_china = false;
+			if ( data.hasOwnProperty("point_value") ) 	{
+				this.map_kind = "point_map"
+				this.serial.markPoint.data = data["point_value"];
+			}
+			else if ( data.hasOwnProperty("line_value") ) {
+				this.map_kind = "line_map"
+				this.serial.markLine.data = data["line_value"]
+				this.serial.markPoint.data = $.map(data["line_value"], function(one) {
+					return one[1]
+				})
+			}
+			this.serial.geoCoord = getChinaMainCityCoord();
+			this.optionCloned.series.push(this.serial);
+
+			var self = this;
 			require(["echarts/chart/map", "echarts/config", "common/city"]
 					, function(_m, ecConfig, _t) {
 
-				if ( data.hasOwnProperty("point_value") ) 	{
-					self.map_kind = "point_value"
-					self.serial.markPoint.data = data[self.map_kind];
-				}
-				else if ( data.hasOwnProperty("line_value") ) {
-					self.map_kind = "line_value"
-					self.serial.markLine.data = data[self.map_kind]
-				}
-				self.serial.geoCoord = getChinaMainCityCoord();
-
-				self.optionCloned.series.push(self.serial);
 				MapDrawer.prototype.draw.call(self, $place, self.optionCloned);
-				self.drawTopN(3);
+				self.drawTopN(10);
 
 				// 响应点击事件，显示更详细信息
 				self.chart.on(ecConfig.EVENT.MAP_SELECTED, function(param){
