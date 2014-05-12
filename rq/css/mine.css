@@ -112,7 +112,8 @@ margin-left: 161px;
     min-height: 30px;
 }
 
-#design_menu_option >ul > li > a {
+#design_menu_option >ul > li > a ,
+#intelligent_display a {
     padding-top: 5px;
     padding-bottom: 5px;
     color: #333;
@@ -151,7 +152,7 @@ margin-left: 161px;
     padding: 8px 10px;
 }
 
-#design_menu_ico button {
+#design_menu_ico .btn-group button {
     border: none;
 }
 
@@ -688,14 +689,32 @@ body {
 #choosed_chart li {
     padding:3px 0;
     border: 1px solid white;
-    padding: 3px 0 3px 14px;
+    padding: 0px 0 1px 14px;
     cursor: pointer;
 }
 
-#choosed_chart {
+#choosed_chart ,
+#choosed_layout ,
+#choosed_dashboard {
     margin: 0;
     border: none;
     box-shadow: none;
+}
+
+#choosed_chart .panel-heading , 
+#choosed_layout .panel-heading ,
+#choosed_dashboard .panel-heading {
+    padding: 3px 15px;
+}
+
+#choosed_layout ul {
+    height: 150px;
+    overflow: auto;
+}
+
+#choosed_chart ul{
+    height: 300px;
+    overflow: auto;
 }
 
 #show_area_chart {
@@ -861,31 +880,6 @@ body {
 #graph_pie.choosed-chart-style {
      background-image: url(../images/pie-hover.PNG);
 }
-/*
-#error_layer {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 40%;
-    width: 400px;
-    padding: 8px 20px 20px 20px;
-    background-color: #FCFAE7;
-    border-radius: 15px;
-}
-
-#error_layer h4{
-    text-align: center;
-    color: rgb(238, 45, 45);
-    font-weight: bold;
-}
-
-#error_layer div{
-    font-size: 16px;
-}
-
-#error_layer span{
-    color: rgb(235, 30, 30);
-}*/
 
 #loading_img {
     width: 35px;
@@ -943,9 +937,32 @@ body {
 }
 
 #intelligent_display {
-    padding: 7px 0 0 0 !important;
+    padding: 10px 0 0 0 !important;
 }
 
 #easyDialogTitle {
     margin: 0 !important; 
+}
+
+#choosed_chart hr {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.choosed_chart_extra {
+    padding:0 10px;
+    margin:10px 0;
+}
+
+.choosed_chart_extra span {
+    padding: 0 10px;
+    margin: 0 10px;
+    border: 1px solid white;
+    cursor: default;
+}
+
+.choosed_chart_extra span:hover {
+    background-color: #F6E8F5;
+    border: 1px solid #B8A8E9;
+    border-radius: 5px;
 }

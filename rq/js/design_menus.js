@@ -29,7 +29,7 @@ define([
 
         render: function() {
             this.$el.html(menuHtml);
-            this.$el.find("#design_menu_option>ul").append(
+            this.$el.find("#design_menu_ico").append(
                 this.intelligentDisplay.el
             );
         },
@@ -47,7 +47,7 @@ define([
         },
 
         minusCanvas: function() {
-            $("#draw_panel canvas,#draw_panel div").each(function(){
+            $("#draw_panel canvas ,#draw_panel div, #draw_panel textarea").each(function(){
                     var newWidth = ($(this).width())*0.9;
                     $(this).width(newWidth);
                     var newHeight = ($(this).height())*0.9;
@@ -56,7 +56,7 @@ define([
         },
 
         plusCanvas: function() {
-            $("#draw_panel canvas,#draw_panel div").each(function(){
+            $("#draw_panel canvas, #draw_panel div, #draw_panel textarea").each(function(){
                     var newWidth = ($(this).width())*1.1;
                     $(this).width(newWidth);
                     var newHeight = ($(this).height())*1.1;

@@ -13,7 +13,7 @@ define([
 
     var IntelligentHtml = Backbone.View.extend({
 
-        tagName: "li",
+        tagName: "div",
         id: "intelligent_display",
         className: "intelligent-display",
 
