@@ -145,13 +145,13 @@ def generateBackData(post_data, request):
 	if 'china_map' == post_data.get(u'graph') or \
 			'world_map' == post_data.get(u'graph'):
 		data = formatData('', '', '', '', post_data.get(u'graph'))
-		return data
+		return {u'type': 'map', u'data': data}
 
 	shape_list, shape_in_use 	= judgeWhichShapes(post_data)
 	shape_in_use 				= post_data.get(u'graph', u'bar')
 	chart_data 					= getDrawData(post_data, shape_in_use, request)
 
-	return chart_data
+	return {u'type': shape_in_use, u'data':	chart_data}
 
 
 def getDrawData(post_data, shape_in_use, request):

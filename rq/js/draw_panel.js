@@ -2,13 +2,8 @@ define([
 "backbone"
 , "base_sheet"
 , "model/draw_data"
-, "echarts"
-, "echarts/chart/bar"
-, "echarts/chart/line"
-, "echarts/chart/scatter"
-, "echarts/chart/pie"
-, "echarts/chart/radar"
-], function(Backbone, BaseSheetView, DrawModel, ec, _b, _l, _s, _p, _r) {
+, "drawer"
+], function(Backbone, BaseSheetView, DrawModel, Drawer) {
 	
 	var DrawPanelView = BaseSheetView.extend({
 		tagName: 		"div",
@@ -20,14 +15,12 @@ define([
 			this.model = new DrawModel();
 			this.listenTo(this.model, "change", this.render);
 			this.onOut("panel:draw_data", _.bind(this.updateData, this));
-			this.normalDrawer = new NormalDrawer()
+			this.drawer = new Drawer()
 		},
 
 		render: function() {
 			var data = this.model.toJSON();
-			
-			var drawer = new MapDrawer();
-			drawer.draw(this.el, data);
+			this.drawer.run(this.el, data);
 			
 			/*
 			// 如果是地图图形，要加在地图库；否则不需要
