@@ -32,11 +32,18 @@ define([
 
         addWidget: function() {
 			var self = this;
-            this.onOut("gridster:add", function(data) {
+            this.onOut("gridster:add", function(srcObj) {
+				self.$(".gridster").remove("ul");
+				var destObj = self.cloneCvsObj(srcObj)
+				self.$(".gridster").append(destObj);
+				
+
+				/*
 				var newPicObj = $("<li class='gs-w'>"+data+"</li>");
 				self.reDrawCanvas(newPicObj);
                 var gridster = $(".gridster ul").gridster().data('gridster');//获取对象
                 gridster.add_widget(jquery_to_html(newPicObj), 2, 1);//增加一个
+				*/
 
                 //gridster.add_widget("<li class='gs-w'><div>"+data+"</div></li>", 2, 1);//增加一个
             });
@@ -76,10 +83,14 @@ define([
             });
         },
 
-		reDrawCanvas: function($obj) {
-			$.map( $obj.find("canvas"), function(cvs) {
-				$(cvs).replaceWith( clone_canvas(cvs) )
-			} )
+		cloneCvsObj: function($obj) {
+			var $cloned = $obj.clone();
+			$.each($obj.find("canvas"), function(idx, cvs) {
+				var cvsObj = $cloned.find("canvas:eq(_idx_)".replace("_idx_", idx))
+				cvsObj.replaceWith( clone_canvas(cvs) )
+			})
+
+			return $cloned
 		}
 
     });

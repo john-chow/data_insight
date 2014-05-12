@@ -16,12 +16,21 @@ define([
 		save: function (attributes, options) {
 			options       = options || {};
 			attributes    = attributes || {};
-		 
+
 			this.set(attributes);
 
+			// 过滤所有value为null之类的项
 			var jsonModel 		= this.toJSON();
-			var strJsonModel 	= JSON.stringify(jsonModel);
-			options.data = {'data':	strJsonModel };
+			var cleanJsonModel 	= {};
+			for (var key in jsonModel) {
+				var value = jsonModel[key];
+				if (value !== null) {
+					cleanJsonModel[key] = value
+				}
+			};
+
+			var strJsonModel 	= JSON.stringify(cleanJsonModel);
+			options.data 		= {'data':	strJsonModel };
 
 
 			/*

@@ -163,20 +163,17 @@ define([
 
 		removeColor: function(ev) {
 			$(".filter_tag_color").remove();
-			this.triggerOut("area:user_unset_action", "color")
-			//Backbone.Events.trigger("area:user_unset_action", "color")
+			this.triggerOut("area:user_set_action", {"color": null})
 		},
 
 		removeSize: function(ev) {
 			$(".filter_tag_size").remove();	
-			this.triggerOut("area:user_unset_action", "size")
-			//Backbone.Events.trigger("area:user_unset_action", "size")
+			this.triggerOut("area:user_set_action", {"size": null})
 		},
 
 		removeShape: function(ev) {
 			$(".filter_tag_shape").remove();	
-			this.triggerOut("area:user_unset_action", "shape")
-			//Backbone.Events.trigger("area:user_unset_action", "shape")
+			this.triggerOut("area:user_set_action", {"shape": null})
 		},
 
 

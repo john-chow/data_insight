@@ -101,4 +101,45 @@ function easy_dialog_close(){
 }
 
 
+function dynamicSort(property) {
+    var sortOrder = 1;
+    if(property[0] === "-") {
+        sortOrder = -1;
+        property = property.substr(1);
+    }
+    return function (a,b) {
+        var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+        return result * sortOrder;
+    }
+}
+
+
+// 用clone实现对象的复制功能
+function cloneObject(obj) {
+    var objClone;
+    if (obj.constructor == Object){
+        objClone = new obj.constructor(); 
+    } else if (obj instanceof Array) {
+		objClone = new Array()
+	} else{
+        objClone = new obj.constructor(obj.valueOf()); 
+    }
+    for(var key in obj){
+        if ( objClone[key] != obj[key] ){ 
+            if ( typeof(obj[key]) == 'object' ){ 
+                objClone[key] = cloneObject(obj[key]);
+            }else{
+                objClone[key] = obj[key];
+            }
+        }
+    }
+    objClone.toString = obj.toString;
+    objClone.valueOf = obj.valueOf;
+    return objClone; 
+}
+
+
+
+
+
 
