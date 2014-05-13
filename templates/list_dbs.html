@@ -3,10 +3,11 @@
 <!DOCTYPE html>
 <head>
 	<meta charset='utf-8'>
+	<title>DataInsight</title>
 </head>
 <body>
 	<!-- LOGO -->
-	<div id="header">LOGO</div>
+	<div id="header">DataInsight</div>
 
 	<!-- 菜单栏  -->
 	<div id="list_db_menu">
@@ -72,7 +73,26 @@
 		   </div>
 		  <div class="col-md-9 col-xs-9">
 		  	<div class="welcome_workbook">
-		  		<div>工作簿</div>
+		  		<ul id="welcome_tab" class="nav nav-tabs">
+				  <li class="active"><a href="#welcome_widget" data-toggle="tab">组件</a></li>
+				  <li><a href="#welcome_scene" data-toggle="tab">场景</a></li>
+				  <li><a href="#welcome_theme" data-toggle="tab">主题</a></li>
+				</ul>
+				<div id="welcome_tab_content" class="tab-content">
+			        <div class="tab-pane fade active in" id="welcome_widget">
+			          <ul class="clearfix">
+			          <li>组件1</li>
+			          <li>组件2</li>
+			          <li id="welcome_widget_new"><a><span class="glyphicon glyphicon-plus" style=""></span></a></li>
+			          </ul>
+			        </div>
+			        <div class="tab-pane fade" id="welcome_scene">
+			          <p>场景列表</p>
+			        </div>
+			        <div class="tab-pane fade" id="welcome_theme">
+			          <p>主题列表</p>
+			        </div>
+      			</div>
 		    </div>
 		  </div>
 		</div>

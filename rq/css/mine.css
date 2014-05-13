@@ -707,7 +707,7 @@ body {
     padding: 3px 15px;
 }
 
-#choosed_layout ul {
+#choosed_dashboard ul {
     height: 150px;
     overflow: auto;
 }
@@ -815,44 +815,74 @@ body {
 
 #graph_bar {
     background-image: url(../images/bar.png);
-    background-repeat: no-repeat;
-    background-size: 50px 30px;
-}
-
-#graph_bar:hover {
-    background-position:0 0;
-    background-color:white;
 }
 
 #graph_line {
     background-image: url(../images/line.png);
-    background-repeat: no-repeat;
-    background-size: 50px 30px;
-}
-
-#graph_line:hover {
-    background-position:0 0;
-    background-color:white;
 }
 
 #graph_scatter {
     background-image: url(../images/scatter.png);
-    background-repeat: no-repeat;
-    background-size: 50px 30px;
-}
-
-#graph_scatter:hover {
-    background-position:0 0;
-    background-color:white;
 }
 
 #graph_pie {
     background-image: url(../images/pie.png);
+}
+
+#stack_bar {
+    background-image: url(../images/stack_bar.png);
+}
+
+#stack_line {
+   background-image: url(../images/stack_line.png);
+}
+
+#graph_area {
+    background-image: url(../images/area.png);
+}
+
+#stack_area {
+    background-image: url(../images/stack_area.png); 
+}
+
+#graph_radar {
+    background-image: url(../images/radar.png);
+}
+
+#china_map {
+    background-image: url(../images/china-map.png);
+}
+
+#world_map {
+    background-image: url(../images/world-map.png);
+}
+
+#graph_bar ,
+#graph_line ,
+#graph_scatter ,
+#graph_pie ,
+#stack_bar ,
+#graph_area ,
+#stack_area ,
+#stack_line ,
+#graph_radar ,
+#china_map ,
+#world_map {
     background-repeat: no-repeat;
     background-size: 50px 30px;
 }
 
-#graph_pie:hover {
+#graph_pie:hover ,
+#graph_bar:hover ,
+#graph_line:hover ,
+#graph_scatter:hover ,
+#stack_bar:hover ,
+#stack_line:hover ,
+#graph_area:hover ,
+#stack_area:hover ,
+#graph_radar:hover ,
+#china_map:hover ,
+#world_map:hover {
     background-position:0 0;
     background-color:white;
 }
