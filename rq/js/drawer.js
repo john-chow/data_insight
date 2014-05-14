@@ -25,6 +25,12 @@ define([
 				case "line":	
 					this.now_drawer = this.line_drawer || new LineDrawer;
 					break;
+				case "area":	
+					this.now_drawer = this.areaDrawer || new AreaDrawer;
+					break;
+				case "scatter":
+					this.now_drawer = this.scatterDrawer || new ScatterDrawer;
+					break;
 				case "polar":	
 					this.now_drawer = this.polar_drawer || new PolarDrawer;
 					break;
@@ -136,6 +142,9 @@ define([
 		};
 
 		this.fillAxis = function(data) {
+			// 调用子类去做轴的样式
+			this.styleAxis(data.x, data.y);
+
 			// 分别加上属性样式，和数值样式
 			this.optionCloned["xAxis"] = data.x;
 			this.optionCloned["yAxis"] = data.y;
@@ -146,6 +155,10 @@ define([
 				var self = this;
 				$.each(data.legend_series, function(i, l_s) {
 					var seriesOneCloned = cloneObject(self.seriesOne);
+
+					// 调用子类去做样式
+					self.styleSeries(seriesOneCloned);
+
 					if ("legend" in  l_s) {
 						var legend_name = l_s["legend"];
 						self.optionCloned.legend.data.push(legend_name);
@@ -194,6 +207,63 @@ define([
 		};
 		
 		this.styleSeries = function() {
+		};
+	};
+
+	var AreaDrawer = function() {
+		this.catStyle = {
+		};
+		
+		this.valStyle = {
+		};
+
+		this.seriesStyle = {
+		};
+
+		this.styleAxis = function() {
+		};
+		
+		this.styleSeries = function() {
+		};
+	};
+
+	var ScatterDrawer = function() {
+		this.valStyle = {
+			power: 1
+			, precision: 2
+			, scale:true
+			, axisLabel : {
+                formatter: '{value}'
+            }
+		};
+
+		this.seriesStyle = {
+			markPoint: {
+                data : [
+                    {type : 'max', name: '最大值'},
+                    {type : 'min', name: '最小值'}
+                ]
+            }
+			, markLine: {
+                data : [
+                    {type : 'average', name: '平均值'}
+                ]
+            }
+		};
+
+		this.styleAxis = function(xList, yList) {
+			var self = this;
+			$.map(function(xObj) {
+				$.extend(xObj, self.valStyle)
+			}, xList);
+
+			$.map(function(yObj) {
+				$.extend(yObj, self.valStyle)
+			}, yList)
+		};
+		
+		this.styleSeries = function(oneObj) {
+			$.extend(oneObj, this.seriesStyle)
 		};
 	};
 
@@ -276,9 +346,12 @@ define([
 	AxisDrawer.prototype 	= baseDrawer;
 	PolarDrawer.prototype 	= baseDrawer;
 	MapDrawer.prototype 	= baseDrawer;
+	ScatterDrawer.prototype = baseDrawer;
 	var axisDrawer = new AxisDrawer();
 	BarDrawer.prototype		= axisDrawer;
 	LineDrawer.prototype	= axisDrawer;
+	AreaDrawer.prototype	= axisDrawer;
+	ScatterDrawer.prototype = axisDrawer;
 
 
 	return Drawer

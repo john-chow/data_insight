@@ -238,46 +238,37 @@ class Area(Bar_Line_Base):
 
 
 class Scatter(EChart):
-	def __init__(self):
-		EChart.__init__(self)
-		self.serial[u'type'] = 'scatter'
-		self.option[u'xAxis'] = self.option[u'yAxis'] = [{
-			u'type' : 		u'value',
-            u'power': 		1,
-            u'precision': 	2,
-            #u'scale':		True,
-            u'axisLabel' : {
-                u'formatter': '{value}'
-            },
-            u'splitArea': 	{u'show': True}
-		}]
-
 	def makeData(self, data_from_db, msu_list, msn_list, group_list):
 		# 条件是至少2个数字列
 		num_list = [ kind for (_, kind, _, _) in (msu_list + msn_list) if 1 == kind ] 
 		if num_list < 2:
 			raise Exception(u'cant draw scatter')
 
+		x_info_list, y_info_list = [], []
+		map(lambda x: x.append({
+			u'type':	u'value'
+		}), (x_info_list, y_info_list))
+
+		legend_series_data = []
 		if 0 < len(group_list):
 			all_data = map( list, zip(*data_from_db) )
-			for idx in range( len(group_list) ):
-				self.option[u'legend'] = legend_list = list( set(all_data[ len(msn_list) + idx ]) )
-				for le in legend_list:
-					self.option[u'series'].append({
-						u'name':	le
-						, u'type':		self.serial[u'type']
-						, u'data':		[ x[:-1] for x in data_from_db if x[-1] == le ]
-					})
+			# 一定不会有度量列，全部是维度且数值的列
+			legend_list = list(set(all_data[len(msn_list)]))
+			for le in legend_list:
+				legend_series_data.append({
+					u'legend':			le
+					, u'series':		[ x[:-1] for x in data_from_db if x[-1] == le ]	
+				})
 		else:
-			self.option[u'series'] = [{
-				u'name':		''
-				, u'type':		self.serial[u'type']
-				, u'data': 		data_from_db
-				#, u'large':		True
-			}]
+			legend_series_data.append({
+				u'series':	data_from_db
+			})
 
-		return self.option
-
+		return {
+			u'x':				x_info_list
+			, u'y':				y_info_list
+			, u'legend_series':	legend_series_data
+		}
 
 
 class Pie(EChart):
