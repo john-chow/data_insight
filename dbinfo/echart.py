@@ -2,12 +2,15 @@
 #Filename:	echart.py
 import pdb
 from common.head import *
+from common.tool import connDb
 from dbinfo.map import getCityPM2dot5, getRailLine
 
 
 class EChart():
 	def __init__(self):
+		pass
 		# 表明是属于serial数组中的属性
+		"""
 		self.serial = {}
 
 		self.option = {
@@ -45,27 +48,65 @@ class EChart():
 
 	def makeSeriesUnit(self, **args):
 		return dict(args.items() + self.serial.items())
+	"""
 
 				
 
 class Bar_Line_Base(EChart):
-	def __init__(self, stacked=False):
-		EChart.__init__(self)
-		if stacked:	
-			self.serial[u'stack'] = stacked
-
-
 	def makeData(self, data_from_db, msu_list, msn_list, group_list):
-		# 根据Tableau，能画bar图，至少要有1列measure
-		if( len(msu_list) < 1 ):
-			raise Exception(u'cant draw %s', self.serial[u'type'])
-
-		all_list = msu_list + msn_list + group_list
-		all_len, msu_len, msn_len, group_len = \
-						len(all_list), len(msu_list), len(msn_list), len(group_list)
+	
+		msu_len, msn_len, group_len = \
+				map(lambda x: len(x), (msu_list, msn_list, group_list))
 
 		all_data = map( list, zip(*data_from_db) )
 
+		x_info_list, y_info_list = [], []
+
+		# 先看度量列表，确定所在轴
+		if msu_len > 0:
+			msu_idx = 0
+			attr_name, attr_kind, attr_cmd, attr_axis = msu_list[0]
+			msu_info_list = x_info_list if u'col' == attr_axis else y_info_list
+			msu_info_list.append({u'type': u'value'})
+		else:
+			raise Exception(u'cant draw %s', self.serial[u'type'])
+
+		# 再看维度列表
+		if msn_len > 0:
+			msn_idx = msu_len
+			attr_name, attr_kind, attr_cmd, attr_axis = msn_list[0]
+			msn_info_list = x_info_list if u'col' == attr_axis else y_info_list
+			msn_info_list.append({u'type': u'category', u'data': list(set(all_data[msn_idx]))})
+		else:
+			# measure所在轴的另一个轴就是mension
+			msn_info_list = x_info_list if len(x_info_list) > 0 else y_info_list
+			msn_info_list.append({u'type': u'category', u'data': ['']})
+			
+		legend_series_data = []
+		# 最后看分组列表
+		if group_len > 0:
+			group_idx 	= msu_len + msn_len
+			legend_data = list(set(all_data[group_idx]))
+
+			for l in legend_data:
+				one_series_data = [d[0] for d in data_from_db if l in d[1:]]
+				legend_series_data.append({'legend': l, 'series': one_series_data})
+		else:
+			legend_data = []
+			one_series_data = all_data[0]
+			legend_series_data.append({'series': one_series_data})
+
+		return {	
+			u'x': x_info_list	\
+			, u'y': y_info_list		\
+			, u'legend_series': legend_series_data
+		}
+
+
+
+
+
+		"""
 		# 产生从[length-1, ..., 0]的数字
 		legend_dict, iter_axis, val_axis = {}, [], []
 		
@@ -141,10 +182,13 @@ class Bar_Line_Base(EChart):
 			})
 			
 		return self.option
+		"""
 
 
 
 class Bar(Bar_Line_Base):
+	pass
+	"""
 	def __init__(self, stacked=False, placed=False):
 		Bar_Line_Base.__init__(self, stacked)
 		self.serial[u'type'] = u'bar'
@@ -181,66 +225,50 @@ class Bar(Bar_Line_Base):
 			series_unit.data 		= placehold_data
 			series_unit.itemStyle 	= placeHoledStyle
 			self.option.series.insert(i+1, series_unit)
-			
+	"""
 
 
 
 				
 class Line(Bar_Line_Base):
-	def __init__(self, stacked=False):
-		Bar_Line_Base.__init__(self, stacked)
-		self.serial[u'type'] = u'line'
+	pass
 
 class Area(Bar_Line_Base):
-	def __init__(self, stacked=False):
-		Bar_Line_Base.__init__(self, stacked)
-		self.serial[u'type'] 		= u'line'
-		self.serial[u'smooth'] 		= True
-		self.serial[u'itemStyle'] 	= \
-				{u'normal': {u'areaStyle': {u'type': 'default'}}}
+	pass
 
 
 class Scatter(EChart):
-	def __init__(self):
-		EChart.__init__(self)
-		self.serial[u'type'] = 'scatter'
-		self.option[u'xAxis'] = self.option[u'yAxis'] = [{
-			u'type' : 		u'value',
-            u'power': 		1,
-            u'precision': 	2,
-            #u'scale':		True,
-            u'axisLabel' : {
-                u'formatter': '{value}'
-            },
-            u'splitArea': 	{u'show': True}
-		}]
-
 	def makeData(self, data_from_db, msu_list, msn_list, group_list):
 		# 条件是至少2个数字列
 		num_list = [ kind for (_, kind, _, _) in (msu_list + msn_list) if 1 == kind ] 
 		if num_list < 2:
 			raise Exception(u'cant draw scatter')
 
+		x_info_list, y_info_list = [], []
+		map(lambda x: x.append({
+			u'type':	u'value'
+		}), (x_info_list, y_info_list))
+
+		legend_series_data = []
 		if 0 < len(group_list):
 			all_data = map( list, zip(*data_from_db) )
-			for idx in range( len(group_list) ):
-				self.option[u'legend'] = legend_list = list( set(all_data[ len(msn_list) + idx ]) )
-				for le in legend_list:
-					self.option[u'series'].append({
-						u'name':	le
-						, u'type':		self.serial[u'type']
-						, u'data':		[ x[:-1] for x in data_from_db if x[-1] == le ]
-					})
+			# 一定不会有度量列，全部是维度且数值的列
+			legend_list = list(set(all_data[len(msn_list)]))
+			for le in legend_list:
+				legend_series_data.append({
+					u'legend':			le
+					, u'series':		[ x[:-1] for x in data_from_db if x[-1] == le ]	
+				})
 		else:
-			self.option[u'series'] = [{
-				u'name':		''
-				, u'type':		self.serial[u'type']
-				, u'data': 		data_from_db
-				#, u'large':		True
-			}]
+			legend_series_data.append({
+				u'series':	data_from_db
+			})
 
-		return self.option
-
+		return {
+			u'x':				x_info_list
+			, u'y':				y_info_list
+			, u'legend_series':	legend_series_data
+		}
 
 
 class Pie(EChart):

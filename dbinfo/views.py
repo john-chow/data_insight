@@ -138,8 +138,6 @@ def makeupFilterSql(filter_list):
 
 def generateBackData(post_data, request):
 	if HAVE_PDB:		pdb.set_trace()
-	#post_data 					= json.loads(request.POST.get(u'data', u'{}'), \
-	#											object_pairs_hook=OrderedDict)
 
 	# 地图先特殊对待
 	if 'china_map' == post_data.get(u'graph') or \

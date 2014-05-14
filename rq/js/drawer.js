@@ -19,23 +19,35 @@ define([
 				case "map":	 	
 					this.now_drawer = this.map_drawer || new MapDrawer;
 					break;
-				case "axis":	
-					this.now_drawer = this.axis_drawer || new AxisDrawer;
+				case "bar":	
+					this.now_drawer = this.bar_drawer || new BarDrawer;
+					break;
+				case "line":	
+					this.now_drawer = this.line_drawer || new LineDrawer;
+					break;
+				case "area":	
+					this.now_drawer = this.areaDrawer || new AreaDrawer;
+					break;
+				case "scatter":
+					this.now_drawer = this.scatterDrawer || new ScatterDrawer;
 					break;
 				case "polar":	
 					this.now_drawer = this.polar_drawer || new PolarDrawer;
 					break;
 				default:
-					easy_dialog_error('xxxxxxxxxxxx')
+					$(place).html("");
+					easy_dialog_error('xxxxxxxxxxxx');
+					return
 			}
 
+			this.now_drawer.init(data.type, place);
 			if ("map" !== data.type) {
-				this.now_drawer.work(place, data.data)
+				this.now_drawer.work(data.data)
 			} else {
 				var self = this;
 				require(["echarts/chart/map", "echarts/config", "common/city"]
 						, function(_m, ecConfig, _t) {
-					self.now_drawer.work(place, data.data)
+					self.now_drawer.work(data.data)
 				})
 			}
 		}
@@ -44,6 +56,7 @@ define([
 	var BaseDrawer = function() {
 		this.optionCloned 	= {};
 		this.place			= "";
+		this.type			= "";
 		this.option = {
 			'title': 					{}
 			, 'tooltip': 				{}
@@ -82,38 +95,176 @@ define([
 			chart.setOption(this.optionCloned)
 		};
 
-		this.work = 	function(place, data) {
+		this.init = 	function(type, place) {
+			this.type  = type;
 			this.place = place;
+			this.optionCloned = cloneObject(this.option);
+		};
+
+		this.work = 	function(data) {
 			this.fillSeries(data);
 			this.draw()
 		}
 	};
 
 	var AxisDrawer = function() {
-		this.catOne = {
-			type : 'category'
-			, boundaryGap : false
-			, data : []
+		this.catStyle = {
+			boundaryGap : false
 		};
 
-		this.valOne = {
-			type : 'value'
-			, axisLabel : {
+		this.valStyle = {
+			axisLabel : {
                 formatter: ''
             }
 			, splitArea : {show : true}
 		};
 
-		this.work = function() {
-			this.fillAxis();
-			this.fillSeries()
+		this.seriesOne = {
+			type:			""
+			, markPoint: {
+                data: [
+                    {type : 'max', name: '最大值'},
+                    {type : 'min', name: '最小值'}
+                ]
+            }
+			, markLine: {
+                data: [
+                    {type : 'average', name: '平均值'}
+                ]
+            }
+			, temStyle: {normal: {label : {show: true, position: 'inside'}}}
+			, data: []
 		};
 
-		this.fillAxis = function() {
+		this.work = function(data) {
+			this.fillAxis(data);
+			AxisDrawer.prototype.work.call(this, data);
 		};
 
-		this.fillSeries = function() {
+		this.fillAxis = function(data) {
+			// 调用子类去做轴的样式
+			this.styleAxis(data.x, data.y);
+
+			// 分别加上属性样式，和数值样式
+			this.optionCloned["xAxis"] = data.x;
+			this.optionCloned["yAxis"] = data.y;
+		};
+
+		this.fillSeries = function(data) {
+			if (data.legend_series.length > 0) {
+				var self = this;
+				$.each(data.legend_series, function(i, l_s) {
+					var seriesOneCloned = cloneObject(self.seriesOne);
+
+					// 调用子类去做样式
+					self.styleSeries(seriesOneCloned);
+
+					if ("legend" in  l_s) {
+						var legend_name = l_s["legend"];
+						self.optionCloned.legend.data.push(legend_name);
+						seriesOneCloned.name = legend_name;
+					}
+					seriesOneCloned.data = l_s["series"];
+					seriesOneCloned.type = self.type;
+					self.optionCloned.series.push(seriesOneCloned)
+				})
+			}
+			else {
+				easy_dialog_error("xxxxxxxxxxx")
+			}
 		}
+	};
+
+
+	var BarDrawer = function() {
+		this.catStyle = {
+		};
+		
+		this.valStyle = {
+		};
+
+		this.seriesStyle = {
+		};
+
+		this.styleAxis = function() {
+		};
+		
+		this.styleSeries = function() {
+		};
+	};
+
+	var LineDrawer = function() {
+		this.catStyle = {
+		};
+		
+		this.valStyle = {
+		};
+
+		this.seriesStyle = {
+		};
+
+		this.styleAxis = function() {
+		};
+		
+		this.styleSeries = function() {
+		};
+	};
+
+	var AreaDrawer = function() {
+		this.catStyle = {
+		};
+		
+		this.valStyle = {
+		};
+
+		this.seriesStyle = {
+		};
+
+		this.styleAxis = function() {
+		};
+		
+		this.styleSeries = function() {
+		};
+	};
+
+	var ScatterDrawer = function() {
+		this.valStyle = {
+			power: 1
+			, precision: 2
+			, scale:true
+			, axisLabel : {
+                formatter: '{value}'
+            }
+		};
+
+		this.seriesStyle = {
+			markPoint: {
+                data : [
+                    {type : 'max', name: '最大值'},
+                    {type : 'min', name: '最小值'}
+                ]
+            }
+			, markLine: {
+                data : [
+                    {type : 'average', name: '平均值'}
+                ]
+            }
+		};
+
+		this.styleAxis = function(xList, yList) {
+			var self = this;
+			$.map(function(xObj) {
+				$.extend(xObj, self.valStyle)
+			}, xList);
+
+			$.map(function(yObj) {
+				$.extend(yObj, self.valStyle)
+			}, yList)
+		};
+		
+		this.styleSeries = function(oneObj) {
+			$.extend(oneObj, this.seriesStyle)
+		};
 	};
 
 	var PolarDrawer = function() {
@@ -169,20 +320,18 @@ define([
             }
         };
 
-		this.work = function(place, data) {
-			MapDrawer.prototype.work.call(this, place, data)
+		this.work = function(data) {
+			MapDrawer.prototype.work.call(this, data)
 		};
 
 		this.fillSeries = function(data) {
 			this.optionCloned = cloneObject(this.option);
 			var bool_china = false;
 			if ( data.hasOwnProperty("point_value") ) 	{
-				this.map_kind = "point_map"
 				this.seriesOne.markPoint.data = data["point_value"];
 			}
-			else if ( data.hasOwnProperty("line_value") ) {
-				this.map_kind = "line_map"
-				this.seriesOne.markLine.data = data["line_value"]
+			if ( data.hasOwnProperty("line_value") ) {
+				this.seriesOne.markLine.data = data["line_value"];
 				this.seriesOne.markPoint.data = $.map(data["line_value"], function(one) {
 					return one[1]
 				})
@@ -197,6 +346,12 @@ define([
 	AxisDrawer.prototype 	= baseDrawer;
 	PolarDrawer.prototype 	= baseDrawer;
 	MapDrawer.prototype 	= baseDrawer;
+	ScatterDrawer.prototype = baseDrawer;
+	var axisDrawer = new AxisDrawer();
+	BarDrawer.prototype		= axisDrawer;
+	LineDrawer.prototype	= axisDrawer;
+	AreaDrawer.prototype	= axisDrawer;
+	ScatterDrawer.prototype = axisDrawer;
 
 
 	return Drawer
