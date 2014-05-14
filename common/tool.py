@@ -19,6 +19,7 @@ def connDb(request, source=u'session'):
 
 	try:
 		conn = pysql.connect(conn_str)
+
 	except Exception, e:
 		return None
 	else:
