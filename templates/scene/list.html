@@ -1,0 +1,24 @@
+{% extends "base/list.html" %}
+
+{% block menu %}
+	<li><a href="/design/widget/list">组件</a></li>
+	<li class="active"><a href="/design/scene/list">场景</a></li>
+	<li><a href="/design/theme/list">主题</a></li>
+{% endblock %}
+
+{% block contentRight %}
+<div class="content-menu clearfix">
+	<button type="button" class="btn btn-primary">新建</button>
+	<button type="button" class="btn btn-default">Default</button>
+	<button type="button" class="btn btn-default">Default</button>
+	<button type="button" class="btn btn-default">Default</button>
+	<button type="button" class="btn btn-default">Default</button>
+	<button type="button" class="btn btn-default">Default</button>
+</div>
+<div class="tab-pane fade active in element-list" id="scene_list">
+	<ul class="clearfix">
+	<li>场景1</li>
+	<li>场景2</li>
+	</ul>
+</div>
+{% endblock %}

@@ -1,0 +1,179 @@
+#header {
+	height: 25px;
+	color: white;
+	text-align: center;
+	background-color: #776677;
+	font-size: 15px;
+	font-weight: bold;
+	line-height: 25px;
+}
+
+.menu-ul li a{
+	padding:15px 50px;
+}
+
+.menu-home {
+	padding:15px 50px;
+}
+
+#menu .navbar {
+	margin-bottom: 0;
+}
+
+.content-right {
+	border-left: 2px solid #ddd;
+	min-height: 800px;
+}
+
+.content-right {
+	padding: 20px 30px;
+}
+
+.content-left {
+	padding: 0;
+}
+
+.content-menu button {
+	margin: 0 5px 10px 5px;
+	width: 110px;
+}
+
+.content-menu>button {
+	float:left;
+}
+
+#content .row {
+	margin-right: 0;
+}
+
+.element-list {
+	padding:25px 0;
+}
+
+.element-list-div {
+	float: left;
+	margin: 5px 30px 15px 5px;
+}
+
+.element-list-div p{
+	text-align: center;
+}
+
+.element-list-div>div{
+	cursor: pointer;
+	display: block;
+	border-radius: 8px;
+	margin-bottom: 5px;
+	width: 130px;
+	height: 130px;
+	-webkit-box-shadow: 0 0 10px rgba(0,0,0,0.4);
+	-moz-box-shadow: 0 0 10px rgba(0,0,0,0.4);
+	box-shadow: 0px 0px 5px rgba(0,0,0,0.4);
+	border: 2px solid #ddd;
+}
+
+.element-list-div:hover>div {
+	border: 2px solid #C7C1C5;
+}
+
+.content-menu form {
+	margin:0;
+}
+
+.content-menu form button {
+	margin:0 !important;
+}
+
+.content-menu .btn-group {
+	margin: 0 50px 10px 5px;
+	float:left;
+}
+
+.content-left ul {
+	list-style: none;
+	margin: 0;
+	overflow-y: auto;
+	padding:0;
+}
+
+.content-left ul li {	
+	font-size: 17px;
+	padding: 3px 0 3px 35px;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.content-left .panel {
+	border: none;
+	margin: 0;
+	min-height: 200px;
+}
+.content-left .panel-heading{
+	padding-left: 30px;
+}
+
+.content-left ul li:hover {	
+	background-color: #F7F2F2;
+}
+
+#header span {
+	float: right;
+}
+
+
+#db_link_modal .panel:first-child {
+	margin-bottom: 30px;
+}
+
+#db_link_modal .panel-body {
+	padding:0;
+}
+
+#db_link_modal .panel-body ul {
+	padding:0;
+	list-style: none;
+	margin:0;
+}
+
+#list_link_dbs {
+	padding:0;
+}
+
+#list_histroy_dbs {
+	max-height: 300px;
+	overflow-y: auto;
+}
+
+#list_link_dbs .db,
+#list_histroy_dbs li {
+	border-radius: 5px;
+	font-size: 16px;
+	padding: 6px 0 6px 20px ;
+}
+
+#list_link_dbs .db:hover,
+#list_histroy_dbs li:hover {
+	background-color: #F7F2F2;
+	cursor: pointer;
+}
+
+#list_histroy_dbs li a {
+	color: black;
+	text-decoration: none;
+}
+
+#db_link_modal span {
+	font-size: 16px;
+	color: #696365;
+	padding: 0 5px 0 0;
+}
+
+#db_link_modal .modal-title,
+#db_link_modal .modal-footer {
+	text-align: center;
+}
+
+#db_link_modal label{
+	width: 200px;
+	text-align: right;
+}

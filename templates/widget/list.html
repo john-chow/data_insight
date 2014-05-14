@@ -1,0 +1,125 @@
+{% extends "base/list.html" %}
+
+{% block menu %}
+	<li class="active"><a href="/design/widget/list">组件</a></li>
+	<li><a href="/design/scene/list">场景</a></li>
+	<li><a href="/design/theme/list">主题</a></li>
+	<li><a href="#">个人信息</a></li>
+{% endblock %}
+
+
+{% block contentLeft %}
+<div class="panel panel-default">
+	<div class="panel-heading">组件列表</div>
+	<ul>
+		<li class="">diam1</li>
+		<li class="">diam2</li>
+		<li class="">diam3</li>
+		<li class="">diam4</li>
+		<li class="">diam5</li>
+		<li class="">diam6</li>
+		<li class="">diam7</li>
+		<li class="">diam8</li>
+		<li class="">diam9</li>
+		<li class="">diam0</li>
+		<li class="">diam1</li>
+		<li class="">diam2</li>
+		<li class="">diam3</li>
+		<li class="">diam4</li>
+		<li class="">diam5</li>
+	</ul>
+</div>
+{% endblock %}
+
+{% block contentRight %}
+<div class="content-menu clearfix">
+    <div class="btn-group" data-toggle="buttons">
+	  <label class="btn btn-info active">
+	    <input type="radio" name="options" id="option1">时间升序
+	  </label>
+	  <label class="btn btn-info">
+	    <input type="radio" name="options" id="option2">时间降序
+	  </label>
+	</div>
+	<button type="button" id="button_new_widget" class="btn btn-primary">新建</button>
+	<button type="button" class="btn btn-default">删除</button>
+	<form class="navbar-form navbar-left" role="search">
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="请输入搜索内容">
+      </div>
+      <button type="submit" class="btn btn-success">查找</button>
+    </form>
+</div>
+<div class="tab-pane fade active in element-list" id="widget_list">
+	<div class="element-list-div"><div></div><p>组件1</p></div>
+	<div class="element-list-div"><div></div><p>组件1</p></div>
+	<div class="element-list-div"><div></div><p>组件1</p></div>
+	<div class="element-list-div"><div></div><p>组件1</p></div>
+	<div class="element-list-div"><div></div><p>组件1</p></div>
+	<div class="element-list-div"><div></div><p>组件1</p></div>
+	<div class="element-list-div"><div></div><p>组件1</p></div>
+	<div class="element-list-div"><div></div><p>组件1</p></div>
+	<div class="element-list-div"><div></div><p>组件1</p></div>
+	<div class="element-list-div"><div></div><p>组件1</p></div>
+	<div class="element-list-div"><div></div><p>组件1</p></div>
+	<div class="element-list-div"><div></div><p>组件1</p></div>
+	<div class="element-list-div"><div></div><p>组件1</p></div>
+</div>
+{% endblock %}
+
+{% block extraContent %}
+<!-- 模态框 begin -->
+<div class="modal fade" id="db_link_modal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+	    <div class="modal-dialog">
+	     	<div class="modal-content">
+
+		      <!--模态框header-->
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		        <h4 class="modal-title">
+		         连接数据
+		        </h4>
+		      </div>
+
+		      <!--模态框body-->
+		      <div class="modal-body">
+		      <form id='conn_db_form' method='post' action='/indb/' enctype="multipart/form-data">
+			  </form>
+			  <div id="modal_choose_db">
+		     	 <div class="panel panel-default">
+				  	<div class="panel-heading">连接数据库</div>
+				  	<div class="panel-body">
+				   	 <ul id="list_link_dbs">
+							<li class='db'><span class="glyphicon glyphicon-book" ></span>mysql</li>
+							<li class='db'><span class="glyphicon glyphicon-book" ></span>postgres</li>
+							<li class='db'><span class="glyphicon glyphicon-book" ></span>oracle</li>
+							<li class='db'><span class="glyphicon glyphicon-book" ></span>mongodb</li>
+				  		</ul>
+				  	</div>
+				</div>
+				 <div class="panel panel-default">
+				  	<div class="panel-heading">连接历史数据源</div>
+				  	<div class="panel-body">
+					   	<ul id="list_histroy_dbs">
+				  			<li ><a href="#"><span class="glyphicon glyphicon-tasks" ></span>Sample-CofeeChan</a></li>
+				  			<li><a href="#"><span class="glyphicon glyphicon-tasks" ></span>Sample-CofeeChan</a></li>
+				  			<li><a href="#"><span class="glyphicon glyphicon-tasks" ></span>Sample-CofeeChan</a></li>
+				  			<li><a href="#"><span class="glyphicon glyphicon-tasks" ></span>Sample-CofeeChan</a></li>
+				  			<li><a href="#"><span class="glyphicon glyphicon-tasks" ></span>Sample-CofeeChan</a></li>
+				  		</ul>
+				  	</div>
+				</div>
+			  </div>
+		      </div>
+
+		      <!--模态框footer-->
+		      <div class="modal-footer">
+		          <button type="button" class="list_link_db btn btn-primary">连接</button>
+		          <button type="button" class="button_cancel_modal btn btn-default">取消</button>
+		      </div>
+    
+	  		</div>
+		</div>
+</div>
+<!-- 模态框 end -->
+{% endblock %}

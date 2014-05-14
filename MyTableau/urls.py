@@ -19,9 +19,7 @@ urlpatterns = patterns('',
 	url(r'^login/', 	include('whichdb.url')),
 	url(r'^main/', 		include('dbinfo.url')),
 	url(r'^user/', 		include('myuser.url')),
-	url(r'subject/', 	include('element.url'), {'kind': 'subject'}),
-	url(r'scene/', 		include('element.url'), {'kind': 'scene'}),
-	url(r'widget/', 	include('element.url'), {'kind': 'widget'}),
+	url(r'^design/', 	include('element.url')),
 	#url(r'^["subject", "scene", "widget"]/', 	include('element.url')),
-	url(r'^test/$', 	whichdbView.test)
+	url(r'^test/$', 	whichdbView.test),
 )
