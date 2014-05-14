@@ -20,8 +20,10 @@ define([
 					this.now_drawer = this.map_drawer || new MapDrawer;
 					break;
 				case "bar":	
+					this.now_drawer = this.bar_drawer || new BarDrawer;
+					break;
 				case "line":	
-					this.now_drawer = this.axis_drawer || new AxisDrawer;
+					this.now_drawer = this.line_drawer || new LineDrawer;
 					break;
 				case "polar":	
 					this.now_drawer = this.polar_drawer || new PolarDrawer;
@@ -160,6 +162,41 @@ define([
 		}
 	};
 
+
+	var BarDrawer = function() {
+		this.catStyle = {
+		};
+		
+		this.valStyle = {
+		};
+
+		this.seriesStyle = {
+		};
+
+		this.styleAxis = function() {
+		};
+		
+		this.styleSeries = function() {
+		};
+	};
+
+	var LineDrawer = function() {
+		this.catStyle = {
+		};
+		
+		this.valStyle = {
+		};
+
+		this.seriesStyle = {
+		};
+
+		this.styleAxis = function() {
+		};
+		
+		this.styleSeries = function() {
+		};
+	};
+
 	var PolarDrawer = function() {
 	};
 
@@ -239,6 +276,9 @@ define([
 	AxisDrawer.prototype 	= baseDrawer;
 	PolarDrawer.prototype 	= baseDrawer;
 	MapDrawer.prototype 	= baseDrawer;
+	var axisDrawer = new AxisDrawer();
+	BarDrawer.prototype		= axisDrawer;
+	LineDrawer.prototype	= axisDrawer;
 
 
 	return Drawer

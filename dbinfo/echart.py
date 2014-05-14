@@ -234,12 +234,7 @@ class Line(Bar_Line_Base):
 	pass
 
 class Area(Bar_Line_Base):
-	def __init__(self, stacked=False):
-		Bar_Line_Base.__init__(self, stacked)
-		self.serial[u'type'] 		= u'line'
-		self.serial[u'smooth'] 		= True
-		self.serial[u'itemStyle'] 	= \
-				{u'normal': {u'areaStyle': {u'type': 'default'}}}
+	pass
 
 
 class Scatter(EChart):
