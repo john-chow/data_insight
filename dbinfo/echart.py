@@ -53,9 +53,6 @@ class EChart():
 				
 
 class Bar_Line_Base(EChart):
-	def __init__(self, stacked=False):
-		EChart.__init__(self)
-
 	def makeData(self, data_from_db, msu_list, msn_list, group_list):
 	
 		msu_len, msn_len, group_len = \
@@ -228,15 +225,13 @@ class Bar(Bar_Line_Base):
 			series_unit.data 		= placehold_data
 			series_unit.itemStyle 	= placeHoledStyle
 			self.option.series.insert(i+1, series_unit)
-"""
+	"""
 
 
 
 				
 class Line(Bar_Line_Base):
-	def __init__(self, stacked=False):
-		Bar_Line_Base.__init__(self, stacked)
-		self.serial[u'type'] = u'line'
+	pass
 
 class Area(Bar_Line_Base):
 	def __init__(self, stacked=False):
