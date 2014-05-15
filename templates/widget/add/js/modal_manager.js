@@ -7,7 +7,7 @@ define([
 	};
 
 
-	VtronEvents.on("modal:show_filter", function(data) {
+	VtronEvents.onOut("modal:show_filter", function(data) {
 		var sheetId = data["sheetId"];
 		var id 		= data["pro_id"];
 		var title 	= data["content"];
@@ -42,7 +42,7 @@ define([
 				return f
 			}
 
-			VtronEvents.trigger(sheetId + "dbinfo:model_data", {
+			VtronEvents.triggerOut(sheetId + "dbinfo:model_data", {
 				"title": title, "callback": renderFilter()
 			})
 			idToViewMap[id] = view

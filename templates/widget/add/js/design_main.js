@@ -44,15 +44,15 @@ define([
                 , _.bind(this.showWorkbookInfo, this)
             );
 
-			VtronEvents.on(
+			VtronEvents.onOut(
 				"main:add_show_worktable"
                 , _.bind(this.showWorktableInfo, this) 
 			);
-			VtronEvents.on(
+			VtronEvents.onOut(
 				"main:add_worktable"
                 , _.bind(this.addWorkTable, this) 
 			);
-			VtronEvents.on(
+			VtronEvents.onOut(
 				"main:add_workbook"
                 , _.bind(this.addWorkBook, this) 
 			);
