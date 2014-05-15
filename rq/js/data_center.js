@@ -20,14 +20,15 @@ define([
 		setToSev: function(data) {
 			this.set(data);
 
+			var self = this;
 			this.save(null, {
 				success: function(m, resp, opt) {
 					if (resp.succ) {
-						VtronEvents.triggerOut("panel:draw_data", resp.data)
+						self.triggerOut("panel:draw_data", resp.data)
 					} else {
 						easy_dialog_error(resp.msg)						
 						// 通知清空
-						VtronEvents.triggerOut("panel:draw_data", {})
+						self.triggerOut("panel:draw_data", {})
 					}
 				}, error: function() {
 				},
