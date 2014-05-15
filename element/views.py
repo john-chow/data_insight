@@ -7,6 +7,8 @@ from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from datetime import datetime
 from common.tool import MyHttpJsonResponse, GetUniqueIntId
+from django.template import RequestContext, Template
+from django.shortcuts import render_to_response
 import pdb
 
 
@@ -138,13 +140,41 @@ def orderScenes(request):
 
 
 
-def showInfo(request, kind):
+def showInfo(request):
 	pass
 
 
+def widgetList(request):
+	# if not request.user.is_authenticated():
+	#	 HttpResponseRedirect(reverse('whichdb.showDbForChosen'))
 
+	#user = request.user.username
+	#name = request.POST.get(u'name')
 
+	now = datetime.now()
 
+	#id = GetUniqueIntId()
+	#print 'id = %s', id
+	
+	data = {
+			'now':				now
+	}
+	context = RequestContext(request)
+	return render_to_response('widget/list.html', data, context)
 
+def sceneList(request):
+	now = datetime.now()
+	data = {
+			'now':				now
+	}
+	context = RequestContext(request)
+	return render_to_response('scene/list.html', data, context)
 
+def themeList(request):
+	now = datetime.now()
+	data = {
+			'now':				now
+	}
+	context = RequestContext(request)
+	return render_to_response('theme/list.html', data, context)
 

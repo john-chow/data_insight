@@ -71,7 +71,7 @@ function jquery_to_html($obj) {
 	return tmp.html();
 }
 
-//统一显示错误
+//错误提示弹出窗口
 function easy_dialog_error(message, level){
 	var str="<p>错误级别：<span id='error_level'>"+level+"</span></p>"+
 			"<p>错误信息：<span id='error_message'>"+message+"</span></p>";
@@ -85,16 +85,17 @@ function easy_dialog_error(message, level){
 	});
 }
 
-
+//loading弹出窗口
 function easy_dialog_loading(){
-	var str="<img id='loading_img' src='../static/images/loading.gif' /><span>正在加载，请稍后~</span>";
+	var str="<img id='loading_img' src='/static/images/loading.gif' /><span>正在加载，请稍后~</span>";
 	easyDialog.open({
         container : {
     		content : str
- 		 },
+ 		},
     });
 }
 
+//关闭窗口
 function easy_dialog_close(){
 	easyDialog.close();
 }

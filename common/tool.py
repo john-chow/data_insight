@@ -26,6 +26,7 @@ def connDb(request, source=u'session'):
 
 
 def MyHttpJsonResponse(data):
+	# judge data is a living example of dict or not
 	if isinstance(data, dict):
 		return HttpResponse(json.dumps(data), content_type='application/json')
 	else:
