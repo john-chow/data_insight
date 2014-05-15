@@ -6,19 +6,15 @@ define([
 ], function(Backbone, BaseSheetView, VtronModel, VtronEvents) {
 
 	var PicModel 	= VtronModel.extend({
+		urlRoot: "/main/draw/",
+
 		x:			[],
 		y:			[],
 		color:		"",
 		size:		"",
 		shape:		"",
 
-		urlRoot: "/main/draw/",
-
 		distribute:		function() {
-		},
-
-		initialize: 	function(sheetId) {
-			this.sheetId
 		},
 
 		setToSev: function(data) {
@@ -37,7 +33,8 @@ define([
 				},
 				no_feeding: true
 			})
-		},
+		}
+
 	});
 
 	var WordModel	= VtronModel.extend({
@@ -71,6 +68,15 @@ define([
 				"area:user_set_action"
 				, _.bind(this.picModel.setToSev, this.picModel)
 		  	);
+
+			var self = this;
+			this.onOut(
+				"area:change_table"
+				, function(data) {
+					self.picModel.set(data)
+				}
+			);
+
 			VtronEvents.onOut("", this.wordModel.save);
 		}
 
