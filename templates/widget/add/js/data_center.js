@@ -6,7 +6,7 @@ define([
 ], function(Backbone, BaseSheetView, VtronModel, VtronEvents) {
 
 	var PicModel 	= VtronModel.extend({
-		urlRoot: "/widget/draw/",
+		urlRoot: "/main/draw/",
 
 		x:			[],
 		y:			[],
