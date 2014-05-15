@@ -62,15 +62,17 @@ define([
 			return Backbone.Model.prototype.parse.call(this, resp, options);
 		},
 
+		/*	
 		// 对外传递事件
 		triggerOut: function(ev, data) {
-		  	VtronEvents.trigger(this.sheetId + ev, data)
+		  	VtronEvents.triggerOut(this.sheetId + ev, data)
 		},
 
 		 // 从外监听事件
 		onOut: function(ev, callback) {
-		  	VtronEvents.on(this.sheetId + ev, callback)
+		  	VtronEvents.onOut(this.sheetId + ev, callback)
 		},
+		*/
 
 		myPass: function() {
 			this.triggerOut( "area:user_set_action", this.toJSON() )

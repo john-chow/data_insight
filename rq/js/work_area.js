@@ -6,9 +6,11 @@ define([
 , "bootstrap"
 , "model/vtron_model"
 , "vtron_events"
+, "data_center"
 ], function(Backbone,BaseSheetView, DbBarView, PanelView, b, VtronModel
-			, VtronEvents) {
+			, VtronEvents, DataCenter) {
 
+	/*
 	var WorkAreaModel = VtronModel.extend({
 		urlRoot: "/main/draw/",
 		
@@ -16,6 +18,7 @@ define([
 			this.set(this.default)
 		}	
 	});
+	*/
 
 
 
@@ -23,10 +26,10 @@ define([
 
         tagName: 	"div",
         id: 		"work_area",
-    /*    className: 	"clearfix",*/
 
         initialize: function() {
 
+			/*
 			//Backbone.Events.on(
 			this.onOut(
 				"area:user_set_action"
@@ -37,8 +40,10 @@ define([
 				"area:change_table"
 				, _.bind(this.changeTable, this)
 			);
+			*/
 
-			this.model 		= new WorkAreaModel();
+			//this.model 		= new WorkAreaModel();
+			new DataCenter();
             this.dbBarView  = new DbBarView();
             this.panelView  = new PanelView();
             this.render();
@@ -50,6 +55,7 @@ define([
             );
         },
 
+		/*
 		setToSev: function(data) {
 			this.model.set(data);
 
@@ -72,6 +78,7 @@ define([
 		changeTable: function(data) {
 			this.model.set(data)
 		}
+		*/
 
     });
 
