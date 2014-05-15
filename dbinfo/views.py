@@ -22,7 +22,6 @@ import pdb
 
 def getTableInfo(request):
 	print '********		getTableInfo  *********'
-	tables = request.session.get(u'tables')
 
 	conn 			= connDb(request)
 	if not conn:
@@ -31,6 +30,7 @@ def getTableInfo(request):
 		return HttpResponseRedirect(reverse('whichdb.showDbForChosen'))
 	cursor 			= conn.cursor()
 
+	tables = request.session.get(u'tables')
 	data_list = []
 	for t in tables:
 		cursor.execute(u'select * from %s' % t)
