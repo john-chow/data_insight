@@ -1,13 +1,14 @@
 {% extends "base/list.html" %}
 
+{# 导航栏 #}
 {% block menu %}
-	<li class="active"><a href="/design/widget/list">组件</a></li>
-	<li><a href="/design/scene/list">场景</a></li>
-	<li><a href="/design/theme/list">主题</a></li>
+	<li class="active"><a href="/widget">组件</a></li>
+	<li><a href="/scene">场景</a></li>
+	<li><a href="/theme">主题</a></li>
 	<li><a href="#">个人信息</a></li>
 {% endblock %}
 
-
+{# 左栏目 #}
 {% block contentLeft %}
 <div class="panel panel-default">
 	<div class="panel-heading">组件列表</div>
@@ -31,6 +32,7 @@
 </div>
 {% endblock %}
 
+{# 右栏目 #}
 {% block contentRight %}
 <div class="content-menu clearfix">
     <div class="btn-group" data-toggle="buttons">
@@ -67,6 +69,7 @@
 </div>
 {% endblock %}
 
+{# 模态框 #}
 {% block extraContent %}
 <!-- 模态框 begin -->
 <div class="modal fade" id="db_link_modal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
@@ -87,7 +90,7 @@
 			  </form>
 			  <div id="modal_choose_db">
 		     	 <div class="panel panel-default">
-				  	<div class="panel-heading">连接数据库</div>
+				  	<div class="panel-heading">连接到数据库</div>
 				  	<div class="panel-body">
 				   	 <ul id="list_link_dbs">
 							<li class='db'><span class="glyphicon glyphicon-book" ></span>mysql</li>
@@ -98,7 +101,7 @@
 				  	</div>
 				</div>
 				 <div class="panel panel-default">
-				  	<div class="panel-heading">连接历史数据源</div>
+				  	<div class="panel-heading">连接到历史数据源</div>
 				  	<div class="panel-body">
 					   	<ul id="list_histroy_dbs">
 				  			<li ><a href="#"><span class="glyphicon glyphicon-tasks" ></span>Sample-CofeeChan</a></li>

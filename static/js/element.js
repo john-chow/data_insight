@@ -14,7 +14,7 @@ $('.button_cancel_modal').on('click', function(ev) {
 //选择数据库事件
 $('#list_link_dbs .db').on('click', function(ev) {
 	$.ajax({
-		url:		"/login/db"
+		url:		"/widget/db"
 		, type: 	"GET"
 		, dataType:	"json"
 		, success: 	onGetDbForm
@@ -24,15 +24,7 @@ $('#list_link_dbs .db').on('click', function(ev) {
 });
 
 
-function onGetDbForm(data) {
-	if (data.succ) {
-		renderForm(data["data"], "db")
-	} else {
-		alert(data.msg)
-	}
-}
-
-
+//自定义模态框内容显示函数
 function renderForm(data, from) {
 	$("#modal_choose_db").hide();
 	$modal_submit_btn = $("#db_link_modal").find(".list_link_db");
@@ -40,13 +32,13 @@ function renderForm(data, from) {
 	$title = $("#db_link_modal").find(".modal-title")
 
 	if ("db" === from) {
-		$form.attr("action", "/login/db/");
+		$form.attr("action", "/widget/db/");
 		$form.html(data)
 		$title.html("连接数据库");
 		$modal_submit_btn.attr("value", "db")
 	}
 	else {
-		$form.attr("action", "/login/tables/");
+		$form.attr("action", "/widget/tables/");
 		$obj = $("<div id=tables_list></div>");
 
 		$.each(data, function(idx, table) {
@@ -70,5 +62,45 @@ function renderForm(data, from) {
 				$(this).find("input").prop('checked',true);
 			}
 		});
+	}
+}
+
+
+//模态框确定事件
+$('.list_link_db').on('click', function(ev) {
+	var value = $(ev.target).attr("value");
+	if("db" === value) {
+		var formdata = $form.serialize();
+		$.ajax({
+			url:		"/widget/db/"
+			, type: 	"POST"
+			, data:		formdata
+			, success:  onGetTables
+			, error: 	function() {
+			}
+		});
+	} else {
+		$form = $("#conn_db_form");
+		$form.submit()
+		return false;
+	}
+});
+
+//ajax成功后执行函数
+function onGetDbForm(data) {
+	if (data.succ) {
+		renderForm(data["data"], "db")
+	} else {
+		alert(data.msg)
+	}
+}
+
+//ajax成功后执行函数
+function onGetTables(data) {
+	if (data.succ) {
+		var tables = JSON.parse(data['data'])
+		renderForm(tables, "table")
+	} else {
+		alert(data.msg)
 	}
 }

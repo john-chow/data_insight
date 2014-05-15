@@ -1,24 +1,53 @@
 {% extends "base/list.html" %}
 
+{# 导航栏 #}
 {% block menu %}
-	<li><a href="/design/widget/list">组件</a></li>
-	<li><a href="/design/scene/list">场景</a></li>
-	<li class="active"><a href="/design/theme/list">主题</a></li>
+	<li><a href="/widget">组件</a></li>
+	<li><a href="/scene">场景</a></li>
+	<li class="active"><a href="/theme">主题</a></li>
+	<li><a href="#">个人信息</a></li>
 {% endblock %}
 
+{# 左栏目 #}
+{% block contentLeft %}
+<div class="panel panel-default">
+	<div class="panel-heading">主题列表</div>
+</div>
+{% endblock %}
+
+{# 右栏目 #}
 {% block contentRight %}
 <div class="content-menu clearfix">
-	<button type="button" class="btn btn-primary">新建</button>
-	<button type="button" class="btn btn-default">Default</button>
-	<button type="button" class="btn btn-default">Default</button>
-	<button type="button" class="btn btn-default">Default</button>
-	<button type="button" class="btn btn-default">Default</button>
-	<button type="button" class="btn btn-default">Default</button>
+    <div class="btn-group" data-toggle="buttons">
+	  <label class="btn btn-info active">
+	    <input type="radio" name="options" id="option1">时间升序
+	  </label>
+	  <label class="btn btn-info">
+	    <input type="radio" name="options" id="option2">时间降序
+	  </label>
+	</div>
+	<button type="button" id="button_new_theme" class="btn btn-primary">新建</button>
+	<button type="button" class="btn btn-default">删除</button>
+	<form class="navbar-form navbar-left" role="search">
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="请输入搜索内容">
+      </div>
+      <button type="submit" class="btn btn-success">查找</button>
+    </form>
 </div>
 <div class="tab-pane fade active in element-list" id="theme_list">
-	<ul class="clearfix">
-	<li>主题1</li>
-	<li>主题2</li>
-	</ul>
+	<div class="element-list-div"><div></div><p>主题1</p></div>
+	<div class="element-list-div"><div></div><p>主题1</p></div>
+	<div class="element-list-div"><div></div><p>主题1</p></div>
+	<div class="element-list-div"><div></div><p>主题1</p></div>
+	<div class="element-list-div"><div></div><p>主题1</p></div>
+	<div class="element-list-div"><div></div><p>主题1</p></div>
+	<div class="element-list-div"><div></div><p>主题1</p></div>
+	<div class="element-list-div"><div></div><p>主题1</p></div>
+	<div class="element-list-div"><div></div><p>主题1</p></div>
+	<div class="element-list-div"><div></div><p>主题1</p></div>
+	<div class="element-list-div"><div></div><p>主题1</p></div>
+	<div class="element-list-div"><div></div><p>主题1</p></div>
+	<div class="element-list-div"><div></div><p>主题1</p></div>
 </div>
 {% endblock %}

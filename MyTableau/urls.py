@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from whichdb import views as whichdbView
+from MyTableau import views
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -14,12 +14,12 @@ urlpatterns = patterns('',
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
+    url(r'^$', 			views.index),
+    url(r'^test/$', 	views.test),
     url(r'^admin/', 	include(admin.site.urls)),
-	url(r'^$', 			whichdbView.showDbForChosen),
-	url(r'^login/', 	include('whichdb.url')),
-	url(r'^main/', 		include('dbinfo.url')),
-	url(r'^user/', 		include('myuser.url')),
-	url(r'^design/', 	include('element.url')),
-	#url(r'^["subject", "scene", "widget"]/', 	include('element.url')),
-	url(r'^test/$', 	whichdbView.test),
+    url(r'^account/', 	include('account.url')),
+    url(r'^widget/', 	include('widget.url')),
+    url(r'^scene/', 	include('scene.url')),
+    url(r'^theme/', 	include('theme.url')),
+	
 )
