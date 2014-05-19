@@ -26,27 +26,29 @@ def sceneCreate(request):
 	"""
 	创建场景
 	"""
-	if not request.user.is_authenticated():
-		HttpResponseRedirect(reverse('widget.showDbForChosen'))
-	user = request.user.username
-	name = request.POST.get(u'name')
-	now = datetime.now()
-	id = GetUniqueIntId()
-	print 'id = %s', id
+	# if not request.user.is_authenticated():
+	# 	HttpResponseRedirect(reverse('widget.showDbForChosen'))
+	# user = request.user.username
+	# name = request.POST.get(u'name')
+	# now = datetime.now()
+	# id = GetUniqueIntId()
+	# print 'id = %s', id
 	
 
-	try:
-		SceneModel.objects.create(
-			m_name=name, m_owner=user, m_id=id, m_create_time=now
-		)
-	except IntegrityError, e:
-		return MyHttpJsonResponse({
-			u'succ': False, u'msg': 'create new subject fail'
-		})
+	# try:
+	# 	SceneModel.objects.create(
+	# 		m_name=name, m_owner=user, m_id=id, m_create_time=now
+	# 	)
+	# except IntegrityError, e:
+	# 	return MyHttpJsonResponse({
+	# 		u'succ': False, u'msg': 'create new subject fail'
+	# 	})
 
-	return MyHttpJsonResponse({
-		u'succ': True, u'id': id
-	})
+	# return MyHttpJsonResponse({
+	# 	u'succ': True, u'id': id
+	# })
+	context = RequestContext(request)
+	return render_to_response('scene/add.html', {u'succ': True}, context)
 
 def sceneDelete(request):
 	"""

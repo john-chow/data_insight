@@ -1,0 +1,45 @@
+{% load static %}
+
+<!DOCTYPE html>
+<head>
+	<meta charset='utf-8'>
+	<title>DataInsight</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/element.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.css' %}">
+</head>
+<body>
+	<!--LOGO begin-->
+	<div id="header">DataInsight</div>
+	<!--LOGO end-->
+
+	<!--section begin-->
+	<div id="section">
+		<!--menu begin-->
+		<div id="menu">
+			<nav class="navbar navbar-default" role="navigation">
+		       	<div class="navbar-header">
+				    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				      <span class="sr-only">DataInsight</span>
+				      <span class="icon-bar"></span>
+				      <span class="icon-bar"></span>
+				      <span class="icon-bar"></span>
+				    </button>
+				    <a class="menu-home navbar-brand" href="#">DataInsight</a>
+				</div>
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				    <ul class="nav navbar-nav menu-ul" >
+				      	<li><a href="/widget">组件</a></li>
+						<li class="active"><a href="/scene">场景</a></li>
+						<li><a href="/theme">主题</a></li>
+						<li><a href="#">个人信息</a></li>
+				    </ul>
+				</div>
+			</nav>
+		</div>
+		<!--menu end-->
+</body>
+
+<script src='{% static "js/jquery-2.1.0.js" %}'></script>
+<script src='{% static "js/element.js" %}'></script>
+<script src='{% static "js/lib/bootstrap.js" %}'></script>

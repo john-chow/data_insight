@@ -11,6 +11,11 @@ $('.button_cancel_modal').on('click', function(ev) {
 	$("#db_link_modal").modal("hide");
 });
 
+//新建场景绑定事件，跳转页面
+$("#button_new_scene").on('click', function(ev) {
+	location.href = "/scene/create";
+});
+
 //选择数据库事件
 $('#list_link_dbs .db').on('click', function(ev) {
 	$.ajax({

@@ -24,6 +24,7 @@ from widget.forms import ConnDbForm
 from common.head import *
 from common.tool import *
 import pdb
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 
@@ -31,9 +32,19 @@ def widgetList(request):
 	"""
 	组件列表
 	"""
-	data = {}
+	widgetList = WidgetModel.objects.all()
+	paginator = Paginator(widgetList, 1)
+
+	page = request.GET.get('page')
+
+	try:
+		contacts = paginator.page(page)
+	except PageNotAnInteger:
+		contacts = paginator.page(1)
+	except EmptyPage:
+		contacts = paginator.page(paginator.num_pages)
 	context = RequestContext(request)
-	return render_to_response('widget/list.html', data, context)
+	return render_to_response('widget/list.html', {"contacts": contacts}, context)
 
 def widgetCreate(request):
 	"""
