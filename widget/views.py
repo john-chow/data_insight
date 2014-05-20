@@ -35,6 +35,13 @@ def widgetList(request):
 	context = RequestContext(request)
 	return render_to_response('widget/list.html', {"widgetList": widgetList}, context)
 
+def widgetBatchList(request):
+	"""
+	组件批量操作
+	"""
+	widgetList = WidgetModel.objects.all()
+	context = RequestContext(request)
+	return render_to_response('widget/batchList.html', {"widgetList": widgetList}, context)
 
 def widgetCreate(request):
 	"""

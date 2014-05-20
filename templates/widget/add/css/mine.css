@@ -4,6 +4,10 @@
 ***基于最近的父 class 或基本（base） class 作为新 class 的前缀。
 */
 
+body {
+font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
+}
+
 .clearfix:after {
     clear: both
 }

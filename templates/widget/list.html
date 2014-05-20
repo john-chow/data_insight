@@ -52,22 +52,23 @@
       </div>
       <button type="submit" class="btn btn-success">查找</button>
     </form> 
-    <button type="button" class="btn btn-default">批量管理</button>
+    <button type="button" id="button_widget_batch" class="btn btn-default">批量管理</button>
 </div>
 <div class="tab-pane fade active in element-list clearfix" id="widget_list">
 	{% autopaginate widgetList 10 %}
 	{% for widget in widgetList %}
 	    <div class="element-list-div">
 	    	<div class="element-list-widget">
+	    		<a href="#"></a>
 	    		<div class="js-mod-widget-top">
 				    <span class="js-mod-widget-ico"><i class="icon-m icon-expansion-m"></i></span>
-				    <div class="js-mod-widget-con" style="display: none;">
+				    <div class="js-mod-widget-con">
 				     	<ul>
 						    <li>
 						       <a href="#"><i class="icon-m icon-edit-m"></i>编辑</a>
 						    </li>
 						    <li>
-						       <a href="#"><i class="icon-m icon-edit-m"></i>编辑</a>
+						       <a href="#"><i class="icon-m icon-cover-m"></i>发布</a>
 						    </li>
 						    <li>
 						       <a href="#"><i class="icon-m icon-rubbish-m"></i>删除</a>
@@ -77,7 +78,7 @@
 				</div>
 	    	</div>
 
-	    	<p>{{ widget.m_id }}</p>
+	    	<span>{{ widget.m_id }}</span>
 	    </div>
 	{% endfor %}
 </div>
