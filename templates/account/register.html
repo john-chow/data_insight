@@ -1,5 +1,81 @@
-<form id='user_register' action='/user/register/' method='post'>
-	<p> Hello, register! </p>
-	{{ form.as_p }}
-	<input type='submit' value='提交' />
-</form>
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>注册新用户</title>
+		{% include 'head.html' %}
+    </head>
+    <body>
+    <div class="lr-header">
+	    <div class="content-960 clearfix">
+	    <div class="logo" style="margin-top: 30px;"></div>
+	    <div class="pull-right" style="font-size:15px;padding-bottom:5px">已有账号？<a href="/account/login">登录</a></div>
+    </div>
+    </div>
+    <div class="main-content clearfix">
+    <img width="627px" height="380px" class="pull-left" src="{% static 'img/2013112005223484674.jpg' %}">
+    <div class="regist-block pull-right">
+    <form id='user_register' action='/account/register/' method='post'>
+	    <div class="error-box">
+		</div>
+	    <div class="input-outer">
+				<input id="id_username" datatype="*" value="{{username}}" maxlength="10" name="username" nullmsg="请输入用户名" type="text" ajaxurl="/account/register/" placeholder="输入用户名" />
+			</div>
+			<div class="input-outer">
+				<input id="id_password" maxlength="10" datatype="*" name="password" type="password" placeholder="输入密码"/>
+				{{form.password.errors}}
+			</div>
+			<div class="input-outer">
+				<input id="id_password" maxlength="10" datatype="*" recheck="password" name="password1" type="password" placeholder="确认密码"/>
+				{{form.password1.errors}}
+			</div>
+			<div class="input-outer">
+				{{form.themes}}
+				{{form.themes.errors}}
+			</div>
+			<div class="input-outer">
+				{{form.identity}}
+				{{form.identity.errors}}
+		</div> 
+    <input type='submit' value='注册' class="btn btn-block btn-info" style="margin-top:30px"/>
+    </form>
+    </div>
+    </div>
+	<div class="lr-footer"></div>
+</body>
+</html>
+<script type="text/javascript">
+window.onload = function(){
+	requirejs(['validform','csrf'], function(){
+        	var validateFrom = $("#user_register").Validform({
+	        tiptype : function(msg,o,cssctl){
+		        var objtip = $(".error-box");
+		        cssctl(objtip, o.type);
+		        objtip.text(msg);
+	    	},
+	        });
+	   		validateFrom.tipmsg.reck = "两次密码不一样";
+	   		validateFrom.config({
+			    showAllError:true,
+			    url:"这里指定提交地址",
+			    ajaxpost:{
+			        //可以传入$.ajax()能使用的，除dataType外的所有参数;
+			        url:"",
+			        data:{
+			        	username: $("#id_username").val()
+			        },
+			        timeout:1000,
+			        success:function(data,obj){
+			            //data是返回的json数据;
+			            //obj是当前表单的jquery对象;
+			    		},
+			    	},
+			    ajaxurl:{
+			        //可以传入$.ajax()能使用的，除dataType外的所有参数;
+					}
+	   		})
+
+	})//end requirejs
+}
+</script>
