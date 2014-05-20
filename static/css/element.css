@@ -200,3 +200,15 @@
 #conn_db_form #tables_list>div:hover {
 	background-color: #ddd;
 }
+
+#widget_list {
+	min-height: 630px;
+}
+
+.element-list-widget {
+	position: relative;
+}
+
+.js-mod-widget-top {
+	position: absolute;
+}

@@ -45,19 +45,40 @@
 	  </label>
 	</div>
 	<button type="button" id="button_new_widget" class="btn btn-primary">新建</button>
-	<button type="button" class="btn btn-default">删除</button>
+	
 	<form class="navbar-form navbar-left" role="search">
       <div class="form-group">
         <input type="text" class="form-control" placeholder="请输入搜索内容">
       </div>
       <button type="submit" class="btn btn-success">查找</button>
-    </form>
-    <button type="button" class="btn btn-success">发布</button>
+    </form> 
+    <button type="button" class="btn btn-default">批量管理</button>
 </div>
 <div class="tab-pane fade active in element-list clearfix" id="widget_list">
-	{% autopaginate widgetList 1 %}
+	{% autopaginate widgetList 10 %}
 	{% for widget in widgetList %}
-	    <div class="element-list-div"><div></div><p>{{ widget.m_id }}</p></div>
+	    <div class="element-list-div">
+	    	<div class="element-list-widget">
+	    		<div class="js-mod-widget-top">
+				    <span class="js-mod-widget-ico"><i class="icon-m icon-expansion-m"></i></span>
+				    <div class="js-mod-widget-con" style="display: none;">
+				     	<ul>
+						    <li>
+						       <a href="#"><i class="icon-m icon-edit-m"></i>编辑</a>
+						    </li>
+						    <li>
+						       <a href="#"><i class="icon-m icon-edit-m"></i>编辑</a>
+						    </li>
+						    <li>
+						       <a href="#"><i class="icon-m icon-rubbish-m"></i>删除</a>
+						    </li>
+				     	</ul>
+				    </div>
+				</div>
+	    	</div>
+
+	    	<p>{{ widget.m_id }}</p>
+	    </div>
 	{% endfor %}
 </div>
 {% paginate %}
