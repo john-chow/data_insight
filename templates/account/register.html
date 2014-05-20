@@ -17,6 +17,7 @@
     <img width="627px" height="380px" class="pull-left" src="{% static 'img/2013112005223484674.jpg' %}">
     <div class="regist-block pull-right">
     <form id='user_register' action='/account/register/' method='post'>
+    	{% csrf_token %}
 	    <div class="error-box">
 		</div>
 	    <div class="input-outer">
@@ -56,26 +57,6 @@ window.onload = function(){
 	    	},
 	        });
 	   		validateFrom.tipmsg.reck = "两次密码不一样";
-	   		validateFrom.config({
-			    showAllError:true,
-			    url:"这里指定提交地址",
-			    ajaxpost:{
-			        //可以传入$.ajax()能使用的，除dataType外的所有参数;
-			        url:"",
-			        data:{
-			        	username: $("#id_username").val()
-			        },
-			        timeout:1000,
-			        success:function(data,obj){
-			            //data是返回的json数据;
-			            //obj是当前表单的jquery对象;
-			    		},
-			    	},
-			    ajaxurl:{
-			        //可以传入$.ajax()能使用的，除dataType外的所有参数;
-					}
-	   		})
-
 	})//end requirejs
 }
 </script>
