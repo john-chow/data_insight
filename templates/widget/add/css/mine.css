@@ -148,12 +148,8 @@ margin-left: 161px;
     background-color: #F2F2F0;
 }
 
-#design_menu_ico span {
-    padding: 8px 10px;
-}
-
-#design_menu_ico .btn-group button {
-    border: none;
+#design_menu_ico button {
+    margin:3px 2px;
 }
 
 #filter_box .panel-heading {
@@ -524,7 +520,7 @@ button.filter-close {
 
 .intelligent-display>a {
     margin-top: 8px;
-    padding: 0 65px !important;
+    padding: 2px 65px !important;
     margin-right: 25px;
     cursor: pointer;
     background-color: #F4F6FF;
@@ -564,8 +560,12 @@ button.filter-close {
 }
 
 
-#design_menu .navbar-nav {
-    width:100%;
+#design_menu_option .menu-ul a {
+    padding: 15px 50px;
+}
+
+.menu-home {
+    padding: 15px 50px;
 }
 
 #filter_tag .dropdown {
@@ -652,9 +652,9 @@ button.filter-close {
     transition: opacity .6s;
 }
 
-body {
+/*body {
     font-family: "Microsoft Yahei", "LiHei Pro", "SimSun", Helvetica, Arial, sans-serif !important;
-}
+}*/
 
 #show_area {
     display: none;
@@ -948,7 +948,7 @@ body {
     padding: 2px 15px 0 15px;
 }
 
-#design_menu_option {
+/*#design_menu_option {
     background-image: -webkit-linear-gradient(top, #fff 0%, #f8f8f8 100%);
     background-image: linear-gradient(to bottom, #fff 0%, #f8f8f8 100%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#fff8f8f8', GradientType=0);
@@ -964,7 +964,7 @@ body {
     border: 1px solid transparent;
     background-color: #f8f8f8;
     border-color: #e7e7e7;
-}
+}*/
 
 #intelligent_display {
     padding: 10px 0 0 0 !important;

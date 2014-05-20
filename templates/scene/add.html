@@ -29,32 +29,15 @@
 				</div>
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 				    <ul class="nav navbar-nav menu-ul" >
-				      	{% block menu %}{% endblock %}
+				      	<li><a href="/widget">组件</a></li>
+						<li class="active"><a href="/scene">场景</a></li>
+						<li><a href="/theme">主题</a></li>
+						<li><a href="#">个人信息</a></li>
 				    </ul>
 				</div>
 			</nav>
 		</div>
 		<!--menu end-->
-		<!--content begin-->
-		<div id="content">
-			<div class="row">
-		  		<div class="content-left col-md-2 col-lg-2">
-		  			{% block contentLeft %}{% endblock %}
-		  		 </div>
-		  		<div class="content-right col-md-10 col-lg-10">
-				    {% block contentRight %}{% endblock %}
-		  		</div>
-		  	</div>
-		</div>
-		<!--content end-->
-	</div>
-	<!--section end-->
-
-	<!--footer begin-->
-	<div id="footer"></div>
-	<!--footer end-->
-
-	{% block extraContent %}{% endblock %}
 </body>
 
 <script src='{% static "js/jquery-2.1.0.js" %}'></script>

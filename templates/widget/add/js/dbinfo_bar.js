@@ -9,7 +9,7 @@ define([
 
 	var TablesCollection = Backbone.Collection.extend({
 		model: 	DbinfoModel, 
-		url:	"/main/content",
+		url:	"/widget/content",
 
 		// 丰富用户的success回调
 		fetch:	function(options) {

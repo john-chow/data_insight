@@ -2,7 +2,6 @@ define([
 "backbone"
 , "design_menus"
 , "work_area"
-, "show_area"
 , "info_workplace"
 , "modal_manager"
 , "base_sheet"
@@ -10,7 +9,7 @@ define([
 , "model/vtron_collection"
 , "test"
 ], function(Backbone, MenusView, WorkareaView
-			, ShowAreaView, InfoWorkplaceView, _Modal
+			, InfoWorkplaceView, _Modal
 			, BaseSheetView, VtronModel, VtronCollection) {
 
 	// 使model save时，数据是object型
@@ -32,7 +31,6 @@ define([
 
             this.menusView         = new MenusView();
             this.workareaView      = new WorkareaView();
-            this.showAreaView      = new ShowAreaView();
             this.infoWorkplaceView = new InfoWorkplaceView();
 
             Backbone.Events.on(
@@ -67,7 +65,7 @@ define([
             this.$el.html("");
 
             var $area = $("<div id='area'></div>");
-            $area.append(this.workareaView.el, this.showAreaView.el);
+            $area.append(this.workareaView.el);
 
             this.$el.append(
                 this.menusView.el

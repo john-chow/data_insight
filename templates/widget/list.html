@@ -51,21 +51,35 @@
       </div>
       <button type="submit" class="btn btn-success">查找</button>
     </form>
+    <button type="button" class="btn btn-success">发布</button>
 </div>
-<div class="tab-pane fade active in element-list" id="widget_list">
-	<div class="element-list-div"><div></div><p>组件1</p></div>
-	<div class="element-list-div"><div></div><p>组件1</p></div>
-	<div class="element-list-div"><div></div><p>组件1</p></div>
-	<div class="element-list-div"><div></div><p>组件1</p></div>
-	<div class="element-list-div"><div></div><p>组件1</p></div>
-	<div class="element-list-div"><div></div><p>组件1</p></div>
-	<div class="element-list-div"><div></div><p>组件1</p></div>
-	<div class="element-list-div"><div></div><p>组件1</p></div>
-	<div class="element-list-div"><div></div><p>组件1</p></div>
-	<div class="element-list-div"><div></div><p>组件1</p></div>
-	<div class="element-list-div"><div></div><p>组件1</p></div>
-	<div class="element-list-div"><div></div><p>组件1</p></div>
-	<div class="element-list-div"><div></div><p>组件1</p></div>
+<div class="tab-pane fade active in element-list clearfix" id="widget_list">
+{% for contact in contacts %}
+    <div class="element-list-div"><div></div><p>{{ contact.m_id }}</p></div>
+{% endfor %}
+</div>
+<div class="pagination">
+    <ul class="pagination pagination-lg">
+        {% if contacts.has_previous %}
+            <li><a href="?page={{ contacts.previous_page_number }}">&lt;</a></li>
+        {% else %}
+        	<li class="disabled"><a href="#">&lt;</a></li>
+        {% endif %}
+
+        {% for page_number in contacts.paginator.page_range %}
+		    {% ifequal page_number  contacts.number %}
+		    	<li class="active"><a href="?page={{ page_number }}">{{ page_number }}<span class="sr-only">(current)</span></a></li>
+		    {% else %}
+		    	<li><a href="?page={{ page_number }}">{{ page_number }}</a></li>
+		    {% endifequal %}
+		{% endfor %}
+
+        {% if contacts.has_next %}
+        	<li><a href="?page={{ contacts.next_page_number }}">&gt;</a></li>
+        {% else %}
+        	<li class="disabled"><a href="#">&gt;</a></li>
+        {% endif %}
+    </span>
 </div>
 {% endblock %}
 

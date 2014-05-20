@@ -24,6 +24,7 @@ from widget.forms import ConnDbForm
 from common.head import *
 from common.tool import *
 import pdb
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 
@@ -31,9 +32,19 @@ def widgetList(request):
 	"""
 	组件列表
 	"""
-	data = {}
+	widgetList = WidgetModel.objects.all()
+	paginator = Paginator(widgetList, 1)
+
+	page = request.GET.get('page')
+
+	try:
+		contacts = paginator.page(page)
+	except PageNotAnInteger:
+		contacts = paginator.page(1)
+	except EmptyPage:
+		contacts = paginator.page(paginator.num_pages)
 	context = RequestContext(request)
-	return render_to_response('widget/list.html', data, context)
+	return render_to_response('widget/list.html', {"contacts": contacts}, context)
 
 def widgetCreate(request):
 	"""
@@ -209,7 +220,7 @@ def reqDrawData(request):
 				logging.debug('reqDrawData is running')
 				post_data = json.loads(request.POST.get(u'data', u'{}'), 
 											object_pairs_hook=OrderedDict)
-				data = generateBackData(post_data, request)
+				data = generateRespData(post_data, request)
 			except Exception, e:
 				print "catch Exception: %s" % e
 				error_dict = {u'succ': False, u'msg': str(e)}
@@ -220,7 +231,7 @@ def reqDrawData(request):
 		else:
 			post_data = json.loads(request.POST.get(u'data', u'{}'), 
 										object_pairs_hook=OrderedDict)
-			data = generateBackData(post_data, request)
+			data = generateRespData(post_data, request)
 			backData = {u'succ': True, u'data': data}
 			return MyHttpJsonResponse(backData)
 	else:
@@ -254,9 +265,9 @@ def makeupFilterSql(filter_list):
 
 
 
-def generateBackData(post_data, request):
+def generateRespData(post_data, request):
 	"""
-	生成回调数据？
+	生成返回前端数据
 	"""
 	if HAVE_PDB:		pdb.set_trace()
 
@@ -283,7 +294,7 @@ def getDrawData(post_data, shape_in_use, request):
 	# 从数据库中找出该图形要画得数据
 	data_from_db = searchDataFromDb(request, post_data, msu_list, msn_list, group_list)
 
-	# 用echart格式化数据
+	# 为echart格式化数据
 	echart_data = formatData(data_from_db, msu_list, msn_list, group_list, shape_in_use)
 
 	return echart_data
