@@ -57,7 +57,7 @@ define([
 				, success: this.onTablesFetch
 			});
 
-            this.onOut("dbbar:restore",  _.bind(this.helpAxisRestore, this));
+            this.onOut("dbbar:restore",  _.bind(this.restoreCenter, this));
 		},
 
 		onTablesFetch: function() {
@@ -128,7 +128,7 @@ define([
 		setDragProperty: function() {
 			var self = this;
 			this.$(".measure").draggable({
-				connectToSortable: "#column_sortable, #row_sortable",
+				connectToSortable: "#x_sortable, #y_sortable",
 				helper: "clone",
 				scroll: "false",
 				zIndex: "3000",
@@ -148,7 +148,7 @@ define([
 				}
 			});
 			this.$(".mension").draggable({
-				connectToSortable: "#column_sortable, #row_sortable",
+				connectToSortable: "#x_sortable, #y_sortable",
 				helper: "clone",
 				scroll: "false",
 				zIndex: "3000",
@@ -169,20 +169,33 @@ define([
 			});
 		},
 
-        helpAxisRestore:                function(posAttrObj) {
-            for (var pos in posAttrObj) {
-                var restoreList = [];
-                for (var idx in posAttrObj[pos]) {
-                    var attrObj = posAttrObj[pos][idx];
-                    var itemListObj = this.$(".measure, .mension");
-                    var restoreItem = itemListObj.filter( function(i) {
-                        return attrObj["attr"] === $(itemListObj[i]).find(".attr").html() 
-                    })[0];
-                    restoreList.push( $.extend({}, attrObj, {"item": restoreItem}) )
+        restoreCenter:                function(posAttrObj) {
+            var itemListObj = this.$(".measure, .mension");
+            for (var type in posAttrObj) {
+                if ("x" === type || "y" === type) {
+                    var restoreList = [];
+                    for (var idx in posAttrObj[type]) {
+                        var attrObj = posAttrObj[type][idx];
+                        var restoreItem = itemListObj.filter( function(i) {
+                            return attrObj["attr"] === $(itemListObj[i]).find(".attr").html() 
+                        }).clone()[0];
+                        restoreList.push( $.extend({}, attrObj, {"item": restoreItem}) )
+                    }
+
+                    if("x" === type) {
+                        this.triggerOut("axis:restore_x", restoreList);
+                    } else {
+                        this.triggerOut("axis:restore_y", restoreList);
+                    }
                 }
-                switch(pos)     {
-                    case "x":    this.triggerOut("column:restore_action", restoreList);     break
-                    case "y":    this.triggerOut("row:restore_action", restoreList);        break     
+                else if("color" === type || "size" === type) {
+                    var attr = posAttrObj[type];
+                    var restoreItem = itemListObj.filter( function(i) {
+                        return attr === $(itemListObj[i]).find(".attr").html() 
+                    }).clone()[0];
+
+                    var restoreData = {"item": restoreItem, "kind": type};
+                    this.triggerOut("box:restore_color_size", restoreData);
                 }
             }
         }

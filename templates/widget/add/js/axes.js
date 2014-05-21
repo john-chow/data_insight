@@ -47,12 +47,12 @@ define([
 
 			this.model = new AxesModel();
 			this.listenTo(this.model, 'change:'+this.name, this.passToTotal);
-            this.onOut(this.name + ":restore_action", _.bind(this.restore, this));
+            this.onOut("axis:restore_" + this.name, _.bind(this.restore, this));
 			this.render();
 		},
 
 		render: function() {
-			var label = ('column' === this.name) ? '列' : '行';
+			var label = ('x' === this.name) ? 'x' : 'y';
 			this.$el.html( this.templateFun({
 					'name':		this.name
 					, 'label':	label

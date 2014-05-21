@@ -54,9 +54,9 @@ define([
     var WholeModel = VtronModel.extend({
         urlRoot:    function() {
             if("create" === window.action_type) {
-                return ("/widget/create/" + window.widget_id)
+                return ("/widget/create/" + window.widget_id + "/")
             } else {
-                return ("/widget/edit/" + window.widget_id)
+                return ("/widget/edit/" + window.widget_id + "/")
             }
         }
     });
@@ -75,7 +75,6 @@ define([
 
 		distribute: 	    function(data) {
             var basicArgs = ["table", "x", "y", "size", "color", "graph"];
-            this.drawModel.clear();
             for(var k in data) {
                 if(basicArgs.indexOf(k) >= 0) 
                     this.drawModel.set(k, data[k])
