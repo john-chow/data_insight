@@ -85,8 +85,8 @@ def widgetCreate(request):
         post_data = json.loads(request.POST.get('data', '{}'))
 
         [table, x, y, color, size, graph] \
-            = map(lambda arg: post_data[arg] if arg in post_data.keys() else '', \
-                    ['table', 'column', 'row', 'color', 'size', 'graph'])
+            = map(lambda arg: post_data.get(arg, u''), \
+                    ['table', 'x', 'y', 'color', 'size', 'graph'])
 
         [ip, port, db, widget_id] \
             = map(lambda arg: request.session[arg], \
@@ -96,8 +96,8 @@ def widgetCreate(request):
 
         WidgetModel.objects.create( 
             m_ip = ip, m_port = port, m_db = db, \
-            m_id=widget_id, m_table = table, m_x=x, m_y=y, \
-            m_color=color, m_size=size, m_graph=graph \
+            m_id = widget_id, m_table = table, m_x=x, m_y=y, \
+            m_color = color, m_size = size, m_graph = graph \
         )
         return MyHttpJsonResponse({u'succ': True})
 
@@ -124,16 +124,14 @@ def widgetEdit(request, widget_id):
 
     if u'POST' == request.method:
         post_data = json.loads(request.POST.get('data', '{}'))
-        [table, x, y, color, size, graph] \
-            = map(lambda arg: post_data[arg] if arg in post_data.keys() else '', \
-                    ['table', 'column', 'row', 'color', 'size', 'graph'])
+        
+        [x, y, color, size, graph] \
+            = map(lambda arg: post_data.get(arg, u''), \
+                    ['x', 'y', 'color', 'size', 'graph'])
         print "widget is %s".format(widget_id)
         try:
-            widget_obj = WidgetModel.objects.get(m_id = widget_id)
-            widget_obj.save(m_id=widget_id, table = table, x = x, y = y, \
-                        color = color, size = size, graph = graph)
-        except DoesNotExist, e:
-            return MyHttpJsonResponse({u'succ': False, u'msg': u'编辑的组件不存在'})
+            WidgetModel.objects.filter(m_id = widget_id).update(m_x = x, m_y = y, \
+                                        m_color = color, m_size = size, m_graph = graph)
         except Exception, e:
             return MyHttpJsonResponse({u'succ': False, u'msg': u'异常情况'})
         else:
@@ -158,9 +156,22 @@ def widgetEdit(request, widget_id):
         # 必须先连接数据库
         dbConnRequired(request)
 
-        content_data_str = json.dumps({u'x': eval(widget_model.m_x) \
-                                        , u'y': eval(widget_model.m_y)})
-        data = {u'type': u'edit', u'id': widget_id, u'content': content_data_str}
+        # 有没有直接把Model里面全部属性转换成dict的办法？ 
+        attr_value = { u'x': eval(widget_model.m_x) \
+                        , u'y': eval(widget_model.m_y) \
+                        , u'color': widget_model.m_color \
+                        , u'size':  widget_model.m_size }
+
+        to_del_key = []
+        for key in attr_value:
+            if not attr_value[key]:
+                to_del_key.append(key)
+
+        for key in to_del_key:
+            del attr_value[key]
+
+        data = {u'type': u'edit', u'id': widget_id
+                , u'content': json.dumps(attr_value)}
         return render_to_response(u'add.html', data, context)
 
 
@@ -428,7 +439,7 @@ def calc_msu_msn_list(post_data):
 
     [col_kind_attr_list, row_kind_attr_list] = \
             map( lambda i: post_data.get(i, []), \
-                    (u'column', u'row') \
+                    (u'x', u'y') \
                 ) 
 
 
@@ -443,9 +454,11 @@ def calc_msu_msn_list(post_data):
 
     len_col_attr_list = len(col_kind_attr_list)
     for idx, attr_kind_cmd in enumerate(col_kind_attr_list + row_kind_attr_list):
+        attr_kind_cmd_tuple = tuple(map(lambda x: attr_kind_cmd[x], \
+                                        [u'attr', u'kind', u'cmd']))
+
         col_row_flag = u'col' if idx < len_col_attr_list else u'row'
-        attr_kind_cmd_tuple = tuple( attr_kind_cmd.values() )
-        tmp_attr_list = msn_list if u'rgl' == attr_kind_cmd[u'cmd'] \
+        tmp_attr_list = msn_list if u'rgl' == attr_kind_cmd_tuple[2] \
                                         else msu_list
         tmp_attr_list.append( attr_kind_cmd_tuple + (col_row_flag,) )
 
@@ -468,7 +481,7 @@ def searchDataFromDb(request, post_data, msu_list, msn_list, group_list):
 
     [col_kind_attr_list, row_kind_attr_list] = \
             map( lambda i: post_data.get(i, []), \
-                    (u'column', u'row') \
+                    (u'x', u'y') \
                 ) 
 
 
@@ -501,7 +514,7 @@ def searchDataFromDb(request, post_data, msu_list, msn_list, group_list):
             sel_str_list.append(attr_name)
 
     # 处理 group_list
-    group_str_list.extend( [ attr_name for (attr_name, _, _, __) in group_list ] )
+    group_str_list.extend([attr_name for (attr_name, _, _, __) in group_list])
     sel_str_list += group_str_list
 
     #map(lambda i: i.extend([attr for (attr, _, _, _) in group_list]), \

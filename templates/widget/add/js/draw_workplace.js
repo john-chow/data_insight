@@ -17,8 +17,8 @@ define([
         },
 
         initialize: function() {
-			this.xAxesView 		= new AxesView( {'name': 'column'} );
-			this.yAxesView 		= new AxesView( {'name': 'row'} );
+			this.xAxesView 		= new AxesView( {'name': 'x'} );
+			this.yAxesView 		= new AxesView( {'name': 'y'} );
 			this.drawPanelView	= new DrawPanelView();
 
             this.render();
