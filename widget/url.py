@@ -10,8 +10,7 @@ urlpatterns = patterns('',
 	url(r'^delete/$', 		views.widgetDelete),
 	url(r'^edit/$', 		views.widgetEdit),
 
-	url(r'^distributed/$', 	views.distributed),
-	url(r'^undistributed/$',views.undistributed),
+	url(r'^distributed/$', 	views.changeDistributed),
 
 	url(r'^db/$', 			views.connectDb),
 	url(r'^tables/$', 		views.selectTables),

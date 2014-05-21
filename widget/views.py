@@ -28,7 +28,7 @@ import pdb
 from django.http import Http404
 
 
-
+@login_required
 def widgetList(request, template_name):
 	"""
 	组件列表
@@ -86,17 +86,34 @@ def widgetCreate(request):
         data = {u'type': u'create'}
         return render_to_response(u'add.html', data, context)
 
-def distributed(request):
-	pass
-def undistributed(request):
-	pass
+@login_required
+def changeDistributed(request):
+	if u'POST' == request.method:
+		m_id = request.POST.get('id')
+		page = request.POST.get('page','')
+		search = request.POST.get('search' , '')
+		sort = request.POST.get('sort' , '-1')
+		widget = WidgetModel.objects.get(m_id=m_id)
+		widget.m_is_distributed = not widget.m_is_distributed
+		widget.save()
+		return HttpResponseRedirect(u'/widget/?page='+page+"&search="+search+"&sort="+sort)
+	else:
+		raise Http404()
+
 @login_required
 def widgetDelete(request):
-    """
-    组件删除
-    """
-    pass
-
+	"""
+	组件删除
+	"""
+	if u'POST' == request.method:
+		m_id = request.POST.get('id')
+		page = request.POST.get('page','')
+		widget = WidgetModel.objects.get(m_id=m_id)
+		widget.m_status = False
+		widget.save()
+		return HttpResponseRedirect(u'/widget/?page='+page)
+	else:
+		raise Http404()
 
 @login_required
 def widgetEdit(request, widget_id):

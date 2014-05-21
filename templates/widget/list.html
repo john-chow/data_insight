@@ -35,7 +35,7 @@
 
 {# 右栏目 #}
 {% block contentRight %}
-{% autopaginate widgetList 14 %}
+{% autopaginate widgetList 2 %}
 <div id="widget_count">共&nbsp;<span>{{allCount}}</span>&nbsp;个组件，本页有&nbsp;<span>{{widgetList|length}}</span>&nbsp;个</div>
 <div class="content-menu clearfix">
     <div class="btn-group" data-toggle="buttons">
@@ -56,8 +56,8 @@
 <div class="tab-pane fade active in element-list clearfix" id="widget_list">
 	{% for widget in widgetList %}
 	    <div class="element-list-div">
-	    	<div class="element-list-widget">
-	    		<a href="#"></a>
+	    	<div class="element-list-widget" data-id="{{widget.m_id}}">
+	    		<a href="#">{% if widget.m_is_distributed %}已发布{% endif %}</a>
 	    		<div class="js-mod-widget-top">
 				    <span class="js-mod-widget-ico"><i class="icon-m icon-expansion-m"></i></span>
 				    <div class="js-mod-widget-con">
@@ -67,14 +67,13 @@
 						    </li>
 						    <li>
 						    	{% if widget.m_is_distributed %}
-						    		<a class="widget_" href="#"><i class="icon-m icon-cover-m"></i>发布</a>
+						    		<a class="widget_operate" href="#"><i class="icon-m icon-cover-m"></i>取消发布</a>
 								{% else %}
-									<a href="#"><i class="icon-m icon-cover-m"></i>取消发布</a>
+									<a class="widget_operate"  href="#"><i class="icon-m icon-cover-m"></i>发布</a>
 								{% endif %}
-						       
 						    </li>
 						    <li>
-						       <a href="#"><i class="icon-m icon-rubbish-m"></i>删除</a>
+						       <a class="widget_operate" data-op="delete" href="#"><i class="icon-m icon-rubbish-m"></i>删除</a>
 						    </li>
 				     	</ul>
 				    </div>
@@ -155,6 +154,8 @@
 <form id="widget_post_form" method="post">
 	{% csrf_token %}
     <input type="hidden" id="widget_post_id" name="id" value="" />
+    <input type="hidden" id="widget_post_search" name="search" value="{{search}}" />
+    <input type="hidden" id="widget_post_sort" name="sort" value="{{sort}}" />
     <input type="hidden" id="widget_post_page" name="page" value="" />
 </form> 
 <!-- 提交表单 end -->

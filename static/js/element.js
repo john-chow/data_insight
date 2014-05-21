@@ -37,6 +37,21 @@ $("#widget_sort_drop").on('click', function(ev) {
 	$("#widget_search_form").submit();
 });
 
+//某个组件的操作(改变发布状态，删除等)
+$(".widget_operate").on('click', function(ev) {
+	if($(this).attr("data-op")=="delete")
+		$("#widget_post_form").attr("action", "/widget/delete/");
+	else
+		$("#widget_post_form").attr("action", "/widget/distributed/");
+	id = $(this).parents(".element-list-widget").attr("data-id");
+	page = $("#ownpage").val();
+	
+	$("#widget_post_id").val(id);
+	$("#widget_post_page").val(page);
+
+	$("#widget_post_form").submit();
+});
+
 //组件批量操作，跳转页面
 $("#button_widget_batch").on('click', function(ev) {
 	page = $("#ownpage").val();
