@@ -160,7 +160,9 @@ def widgetEdit(request, widget_id):
         attr_value = { u'x': eval(widget_model.m_x) \
                         , u'y': eval(widget_model.m_y) \
                         , u'color': widget_model.m_color \
-                        , u'size':  widget_model.m_size }
+                        , u'size':  widget_model.m_size 
+                        , u'graph': widget_model.m_graph
+                    }
 
         to_del_key = []
         for key in attr_value:
