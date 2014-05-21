@@ -16,8 +16,9 @@
     </head>
     <body>
         <div id="header">DataInsight</div>
-        <div id="content"></div>
+        <div id="content" action_type={{type}} widget_id={{id}}></div>
         <div id="footer"></div>
+        <div id="page_data" style="display:none">{{content}}</div>
     </body>
 </html>
 <script>
@@ -75,7 +76,9 @@ window.onload = function (){
 	});
 
 	// 启动js脚本
-	requirejs(['app'], function(app) {
+	requirejs(['jquery', 'app'], function($, app) {
+        window.action_type  = $("#content").attr("action_type");
+        window.widget_id    = $("#content").attr("widget_id");
 	})
 }
 </script>

@@ -14,10 +14,16 @@ define([
         className: "container",
 
         events: {
-            "click #open_work_book" :        "openWorkBook",
-            "click #save_work_book" :        "saveWorkBook",
-            "click #design_menu_ico_minus":  "minusCanvas",
-            "click #design_menu_ico_plus":   "plusCanvas",
+            "click #open_work_book" :               "openWorkBook"
+            , "click #save_work_book" :             "saveWorkBook"
+            , "click #design_menu_ico_minus":       "minusCanvas"
+            , "click #design_menu_ico_plus":        "plusCanvas"
+            , "click #design_menu_save":            function() {
+                VtronEvents.triggerOut("center:save_args")
+            }
+            , "click #design_menu_save_back":       function() {
+                VtronEvents.triggerOut("center:save_args_and_back")
+            }
         },
 
         initialize: function() {

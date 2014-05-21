@@ -7,7 +7,7 @@ urlpatterns = patterns('',
 	url(r'^list/$', 	views.widgetList),
 	url(r'^create/$', 	views.widgetCreate),
 	url(r'^delete/$', 	views.widgetDelete),
-	url(r'^edit/$', 	views.widgetEdit),
+	url(r'^edit/(\w+)/$', views.widgetEdit),
 	url(r'^db/$', 		views.connectDb),
 	url(r'^tables/$', 	views.selectTables),
 

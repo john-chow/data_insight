@@ -56,6 +56,8 @@ define([
 				"reset": true
 				, success: this.onTablesFetch
 			});
+
+            this.onOut("dbbar:restore",  _.bind(this.helpAxisRestore, this));
 		},
 
 		onTablesFetch: function() {
@@ -73,7 +75,10 @@ define([
 			});
 
 			// 默认查看第一表中的列
-			this.$(".table_name:first").trigger("click")
+			this.$(".table_name:first").trigger("click");
+
+            // 通知整个页面正式加载完成
+            this.triggerOut("center:page_loaded")
 		},
 
 		render: function(model) {
@@ -162,7 +167,25 @@ define([
 					$(".dragging-custom").removeClass("dragging-change-border");
 				}
 			});
-		}
+		},
+
+        helpAxisRestore:                function(posAttrObj) {
+            for (var pos in posAttrObj) {
+                var restoreList = [];
+                for (var idx in posAttrObj[pos]) {
+                    var attrObj = posAttrObj[pos][idx];
+                    var itemListObj = this.$(".measure, .mension");
+                    var restoreItem = itemListObj.filter( function(i) {
+                        return attrObj["attr"] === $(itemListObj[i]).find(".attr").html() 
+                    })[0];
+                    restoreList.push( $.extend({}, attrObj, {"item": restoreItem}) )
+                }
+                switch(pos)     {
+                    case "x":    this.triggerOut("column:restore_action", restoreList);     break
+                    case "y":    this.triggerOut("row:restore_action", restoreList);        break     
+                }
+            }
+        }
 
     });
 
