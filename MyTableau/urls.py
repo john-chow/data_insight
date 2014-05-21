@@ -21,4 +21,5 @@ urlpatterns = patterns('',
     url(r'^widget/', 	include('widget.url')),
     url(r'^scene/', 	include('scene.url')),
     url(r'^theme/', 	include('theme.url')),
+	
 )

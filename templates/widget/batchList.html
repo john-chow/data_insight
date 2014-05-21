@@ -35,6 +35,8 @@
 
 {# 右栏目 #}
 {% block contentRight %}
+{% autopaginate widgetList 14 %}
+<div id="widget_count">共&nbsp;<span>{{allCount}}</span>&nbsp;个组件，本页有&nbsp;<span>{{widgetList|length}}</span>&nbsp;个</div>
 <div class="content-menu clearfix">
 	<div class="content-menu-title">批量操作</div>
 	<div class="content-menu-count">已选择&nbsp;<span>0</span>&nbsp;个组件</div>
@@ -47,14 +49,13 @@
 
 </div>
 <div class="tab-pane fade active in element-list clearfix" id="batch_widget_list">
-	{% autopaginate widgetList 10 %}
 	{% for widget in widgetList %}
 	    <div class="element-list-div">
 	    	<div class="element-list-widget" style="cursor:default;">
 	    		<label class="batch-list-check"><i class="icon-check"></i></label>
 	    		<a href="#" style="cursor:default;"></a>
 	    	</div>
-	    	<span>{{ widget.m_id }}</span>
+	    	<span>{{ widget.m_name }}</span>
 	    </div>
 	{% endfor %}
 </div>

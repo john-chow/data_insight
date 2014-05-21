@@ -25,54 +25,33 @@ from widget.forms import ConnDbForm
 from common.head import *
 from common.tool import *
 import pdb
+from django.http import Http404
 
 
-
-def widgetList(request):
+@login_required
+def widgetList(request, template_name):
 	"""
 	组件列表
 	"""
-	widgetList = WidgetModel.objects.all()
-	context = RequestContext(request)
-	return render_to_response('widget/list.html', {"widgetList": widgetList}, context)
-
-def widgetBatchList(request):
-	"""
-	组件批量操作
-	"""
-	widgetList = WidgetModel.objects.all()
-	context = RequestContext(request)
-	return render_to_response('widget/batchList.html', {"widgetList": widgetList}, context)
-
-
-"""
-def widgetCreate(request):
-    print '********     tryIntoDb       *********'
-
-    if 'POST' == request.method:
-        if connDb(request):
-            request.session[u'ip']      = request.POST.get('ip',    '')
-            request.session[u'port']    = request.POST.get('port',  '')
-            request.session[u'db']      = request.POST.get('db',    '')
-            request.session[u'user']    = request.POST.get('user',  '')
-            request.session[u'pwd']     = request.POST.get('pwd',   '')
-
-            tables_list = getTableList(request)
-            return MyHttpJsonResponse( {u'succ': True, \
-                                        u'data': json.dumps(tables_list)} )
-        else:
-            msg = u'cant access into database'
-            #return MyHttpJsonResponse( {u'succ': False, u'msg': msg} )
-
-    else:
-        context = RequestContext(request)
-        id = GetUniqueIntId()
-        pdb.set_trace()
-        print 'id = %s', id
-        data = {u'type': u'create', u'id': id}
-        return render_to_response(u'add.html', data, context)
-"""
-
+	if 'GET' == request.method:
+		search = request.GET.get('search' , '')
+		sort = request.GET.get('sort' , '-1')
+		if int(sort) == 1:
+			order = "m_create_time"
+		else:
+			order = "-m_create_time"
+		widgetList = WidgetModel.objects.filter(m_name__contains=search,m_status=True).order_by(order)
+		context = RequestContext(request)
+		
+		data = {
+			"widgetList": widgetList,
+			"search": search,
+			"sort": sort,
+			"allCount": len(widgetList)
+		}
+		return render_to_response(template_name, data, context)
+	else:
+		raise Http404()
 
 @login_required
 def widgetCreate(request):
@@ -108,12 +87,33 @@ def widgetCreate(request):
         return render_to_response(u'add.html', data, context)
 
 @login_required
-def widgetDelete(request):
-    """
-    组件删除
-    """
-    pass
+def changeDistributed(request):
+	if u'POST' == request.method:
+		m_id = request.POST.get('id')
+		page = request.POST.get('page','')
+		search = request.POST.get('search' , '')
+		sort = request.POST.get('sort' , '-1')
+		widget = WidgetModel.objects.get(m_id=m_id)
+		widget.m_is_distributed = not widget.m_is_distributed
+		widget.save()
+		return HttpResponseRedirect(u'/widget/?page='+page+"&search="+search+"&sort="+sort)
+	else:
+		raise Http404()
 
+@login_required
+def widgetDelete(request):
+	"""
+	组件删除
+	"""
+	if u'POST' == request.method:
+		m_id = request.POST.get('id')
+		page = request.POST.get('page','')
+		widget = WidgetModel.objects.get(m_id=m_id)
+		widget.m_status = False
+		widget.save()
+		return HttpResponseRedirect(u'/widget/?page='+page)
+	else:
+		raise Http404()
 
 @login_required
 def widgetEdit(request, widget_id):
@@ -186,7 +186,6 @@ def dbConnRequired(request):
 
     if not connDb(request):
         return HttpResponseRedirect(u'')
-
 
 
 def connectDb(request):
