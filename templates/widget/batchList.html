@@ -1,0 +1,62 @@
+{% extends "base/list.html" %}
+{% load pagination_tags %}
+
+{# 导航栏 #}
+{% block menu %}
+	<li class="active"><a href="/widget">组件</a></li>
+	<li><a href="/scene">场景</a></li>
+	<li><a href="/theme">主题</a></li>
+	<li><a href="#">个人信息</a></li>
+{% endblock %}
+
+{# 左栏目 #}
+{% block contentLeft %}
+<div class="panel panel-default">
+	<div class="panel-heading">组件列表</div>
+	<ul>
+		<li class="">diam1</li>
+		<li class="">diam2</li>
+		<li class="">diam3</li>
+		<li class="">diam4</li>
+		<li class="">diam5</li>
+		<li class="">diam6</li>
+		<li class="">diam7</li>
+		<li class="">diam8</li>
+		<li class="">diam9</li>
+		<li class="">diam0</li>
+		<li class="">diam1</li>
+		<li class="">diam2</li>
+		<li class="">diam3</li>
+		<li class="">diam4</li>
+		<li class="">diam5</li>
+	</ul>
+</div>
+{% endblock %}
+
+{# 右栏目 #}
+{% block contentRight %}
+<div class="content-menu clearfix">
+	<div class="content-menu-title">批量操作</div>
+	<div class="content-menu-count">已选择&nbsp;<span>0</span>&nbsp;个组件</div>
+    <button type="button" id="batch_widget_all" class="btn btn-primary">全部选中</button>
+    <button type="button" id="batch_widget_none" class="btn btn-success">全部取消</button>
+	<button type="button" class="btn btn-primary">发布</button>
+	<button type="button" class="btn btn-success">取消发布</button>
+    <button type="button" class="btn btn-success">删除</button>
+    <button type="button" id="batch_list_back" class="btn btn-default">返回</button>
+
+</div>
+<div class="tab-pane fade active in element-list clearfix" id="batch_widget_list">
+	{% autopaginate widgetList 10 %}
+	{% for widget in widgetList %}
+	    <div class="element-list-div">
+	    	<div class="element-list-widget" style="cursor:default;">
+	    		<label class="batch-list-check"><i class="icon-check"></i></label>
+	    		<a href="#" style="cursor:default;"></a>
+	    	</div>
+	    	<span>{{ widget.m_id }}</span>
+	    </div>
+	{% endfor %}
+</div>
+{% paginate %}
+{% endblock %}

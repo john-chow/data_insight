@@ -5,6 +5,7 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     url(r'^$', 			views.widgetList),
 	url(r'^list/$', 	views.widgetList),
+	url(r'^batchList/$', 	views.widgetBatchList),
 	url(r'^create/$', 	views.widgetCreate),
 	url(r'^delete/$', 	views.widgetDelete),
 	url(r'^edit/(\w+)/$', views.widgetEdit),

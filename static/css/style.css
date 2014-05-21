@@ -1,0 +1,116 @@
+.logo{
+	background: url(../img/logo.jpg)no-repeat;
+	height: 32px;
+	width: 170px;
+}
+.content-960{
+	width: 960px;
+	margin: auto;
+}
+.main-content{
+	width: 960px;
+	margin: 50px auto;
+	border: 1px solid #A9B9D2;
+	padding: 5px;
+}
+.errorlist{
+	list-style: none;
+	padding: 0;
+}
+.errorlist li{
+	color: red;
+}
+
+.login-aside{
+	position: absolute;
+	width: 320px;
+	padding-bottom: 10px;
+	z-index: 9999999;
+	border-radius: 5px;
+	left: 58%;
+	top: 110px;
+	background-color: #000;
+	padding: 25px;
+}
+.login-aside form{
+	width: 260px;
+margin: auto;
+}
+form .error-box{
+	color: red;
+	height: 10px;
+}
+.login-aside p,.login-aside label,.login-aside h3{
+	color: white;
+}
+.login-aside h3{
+	text-align: center;
+}
+.login-aside .input-outer{
+	margin-left: 5px;
+	margin-top: 30px;
+	color: white;
+	position: relative;
+	width: 255px;
+	height: 37px;
+}
+.login-aside .input-outer label{
+	position: absolute;
+	top: 11px;
+	left: 4px;
+	color: #858585;
+}
+.login-aside .input-outer ul{
+	padding: 0;
+list-style: none;
+}
+.login-aside .input-outer input[type=text],.login-aside .input-outer input[type=password]{
+	width: 240px;
+height: 37px;
+line-height: 37px;
+border: 1px solid #858585;
+background: #eef3f8;
+color: black;
+font-size: 14px;
+text-indent: 20px;
+box-shadow: 1px 1px 1px #dfe4e8 inset;
+-moz-box-shadow: 1px 1px 1px #dfe4e8 inset;
+-webkit-box-shadow: 1px 1px 1px #dfe4e8 inset;
+-o-box-shadow: 1px 1px 1px #dfe4e8 inset;
+-mis-box-shadow: 1px 1px 1px #dfe4e8 inset;
+}
+.regist-block{
+width: 316px;
+margin: 5px auto;
+padding: 15px;
+}
+.regist-block .input-outer{
+	margin-top: 15px; 
+}
+.regist-block h3{
+	color: #858585;
+}
+.regist-block .input-outer input[type=text],.regist-block .input-outer input[type=password]{
+	width: 300px; 
+	height: 37px;
+	line-height: 37px;
+	border: 1px solid #A9B9D2;
+	background: #eef3f8;
+	color: black;
+	font-size: 14px;
+	text-indent: 20px;
+	box-shadow: 1px 1px 1px #dfe4e8 inset;
+	-moz-box-shadow: 1px 1px 1px #dfe4e8 inset;
+	-webkit-box-shadow: 1px 1px 1px #dfe4e8 inset;
+	-o-box-shadow: 1px 1px 1px #dfe4e8 inset;
+	-mis-box-shadow: 1px 1px 1px #dfe4e8 inset;
+}
+.lr-content{
+	height: 389px;
+}
+.lr-header{
+	background: url(../img/bg_top.jpg/) repeat-x;
+}
+.lr-footer{
+
+}

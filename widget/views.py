@@ -25,29 +25,24 @@ from widget.forms import ConnDbForm
 from common.head import *
 from common.tool import *
 import pdb
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 
 def widgetList(request):
-    """
-    组件列表
-    """
-    logging.debug("function widgetList() is called")
+	"""
+	组件列表
+	"""
+	widgetList = WidgetModel.objects.all()
+	context = RequestContext(request)
+	return render_to_response('widget/list.html', {"widgetList": widgetList}, context)
 
-    widgetList = WidgetModel.objects.all()
-    paginator = Paginator(widgetList, 1)
-
-    page = request.GET.get('page')
-
-    try:
-        contacts = paginator.page(page)
-    except PageNotAnInteger:
-        contacts = paginator.page(1)
-    except EmptyPage:
-        contacts = paginator.page(paginator.num_pages)
-    context = RequestContext(request)
-    return render_to_response('widget/list.html', {"contacts": contacts}, context)
+def widgetBatchList(request):
+	"""
+	组件批量操作
+	"""
+	widgetList = WidgetModel.objects.all()
+	context = RequestContext(request)
+	return render_to_response('widget/batchList.html', {"widgetList": widgetList}, context)
 
 
 """
