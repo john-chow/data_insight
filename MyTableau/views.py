@@ -17,4 +17,6 @@ def test(request):
 	"""
 	测试函数
 	"""
-	return HttpResponse("Just for test")
+	data = {}
+	context = RequestContext(request)
+	return render_to_response('test.html', data, context)

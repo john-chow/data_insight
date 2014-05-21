@@ -101,6 +101,8 @@
 		      <!--模态框body-->
 		      <div class="modal-body">
 		      <form id='conn_db_form' method='post' action='/indb/' enctype="multipart/form-data">
+			      {% csrf_token %}
+			      <div id="db_form_inner"></div>
 			  </form>
 			  <div id="modal_choose_db">
 		     	 <div class="panel panel-default">
