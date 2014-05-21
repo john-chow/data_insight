@@ -40,10 +40,7 @@ def widgetList(request, template_name):
 			order = "m_create_time"
 		else:
 			order = "-m_create_time"
-		if search.strip() == '':
-			widgetList = WidgetModel.objects.all().order_by(order)
-		else:
-			widgetList = WidgetModel.objects.filter(m_name__contains=search).order_by(order)
+		widgetList = WidgetModel.objects.filter(m_name__contains=search,m_status=True).order_by(order)
 		context = RequestContext(request)
 		
 		data = {
