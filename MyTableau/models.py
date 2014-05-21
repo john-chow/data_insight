@@ -10,8 +10,9 @@ class ElementModel(models.Model):
 	m_id = models.IntegerField(primary_key=True)
 	m_name = models.CharField(max_length=20, null=True)
 	m_owner = models.CharField(max_length=20)
-	m_create_time = models.DateTimeField()
-	m_is_distributed = models.BooleanField()
+	m_create_time = models.DateTimeField(auto_now_add=True)
+	m_is_distributed = models.BooleanField(default=False)
+	m_status = models.BooleanField(default=True)
 
 	class Meta:
 		abstract = True

@@ -14,13 +14,19 @@ define([
 			2、对于array属性的元素，自动进行序列化
 		*/
 		save: function (attributes, options) {
+            // 空内容就不必传送
+			var jsonModel 		= this.toJSON();
+            if(undefined === jsonModel) {
+                alert("xxxxxxx");
+                return
+            }
+
 			options       = options || {};
 			attributes    = attributes || {};
 
 			this.set(attributes);
 
 			// 过滤所有value为null之类的项
-			var jsonModel 		= this.toJSON();
 			var cleanJsonModel 	= {};
 			for (var key in jsonModel) {
 				var value = jsonModel[key];

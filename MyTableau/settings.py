@@ -4,6 +4,8 @@ from common.head import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+LOGIN_URL = '/account/login'
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
