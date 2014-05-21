@@ -85,6 +85,11 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	float:left;
 }
 
+.content-menu>.form-group {
+	margin: 0 5px 0px 5px;
+	float:left;
+}
+
 .content-left ul {
 	list-style: none;
 	margin: 0;
@@ -357,6 +362,9 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 .element-list-div>span {
 	text-align: center;
 	display: block;
+	width:130px;
+	height: 20px;
+	overflow: hidden;
 }
 
 .batch-list-check {
@@ -394,4 +402,8 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	font-size: 15px;
 	margin: 12px 10px 0 0px;
 	width: 160px;
+}
+
+#widget_count {
+	text-align: right;
 }

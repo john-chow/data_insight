@@ -24,24 +24,36 @@ from widget.forms import ConnDbForm
 from common.head import *
 from common.tool import *
 import pdb
+from django.http import Http404
 
 
 
-def widgetList(request):
+def widgetList(request, template_name):
 	"""
 	组件列表
 	"""
-	widgetList = WidgetModel.objects.all()
-	context = RequestContext(request)
-	return render_to_response('widget/list.html', {"widgetList": widgetList}, context)
-
-def widgetBatchList(request):
-	"""
-	组件批量操作
-	"""
-	widgetList = WidgetModel.objects.all()
-	context = RequestContext(request)
-	return render_to_response('widget/batchList.html', {"widgetList": widgetList}, context)
+	if 'GET' == request.method:
+		search = request.GET.get('search' , '')
+		sort = request.GET.get('sort' , '-1')
+		if int(sort) == 1:
+			order = "m_create_time"
+		else:
+			order = "-m_create_time"
+		if search.strip() == '':
+			widgetList = WidgetModel.objects.all().order_by(order)
+		else:
+			widgetList = WidgetModel.objects.filter(m_name__contains=search).order_by(order)
+		context = RequestContext(request)
+		
+		data = {
+			"widgetList": widgetList,
+			"search": search,
+			"sort": sort,
+			"allCount": len(widgetList)
+		}
+		return render_to_response(template_name, data, context)
+	else:
+		raise Http404()
 
 def widgetCreate(request):
 	"""
@@ -77,6 +89,10 @@ def widgetEdit(request):
 	"""
 	组件编辑
 	"""
+	pass
+def distributed(request):
+	pass
+def undistributed(request):
 	pass
 
 def connectDb(request):

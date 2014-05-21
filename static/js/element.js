@@ -16,6 +16,27 @@ $("#button_new_scene").on('click', function(ev) {
 	location.href = "/scene/create";
 });
 
+//点击widget的查找按钮事件
+$("#widget_button_search").on('click', function(ev) {
+	$("#widget_submit_search").val($("#widget_input_search").val());
+	$("#widget_submit_page").val($("#ownpage").val());
+	$("#widget_search_form").submit();
+});
+
+//点击widget的时间升序事件
+$("#widget_sort_rise").on('click', function(ev) {
+	$("#widget_submit_sort").val("1");
+	$("#widget_submit_page").val($("#ownpage").val());
+	$("#widget_search_form").submit();
+});
+
+//点击widget的时间降序事件
+$("#widget_sort_drop").on('click', function(ev) {
+	$("#widget_submit_sort").val("-1");
+	$("#widget_submit_page").val($("#ownpage").val());
+	$("#widget_search_form").submit();
+});
+
 //组件批量操作，跳转页面
 $("#button_widget_batch").on('click', function(ev) {
 	page = $("#ownpage").val();
