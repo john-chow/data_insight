@@ -197,7 +197,7 @@ define([
                     var restoreData = {"item": restoreItem, "kind": type};
                     this.triggerOut("box:restore_color_size", restoreData);
                 }
-                else if("graph") {
+                else if("graph" === type) {
                     var attr = posAttrObj[type];
                     this.triggerOut("display:restore_graph", attr)
                 }

@@ -57,7 +57,7 @@ define([
             this.render();
 
 			// start little test
-			t.start()
+			//t.start()
         },
 
         render: function() {
