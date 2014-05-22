@@ -1,4 +1,5 @@
 {% extends "base/list.html" %}
+{% load pagination_tags %}
 
 {# 导航栏 #}
 {% block menu %}
@@ -34,57 +35,60 @@
 
 {# 右栏目 #}
 {% block contentRight %}
+{% autopaginate widgetList 2 %}
+<div id="widget_count">共&nbsp;<span>{{allCount}}</span>&nbsp;个组件，本页有&nbsp;<span>{{widgetList|length}}</span>&nbsp;个</div>
 <div class="content-menu clearfix">
     <div class="btn-group" data-toggle="buttons">
-	  <label class="btn btn-info active">
-	    <input type="radio" name="options" id="option1">时间升序
+	  <label class="btn btn-info active" id="widget_sort_drop">
+	    <input type="radio" name="widget_input_sort" >时间降序
 	  </label>
-	  <label class="btn btn-info">
-	    <input type="radio" name="options" id="option2">时间降序
+	  <label class="btn btn-info " id="widget_sort_rise">
+	    <input type="radio" name="widget_input_sort" >时间升序
 	  </label>
 	</div>
 	<button type="button" id="button_new_widget" class="btn btn-primary">新建</button>
-	<button type="button" class="btn btn-default">删除</button>
-	<form class="navbar-form navbar-left" role="search">
-      <div class="form-group">
-        <input type="text" class="form-control" placeholder="请输入搜索内容">
-      </div>
-      <button type="submit" class="btn btn-success">查找</button>
-    </form>
-    <button type="button" class="btn btn-success">发布</button>
+	<div class="form-group">
+        <input id="widget_input_search" value="{{search}}" type="text" class="form-control" placeholder="请输入搜索内容">
+    </div>
+    <button id="widget_button_search" type="button" class="btn btn-success">查找</button>
+    <button type="button" id="button_widget_batch" class="btn btn-default">批量管理</button>
 </div>
 <div class="tab-pane fade active in element-list clearfix" id="widget_list">
-{% for contact in contacts %}
-    <div class="element-list-div"><div></div><p>{{ contact.m_id }}</p></div>
-{% endfor %}
-</div>
-<div class="pagination">
-    <ul class="pagination pagination-lg">
-        {% if contacts.has_previous %}
-            <li><a href="?page={{ contacts.previous_page_number }}">&lt;</a></li>
-        {% else %}
-        	<li class="disabled"><a href="#">&lt;</a></li>
-        {% endif %}
+	{% for widget in widgetList %}
+	    <div class="element-list-div">
+	    	<div class="element-list-widget" data-id="{{widget.m_id}}">
+	    		<a href="#">{% if widget.m_is_distributed %}已发布{% endif %}</a>
+	    		<div class="js-mod-widget-top">
+				    <span class="js-mod-widget-ico"><i class="icon-m icon-expansion-m"></i></span>
+				    <div class="js-mod-widget-con">
+				     	<ul>
+						    <li>
+						       <a href="#"><i class="icon-m icon-edit-m"></i>编辑</a>
+						    </li>
+						    <li>
+						    	{% if widget.m_is_distributed %}
+						    		<a class="widget_operate" href="#"><i class="icon-m icon-cover-m"></i>取消发布</a>
+								{% else %}
+									<a class="widget_operate"  href="#"><i class="icon-m icon-cover-m"></i>发布</a>
+								{% endif %}
+						    </li>
+						    <li>
+						       <a class="widget_operate" data-op="delete" href="#"><i class="icon-m icon-rubbish-m"></i>删除</a>
+						    </li>
+				     	</ul>
+				    </div>
+				</div>
+	    	</div>
 
-        {% for page_number in contacts.paginator.page_range %}
-		    {% ifequal page_number  contacts.number %}
-		    	<li class="active"><a href="?page={{ page_number }}">{{ page_number }}<span class="sr-only">(current)</span></a></li>
-		    {% else %}
-		    	<li><a href="?page={{ page_number }}">{{ page_number }}</a></li>
-		    {% endifequal %}
-		{% endfor %}
-
-        {% if contacts.has_next %}
-        	<li><a href="?page={{ contacts.next_page_number }}">&gt;</a></li>
-        {% else %}
-        	<li class="disabled"><a href="#">&gt;</a></li>
-        {% endif %}
-    </span>
+	    	<span>{{ widget.m_name | truncatewords:3 }}</span>
+	    </div>
+	{% endfor %}
 </div>
+{% paginate %}
 {% endblock %}
 
-{# 模态框 #}
 {% block extraContent %}
+{# 模态框 #}
 <!-- 模态框 begin -->
 <div class="modal fade" id="db_link_modal" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
 	    <div class="modal-dialog">
@@ -141,4 +145,30 @@
 		</div>
 </div>
 <!-- 模态框 end -->
+<!-- 搜索表单 begin -->
+<form id="widget_search_form">
+    <input type="hidden" id="widget_submit_search" name="search" value="{{search}}" />
+    <input type="hidden" id="widget_submit_sort" name="sort" value="{{sort}}" />
+    <input type="hidden" id="widget_submit_page" name="page" />
+</form> 
+<!-- 搜索表单 end -->
+<!-- 提交表单 begin -->
+<form id="widget_post_form" method="post">
+	{% csrf_token %}
+    <input type="hidden" id="widget_post_id" name="id" value="" />
+    <input type="hidden" id="widget_post_search" name="search" value="{{search}}" />
+    <input type="hidden" id="widget_post_sort" name="sort" value="{{sort}}" />
+    <input type="hidden" id="widget_post_page" name="page" value="" />
+</form> 
+<!-- 提交表单 end -->
+<!-- 初始按钮 begin -->
+<script>
+window.onload = function (){
+	if({{sort}}==1){
+		$("#widget_sort_drop").removeClass('active');
+		$("#widget_sort_rise").addClass('active');
+	}
+}
+</script>
+<!-- 初始按钮 end -->
 {% endblock %}

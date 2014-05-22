@@ -14,9 +14,9 @@ def connDb(request, source=u'session'):
 	conn_data_dict = request.session if u'session' == source \
 										else request.POST
 
-	[ip, port, table, db, user, pwd] = \
+	[ip, port, db, user, pwd] = \
 		map( lambda i: conn_data_dict.get(i, ''), \
-			('ip', 'port', 'table', 'db', 'user', 'pwd') \
+			('ip', 'port', 'db', 'user', 'pwd') \
 		)
 	
 	conn_str = u'host={i} port={p} dbname={d} user={u} password={pw}'\

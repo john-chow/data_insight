@@ -11,5 +11,8 @@ TEMP_DRAW_DATA_FILE		= os.path.join(PROJECT_ROOT_PATH, 'temp/111.json')
 IS_RELEASE				= True
 HAVE_PDB				= False
 
+# for debug in linux
+DEBUG_IN_LINUX          = True
+
 	
 SUPPORTED_DBS = ['postgres', 'mysql']

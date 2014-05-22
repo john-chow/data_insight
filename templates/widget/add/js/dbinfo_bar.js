@@ -56,6 +56,8 @@ define([
 				"reset": true
 				, success: this.onTablesFetch
 			});
+
+            this.onOut("dbbar:restore",  _.bind(this.restoreCenter, this));
 		},
 
 		onTablesFetch: function() {
@@ -73,7 +75,10 @@ define([
 			});
 
 			// 默认查看第一表中的列
-			this.$(".table_name:first").trigger("click")
+			this.$(".table_name:first").trigger("click");
+
+            // 通知整个页面正式加载完成
+            this.triggerOut("center:page_loaded")
 		},
 
 		render: function(model) {
@@ -123,7 +128,7 @@ define([
 		setDragProperty: function() {
 			var self = this;
 			this.$(".measure").draggable({
-				connectToSortable: "#column_sortable, #row_sortable",
+				connectToSortable: "#x_sortable, #y_sortable",
 				helper: "clone",
 				scroll: "false",
 				zIndex: "3000",
@@ -143,7 +148,7 @@ define([
 				}
 			});
 			this.$(".mension").draggable({
-				connectToSortable: "#column_sortable, #row_sortable",
+				connectToSortable: "#x_sortable, #y_sortable",
 				helper: "clone",
 				scroll: "false",
 				zIndex: "3000",
@@ -162,7 +167,42 @@ define([
 					$(".dragging-custom").removeClass("dragging-change-border");
 				}
 			});
-		}
+		},
+
+        restoreCenter:                function(posAttrObj) {
+            var itemListObj = this.$(".measure, .mension");
+            for (var type in posAttrObj) {
+                if ("x" === type || "y" === type) {
+                    var restoreList = [];
+                    for (var idx in posAttrObj[type]) {
+                        var attrObj = posAttrObj[type][idx];
+                        var restoreItem = itemListObj.filter( function(i) {
+                            return attrObj["attr"] === $(itemListObj[i]).find(".attr").html() 
+                        }).clone()[0];
+                        restoreList.push( $.extend({}, attrObj, {"item": restoreItem}) )
+                    }
+
+                    if("x" === type) {
+                        this.triggerOut("axis:restore_x", restoreList);
+                    } else {
+                        this.triggerOut("axis:restore_y", restoreList);
+                    }
+                }
+                else if("color" === type || "size" === type) {
+                    var attr = posAttrObj[type];
+                    var restoreItem = itemListObj.filter( function(i) {
+                        return attr === $(itemListObj[i]).find(".attr").html() 
+                    }).clone()[0];
+
+                    var restoreData = {"item": restoreItem, "kind": type};
+                    this.triggerOut("box:restore_color_size", restoreData);
+                }
+                else if("graph") {
+                    var attr = posAttrObj[type];
+                    this.triggerOut("display:restore_graph", attr)
+                }
+            }
+        }
 
     });
 

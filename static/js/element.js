@@ -16,6 +16,85 @@ $("#button_new_scene").on('click', function(ev) {
 	location.href = "/scene/create";
 });
 
+//点击widget的查找按钮事件
+$("#widget_button_search").on('click', function(ev) {
+	$("#widget_submit_search").val($("#widget_input_search").val());
+	$("#widget_submit_page").val($("#ownpage").val());
+	$("#widget_search_form").submit();
+});
+
+//点击widget的时间升序事件
+$("#widget_sort_rise").on('click', function(ev) {
+	$("#widget_submit_sort").val("1");
+	$("#widget_submit_page").val($("#ownpage").val());
+	$("#widget_search_form").submit();
+});
+
+//点击widget的时间降序事件
+$("#widget_sort_drop").on('click', function(ev) {
+	$("#widget_submit_sort").val("-1");
+	$("#widget_submit_page").val($("#ownpage").val());
+	$("#widget_search_form").submit();
+});
+
+//某个组件的操作(改变发布状态，删除等)
+$(".widget_operate").on('click', function(ev) {
+	if($(this).attr("data-op")=="delete")
+		$("#widget_post_form").attr("action", "/widget/delete/");
+	else
+		$("#widget_post_form").attr("action", "/widget/distributed/");
+	id = $(this).parents(".element-list-widget").attr("data-id");
+	page = $("#ownpage").val();
+	
+	$("#widget_post_id").val(id);
+	$("#widget_post_page").val(page);
+
+	$("#widget_post_form").submit();
+});
+
+//组件批量操作，跳转页面
+$("#button_widget_batch").on('click', function(ev) {
+	page = $("#ownpage").val();
+	location.href = "/widget/batchList/?page="+page;
+});
+
+//组件批量操作返回
+$("#batch_list_back").on('click', function(ev) {
+	page = $("#ownpage").val();
+	location.href = "/widget/list/?page="+page;
+});
+
+
+//组件批量操作选中与取消
+$("#batch_widget_list .element-list-div").on('click', function(ev) {
+	if($(this).hasClass("batch-widget-select")){
+		$(this).removeClass('batch-widget-select');
+		countSelect();
+	}
+	else{
+		$(this).addClass('batch-widget-select');
+		countSelect();
+	}
+});
+
+//统计选中组件个数
+function countSelect(){
+	var num = $(".batch-widget-select").length;
+	$(".content-menu-count span").html(num);
+}
+
+//组件批量操作选中全部
+$("#batch_widget_all").on('click', function(ev) {
+	$(".element-list-div").addClass('batch-widget-select');
+	countSelect();
+});
+
+//组件批量操作取消全部
+$("#batch_widget_none").on('click', function(ev) {
+	$(".element-list-div").removeClass('batch-widget-select');
+	countSelect();
+});
+
 //选择数据库事件
 $('#list_link_dbs .db').on('click', function(ev) {
 	$.ajax({
@@ -26,6 +105,16 @@ $('#list_link_dbs .db').on('click', function(ev) {
 		, error: function() {
 		}
 	})
+});
+
+//组件List中组件右上角按钮单击事件
+$(".js-mod-widget-ico").on('click', function(ev) {
+	$(ev.target).parent().siblings(".js-mod-widget-con").slideToggle('fast');
+}); 
+
+//组件List中，鼠标移开时隐藏
+$(".element-list-widget").on('mouseleave', function(ev) {
+	$(".js-mod-widget-con").hide();
 });
 
 

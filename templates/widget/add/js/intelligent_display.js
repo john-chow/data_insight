@@ -20,12 +20,22 @@ define([
         events: {
             "click .intelligent-display-name":                "changeIntelligentDisplay"
             ,"mouseover .intelligent-display-pic button":     "showTips"
-            ,"click .intelligent-display-pic button":         "chooseChartStyle"
+            //,"click .intelligent-display-pic button":         "chooseChartStyle"
         },
 
         initialize: function() {
             this.model= new ChartStyleModel();
             this.render();
+
+            // 监听
+            this.onOut("display:restore_graph", this.setGraph)
+
+            // 如何让托管事件在更早之前就启动呢？
+            this.$(".intelligent-display-pic button")
+                .on("click", _.bind(this.chooseChartStyle, this));
+
+            // 默认选中bar
+            this.setGraph("bar");
         },
 
         render: function() {
@@ -49,8 +59,11 @@ define([
             var chartStyle = $(ev.target).attr("chartName");
             this.model.set("graph", chartStyle);
             this.model.myPass();
-        }
+        },
 
+        setGraph:    function(attr) {
+            this.$(".intelligent-display-pic button[chartname='"+attr+"']")[0].click();
+        }
     });
 
     return IntelligentHtml;

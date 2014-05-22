@@ -4,6 +4,8 @@ from common.head import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+LOGIN_URL = '/account/login'
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
@@ -103,6 +105,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'pagination.middleware.PaginationMiddleware',
 )
 
 ROOT_URLCONF = 'MyTableau.urls'
@@ -132,7 +135,8 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
+    # 'django.contrib.admindocs'
+    'pagination',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
@@ -193,3 +197,17 @@ REQUIRE_EXCLUDE = ("build.txt",)
 # auto will autodetect the environment and make use of node if available and rhino if not.
 # It can also be a path to a custom class that subclasses require.environments.Environment and defines some "args" function that returns a list with the command arguments to execute.
 REQUIRE_ENVIRONMENT = "auto"
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.static",
+    "django.core.context_processors.media",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages",
+    "django.core.context_processors.request"
+)
+
+#The number of items to the left and to the right of the current page to display 
+PAGINATION_DEFAULT_WINDOW = 3

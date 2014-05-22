@@ -4,6 +4,10 @@
 ***基于最近的父 class 或基本（base） class 作为新 class 的前缀。
 */
 
+body {
+font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
+}
+
 .clearfix:after {
     clear: both
 }
@@ -276,15 +280,15 @@ margin-left: 161px;
     background-color: #F1F0F0;
 }
 
-#column_sortable ,
-#row_sortable { 
+#x_sortable ,
+#y_sortable { 
     list-style-type: none;
      margin: 0; 
      padding: 0; 
  }
 
-#column_sortable>li ,
-#row_sortable>li { 
+#x_sortable>li ,
+#y_sortable>li { 
     margin: 1px 0 1px 1px;
     border-radius: 6px;
     padding: 0px;
@@ -301,26 +305,26 @@ margin-left: 161px;
     position: relative;
 }
 
-#column_sortable>li[type='mension'] ,
-#row_sortable>li[type='mension'] { 
+#x_sortable>li[type='mension'] ,
+#y_sortable>li[type='mension'] { 
     background-color: #C9DBF5;
     border: 1px solid #C9DBF5;
 }
 
-#column_sortable>li[type='measure'] ,
-#row_sortable>li[type='measure'] { 
+#x_sortable>li[type='measure'] ,
+#y_sortable>li[type='measure'] { 
     background-color: #E0E7CB;
     border: 1px solid #CAD8B7;
 }
 
-#column_sortable>li:hover[type='mension'],
-#row_sortable>li:hover[type='mension'] { 
+#x_sortable>li:hover[type='mension'],
+#y_sortable>li:hover[type='mension'] { 
     background-color: #CAE4FC;
     border: 1px solid #AA9DEB;
 }
 
-#column_sortable>li:hover[type='measure'],
-#row_sortable>li:hover[type='measure'] { 
+#x_sortable>li:hover[type='measure'],
+#y_sortable>li:hover[type='measure'] { 
     background-color: #E1EBC5;
     border: 1px solid #45E759;
 }
@@ -340,8 +344,8 @@ margin-left: 161px;
 }
 
 
-#column_sortable,
-#row_sortable {
+#x_sortable,
+#y_sortable {
 height: 25px;
 }
 
@@ -413,8 +417,8 @@ list-style-type: none;
     overflow: hidden;
 }
 
-#row_sortable,
-#column_sortable {
+#y_sortable,
+#x_sortable {
     cursor:default;
 }
 

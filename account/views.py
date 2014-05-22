@@ -7,9 +7,11 @@ from django.template import RequestContext, Template
 from django.contrib.auth import authenticate, login, logout
 from account.forms import AccountForm
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 
 import pdb
 
+@csrf_exempt
 def mylogin(request):
 	"""
 	登录函数
@@ -34,6 +36,7 @@ def mylogin(request):
 		context = RequestContext(request)
 		return render_to_response(u'account/login.html', context)
 
+@csrf_exempt
 def myregister(request):
 	"""
 	注册函数

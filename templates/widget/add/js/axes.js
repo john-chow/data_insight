@@ -47,11 +47,12 @@ define([
 
 			this.model = new AxesModel();
 			this.listenTo(this.model, 'change:'+this.name, this.passToTotal);
+            this.onOut("axis:restore_" + this.name, _.bind(this.restore, this));
 			this.render();
 		},
 
 		render: function() {
-			var label = ('column' === this.name) ? '列' : '行';
+			var label = ('x' === this.name) ? 'x' : 'y';
 			this.$el.html( this.templateFun({
 					'name':		this.name
 					, 'label':	label
@@ -60,6 +61,25 @@ define([
 
 			this.setDragProperty();
 		},
+
+        restore: function(dataList) {
+            var self = this;
+            $.each(dataList, function(i, one) {
+                // 恢复属性，显示在轴上面
+                self.$el.find("#" + self.name + "_sortable").append(one.item);
+
+                // 恢复运算值
+                switch(one.cmd) {
+                    case "sum":     
+                        $(one.item).find(".coordinate-sum").click();   break
+                    case "avg":
+                        $(one.item).find(".coordinate-avg").click();   break
+                    default:    break
+                }
+            })
+
+            this.$el.append(data.item);
+        },
 
 
 		/*showMenuB: function(ev) {
