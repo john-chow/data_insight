@@ -19,6 +19,7 @@ $("#button_new_scene").on('click', function(ev) {
 //点击widget的查找按钮事件
 $("#widget_button_search").on('click', function(ev) {
 	$("#widget_submit_search").val($("#widget_input_search").val());
+	$("#widget_submit_page").val("");
 	$("#widget_search_form").submit();
 });
 
@@ -71,7 +72,8 @@ $("#batch_list_back").on('click', function(ev) {
 //组件查询返回
 $("#widget_list_back").on('click', function(ev) {
 	page = $("#list_page").val();
-	location.href = "/widget/list/?page="+page;
+	sort = $("#list_sort").val();
+	location.href = "/widget/list/?page="+page+"&sort="+sort;
 });
 
 //批量操作通用函数
