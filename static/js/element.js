@@ -1,6 +1,6 @@
 // 点击新建组件时弹出模态框
 $('#button_new_widget').on('click', function(ev) {
-	$("#conn_db_form").html("");
+	//$("#conn_db_form").html("");
 	$("#db_link_modal").modal("show");
 	$("#modal_choose_db").show();
 
@@ -123,11 +123,12 @@ function renderForm(data, from) {
 	$("#modal_choose_db").hide();
 	$modal_submit_btn = $("#db_link_modal").find(".list_link_db");
 	$form  = $("#conn_db_form");
+	$innerFrom = $("#db_form_inner");
 	$title = $("#db_link_modal").find(".modal-title")
 
 	if ("db" === from) {
 		$form.attr("action", "/widget/db/");
-		$form.html(data)
+		$innerFrom.html(data)
 		$title.html("连接数据库");
 		$modal_submit_btn.attr("value", "db")
 	}
@@ -142,7 +143,7 @@ function renderForm(data, from) {
 		})
 
 
-		$form.html($obj)
+		$innerFrom.html($obj)
 		$title.html("选择数据表");
 		$modal_submit_btn.attr("value", "table")
 

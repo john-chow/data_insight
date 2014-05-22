@@ -1,5 +1,5 @@
-define(['jquery'], function($){
-    function getCookie(name) {
+$(function(){
+  function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie != '') {
             var cookies = document.cookie.split(';');
@@ -42,4 +42,5 @@ define(['jquery'], function($){
             }
          }
         });
+  
 })

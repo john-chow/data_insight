@@ -54,7 +54,7 @@ define([
     var WholeModel = VtronModel.extend({
         urlRoot:    function() {
             if("create" === window.action_type) {
-                return ("/widget/create/" + window.widget_id + "/")
+                return ("/widget/create/")
             } else {
                 return ("/widget/edit/" + window.widget_id + "/")
             }

@@ -23,7 +23,7 @@
 //否则按照chrome加载顺序是一起加载的
 window.onload = function (){
 	// 启动js脚本
-	requirejs(['jquery', 'app', 'csrf'], function($, app) {
+	requirejs(['jquery', 'app', 'csrf'], function($, app, _csrf) {
         window.action_type  = $("#content").attr("action_type");
         window.widget_id    = $("#content").attr("widget_id");
 	})

@@ -8,7 +8,7 @@ from django.db import IntegrityError
 from datetime import datetime
 from common.tool import MyHttpJsonResponse, GetUniqueIntId
 from django.template import RequestContext, Template
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.utils import simplejson as json
 from django.contrib.auth.decorators import login_required
 
@@ -61,17 +61,23 @@ def widgetCreate(request):
     logging.debug("function widgetList() is called")
 
     if u'POST' == request.method:
+        [ip, port, db, widget_id] \
+            = map(lambda arg: request.session[arg], \
+                    [u'ip', u'port', u'db', u'widget_id'])
+
+        print widget_id
+
+        # 如果widget_id存在，证明是在create页面多次点击保存
+        if WidgetModel.objects.filter(m_id = widget_id):
+            return widgetEdit(request, widget_id)
+
+
         post_data = json.loads(request.POST.get('data', '{}'))
 
         [table, x, y, color, size, graph] \
             = map(lambda arg: post_data.get(arg, u''), \
                     ['table', 'x', 'y', 'color', 'size', 'graph'])
 
-        [ip, port, db, widget_id] \
-            = map(lambda arg: request.session[arg], \
-                    [u'ip', u'port', u'db', u'widget_id'])
-
-        print "widget is %s".format(widget_id)
 
         WidgetModel.objects.create( 
             m_ip = ip, m_port = port, m_db = db, \
@@ -140,8 +146,7 @@ def widgetEdit(request, widget_id):
     else:
         context = RequestContext(request)
 
-        # if fail
-        widget_model = WidgetModel.objects.get(m_id = widget_id)
+        widget_model = get_object_or_404(WidgetModel, pk = widget_id)
 
         # 设置session
         request.session[u'ip']      = widget_model.m_ip
@@ -160,7 +165,9 @@ def widgetEdit(request, widget_id):
         attr_value = { u'x': eval(widget_model.m_x) \
                         , u'y': eval(widget_model.m_y) \
                         , u'color': widget_model.m_color \
-                        , u'size':  widget_model.m_size }
+                        , u'size':  widget_model.m_size 
+                        , u'graph': widget_model.m_graph
+                    }
 
         to_del_key = []
         for key in attr_value:
@@ -255,6 +262,7 @@ def getTableList(request):
     table_list      = [ q[0] for q in results ]
     return table_list
 
+
 def showDbForChosen(request):
     """
     显示选择的数据表
@@ -284,6 +292,16 @@ def getTableInfo(request):
     logging.debug("function getTableInfo() is called")
 
     print '********     getTableInfo  *********'
+
+    """
+    if DEBUG_IN_LINUX:      
+        request.session[u'ip']      = u'127.0.0.1'
+        request.session[u'port']      = 5432
+        request.session[u'db']      = u'data_insight'
+        request.session[u'user']      = u'postgres'
+        request.session[u'pwd']      = u'123456'
+        request.session[u'tables'] = ['diamond']
+    """
 
     conn            = connDb(request)
     if not conn:
