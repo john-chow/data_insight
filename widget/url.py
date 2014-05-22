@@ -8,7 +8,7 @@ urlpatterns = patterns('',
 	url(r'^batchList/$',	views.widgetList ,{'template_name': 'widget/batchList.html'}),
 	url(r'^create/$', 		views.widgetCreate),
 	url(r'^delete/$', 		views.widgetDelete),
-	url(r'^edit/$', 		views.widgetEdit),
+	url(r'^edit/(\w+)/$', 		views.widgetEdit),
 
 	url(r'^distributed/$', 	views.changeDistributed),
 
