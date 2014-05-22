@@ -2,7 +2,6 @@
 #Filename:	echart.py
 import pdb
 from common.head import *
-from common.tool import connDb
 from widget.map import getCityPM2dot5, getRailLine
 
 
