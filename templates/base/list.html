@@ -51,7 +51,11 @@
 	<!--section end-->
 
 	<!--footer begin-->
-	<div id="footer"></div>
+	<div id="footer">
+		<input type="hidden" id="list_page" value="{{page}}" />
+		<input type="hidden" id="list_sort" value="{{sort}}" />
+		<input type="hidden" id="list_search"  value="{{search}}" />
+	</div>
 	<!--footer end-->
 
 	{% block extraContent %}{% endblock %}

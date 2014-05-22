@@ -26,6 +26,7 @@ from common.head import *
 from common.tool import *
 import pdb
 from django.http import Http404
+from django.views.decorators.csrf import csrf_exempt
 
 
 @login_required
@@ -36,23 +37,23 @@ def widgetList(request, template_name):
     if 'GET' == request.method:
         search = request.GET.get('search' , '')
         sort = request.GET.get('sort' , '-1')
+        page = request.GET.get('page' , '1')
         if int(sort) == 1:
             order = "m_create_time"
         else:
             order = "-m_create_time"
         widgetList = WidgetModel.objects.filter(m_name__contains=search,m_status=True).order_by(order)
         context = RequestContext(request)
-        
         data = {
             "widgetList": widgetList,
             "search": search,
             "sort": sort,
+            "page": page,
             "allCount": len(widgetList)
         }
         return render_to_response(template_name, data, context)
     else:
         raise Http404()
-
 
 @login_required
 def widgetCreate(request):
@@ -92,38 +93,50 @@ def widgetCreate(request):
         data = {u'type': u'create'}
         return render_to_response(u'add.html', data, context)
 
-
 @login_required
-def changeDistributed(request):
+def widgetOp(request, op):
+    """
+    修改某个组件的发布状态
+    组件删除
+    """
     if u'POST' == request.method:
         m_id = request.POST.get('id')
         page = request.POST.get('page','')
         search = request.POST.get('search' , '')
         sort = request.POST.get('sort' , '-1')
         widget = WidgetModel.objects.get(m_id=m_id)
-        widget.m_is_distributed = not widget.m_is_distributed
+        if (op == 'dis'):
+            widget.m_is_distributed = not widget.m_is_distributed
+        else:
+            widget.m_status = False
         widget.save()
         return HttpResponseRedirect(u'/widget/?page='+page+"&search="+search+"&sort="+sort)
     else:
         raise Http404()
-
-
 @login_required
-def widgetDelete(request):
+def batachOp(request, op):
     """
-    组件删除
+    组件批量发布
+    组件批量取消发布
+    组件批量删除
     """
     if u'POST' == request.method:
-        m_id = request.POST.get('id')
+        id_list = request.POST.get('list')
+        arr = id_list.split(',')
+        for m_id in arr:
+            print m_id+"____"
+            widget = WidgetModel.objects.get(m_id=m_id)
+            if(op == 'dis'):
+                widget.m_is_distributed = True
+            elif(op == 'undis'):
+                widget.m_is_distributed = False
+            else:
+                widget.m_status = False
+            widget.save()
         page = request.POST.get('page','')
-        widget = WidgetModel.objects.get(m_id=m_id)
-        widget.m_status = False
-        widget.save()
-        return HttpResponseRedirect(u'/widget/?page='+page)
+        return HttpResponseRedirect(u'/widget/batch?page='+page)
     else:
         raise Http404()
-
-
 @login_required
 def widgetEdit(request, widget_id):
     """
@@ -207,7 +220,7 @@ def connectDb(request):
         form_str    = f.as_p()
         res_dict    = {u'succ': True, u'data': form_str}
         return MyHttpJsonResponse(res_dict)
-
+@csrf_exempt
 def selectTables(request):
     """
     选择数据表
