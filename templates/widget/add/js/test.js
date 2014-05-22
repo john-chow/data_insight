@@ -47,7 +47,7 @@ define([
 			this.render();
 		},
 		el: ".people-list li",
-		template: _.template($('#item-template').html()),
+		//template: _.template($('#item-template').html()),
 		render: function(){
 			this.$el.html(this.template(this.model.toJSON()));
 			this.input = $(".edit");

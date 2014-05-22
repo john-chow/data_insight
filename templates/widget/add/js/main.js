@@ -54,13 +54,3 @@ requirejs.config({
 	  		}
 	  	}
 });
-/*requirejs(['validform'], function(){
-        var validateFrom = $("#user_register").Validform({
-        tiptype:function(msg,o,cssctl){
-        var objtip=$(".error-box");
-        cssctl(objtip,o.type);
-        objtip.text(msg);
-    },
-    });
-   validateFrom.tipmsg.reck = "两次密码不一样";
-})*/

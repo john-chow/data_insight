@@ -7,7 +7,6 @@ define([
 , "base_sheet"
 , "model/vtron_model"
 , "model/vtron_collection"
-, "test"
 ], function(Backbone, MenusView, WorkareaView
 			, InfoWorkplaceView, _Modal
 			, BaseSheetView, VtronModel, VtronCollection) {
