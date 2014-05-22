@@ -92,7 +92,7 @@ define([
                 , {"sheetId": this.sheetId} 
             );
 
-            VtronEvents.trigger("modal:show_filter", data)
+            VtronEvents.triggerOut("modal:show_filter", data)
         },
 
         /*showMenuB: function(ev){

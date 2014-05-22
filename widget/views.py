@@ -62,10 +62,7 @@ def widgetCreate(request):
     logging.debug("function widgetList() is called")
 
     if u'POST' == request.method:
-        [ip, port, db, widget_id] \
-            = map(lambda arg: request.session[arg], \
-                    [u'ip', u'port', u'db', u'widget_id'])
-
+        widget_id = request.session[u'widget_id']
         print widget_id
 
         # 如果widget_id存在，证明是在create页面多次点击保存
@@ -158,16 +155,6 @@ def widgetEdit(request, widget_id):
         request.session[u'tables'] = [widget_model.m_table]
         request.session[u'db_pk'] = widget_model.m_external_db.pk
 
-        """
-        # 设置session
-        request.session[u'ip']      = widget_model.m_ip
-        request.session[u'port']    = widget_model.m_port
-        request.session[u'db']      = widget_model.m_db
-        request.session[u'tables']  = [widget_model.m_table]
-        request.session[u'user']    = widget_model.get('user',  '')
-        request.session[u'pwd']     = widget_model.get('pwd',   '')
-        """
-
         # 有没有直接把Model里面全部属性转换成dict的办法？ 
         attr_value = { u'x': eval(widget_model.m_x) if widget_model.m_x else widget_model.m_x \
                         , u'y': eval(widget_model.m_y) if widget_model.m_y else widget_model.m_y \
@@ -209,14 +196,6 @@ def connectDb(request):
 
             # 把数据库连接信息放进session
             request.session[u'db_pk'] = conn_model.pk
-
-            """
-            request.session[u'ip']      = request.POST.get('ip',    '')
-            request.session[u'port']    = request.POST.get('port',  '')
-            request.session[u'db']      = request.POST.get('db',    '')
-            request.session[u'user']    = request.POST.get('user',  '')
-            request.session[u'pwd']     = request.POST.get('pwd',   '')
-            """
 
             return HttpResponseRedirect(u'/widget/tables')
         else:
