@@ -35,29 +35,39 @@
 
 {# 右栏目 #}
 {% block contentRight %}
-{% autopaginate widgetList 14 %}
+{% autopaginate widgetList 2 %}
 <div id="widget_count">共&nbsp;<span>{{allCount}}</span>&nbsp;个组件，本页有&nbsp;<span>{{widgetList|length}}</span>&nbsp;个</div>
 <div class="content-menu clearfix">
 	<div class="content-menu-title">批量操作</div>
 	<div class="content-menu-count">已选择&nbsp;<span>0</span>&nbsp;个组件</div>
     <button type="button" id="batch_widget_all" class="btn btn-primary">全部选中</button>
     <button type="button" id="batch_widget_none" class="btn btn-success">全部取消</button>
-	<button type="button" class="btn btn-primary">发布</button>
-	<button type="button" class="btn btn-success">取消发布</button>
-    <button type="button" class="btn btn-success">删除</button>
+	<button type="button" id="batch_widget_distri" class="btn btn-primary">发布</button>
+	<button type="button" id="batch_widget_undistri" class="btn btn-success">取消发布</button>
+    <button type="button" id="batch_widget_delete" class="btn btn-success">删除</button>
     <button type="button" id="batch_list_back" class="btn btn-default">返回</button>
 
 </div>
 <div class="tab-pane fade active in element-list clearfix" id="batch_widget_list">
 	{% for widget in widgetList %}
-	    <div class="element-list-div">
+	    <div class="element-list-div" data-id="{{widget.m_id}}">
 	    	<div class="element-list-widget" style="cursor:default;">
 	    		<label class="batch-list-check"><i class="icon-check"></i></label>
-	    		<a href="#" style="cursor:default;"></a>
+	    		<a href="#" style="cursor:default;{% if widget.m_is_distributed %}background-color: #F3B9B9;{% endif %}"></a>
 	    	</div>
 	    	<span>{{ widget.m_name }}</span>
 	    </div>
 	{% endfor %}
 </div>
 {% paginate %}
+{% endblock %}
+
+{% block extraContent %}
+<!-- 提交表单 begin -->
+<form id="widget_batch_form" method="post">
+	{% csrf_token %}
+    <input type="hidden" id="widget_batch_list" name="list" value="" />
+    <input type="hidden" id="widget_batch_page" name="page" value="{{page}}" />
+</form> 
+<!-- 提交表单 end -->
 {% endblock %}

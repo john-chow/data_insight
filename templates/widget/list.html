@@ -52,12 +52,16 @@
     </div>
     <button id="widget_button_search" type="button" class="btn btn-success">查找</button>
     <button type="button" id="button_widget_batch" class="btn btn-default">批量管理</button>
+    {% if search %}
+    <button type="button" id="widget_list_back" class="btn btn-default">返回</button>
+    {% endif %}
+
 </div>
 <div class="tab-pane fade active in element-list clearfix" id="widget_list">
 	{% for widget in widgetList %}
 	    <div class="element-list-div">
 	    	<div class="element-list-widget" data-id="{{widget.m_id}}">
-	    		<a href="#">{% if widget.m_is_distributed %}已发布{% endif %}</a>
+	    		<a href="#" style="{% if widget.m_is_distributed %}background-color: #F3B9B9;{% endif %}"></a>
 	    		<div class="js-mod-widget-top">
 				    <span class="js-mod-widget-ico"><i class="icon-m icon-expansion-m"></i></span>
 				    <div class="js-mod-widget-con">
@@ -151,7 +155,7 @@
 <form id="widget_search_form">
     <input type="hidden" id="widget_submit_search" name="search" value="{{search}}" />
     <input type="hidden" id="widget_submit_sort" name="sort" value="{{sort}}" />
-    <input type="hidden" id="widget_submit_page" name="page" />
+    <input type="hidden" id="widget_submit_page" name="page" value="{{page}}" />
 </form> 
 <!-- 搜索表单 end -->
 <!-- 提交表单 begin -->
@@ -160,7 +164,7 @@
     <input type="hidden" id="widget_post_id" name="id" value="" />
     <input type="hidden" id="widget_post_search" name="search" value="{{search}}" />
     <input type="hidden" id="widget_post_sort" name="sort" value="{{sort}}" />
-    <input type="hidden" id="widget_post_page" name="page" value="" />
+    <input type="hidden" id="widget_post_page" name="page" value="{{page}}" />
 </form> 
 <!-- 提交表单 end -->
 <!-- 初始按钮 begin -->
