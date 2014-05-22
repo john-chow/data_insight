@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Create your views here.
-from widget.models import WidgetModel, UsedDb
+from widget.models import WidgetModel, ExternalDbModel
 from common.tool import cvtDateTimeToStr
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -80,17 +80,19 @@ def widgetCreate(request):
             = map(lambda arg: post_data.get(arg, u''), \
                     ['table', 'x', 'y', 'color', 'size', 'graph'])
 
+        db_conn_pk = request.session.get('db_pk')
+        external_conn = ExternalDbModel.objects.get(pk = db_conn_pk)
 
         WidgetModel.objects.create( 
-            m_ip = ip, m_port = port, m_db = db, \
             m_id = widget_id, m_table = table, m_x=x, m_y=y, \
-            m_color = color, m_size = size, m_graph = graph \
+            m_color = color, m_size = size, m_graph = graph, \
+            m_external_db = external_conn
         )
         return MyHttpJsonResponse({u'succ': True})
 
     else:
         context = RequestContext(request)
-        request.session[u'widget_id'] = GetUniqueIntId()
+        #request.session[u'widget_id'] = GetUniqueIntId()
         data = {u'type': u'create'}
         return render_to_response(u'add.html', data, context)
 
@@ -148,13 +150,14 @@ def widgetEdit(request, widget_id):
     if u'POST' == request.method:
         post_data = json.loads(request.POST.get('data', '{}'))
         
-        [x, y, color, size, graph] \
+        [x, y, color, size, graph, table] \
             = map(lambda arg: post_data.get(arg, u''), \
-                    ['x', 'y', 'color', 'size', 'graph'])
+                    ['x', 'y', 'color', 'size', 'graph', 'table'])
         print "widget is %s".format(widget_id)
         try:
-            WidgetModel.objects.filter(m_id = widget_id).update(m_x = x, m_y = y, \
-                                        m_color = color, m_size = size, m_graph = graph)
+            WidgetModel.objects.filter(m_id = widget_id) \
+                                .update(m_x = x, m_y = y, m_color = color, \
+                                        m_size = size, m_graph = graph, m_table = table)
         except Exception, e:
             return MyHttpJsonResponse({u'succ': False, u'msg': u'异常情况'})
         else:
@@ -163,27 +166,27 @@ def widgetEdit(request, widget_id):
     else:
         context = RequestContext(request)
 
-        widget_model = get_object_or_404(WidgetModel, pk = widget_id)
+        widget_model = get_object_or_404(WidgetModel, m_id = widget_id)
+        request.session[u'widget_id'] = widget_id
+        request.session[u'tables'] = [widget_model.m_table]
+        request.session[u'db_pk'] = widget_model.m_external_db.pk
 
+        """
         # 设置session
         request.session[u'ip']      = widget_model.m_ip
         request.session[u'port']    = widget_model.m_port
         request.session[u'db']      = widget_model.m_db
         request.session[u'tables']  = [widget_model.m_table]
-        """
         request.session[u'user']    = widget_model.get('user',  '')
         request.session[u'pwd']     = widget_model.get('pwd',   '')
         """
 
-        # 必须先连接数据库
-        dbConnRequired(request)
-
         # 有没有直接把Model里面全部属性转换成dict的办法？ 
-        attr_value = { u'x': eval(widget_model.m_x) \
-                        , u'y': eval(widget_model.m_y) \
+        attr_value = { u'x': eval(widget_model.m_x) if widget_model.m_x else widget_model.m_x \
+                        , u'y': eval(widget_model.m_y) if widget_model.m_y else widget_model.m_y \
                         , u'color': widget_model.m_color \
-                        , u'size':  widget_model.m_size 
-                        , u'graph': widget_model.m_graph
+                        , u'size':  widget_model.m_size \
+                        , u'graph': widget_model.m_graph \
                     }
 
         to_del_key = []
@@ -200,16 +203,6 @@ def widgetEdit(request, widget_id):
 
 
 
-def dbConnRequired(request):
-    """ 
-    组件所有涉及到改动的操作，都要以连接了数据库为前提
-    """
-    logging.debug("function dbConnRequired() is called")
-
-    if not connDb(request):
-        return HttpResponseRedirect(u'')
-
-
 def connectDb(request):
     """
     连接数据库
@@ -217,12 +210,26 @@ def connectDb(request):
     logging.debug("function connectDb() is called")
 
     if u'POST' == request.method:
-        if connDb(request, source=u'post'):
+        args_list = map(lambda x: request.POST.get(x, u'') \
+                                , [u'ip', u'port', u'db', u'user', u'pwd'])
+
+        if connDb(*tuple(args_list)):
+            [ip, port, db, user, pwd] = args_list
+
+            conn_model, created = ExternalDbModel.objects.get_or_create( \
+                m_ip = ip, m_port = port, m_db = db, m_user = user, m_pwd = pwd \
+            )
+
+            # 把数据库连接信息放进session
+            request.session[u'db_pk'] = conn_model.pk
+
+            """
             request.session[u'ip']      = request.POST.get('ip',    '')
             request.session[u'port']    = request.POST.get('port',  '')
             request.session[u'db']      = request.POST.get('db',    '')
             request.session[u'user']    = request.POST.get('user',  '')
             request.session[u'pwd']     = request.POST.get('pwd',   '')
+            """
 
             return HttpResponseRedirect(u'/widget/tables')
         else:
@@ -267,8 +274,7 @@ def getTableList(request):
     """
     logging.debug("function getTableList() is called")
 
-    print '********     getTableList  *********'
-    conn            = connDb(request)
+    conn    = findBackDbConn(request)
     if not conn:
         print 'redirect to login'
         return HttpResponseRedirect(u'http://10.1.50.125:9000/')
@@ -320,7 +326,7 @@ def getTableInfo(request):
         request.session[u'tables'] = ['diamond']
     """
 
-    conn            = connDb(request)
+    conn  = findBackDbConn(request)
     if not conn:
         print 'redirect to login'
         #return HttpResponseRedirect(u'http://10.1.50.125:9000/')
@@ -566,7 +572,7 @@ def searchDataFromDb(request, post_data, msu_list, msn_list, group_list):
     sql     = sql_template.format(attrs=sel_str, table=table_name, \
                                     filter=filter_sentence, option=group_str)
 
-    conn        = connDb(request)
+    conn        = findBackDbConn(request)
     cursor      = conn.cursor()
     cursor.execute(sql)
     data        = cursor.fetchall()
@@ -592,4 +598,36 @@ def formatData(data_from_db, msu_list, msn_list, group_list, shape_in_use):
 
     echart = EChartManager().get_echart(shape_in_use)
     return echart.makeData(data_from_db, msu_list, msn_list, group_list)
+
+
+def findBackDbConn(request):
+    db_conn_pk      = request.session.get(u'db_pk', u'')
+    db_conn_model   = ExternalDbModel.objects.get(pk = db_conn_pk)
+    conn_arg        = db_conn_model.getConnTuple()
+    return connDb(*conn_arg)
+
+
+def connDb(ip, port, db, user, pwd):
+    """
+    连接数据库函数
+    """
+    ip      = ip if ip else u'127.0.0.1'
+    port    = port if port else u'5432'
+
+    conn_str = u'host={i} port={p} dbname={d} user={u} password={pw}'\
+                    .format(i=ip, p=port, d=db, u=user, pw=pwd)
+
+    try:
+        conn = pysql.connect(conn_str)
+
+    except Exception, e:
+        return None
+    else:
+        return conn
+
+
+    
+
+
+
 

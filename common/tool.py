@@ -7,68 +7,67 @@ import datetime
 import random
 import pdb
 
+"""
 def connDb(request, source=u'session'):
-	"""
-	连接数据库函数
-	"""
-	conn_data_dict = request.session if u'session' == source \
-										else request.POST
+    conn_data_dict = request.session if u'session' == source \
+                                        else request.POST
 
-	[ip, port, db, user, pwd] = \
-		map( lambda i: conn_data_dict.get(i, ''), \
-			('ip', 'port', 'db', 'user', 'pwd') \
-		)
-	
-	conn_str = u'host={i} port={p} dbname={d} user={u} password={pw}'\
-					.format(i=ip, p=port, d=db, u=user, pw=pwd)
+    [ip, port, db, user, pwd] = \
+        map( lambda i: conn_data_dict.get(i, ''), \
+            ('ip', 'port', 'db', 'user', 'pwd') \
+        )
+    
+    conn_str = u'host={i} port={p} dbname={d} user={u} password={pw}'\
+                    .format(i=ip, p=port, d=db, u=user, pw=pwd)
 
-	try:
-		conn = pysql.connect(conn_str)
+    try:
+        conn = pysql.connect(conn_str)
 
-	except Exception, e:
-		return None
-	else:
-		return conn
+    except Exception, e:
+        return None
+    else:
+        return conn
+"""
 
 
 def MyHttpJsonResponse(data):
-	"""
-	JOSN返回函数
-	"""
-	# judge data is a living example of dict or not
-	if isinstance(data, dict):
-		return HttpResponse(json.dumps(data), content_type='application/json')
-	else:
-		# TBD
-		return HttpResponse(data, content_type='application/json')
-	
+    """
+    JOSN返回函数
+    """
+    # judge data is a living example of dict or not
+    if isinstance(data, dict):
+        return HttpResponse(json.dumps(data), content_type='application/json')
+    else:
+        # TBD
+        return HttpResponse(data, content_type='application/json')
+    
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
 def cvtDateTimeToStr(dt=datetime.datetime.now()):
-	"""
-	自定义格式化字符串
-	"""
-	if not isinstance(dt, datetime.datetime):
-		return dt
-	return dt.strftime("%Y%m%d%H%M%S")
+    """
+    自定义格式化字符串
+    """
+    if not isinstance(dt, datetime.datetime):
+        return dt
+    return dt.strftime("%Y%m%d%H%M%S")
 
 
 def UniqIdGenerator():
-	"""
-	以长整型形式返回n个随机数
-	"""
-	seed = random.getrandbits(8)
-	while True:
-		yield seed
-		seed += 1
+    """
+    以长整型形式返回n个随机数
+    """
+    seed = random.getrandbits(8)
+    while True:
+        yield seed
+        seed += 1
 
 def GetUniqueIntId():
-	"""
-	获取随机数
-	"""
-	gen = UniqIdGenerator()
-	return gen.next()
+    """
+    获取随机数
+    """
+    gen = UniqIdGenerator()
+    return gen.next()
 
 
 
