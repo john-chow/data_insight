@@ -6,15 +6,17 @@ define([
 , "echarts/chart/scatter"
 , "echarts/chart/pie"
 , "echarts/chart/radar"
-], function(Backbone, ec, _b, _l, _s, _p, _r) {
+], function(Backbone, echart, _b, _l, _s, _p, _r) {
 
-	var Drawer = function() {
+	var DrawManager = function(opt) {
 		this.now_drawer				= null;
 		this.axis_drawer			= null;
 		this.map_drawer				= null;
 		this.polar_drawer			= null;
 
 		this.run	=				function(place, data) {
+            var type    = data.type;
+            this.ec     = this.ec || echart.init(place);
 			switch(data.type) {
 				case "map":	 	
 					this.now_drawer = this.map_drawer || new MapDrawer;
@@ -35,13 +37,12 @@ define([
 					this.now_drawer = this.polar_drawer || new PolarDrawer;
 					break;
 				default:
-					$(place).html("");
 					easy_dialog_error('xxxxxxxxxxxx');
 					return
 			}
 
-			this.now_drawer.init(data.type, place);
-			if ("map" !== data.type) {
+			this.now_drawer.ready(this.ec, type);
+			if ("map" !== type) {
 				this.now_drawer.work(data.data)
 			} else {
 				var self = this;
@@ -90,20 +91,20 @@ define([
 			]
 		};
 	
-		this.draw =		function() {
-			var chart = ec.init(this.place);
-			chart.setOption(this.optionCloned)
-		};
-
-		this.init = 	function(type, place) {
+        this.ready =    function(ec, type) {
+            this.ec = ec;
 			this.type  = type;
-			this.place = place;
 			this.optionCloned = cloneObject(this.option);
-		};
+        };
 
 		this.work = 	function(data) {
 			this.fillSeries(data);
 			this.draw()
+		};
+
+		this.draw =		function() {
+            this.ec.clear();
+			this.ec.setOption(this.optionCloned)
 		}
 	};
 
@@ -172,7 +173,8 @@ define([
 			else {
 				easy_dialog_error("xxxxxxxxxxx")
 			}
-		}
+		};
+
 	};
 
 
@@ -191,6 +193,7 @@ define([
 		
 		this.styleSeries = function() {
 		};
+
 	};
 
 	var LineDrawer = function() {
@@ -208,6 +211,7 @@ define([
 		
 		this.styleSeries = function() {
 		};
+
 	};
 
 	var AreaDrawer = function() {
@@ -225,6 +229,7 @@ define([
 		
 		this.styleSeries = function() {
 		};
+
 	};
 
 	var ScatterDrawer = function() {
@@ -265,6 +270,7 @@ define([
 		this.styleSeries = function(oneObj) {
 			$.extend(oneObj, this.seriesStyle)
 		};
+
 	};
 
 	var PolarDrawer = function() {
@@ -338,10 +344,12 @@ define([
 			}
 			this.seriesOne.geoCoord = getChinaMainCityCoord();
 			this.optionCloned.series.push(this.seriesOne);
-		}
+		};
+
 	};
 
 
+    // 确定继承关系
 	var baseDrawer = new BaseDrawer();
 	AxisDrawer.prototype 	= baseDrawer;
 	PolarDrawer.prototype 	= baseDrawer;
@@ -354,5 +362,5 @@ define([
 	ScatterDrawer.prototype = axisDrawer;
 
 
-	return Drawer
+	return DrawManager
 })

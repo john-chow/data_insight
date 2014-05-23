@@ -73,9 +73,9 @@ def widgetCreate(request):
 
         post_data = json.loads(request.POST.get('data', '{}'))
 
-        [table, x, y, color, size, graph] \
+        [table, x, y, color, size, graph, image] \
             = map(lambda arg: post_data.get(arg, u''), \
-                    ['table', 'x', 'y', 'color', 'size', 'graph'])
+                    ['table', 'x', 'y', 'color', 'size', 'graph', 'image'])
 
         db_conn_pk = request.session.get('db_pk')
         external_conn = ExternalDbModel.objects.get(pk = db_conn_pk)
@@ -83,7 +83,7 @@ def widgetCreate(request):
         WidgetModel.objects.create( 
             m_id = widget_id, m_table = table, m_x=x, m_y=y, \
             m_color = color, m_size = size, m_graph = graph, \
-            m_external_db = external_conn
+            m_external_db = external_conn, m_pic = image
         )
         return MyHttpJsonResponse({u'succ': True})
 
@@ -147,14 +147,16 @@ def widgetEdit(request, widget_id):
     if u'POST' == request.method:
         post_data = json.loads(request.POST.get('data', '{}'))
         
-        [x, y, color, size, graph, table] \
+        [x, y, color, size, graph, table, image] \
             = map(lambda arg: post_data.get(arg, u''), \
-                    ['x', 'y', 'color', 'size', 'graph', 'table'])
+                    ['x', 'y', 'color', 'size', 'graph', 'table', 'image'])
         print "widget is %s".format(widget_id)
+
         try:
             WidgetModel.objects.filter(m_id = widget_id) \
                                 .update(m_x = x, m_y = y, m_color = color, \
-                                        m_size = size, m_graph = graph, m_table = table)
+                                        m_size = size, m_graph = graph, m_table = table, 
+                                        m_pic = image)
         except Exception, e:
             return MyHttpJsonResponse({u'succ': False, u'msg': u'异常情况'})
         else:

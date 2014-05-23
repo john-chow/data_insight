@@ -3,9 +3,8 @@ define([
 , "base_sheet"
 , "dbinfo_bar"
 , "design_panel"
-, "data_center"
 ], function(Backbone,BaseSheetView, DbBarView, PanelView
-			, DataCenter) {
+			) {
 
     var WorkAreaView = BaseSheetView.extend({
 
@@ -13,7 +12,6 @@ define([
         id: 		"work_area",
 
         initialize: function() {
-			new DataCenter();
 
             this.dbBarView  = new DbBarView();
             this.panelView  = new PanelView();
