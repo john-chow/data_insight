@@ -81,7 +81,7 @@ def widgetCreate(request):
         external_conn = ExternalDbModel.objects.get(pk = db_conn_pk)
 
         WidgetModel.objects.create( 
-            m_id = widget_id, m_table = table, m_x=x, m_y=y, \
+            m_id = widget_id, m_name='组件', m_table = table, m_x=x, m_y=y, \
             m_color = color, m_size = size, m_graph = graph, \
             m_external_db = external_conn, m_pic = image
         )
