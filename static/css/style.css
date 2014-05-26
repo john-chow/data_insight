@@ -114,3 +114,8 @@ padding: 15px;
 .lr-footer{
 
 }
+/*widget样式*/
+.content-menu{
+    border-bottom: 1px solid #ddd;
+    margin-top: 15px;
+}

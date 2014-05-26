@@ -1,12 +1,12 @@
 define([
-"backbone"
-, "base_sheet"
-, 'model/vtron_model'
-, "drawer"
-], function(Backbone, BaseSheetView, VtronModel, Drawer) {
+	'backbone'
+	, 'base_sheet'
+	, 'model/vtron_model'
+	, 'vtron_events'
+], function(Backbone, BaseSheetView, VtronModel, VtronEvents) {
 
 	var DrawModel 	= VtronModel.extend({
-		urlRoot:    "/widget/draw/",
+		urlRoot: "/widget/draw/",
 
 		x:			[],
 		y:			[],
@@ -73,10 +73,6 @@ define([
 			this.run()
 		},
 
-        setZr:              function(zr) {
-            this.zr         = zr
-        },
-
 		distribute: 	    function(data) {
             var basicArgs = ["table", "x", "y", "size", "color", "graph"];
             for(var k in data) {
@@ -113,33 +109,15 @@ define([
             );
 
             // 监听是否需要保存
-            VtronEvents.onOut("center:save_args", _.bind(this.save, this));
-            var self = this;
-            //监听是否保存并返回
-            Backbone.Events.on("center:save_args_and_back", function(){
-            	self.model.set(self.drawModel.toJSON());
-	            var imageBase64 = self.zr.toDataURL("image/png");
-	            self.model.set({"image":    imageBase64});
-            	self.model.save(null,{success: function(model, resp){
-            		location = "/widget";
-            	},error: function(model, resp){
-            		alert("出错了")
-            	}});
-            })
+            VtronEvents.onOut("center:save_args", _.bind(this.saveArgs, this))
 		},
 
-        save:                   function() {
+        saveArgs:                function() {
             // 抓取命名等参数
             // TBD
-
             this.model.set(this.drawModel.toJSON());
-            
-            var imageBase64 = this.zr.toDataURL("image/png");
-            this.model.set({"image":    imageBase64});
-
-            // 保存到服务器
-            this.model.save(null,{success: function(model, response){
-				 alert(response.msg)
+            this.model.save(null,{success: function(model, respose){
+				 alert(respose.msg)
 			},error: function(){
 				alert("服务器返回非json数据")
 			}})
@@ -153,25 +131,10 @@ define([
         }
 	});
 
-	
-	var DrawPanelView = BaseSheetView.extend({
-		tagName: 		"div",
-		id:				"draw_panel",
-
-		initialize: function() {
-			this.onOut("panel:draw_data", _.bind(this.onGetDrawData, this));
-			this.drawer = new Drawer();
-            this.dataCenter = new DataCenter()
-		},
-
-		onGetDrawData: function(data) {
-			this.drawer.run(this.el, data);
-            this.dataCenter.setZr(this.drawer.ec.getZrender())
-		}
-	});
-
-	return DrawPanelView
+	return DataCenter
 })
+
+
 
 
 

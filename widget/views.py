@@ -44,6 +44,7 @@ def widgetList(request, template_name):
             order = "-m_create_time"
         widgetList = WidgetModel.objects.filter(m_name__contains=search,m_status=True).order_by(order)
         context = RequestContext(request)
+        print widgetList
         data = {
             "widgetList": widgetList,
             "search": search,
