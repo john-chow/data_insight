@@ -11,7 +11,8 @@ class SceneModel(ElementModel):
 	"""
 	m_layout = models.CharField(max_length=50)
 	m_widgets = models.ManyToManyField(WidgetModel \
-							, through='ScnToWiRelationModel')
+							, through='ScnToWiRelationModel' \
+                            , related_name = 's2w_set')
 
 	class Meta:
 		db_table = 'scenes'
@@ -20,8 +21,8 @@ class ScnToWiRelationModel(models.Model):
 	"""
 	场景与组件的关系类
 	"""
-	m_scn = models.ForeignKey(SceneModel)
-	m_wi = models.ForeignKey(WidgetModel)
+	m_scn = models.ForeignKey(SceneModel, related_name = 's2r_set')
+	m_wi = models.ForeignKey(WidgetModel, related_name = 'w2r_set')
 	m_order = models.IntegerField()
 
 	class Meta:
