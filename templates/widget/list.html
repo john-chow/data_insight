@@ -66,9 +66,11 @@
 </div>
 <div class="tab-pane fade active in element-list clearfix" id="widget_list">
 	{% for widget in widgetList %}
-	    <div class="element-list-div">
+	    <div class="element-list-div" style="{% if widget.m_is_distributed %}background-color: #F3B9B9;{% endif %}">
 	    	<div class="element-list-widget" data-id="{{widget.m_id}}">
-	    		<a href="/widget/edit/{{widget.m_id}}" style="{% if widget.m_is_distributed %}background-color: #F3B9B9;{% endif %}"></a>
+	    		<a href="/widget/edit/{{widget.m_id}}">
+	    			<img src="{{widget.m_pic}}" width="130px" height="130px" />
+	    		</a>
 	    		<div class="js-mod-widget-top">
 				    <span class="js-mod-widget-ico"><i class="icon-m icon-expansion-m"></i></span>
 				    <div class="js-mod-widget-con">

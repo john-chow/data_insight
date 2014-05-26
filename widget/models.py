@@ -14,6 +14,7 @@ class WidgetModel(ElementModel):
     m_size          = models.CharField(max_length=20)               
     m_color         = models.CharField(max_length=20)               
     m_graph         = models.CharField(max_length=20)               
+    m_pic           = models.TextField()
     m_external_db   = models.ForeignKey('ExternalDbModel')
 
     class Meta:

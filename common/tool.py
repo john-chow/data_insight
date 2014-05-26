@@ -7,29 +7,6 @@ import datetime
 import random
 import pdb
 
-"""
-def connDb(request, source=u'session'):
-    conn_data_dict = request.session if u'session' == source \
-                                        else request.POST
-
-    [ip, port, db, user, pwd] = \
-        map( lambda i: conn_data_dict.get(i, ''), \
-            ('ip', 'port', 'db', 'user', 'pwd') \
-        )
-    
-    conn_str = u'host={i} port={p} dbname={d} user={u} password={pw}'\
-                    .format(i=ip, p=port, d=db, u=user, pw=pwd)
-
-    try:
-        conn = pysql.connect(conn_str)
-
-    except Exception, e:
-        return None
-    else:
-        return conn
-"""
-
-
 def MyHttpJsonResponse(data):
     """
     JOSN返回函数
@@ -62,12 +39,13 @@ def UniqIdGenerator():
         yield seed
         seed += 1
 
+Uid_gen = UniqIdGenerator()
+
 def GetUniqueIntId():
     """
     获取随机数
     """
-    gen = UniqIdGenerator()
-    return gen.next()
+    return Uid_gen.next()
 
 
 
