@@ -168,6 +168,7 @@ def widgetEdit(request, widget_id):
 
         widget_model = get_object_or_404(WidgetModel, m_id = widget_id)
         request.session[u'widget_id'] = widget_id
+        # 以后要去掉，没必要记在session里面
         request.session[u'tables'] = [widget_model.m_table]
         request.session[u'db_pk'] = widget_model.m_external_db.pk
 
@@ -196,8 +197,7 @@ def widgetShow(request, widget_id):
     try:
         widget_model = WidgetModel.objects.select_related().get(m_id = widget_id)
         extent_data = widget_model.getExtentDict()
-        conn_model = ExternalDbModel.objects.get(pk = widget_model.m_external_db)
-        conn_arg = conn_model.getConnTuple()
+        conn_arg = widget_model.m_external_db.getConnTuple()
     except WidgetModel.DoesNotExist:
         return HttpResponse({u'succ': False, u'msg': u'xxxxxxxxxxxx'})
     except ExternalDbModel.DoesNotExist:

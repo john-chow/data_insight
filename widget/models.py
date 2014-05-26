@@ -24,6 +24,7 @@ class WidgetModel(ElementModel):
             , u'color': self.m_color \
             , u'size':  self.m_size \
             , u'graph': self.m_graph \
+            , u'table': self.m_table \
         }
 
     class Meta:
