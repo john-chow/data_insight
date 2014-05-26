@@ -22,8 +22,8 @@ define([
                 //触发自定义事件center:save_args
                 VtronEvents.triggerOut("center:save_args")
             }
-            , "click #design_menu_save_back":       function() {
-                VtronEvents.triggerOut("center:save_args_and_back")
+            , "click #design_menu_save_and_back":       function() {
+                Backbone.Events.trigger("center:save_args_and_back")
             }
             ,"click #design_menu_back":             "backToWidgetList"
         },

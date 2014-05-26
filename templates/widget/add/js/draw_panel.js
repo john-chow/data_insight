@@ -113,7 +113,19 @@ define([
             );
 
             // 监听是否需要保存
-            VtronEvents.onOut("center:save_args", _.bind(this.save, this))
+            VtronEvents.onOut("center:save_args", _.bind(this.save, this));
+            var self = this;
+            //监听是否保存并返回
+            Backbone.Events.on("center:save_args_and_back", function(){
+            	self.model.set(self.drawModel.toJSON());
+	            var imageBase64 = self.zr.toDataURL("image/png");
+	            self.model.set({"image":    imageBase64});
+            	self.model.save(null,{success: function(model, resp){
+            		location = "/widget";
+            	},error: function(model, resp){
+            		alert("出错了")
+            	}});
+            })
 		},
 
         save:                   function() {
@@ -126,7 +138,11 @@ define([
             this.model.set({"image":    imageBase64});
 
             // 保存到服务器
-            this.model.save()
+            this.model.save(null,{success: function(model, response){
+				 alert(response.msg)
+			},error: function(){
+				alert("服务器返回非json数据")
+			}})
         },
 
         startRestore:           function() {
