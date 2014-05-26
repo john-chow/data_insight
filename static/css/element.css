@@ -30,7 +30,7 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
 
 .content-right {
-	padding: 20px 30px;
+	padding: 0;
 }
 
 .content-left {
@@ -43,7 +43,7 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
 
 .content-menu>button {
-	float:left;
+	
 }
 
 #content .row {
@@ -205,6 +205,7 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 #widget_list ,
 #batch_widget_list {
 	min-height: 630px;
+	padding: 15px;
 }
 
 #batch_widget_list .element-list-div{
@@ -405,5 +406,7 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
 
 #widget_count {
-	text-align: right;
+	text-align: left;
+	padding: 10px;
+	border-bottom: 1px solid #ddd;
 }

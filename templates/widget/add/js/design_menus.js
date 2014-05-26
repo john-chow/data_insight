@@ -19,11 +19,13 @@ define([
             , "click #design_menu_ico_minus":       "minusCanvas"
             , "click #design_menu_ico_plus":        "plusCanvas"
             , "click #design_menu_save":            function() {
+                //触发自定义事件center:save_args
                 VtronEvents.triggerOut("center:save_args")
             }
-            , "click #design_menu_save_back":       function() {
-                VtronEvents.triggerOut("center:save_args_and_back")
+            , "click #design_menu_save_and_back":       function() {
+                Backbone.Events.trigger("center:save_args_and_back")
             }
+            ,"click #design_menu_back":             "backToWidgetList"
         },
 
         initialize: function() {
@@ -69,6 +71,9 @@ define([
                     $(this).height(newHeight);
                 });
         },
+        backToWidgetList: function(){
+            location = "/widget";
+        }
 
     });
 

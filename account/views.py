@@ -20,11 +20,12 @@ def mylogin(request):
 	if u'POST' == request.method:
 		user 	= request.POST.get(u'username')
 		pwd		= request.POST.get(u'password')	
+		html_next	= request.POST.get(u'next','/')	
 		user 	= authenticate(username=user, password=pwd)
 		if user is not None:
 			if user.is_active:
 				login(request, user)
-				return HttpResponseRedirect('/')
+				return HttpResponseRedirect(html_next)
 			else:
 				context_dict = {u'not_allowed': True}
 				return render_to_response(u'account/login.html', context_dict, context)
@@ -33,8 +34,9 @@ def mylogin(request):
 			return render_to_response(u'account/login.html', context_dict, context)
 
 	else:
+		html_next	= request.GET.get(u'next','')
 		context = RequestContext(request)
-		return render_to_response(u'account/login.html', context)
+		return render_to_response(u'account/login.html',{'next':html_next}, context)
 
 @csrf_exempt
 def myregister(request):

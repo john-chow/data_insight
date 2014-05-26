@@ -120,6 +120,9 @@ $("#batch_widget_list .element-list-div").on('click', function(ev) {
 		$(this).addClass('batch-widget-select');
 		countSelect();
 	}
+	var isSeleceAll = $(".element-list-div").length == $(".batch-widget-select").length;
+	$("#batch_widget_all").prop("checked",isSeleceAll);//全选
+
 });
 
 //统计选中组件个数
@@ -130,7 +133,13 @@ function countSelect(){
 
 //组件批量操作选中全部
 $("#batch_widget_all").on('click', function(ev) {
-	$(".element-list-div").addClass('batch-widget-select');
+	var $selectCheckBox = $(ev.target);
+	if($selectCheckBox.is(":checked")){
+		$(".element-list-div").addClass('batch-widget-select');
+	}else{
+		$(".element-list-div").removeClass('batch-widget-select');
+	}
+	
 	countSelect();
 });
 
