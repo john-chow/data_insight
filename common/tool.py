@@ -39,12 +39,13 @@ def UniqIdGenerator():
         yield seed
         seed += 1
 
+Uid_gen = UniqIdGenerator()
+
 def GetUniqueIntId():
     """
     获取随机数
     """
-    gen = UniqIdGenerator()
-    return gen.next()
+    return Uid_gen.next()
 
 
 

@@ -89,7 +89,7 @@ def widgetCreate(request):
 
     else:
         context = RequestContext(request)
-        #request.session[u'widget_id'] = GetUniqueIntId()
+        request.session[u'widget_id'] = GetUniqueIntId()
         data = {u'type': u'create'}
         return render_to_response(u'add.html', data, context)
 
