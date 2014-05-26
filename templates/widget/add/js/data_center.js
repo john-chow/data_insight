@@ -115,9 +115,12 @@ define([
         saveArgs:                function() {
             // 抓取命名等参数
             // TBD
-
             this.model.set(this.drawModel.toJSON());
-            this.model.save()
+            this.model.save(null,{success: function(model, respose){
+				 alert(respose.msg)
+			},error: function(){
+				alert("服务器返回非json数据")
+			}})
         },
 
         startRestore:           function() {

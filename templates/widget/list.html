@@ -12,7 +12,7 @@
 {# 左栏目 #}
 {% block contentLeft %}
 <div class="panel panel-default">
-	<div class="panel-heading">组件列表</div>
+	<div class="panel-heading"><span class="glyphicon glyphicon-th-list">&nbsp;</span>组件列表</div>
 	<ul>
 		<li class="">diam1</li>
 		<li class="">diam2</li>
@@ -36,38 +36,45 @@
 {# 右栏目 #}
 {% block contentRight %}
 {% autopaginate widgetList 2 %}
-<div id="widget_count">共&nbsp;<span>{{allCount}}</span>&nbsp;个组件，本页有&nbsp;<span>{{widgetList|length}}</span>&nbsp;个</div>
 <div class="content-menu clearfix">
     <div class="btn-group" data-toggle="buttons">
-	  <label class="btn btn-info active" id="widget_sort_drop">
-	    <input type="radio" name="widget_input_sort" >时间降序
+	  <label class="btn btn-default active" id="widget_sort_drop">
+	    <input type="radio" name="widget_input_sort" >时间降序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-down"></span>
 	  </label>
-	  <label class="btn btn-info " id="widget_sort_rise">
-	    <input type="radio" name="widget_input_sort" >时间升序
+	  <label class="btn btn-default" id="widget_sort_rise">
+	    <input type="radio" name="widget_input_sort" >时间升序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>
 	  </label>
 	</div>
-	<button type="button" id="button_new_widget" class="btn btn-primary">新建</button>
-	<div class="form-group">
-        <input id="widget_input_search" value="{{search}}" type="text" class="form-control" placeholder="请输入搜索内容">
+	<div class="pull-right">
+		<button type="button" id="button_new_widget" class="btn btn-primary">新建&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-plus"></span></button>
+	    <button type="button" id="button_widget_batch" class="btn btn-default">批量管理&nbsp;&nbsp;<span class="glyphicon glyphicon-list"></span></button>
+	 </div>
+    <div class="" style="width: 365px;float: right;">
+	    <div class="input-group">
+	        <input type="text" id="widget_input_search" value="{{search}}" name="search" placeholder="请输入搜索内容" class="form-control"/>
+	        <div class="input-group-btn">
+	          <button id="widget_button_search" type="button" class="btn btn-default">查找&nbsp;<span class="glyphicon glyphicon-search"></span></button>
+	        </div><!-- /btn-group -->
+	    </div>
     </div>
-    <button id="widget_button_search" type="button" class="btn btn-success">查找</button>
-    <button type="button" id="button_widget_batch" class="btn btn-default">批量管理</button>
-    {% if search %}
-    <button type="button" id="widget_list_back" class="btn btn-default">返回</button>
+</div>
+<div id="widget_count" class="clearfix">共&nbsp;<span>{{allCount}}</span>&nbsp;个组件，本页有
+	&nbsp;<span>{{widgetList|length}}</span>&nbsp;个
+	{% if search %}
+    <button type="button" id="widget_list_back" class="btn pull-right btn-default"><span class="glyphicon glyphicon-arrow-left">&nbsp;</span>返回</button>
     {% endif %}
-
 </div>
 <div class="tab-pane fade active in element-list clearfix" id="widget_list">
 	{% for widget in widgetList %}
 	    <div class="element-list-div">
 	    	<div class="element-list-widget" data-id="{{widget.m_id}}">
-	    		<a href="#" style="{% if widget.m_is_distributed %}background-color: #F3B9B9;{% endif %}"></a>
+	    		<a href="/widget/edit/{{widget.m_id}}" style="{% if widget.m_is_distributed %}background-color: #F3B9B9;{% endif %}"></a>
 	    		<div class="js-mod-widget-top">
 				    <span class="js-mod-widget-ico"><i class="icon-m icon-expansion-m"></i></span>
 				    <div class="js-mod-widget-con">
 				     	<ul>
 						    <li>
-						       <a href="#"><i class="icon-m icon-edit-m"></i>编辑</a>
+						       <a href="/widget/edit/{{widget.m_id}}"><i class="icon-m icon-edit-m"></i>编辑</a>
 						    </li>
 						    <li>
 						    	{% if widget.m_is_distributed %}
