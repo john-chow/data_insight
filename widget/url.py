@@ -6,8 +6,10 @@ urlpatterns = patterns('',
     url(r'^$', 					views.widgetList ,{'template_name': 'widget/list.html'}),
 	url(r'^list/$', 			views.widgetList ,{'template_name': 'widget/list.html'}),
 	url(r'^batch/$',			views.widgetList ,{'template_name': 'widget/batch.html'}),
+
 	url(r'^create/$', 			views.widgetCreate),
 	url(r'^edit/(\w+)/$', 		views.widgetEdit),
+	url(r'^show/(\w+)/$', 		views.widgetShow),
 
 	url(r'^distr/$', 			views.widgetOp, {'op': 'dis'}),
 	url(r'^delete/$', 			views.widgetOp, {'op': 'delete'}),

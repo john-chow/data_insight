@@ -38,8 +38,18 @@
 			</nav>
 		</div>
 		<!--menu end-->
+    </div>
+
+    <div>
+        <ul id="allow_use_widgets">
+            {% for widget_obj in allowed_widgets %}
+            <li class="widget" id="wi_{{ widget_obj.m_id }}" wiid={{ widget_obj.m_id }}>{{ widget_obj.m_name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 
 <script src='{% static "js/jquery-2.1.0.js" %}'></script>
 <script src='{% static "js/element.js" %}'></script>
 <script src='{% static "js/lib/bootstrap.js" %}'></script>
+<script src='{% static "js/lib/scene.js" %}'></script>
