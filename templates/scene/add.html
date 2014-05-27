@@ -48,7 +48,7 @@
 		  		<div id="scene_design_left" class="content-left col-md-2 col-lg-2">
 		  			<div id="choosed_chart" class="panel panel-default">
 					    <div class="panel-heading">组件</div>
-					    <ul>
+					    <ul id="all_widgets">
 					    	 {% for widget in allowed_widgets %}
 				            <li class="scene_list_widget" id="wi_{{ widget.m_id }}" data-id={{ widget.m_id }} title="{{ widget.m_name }}"><i class="glyphicon glyphicon-stats"></i>&nbsp;{{ widget.m_name }}</li>
 				            {% endfor %}
@@ -98,3 +98,4 @@
 <script src='{% static "js/scene/scene.js" %}'></script>
 <script src='{% static "js/lib/jquery.gridster.js" %}'></script>
 <script src='{% static "js/element.js" %}'></script>
+<script src='{% static "js/common/tools.js" %}'></script>
