@@ -43,7 +43,7 @@
     <div>
         <ul id="allow_use_widgets">
             {% for widget_obj in allowed_widgets %}
-                <li class="widget" id="wi_{{ widget_obj.m_id }}">{{ widget_obj.m_name }}</li>
+            <li class="widget" id="wi_{{ widget_obj.m_id }}" wiid={{ widget_obj.m_id }}>{{ widget_obj.m_name }}</li>
             {% endfor %}
         </ul>
     </div>

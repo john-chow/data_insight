@@ -29,4 +29,19 @@ var myWidgets = new MyWidgets();
 
 
 // 点击已被允许使用的组件时，请求拿到组件chart图的数据
+$("#allow_use_widgets .widget").on("click", function(ev) {
+    var wiId = $(ev).attr("wiid");
+    $.ajax({
+        url:        "/widget/" + wiId + "/"
+        , type:     "GET"
+        , success:  onGetWidgetData
+        , error:    function() {}
+    })
+})
 
+var onGetWidgetData = function(resp) {
+    if(!resp.succ) {
+        //
+        return
+    }
+}
