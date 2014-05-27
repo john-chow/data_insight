@@ -1486,6 +1486,24 @@
         return result;
     };
 
+     fn.serializeByStev = function($widgets) {
+        $widgets || ($widgets = this.$widgets);
+        var result = [];
+        $widgets.each($.proxy(function(i, widget) {
+            result.push(
+                { 
+                col: $(widget).attr("data-col"),
+                row: $(widget).attr("data-row"),
+                size_x: $(widget).attr("data-sizex"),
+                size_y: $(widget).attr("data-sizey"),
+                id: $(widget).attr("data-id")
+                }
+            );
+        }, this));
+
+        return result;
+    };
+
 
     /**
     * Returns a serialized array of the widgets that have changed their

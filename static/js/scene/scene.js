@@ -3,7 +3,7 @@ $(function(){ //DOM Ready
     $(".gridster ul").gridster({
       //widget_selector: "li",                        //确定哪个元素是widget
       widget_margins: [5, 5],                       //margin大小
-      widget_base_dimensions: [140, 140],           //面积大小
+      widget_base_dimensions: [150, 150],           //面积大小
       helper:'clone',
       autogrow_cols: true,
       resize:{
@@ -72,13 +72,14 @@ var myWidgets = new MyWidgets();
 // 点击已被允许使用的组件时，请求拿到组件chart图的数据
 $(".scene_list_widget").on("click", function(ev) {
     var wiId = $(this).attr("data-id");
+    var title = $(this).attr("title");
   /*  $.ajax({
         url:        "/widget/" + wiId + "/"
         , type:     "GET"
         , success:  onGetWidgetData
         , error:    function() {}
     })*/
-    
+    addWidget(wiId,title);
 })
 
 var onGetWidgetData = function(resp) {
@@ -89,7 +90,17 @@ var onGetWidgetData = function(resp) {
 }
 
 
-function addWidget() {
+function addWidget(wiId,title) {
     var gridster = $(".gridster ul").gridster().data('gridster');
-    gridster.add_widget('<li class="new">The HTML of the widget...</li>', 2, 1);
+    gridster.add_widget("<li data-id='"+wiId+"'>"+title+"</li>", 1, 1);
+}
+
+function sertest() {
+    var gridster = $(".gridster ul").gridster().data('gridster');
+    var json = gridster.serializeByStev();
+    alert(JSON.stringify(json)); 
+}
+
+function outtest() {
+    
 }

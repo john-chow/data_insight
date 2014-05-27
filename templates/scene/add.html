@@ -51,7 +51,7 @@
 					    <div class="panel-heading">组件</div>
 					    <ul>
 					    	 {% for widget in allowed_widgets %}
-				            <li class="scene_list_widget" id="wi_{{ widget.m_id }}" data-id={{ widget.m_id }}><i class="glyphicon glyphicon-stats"></i>&nbsp;{{ widget.m_name }}</li>
+				            <li class="scene_list_widget" id="wi_{{ widget.m_id }}" data-id={{ widget.m_id }} title="{{ widget.m_name }}"><i class="glyphicon glyphicon-stats"></i>&nbsp;{{ widget.m_name }}</li>
 				            {% endfor %}
 
 				            <li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li>
@@ -63,6 +63,8 @@
 					<div id="choosed_dashboard" class="panel panel-default">
 					    <div class="panel-heading">场景</div>
 					    <ul>
+					    	<input type="button" onclick="sertest()" value="序列化测试" />
+					    	<input type="button" onclick="outtest()" value="生成测试" />
 					    </ul>
 					</div>
 

@@ -60,3 +60,15 @@
 #choosed_chart ul{
     overflow: auto;
 }
+
+#scene_design_right .gridster ul {
+    list-style: none;
+}
+
+#scene_design_right .gridster ul>li{
+    background-color: #ddd;
+}
+
+#scene_design_right {
+    overflow: auto;
+}
