@@ -4,11 +4,11 @@
 <head>
 	<meta charset='utf-8'>
 	<title>DataInsight</title>
-	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/scene/scene.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/element.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.gridster.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/element.css' %}">
+    {% include 'head.html' %}
 </head>
 <body>
 	<!--LOGO begin-->
@@ -86,7 +86,6 @@
 		<!--content end-->
 </body>
 
-<script src='{% static "js/jquery-2.1.0.js" %}'></script>
-<script src='{% static "js/lib/bootstrap.js" %}'></script>
 <script src='{% static "js/scene/scene.js" %}'></script>
 <script src='{% static "js/lib/jquery.gridster.js" %}'></script>
+<script src='{% static "js/element.js" %}'></script>

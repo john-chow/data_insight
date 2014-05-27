@@ -1,5 +1,4 @@
 $(function(){ //DOM Ready
-
     $(".gridster ul").gridster({
       //widget_selector: "li",                        //确定哪个元素是widget
       widget_margins: [5, 5],                       //margin大小
@@ -39,57 +38,135 @@ function changeAuto(){
     $("#choosed_layout ul").height(tHeight);
 }
 
-// 本场景组件类构造函数
-var MyWidgets = function() {
-    // 组件列表
-    this.widgets = [];
-
-    // 组件布局
-    this.layout = ""; 
-
-    // 场景id
-    this.id = "";
-
-    this.init = function() {
-        // 主要是适用于edit页面，去我的组件框中抓取
-    };
-
-    // 保存本场景组件列表
-    this.save = function() {
-    };
-
-    // 设置布局
-    this.setLayout = function(layout) {
-        this.layout = layout
-    }
-}
-
-
-var myWidgets = new MyWidgets();
-
-
-
-// 点击已被允许使用的组件时，请求拿到组件chart图的数据
-$(".scene_list_widget").on("click", function(ev) {
-    var wiId = $(this).attr("data-id");
-  /*  $.ajax({
-        url:        "/widget/" + wiId + "/"
-        , type:     "GET"
-        , success:  onGetWidgetData
-        , error:    function() {}
-    })*/
-    
-})
-
-var onGetWidgetData = function(resp) {
-    if(!resp.succ) {
-        //
-        return
-    }
-}
-
-
 function addWidget() {
     var gridster = $(".gridster ul").gridster().data('gridster');
     gridster.add_widget('<li class="new">The HTML of the widget...</li>', 2, 1);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+// 组织区域模块
+define("compontnents", [], function() {
+    // 所有可以用组建类构造函数
+    var allWidgetsObj = {
+    };
+
+    // 本场景属性设计类构造函数
+    var myAttributesObj = {
+    };
+
+    // 本场景组件类构造函数
+    var myWidgetsObj = {
+        // 组件列表
+        widgets:        [],
+
+        // 组件布局
+        layout:         "", 
+
+        // 对应dom节点
+        $el:            "",
+
+        init:           function($el) {
+            this.$el = $el;
+            
+            // 从dom树上抓取该区域内全部element，并且组合成widget对象
+            // 保存widget对象为属性成员
+            var self = this;
+            $.each(this.$el.find(".widget"), function(i, ele) {
+                var widgetObj = new OneWidget($(obj).attr("data-id"));
+
+                // 监听拖动事件，以抓取图像数据的函数作回掉函数
+                //
+
+                self.allWidgetsObj.push(widgetObj)
+            })
+        },
+
+        // 初始化dom样式等等
+        initElements:   function() {
+        },
+
+        addWidget:      function(ev) {
+        },
+
+        rmWidget:       function() {
+        },
+
+        // 保存本场景组件列表
+        save:           function() {
+        },
+
+        restore:        function() {
+        },
+
+        // 设置布局
+        setLayout:      function(layout) {
+            this.layout = layout
+        }
+    };
+
+
+    // 每个组件类构造函数
+    var OneWidget =     function(id, name) {
+        // 组件id
+        this.id     =           id;
+        this.name   =           name;
+    
+        // 获取组件图像数据
+        this.fetchPicData =     function() {
+            $.ajax({
+                url:        "/widget/" + wiId + "/"
+                , type:     "GET"
+                , success:  this.onGetWidgetData
+                , error:    function() {}
+            })
+        };
+
+        this.onGetWidgetData =  function() {
+
+        }
+    };
+
+    
+    // 开始运行
+    allWidgetsObj.init();
+    myWidgetsObj.init();
+    myAttributesObj.init();
+
+})
+
+
+
+// 呈现区域模块
+define("layout", [], function() {
+})
+
+
+define('', ["compontnents", "layout"], function() {
+    require("compontnents");
+    require("layout");
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
