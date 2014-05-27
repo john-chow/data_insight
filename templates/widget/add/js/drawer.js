@@ -1,12 +1,11 @@
 define([
-"backbone"
 , "echarts"
 , "echarts/chart/bar"
 , "echarts/chart/line"
 , "echarts/chart/scatter"
 , "echarts/chart/pie"
 , "echarts/chart/radar"
-], function(Backbone, echart, _b, _l, _s, _p, _r) {
+], function(echart, _b, _l, _s, _p, _r) {
 
 	var DrawManager = function(opt) {
 		this.now_drawer				= null;

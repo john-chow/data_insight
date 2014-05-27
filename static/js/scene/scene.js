@@ -1,3 +1,4 @@
+//初始化gridster
 $(function(){ //DOM Ready
     $(".gridster ul").gridster({
       //widget_selector: "li",                        //确定哪个元素是widget
@@ -38,19 +39,54 @@ function changeAuto(){
     $("#choosed_layout ul").height(tHeight);
 }
 
-function addWidget(wiId,title) {
-    var gridster = $(".gridster ul").gridster().data('gridster');
-    gridster.add_widget("<li data-id='"+wiId+"'>"+title+"</li>", 1, 1);
+
+// 点击已被允许使用的组件时，请求拿到组件chart图的数据
+$(".scene_list_widget").on("click", function(ev) {
+    var wiId = $(this).attr("data-id");
+    $.ajax({
+        url:        "/widget/show/" + wiId + "/"
+        , type:     "GET"
+        , dataType: "json"
+        , success:  onGetWidgetData
+        , error:    function() {}
+    })
+    
+})
+
+//ajax成功后执行函数
+var onGetWidgetData = function(data) {
+    require(["drawer"], function(DrawManager) {
+        if (data.succ){
+            var gridster = $(".gridster ul").gridster().data('gridster');
+            gridster.add_widget("<li class='se_wi_"+data.data_id+"' data-id='"+data.data_id+"'></li>", 1, 1);
+            var drawer = new DrawManager();
+            drawer.run($(".se_wi_"+data.data_id), data['data'])
+            //alert(data['data']);
+        } else {
+            alert(data.msg)
+        }
+    })
 }
 
+
+
+//测试函数
 function sertest() {
     var gridster = $(".gridster ul").gridster().data('gridster');
     var json = gridster.serializeByStev();
+    sessionStorage.tempWorkBook = JSON.stringify(json);
     alert(JSON.stringify(json)); 
 }
 
+//测试函数
 function outtest() {
-    
+    var gridster = $(".gridster ul").gridster().data('gridster');//获取对象
+    var serialization=sessionStorage.tempWorkBook;
+    gridster.remove_all_widgets();
+    $.each(JSON.parse(serialization), function(i) {
+        var st="<li data-id='"+this.data_id+"' class='gs-w'><div>id="+this.data_id+"</div></li>";
+        gridster.add_widget(st, this.size_x, this.size_y, this.col, this.row);
+    });
 }
 
 
@@ -136,7 +172,7 @@ define("compontnents", [], function() {
 
         }
     };
-}
+})
 
 
 

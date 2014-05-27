@@ -632,29 +632,7 @@ button.filter-close {
     overflow: auto;
 }
 
-.gridster ul{
-    list-style: none;
-}
 
-.gridster li {
-    background-color: #004756;
-    cursor: pointer;
-    color:#fff;
-    font-size: 1em;
-    font-weight: bold;
-    text-align: center;
-    line-height: 100%;
-}
-
-.gridster {
-    margin: 0 auto;
-    opacity: .8;
-    -webkit-transition: opacity .6s;
-    -moz-transition: opacity .6s;
-    -o-transition: opacity .6s;
-    -ms-transition: opacity .6s;
-    transition: opacity .6s;
-}
 
 /*body {
     font-family: "Microsoft Yahei", "LiHei Pro", "SimSun", Helvetica, Arial, sans-serif !important;

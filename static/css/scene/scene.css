@@ -65,10 +65,36 @@
     list-style: none;
 }
 
-#scene_design_right .gridster ul>li{
-    background-color: #ddd;
+.gridster ul{
+    list-style: none;
+}
+
+.gridster li {
+    background-color: #004756;
+    cursor: pointer;
+    color:#fff;
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center;
+    line-height: 100%;
+}
+
+.gridster {
+    margin: 0 auto;
+    opacity: .8;
+    -webkit-transition: opacity .6s;
+    -moz-transition: opacity .6s;
+    -o-transition: opacity .6s;
+    -ms-transition: opacity .6s;
+    transition: opacity .6s;
 }
 
 #scene_design_right {
     overflow: auto;
+}
+
+#scene_design_left ,
+#scene_design_right {
+    margin:0;
+    padding:0;
 }
