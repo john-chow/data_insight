@@ -1,10 +1,11 @@
 define([
-, "echarts"
+"echarts"
 , "echarts/chart/bar"
 , "echarts/chart/line"
 , "echarts/chart/scatter"
 , "echarts/chart/pie"
 , "echarts/chart/radar"
+, "common/tools"
 ], function(echart, _b, _l, _s, _p, _r) {
 
 	var DrawManager = function(opt) {

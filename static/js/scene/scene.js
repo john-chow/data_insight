@@ -60,7 +60,8 @@ var onGetWidgetData = function(data) {
             var gridster = $(".gridster ul").gridster().data('gridster');
             gridster.add_widget("<li class='se_wi_"+data.data_id+"' data-id='"+data.data_id+"'></li>", 1, 1);
             var drawer = new DrawManager();
-            drawer.run($(".se_wi_"+data.data_id), data['data'])
+            var len = $(".se_wi_"+data.data_id).length-1;
+            drawer.run($(".se_wi_"+data.data_id)[len], data['data'])
             //alert(data['data']);
         } else {
             alert(data.msg)
