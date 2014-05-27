@@ -678,50 +678,7 @@ button.filter-close {
     position: relative;
 }
 
-#choosed_chart ul {
-    list-style-type: none;
-    padding:10px 0;
-    margin:0;
-}
-
-#choosed_chart li:hover {
-    background-color: #E5F1FB;
-    border-radius: 5px;
-    border: 1px solid #CCC5EC;
-}
-
-#choosed_chart li {
-    padding:3px 0;
-    border: 1px solid white;
-    padding: 0px 0 1px 14px;
-    cursor: pointer;
-}
-
-#choosed_chart ,
-#choosed_layout ,
-#choosed_dashboard {
-    margin: 0;
-    border: none;
-    box-shadow: none;
-}
-
-#choosed_chart .panel-heading , 
-#choosed_layout .panel-heading ,
-#choosed_dashboard .panel-heading {
-    padding: 3px 15px;
-}
-
-#choosed_dashboard ul {
-    height: 150px;
-    overflow: auto;
-}
-
-#choosed_chart ul{
-    height: 300px;
-    overflow: auto;
-}
-
-#show_area_chart {
+#scene_design_right {
     overflow: auto;
 }
 
@@ -983,20 +940,4 @@ button.filter-close {
     margin-bottom: 5px;
 }
 
-.choosed_chart_extra {
-    padding:0 10px;
-    margin:10px 0;
-}
 
-.choosed_chart_extra span {
-    padding: 0 10px;
-    margin: 0 10px;
-    border: 1px solid white;
-    cursor: default;
-}
-
-.choosed_chart_extra span:hover {
-    background-color: #F6E8F5;
-    border: 1px solid #B8A8E9;
-    border-radius: 5px;
-}

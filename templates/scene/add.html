@@ -5,8 +5,10 @@
 	<meta charset='utf-8'>
 	<title>DataInsight</title>
 	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/element.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/scene/scene.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/element.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.gridster.css' %}">
 </head>
 <body>
 	<!--LOGO begin-->
@@ -40,16 +42,51 @@
 		<!--menu end-->
     </div>
 
-    <div>
-        <ul id="allow_use_widgets">
-            {% for widget_obj in allowed_widgets %}
-            <li class="widget" id="wi_{{ widget_obj.m_id }}" wiid={{ widget_obj.m_id }}>{{ widget_obj.m_name }}</li>
-            {% endfor %}
-        </ul>
-    </div>
+
+    <!--content begin-->
+		<div id="content">
+			<div class="row">
+		  		<div id="scene_design_left" class="content-left col-md-2 col-lg-2">
+		  			<div id="choosed_chart" class="panel panel-default">
+					    <div class="panel-heading">组件</div>
+					    <ul>
+					    	 {% for widget in allowed_widgets %}
+				            <li class="scene_list_widget" id="wi_{{ widget.m_id }}" data-id={{ widget.m_id }}><i class="glyphicon glyphicon-stats"></i>&nbsp;{{ widget.m_name }}</li>
+				            {% endfor %}
+
+				            <li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li>
+
+					    </ul>
+					    <div class="choosed_chart_extra"><span>文字</span><span>图片</span></div>
+					</div>
+
+					<div id="choosed_dashboard" class="panel panel-default">
+					    <div class="panel-heading">场景</div>
+					    <ul>
+					    </ul>
+					</div>
+
+					<div id="choosed_layout" class="panel panel-default">
+					    <div class="panel-heading">层次关系</div>
+					    <ul>
+					    </ul>
+					</div>
+		  		 </div>
+		  		 <!--场景设计区域content begin-->
+		  		<div id="scene_design_right" class="content-right col-md-10 col-lg-10">
+					<div class="gridster">
+					    <ul>
+					    	
+					    </ul>
+					</div>
+		  		</div>
+		  		<!--场景设计区域content end-->
+		  	</div>
+		</div>
+		<!--content end-->
 </body>
 
 <script src='{% static "js/jquery-2.1.0.js" %}'></script>
-<script src='{% static "js/element.js" %}'></script>
 <script src='{% static "js/lib/bootstrap.js" %}'></script>
-<script src='{% static "js/lib/scene.js" %}'></script>
+<script src='{% static "js/scene/scene.js" %}'></script>
+<script src='{% static "js/lib/jquery.gridster.js" %}'></script>

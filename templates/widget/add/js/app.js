@@ -155,7 +155,7 @@ requirejs([
 function change_auto(){
     change_dbinfo_bar();
     change_design_panel();
-    change_show_area();
+    //change_show_area();
 }
 
 function change_dbinfo_bar(){
@@ -172,7 +172,7 @@ function change_design_panel(){
     //$("#design_panel").width(document.documentElement.clientWidth-161-3);
 }
 
-function change_show_area(){
+/*function change_show_area(){
     var clientHeight = document.documentElement.clientHeight;
     var logoHeight=$("#header").height();
     var menuHeight=$("#design_menu").height();
@@ -180,9 +180,9 @@ function change_show_area(){
     var areaHeight = clientHeight-logoHeight-menuHeight-footerHeight;
     $("#show_area_bar").height(areaHeight);
     $("#show_area_panel").height(areaHeight-28);
-    $("#show_area_chart").height(areaHeight-28);//28是info_workplace高度
+    $("#scene_design_right").height(areaHeight-28);//28是info_workplace高度
 }
-
+*/
  function change_dbinfo_height(){
     var clientHeight = document.documentElement.clientHeight;
     var logoHeight=$("#header").height();

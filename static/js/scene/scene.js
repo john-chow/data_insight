@@ -1,3 +1,44 @@
+$(function(){ //DOM Ready
+
+    $(".gridster ul").gridster({
+      //widget_selector: "li",                        //确定哪个元素是widget
+      widget_margins: [5, 5],                       //margin大小
+      widget_base_dimensions: [140, 140],           //面积大小
+      helper:'clone',
+      autogrow_cols: true,
+      resize:{
+        enabled: true
+      },
+    });
+
+});
+
+//初始化页面
+window.onload = function (){
+    changeAuto();
+    $(window).resize(function() {
+          changeAuto();
+    });
+}
+
+//动态变化高度
+function changeAuto(){
+    var clientHeight = document.documentElement.clientHeight;
+    var eHeight = $("#header").height()+$("#menu").height()+1;
+    $("#scene_design_right").height(clientHeight-eHeight);
+    $("#scene_design_left").height(clientHeight-eHeight);
+    //alert(clientHeight+"_"+$("#header").height()+"_"+$("#menu").height()+"_"+$("#scene_design_left").height());
+    $("#choosed_chart").height("40%");
+    $("#choosed_dashboard").height("30%");
+    $("#choosed_layout").height("30%");
+    var headHeight = $("#choosed_chart .panel-heading").height()+7;
+    var oHeight = $("#choosed_chart").height()-headHeight-$(".choosed_chart_extra").height();
+    var tHeight = $("#choosed_dashboard").height()-headHeight;
+    $("#choosed_chart ul").height(oHeight);
+    $("#choosed_dashboard ul").height(tHeight);
+    $("#choosed_layout ul").height(tHeight);
+}
+
 // 本场景组件类构造函数
 var MyWidgets = function() {
     // 组件列表
@@ -29,14 +70,15 @@ var myWidgets = new MyWidgets();
 
 
 // 点击已被允许使用的组件时，请求拿到组件chart图的数据
-$("#allow_use_widgets .widget").on("click", function(ev) {
-    var wiId = $(ev).attr("wiid");
-    $.ajax({
+$(".scene_list_widget").on("click", function(ev) {
+    var wiId = $(this).attr("data-id");
+  /*  $.ajax({
         url:        "/widget/" + wiId + "/"
         , type:     "GET"
         , success:  onGetWidgetData
         , error:    function() {}
-    })
+    })*/
+    
 })
 
 var onGetWidgetData = function(resp) {
@@ -44,4 +86,10 @@ var onGetWidgetData = function(resp) {
         //
         return
     }
+}
+
+
+function addWidget() {
+    var gridster = $(".gridster ul").gridster().data('gridster');
+    gridster.add_widget('<li class="new">The HTML of the widget...</li>', 2, 1);
 }

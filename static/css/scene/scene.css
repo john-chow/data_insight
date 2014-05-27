@@ -1,0 +1,62 @@
+
+#choosed_chart ul {
+    list-style-type: none;
+    padding:0;
+    margin:0;
+}
+
+#choosed_chart li:hover {
+    background-color: #E5F1FB;
+    border-radius: 5px;
+    border: 1px solid #CCC5EC;
+}
+
+#choosed_chart li {
+    border: 1px solid white;
+    padding: 0px 10px 1px 20px;
+    cursor: pointer;
+    overflow: hidden;
+    font-size: 15px;
+}
+
+#choosed_chart ,
+#choosed_layout ,
+#choosed_dashboard {
+    margin: 0;
+    border: none;
+    box-shadow: none;
+}
+
+#choosed_chart .glyphicon {
+    color: #AFAFAF;
+}
+
+.choosed_chart_extra {
+    padding:0 10px;
+    background-color: #E5E2F1;
+}
+
+.choosed_chart_extra span {
+    padding: 0 10px;
+    cursor: default;
+}
+
+.choosed_chart_extra span:hover {
+    background-color: #F6E8F5;
+    border-radius: 5px;
+}
+
+#choosed_chart .panel-heading , 
+#choosed_layout .panel-heading ,
+#choosed_dashboard .panel-heading {
+    padding: 3px 30px;
+}
+
+#choosed_dashboard ul {
+    height: 150px;
+    overflow: auto;
+}
+
+#choosed_chart ul{
+    overflow: auto;
+}
