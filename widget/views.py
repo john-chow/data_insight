@@ -205,7 +205,7 @@ def widgetShow(request, widget_id):
         return HttpResponse({u'succ': False, u'msg': u'yyyyyyyyyyyy'})
     else:
         image_data = genWidgetImageData(extent_data, conn_arg)
-        return MyHttpJsonResponse({u'succ': True, u'data_id':widget_id, u'data': image_data})
+        return MyHttpJsonResponse({u'succ': True, u'widget_id':widget_id, u'data': image_data})
 
 
 def connectDb(request):

@@ -251,10 +251,10 @@ define("display", ["drawer"], function(DrawManager) {
 
         showWidget:         function(ev, data) {
             var gridster = $(".gridster ul").gridster().data('gridster');
-            gridster.add_widget("<li class='se_wi_"+data.data_id+"' data-id='"+data.data_id+"'></li>", 1, 1);
+            gridster.add_widget("<li class='se_wi_"+data.widget_id+"' data-id='"+data.widget_id+"'></li>", 1, 1);
             var drawer = new DrawManager();
-            var len = $(".se_wi_"+data.data_id).length-1;
-            drawer.run($(".se_wi_"+data.data_id)[len], data.data)
+            var len = $(".se_wi_"+data.widget_id).length-1;
+            drawer.run($(".se_wi_"+data.widget_id)[len], data.data)
         },
 
         rmWidget:           function() {
