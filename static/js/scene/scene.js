@@ -20,6 +20,7 @@ $(function(){ //DOM Ready
             stop: function(e, ui, $widget) {
                 innerHTML = '停止事件：' + ui.position.top +' '+ ui.position.left;
                 console.log(innerHTML);
+                $body.trigger("widget_resize_" + $widget.attr("data-id"))
             }
           }
         });
@@ -249,11 +250,11 @@ define("display", ["drawer"], function(DrawManager) {
         $el:                $("#scene_design_right"),
 
         run:                function() {
-            this.initStyle();
+            this.init();
             this.startListener()
         },
 
-        initStyle:          function() {
+        init:          function() {
         },
         
         startListener:      function() {
@@ -266,12 +267,11 @@ define("display", ["drawer"], function(DrawManager) {
             var gridster = $(".gridster ul").gridster().data('gridster');
             gridster.add_widget("<li class='se_wi_"+data.widget_id+"' data-id='"+data.widget_id+
                 "'><div class='se_wi_div se_wi_div_"+data.widget_id+"'></div></li>", 1, 1);
-            var drawer = new DrawManager();
             var len = $(".se_wi_div_"+data.widget_id).length-1;
+            var drawer = new DrawManager();
             drawer.run($(".se_wi_div_"+data.widget_id)[len], data.data);
 
-            // 保持伸缩性，拖到的时候也可以增大缩小
-            this.keepFlexible()
+            this.afterWidgetShown(drawer, data.widget_id)
         },
 
         rmWidget:           function() {
@@ -284,6 +284,15 @@ define("display", ["drawer"], function(DrawManager) {
                 $(obj).css("width", "100%");
                 $(obj).css("height", "100%")
             })
+        },
+
+        afterWidgetShown:   function(drawer, widgetId) {
+            // 保持伸缩性，拖到的时候也可以增大缩小
+            this.keepFlexible();
+
+            // 监听自己的resize事件
+            var ec = drawer.getEc();
+            $body.on("widget_resize_" + widgetId, ec.resize)
         },
 
         save:               function() {
