@@ -268,10 +268,22 @@ define("display", ["drawer"], function(DrawManager) {
                 "'><div class='se_wi_div se_wi_div_"+data.widget_id+"'></div></li>", 1, 1);
             var drawer = new DrawManager();
             var len = $(".se_wi_div_"+data.widget_id).length-1;
-            drawer.run($(".se_wi_div_"+data.widget_id)[len], data.data)
+            drawer.run($(".se_wi_div_"+data.widget_id)[len], data.data);
+
+            // 保持伸缩性，拖到的时候也可以增大缩小
+            this.keepFlexible()
         },
 
         rmWidget:           function() {
+        },
+
+        keepFlexible:     function() {
+            // 把所有相关标签的width,height设为100%
+            // 只有某个div不需要去设置
+            $.each(this.$el.find(".se_wi_div").find(":not(.echarts-dataview)"), function(i, obj) {
+                $(obj).css("width", "100%");
+                $(obj).css("height", "100%")
+            })
         },
 
         save:               function() {
