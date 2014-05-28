@@ -54,44 +54,11 @@ function changeAuto() {
 }
 
 
-/*
-// 点击已被允许使用的组件时，请求拿到组件chart图的数据
-$(".scene_list_widget").on("click", function(ev) {
-    var wiId = $(this).attr("data-id");
-    $.ajax({
-        url:        "/widget/show/" + wiId + "/"
-        , type:     "GET"
-        , dataType: "json"
-        , success:  onGetWidgetData
-        , error:    function() {}
-    })
-    
-})
-
-//ajax成功后执行函数
-var onGetWidgetData = function(data) {
-    require(["drawer"], function(DrawManager) {
-        if (data.succ){
-            var gridster = $(".gridster ul").gridster().data('gridster');
-            gridster.add_widget("<li class='se_wi_"+data.data_id+"' data-id='"+data.data_id+"'></li>", 1, 1);
-            var drawer = new DrawManager();
-            var len = $(".se_wi_"+data.data_id).length-1;
-            drawer.run($(".se_wi_"+data.data_id)[len], data['data'])
-            //alert(data['data']);
-        } else {
-            alert(data.msg)
-        }
-    })
-}
-*/
-
-
-
 //测试函数
 function sertest() {
     var gridster = $(".gridster ul").gridster().data('gridster');
     var json = gridster.serializeByStev();
-    sessionStorage.tempWorkBook = JSON.stringify(json);
+    //sessionStorage.tempWorkBook = JSON.stringify(json);
     alert(JSON.stringify(json)); 
 }
 
@@ -105,9 +72,6 @@ function outtest() {
         gridster.add_widget(st, this.size_x, this.size_y, this.col, this.row);
     });
 }
-
-
-
 
 // 传递全局事件对象
 $body = $("body");
@@ -158,10 +122,11 @@ define("compontnents", [], function() {
         $el:                "",
 
         // 组件列表中组件模板
-        template:           '<li class="scene_list_widget" id="wi_{widget_id}" ' 
-                        + 'data-id={widget_id} title="{widget_name}">'
+        template:           '<li class="scene_choose_widget" id="wi_{widget_id_time}" ' 
+                        + 'data-id="{widget_id}" data-time="{widget_time}">'
                         + '<i class="glyphicon glyphicon-stats"></i>'
-                        + '&nbsp;{widget_name}</li>',
+                        + '&nbsp;{widget_name}<span class="glyphicon glyphicon-remove"></span>'
+                        + '</li>',
 
         init:           function($el) {
             this.$el = $el;
@@ -183,14 +148,40 @@ define("compontnents", [], function() {
 
         respToSelect:   function(ev) {
             var widgetObj = ev.data["widget"];
-            this.addWidget(widgetObj);
+            //时间戳，使相同widget有唯一class，用于删除
+            var timestamp = Date.parse(new Date()); 
+            this.addWidget(widgetObj,timestamp);
+
+            $(".scene_choose_widget").on('mouseenter', function(ev) {
+                data_id = $(this).attr("data-id");
+                data_time = $(this).attr("data-time");
+                var choose = "se_wi_"+data_id+"_"+data_time;
+                $("."+choose).find(".se_wi_div").addClass("se_wi_color");
+            });
+            $(".scene_choose_widget").on('mouseleave', function(ev) {
+                $(".se_wi_color").removeClass('se_wi_color')
+            });
+             $(".scene_choose_widget span.glyphicon").on('click', function(ev) {
+                $choose = $(this).parent();
+                data_id = $choose.attr("data-id");
+                data_time = $choose.attr("data-time");
+                var choose = "se_wi_"+data_id+"_"+data_time;
+                $choose.remove();
+                var gridster = $(".gridster ul").gridster().data('gridster');//获取对象
+                gridster.remove_widget($("."+choose));
+            });
 
             // 向服务器请求图像数据
-            widgetObj.fetchPicData()
+            widgetObj.fetchPicData(timestamp)
         },
 
-        addWidget:      function(widgetObj) {
-            this.$el.append(this.template.replace(/{widget_id}/g, widgetObj.id)
+        addWidget:      function(widgetObj, timeStamp) {
+            //var len = $(".se_wi_div_"+widgetObj.id).length;
+            //var replaceId = widgetObj.id+"_"+len;
+            var replaceId = widgetObj.id+"_"+timeStamp;
+            this.$el.append(this.template.replace(/{widget_id_time}/g, replaceId)
+                        .replace(/{widget_time}/g, timeStamp)
+                                    .replace(/{widget_id}/g, widgetObj.id)
                                             .replace(/{widget_name}/g, widgetObj.name));
             this.widgetsList.push(widgetObj)
         },
@@ -232,19 +223,22 @@ define("compontnents", [], function() {
         this.layout =           "", 
     
         // 获取组件图像数据
-        this.fetchPicData =     function() {
+        this.fetchPicData =     function(timestamp) {
+            var self = this;
             $.ajax({
                 url:            "/widget/show/" + this.id + "/"
                 , type:         "GET"
-                , success:      this.onGetWidgetData
+                , success:      function(data) {
+                    self.onGetWidgetData(data, timestamp)
+                }
                 , error:        function() {}
             })
         };
 
-        this.onGetWidgetData =  function(data) {
+        this.onGetWidgetData =  function(data, timestamp) {
             // 如果成功，则传递数据到面板进行画图
             if (data.succ){
-                $body.trigger("show_widget", data)
+                $body.trigger("show_widget", {"data":data, "time":timestamp})
             } else {
                 alert(data.msg)
             }
@@ -281,10 +275,15 @@ define("display", ["drawer"], function(DrawManager) {
         },
 
         showWidget:         function(ev, data) {
+            var timestamp = data.time;
+            var data = data.data;
             var gridster = $(".gridster ul").gridster().data('gridster');
-            gridster.add_widget("<li class='se_wi_"+data.widget_id+"' data-id='"+data.widget_id+
-                "'><div class='se_wi_div se_wi_div_"+data.widget_id+"'></div></li>", 1, 1);
-            var len = $(".se_wi_div_"+data.widget_id).length-1;
+            //利用时间戳
+            len = $(".se_wi_div_"+data.widget_id).length;
+            gridster.add_widget("<li class='se_wi_"+data.widget_id+"_"+timestamp+
+                "' data-id='"+data.widget_id+"' data-time='"+timestamp+
+                "'><div class='se_wi_div se_wi_div_"+
+                data.widget_id+"'></div></li>", 1, 1);
             var drawer = new DrawManager();
             drawer.run($(".se_wi_div_"+data.widget_id)[len], data.data);
 

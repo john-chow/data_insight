@@ -70,7 +70,7 @@
 }
 
 .gridster li {
-    background-color: #004756;
+    border: 1px solid #C0BDD1;
     cursor: pointer;
     color:#fff;
     font-size: 1em;
@@ -101,4 +101,40 @@
 
 .se_wi_div {
     height: 100%;
+}
+
+#choosed_layout ul li {
+    padding: 0px 20px 1px 20px;
+    cursor: default;
+    overflow: hidden;
+    font-size: 15px;
+}
+
+#choosed_layout ul {
+    overflow: auto;
+}
+
+#choosed_layout i {
+    color: #EB6283;
+}
+
+.se_wi_color {
+    background-color: #ddd;
+}
+
+.scene_choose_widget {
+    position: relative;
+}
+
+.scene_choose_widget span.glyphicon {
+    position: absolute;
+    color: #581212;
+    cursor: pointer;
+    top: 4px;
+    right: 0;
+    display:none;
+}
+
+.scene_choose_widget:hover span.glyphicon {
+    display:block;
 }
