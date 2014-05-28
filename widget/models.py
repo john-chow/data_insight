@@ -13,7 +13,14 @@ class WidgetModel(ElementModel):
     m_y             = models.CharField(max_length=50)               
     m_size          = models.CharField(max_length=20)               
     m_color         = models.CharField(max_length=20)               
-    m_graph         = models.CharField(max_length=20)               
+
+    GRAPH_CHOICES   = (
+        ('bar',         'bar')
+        , ('line',      'line')
+        , ('scatr',     'scatter')
+        , ('map',       'map')
+    )
+    m_graph         = models.CharField(max_length = 5, choices = GRAPH_CHOICES)               
     m_pic           = models.TextField()
     m_external_db   = models.ForeignKey('ExternalDbModel')
 

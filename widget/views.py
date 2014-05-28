@@ -74,14 +74,15 @@ def widgetCreate(request):
         widget = WidgetModel.objects.create( 
             m_name='组件', m_table = table, m_x=x, m_y=y, \
             m_color = color, m_size = size, m_graph = graph, \
-            m_external_db = external_conn, m_pic = image
+            m_external_db = external_conn, m_pic = image  \
         )
 
         return MyHttpJsonResponse({u'succ': True, u'wiId': widget.pk, \
                                     u'msg': u'保存成功'})
     else:
         context = RequestContext(request)
-        return render_to_response(u'add.html', context)
+        dict = {u'type': u'create'}
+        return render_to_response(u'add.html', dict, context)
 
 @login_required
 def widgetOp(request, op):
@@ -387,6 +388,10 @@ def checkExtentData(extent_data):
             map(lambda i: extent_data.get(i, []), \
                     ['x', 'y', 'color', 'size', 'graph'] \
                 )
+
+    # 必须选择画某种图形
+    if not graph:
+        return (False, u'Please choose graph')
 
     x_len, y_len = map(lambda i: len(i) if isinstance(i, list) else 0,
                                     (x, y))

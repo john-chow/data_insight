@@ -14,11 +14,17 @@ define([
 		size:		"",
 		shape:		"",
 
+        able_draw:  false,      // 是否可以画图
+
         assignDrawBasic: function() {
             this.triggerOut("dbbar:restore", this.toJSON());
         },
 
-		setToSev: function(data) {
+        getDrawAble:        function() {
+            return this.able_draw
+        },
+
+        onGetUserAct:           function(data) {
             // 如果属性没有新的变化，不提交
             var noChange = true;
             for (var k in data) {
@@ -27,20 +33,25 @@ define([
                     break
                 }
             }
-
             if (noChange)   return;
 
+            this.setToSev(data);
+        },
+
+		setToSev: function(data) {
 			this.set(data);
 
 			var self = this;
 			this.save(null, {
 				success: function(m, resp, opt) {
 					if (resp.succ) {
+                        self.able_draw  = true;
 						self.triggerOut("panel:draw_data", resp.data)
 					} else {
+                        self.able_draw  = false;
 						easy_dialog_error(resp.msg)						
 						// 通知清空
-						self.triggerOut("panel:draw_data", {})
+						self.triggerOut("panel:clear")
 					}
 				}, error: function() {
 				},
@@ -96,7 +107,7 @@ define([
 		run: 				function() {
 			this.onOut(
 				"area:user_set_action"
-				, _.bind(this.drawModel.setToSev, this.drawModel)
+				, _.bind(this.drawModel.onGetUserAct, this.drawModel)
 		  	);
 
 			var self = this;
@@ -128,7 +139,7 @@ define([
 		},
 
         onSave:                 function(succCmd) {
-            if (!this.zr) {
+            if (!this.drawModel.getDrawAble()) {
                 alert("请做出可视化图形之后再保存");
                 return
             }
@@ -174,14 +185,18 @@ define([
 		tagName: 		"div",
 		id:				"draw_panel",
 
+        imageOk:        false,        // 是否画出图
+
 		initialize: function() {
-			this.onOut("panel:draw_data", _.bind(this.onGetDrawData, this));
+			this.onOut("panel:draw_data",   _.bind(this.onGetDrawData, this));
+			this.onOut("panel:clear",       _.bind(this.onGetDrawData, this));
 			this.drawer = new Drawer();
             this.dataCenter = new DataCenter()
 		},
 
 		onGetDrawData: function(data) {
-			this.drawer.run(this.el, data);
+            var imageData = data || {};
+			this.drawer.run(this.el, imageData);
             this.dataCenter.setZr(this.drawer.getEc().getZrender())
 		}
 	});

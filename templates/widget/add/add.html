@@ -15,6 +15,7 @@
         <div id="header">DataInsight</div>
         <div id="content"></div>
         <div id="footer"></div>
+        <div id="page_data" action_type={{type}} style="display:none">{{content}}</div>
     </body>
 </html>
 <script>
@@ -23,6 +24,7 @@
 window.onload = function (){
 	// 启动js脚本
 	requirejs(['app', 'csrf'], function(app, csrf) {
+        window.action_type = $("#page_data").attr("action_type")
 	})
 }
 </script>
