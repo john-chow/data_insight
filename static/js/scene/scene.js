@@ -274,10 +274,10 @@ define("display", ["drawer"], function(DrawManager) {
             this.afterWidgetShown(drawer, data.widget_id)
         },
 
-        rmWidget:           function() {
+        rmWidget:               function() {
         },
 
-        keepFlexible:     function() {
+        keepFlexible:           function() {
             // 把所有相关标签的width,height设为100%
             // 只有某个div不需要去设置
             $.each(this.$el.find(".se_wi_div").find(":not(.echarts-dataview)"), function(i, obj) {
@@ -286,13 +286,20 @@ define("display", ["drawer"], function(DrawManager) {
             })
         },
 
-        afterWidgetShown:   function(drawer, widgetId) {
+        afterWidgetShown:       function(drawer, widgetId) {
             // 保持伸缩性，拖到的时候也可以增大缩小
             this.keepFlexible();
 
             // 监听自己的resize事件
-            var ec = drawer.getEc();
-            $body.on("widget_resize_" + widgetId, ec.resize)
+            $body.on("widget_resize_" + widgetId, {"drawer": drawer}
+                                                , bindContext(this.onWidgetResize, this))
+        },
+
+        onWidgetResize:      function(ev) {
+            var ec = ev.data.drawer.getEc();
+            ec.resize();
+            
+            this.keepFlexible();
         },
 
         save:               function() {
