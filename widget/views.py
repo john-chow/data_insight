@@ -83,18 +83,16 @@ def widgetCreate(request):
         db_conn_pk = request.session.get('db_pk')
         external_conn = ExternalDbModel.objects.get(pk = db_conn_pk)
 
-        WidgetModel.objects.create( 
+        widget = WidgetModel.objects.create( 
             m_name='组件', m_table = table, m_x=x, m_y=y, \
             m_color = color, m_size = size, m_graph = graph, \
             m_external_db = external_conn, m_pic = image
         )
-        return MyHttpJsonResponse({u'succ': True})
+        return MyHttpJsonResponse({u'succ': True, u'wiId': widget.pk})
 
     else:
         context = RequestContext(request)
-        #request.session[u'widget_id'] = GetUniqueIntId()
-        data = {u'type': u'create'}
-        return render_to_response(u'add.html', data, context)
+        return render_to_response(u'add.html', context)
 
 @login_required
 def widgetOp(request, op):

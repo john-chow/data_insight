@@ -53,11 +53,15 @@ define([
 
     var WholeModel = VtronModel.extend({
         urlRoot:    function() {
-            if("create" === window.action_type) {
+            if(!this.widgetId) {
                 return ("/widget/create/")
             } else {
-                return ("/widget/edit/" + window.widget_id + "/")
+                return ("/widget/edit/" + this.widgetId + "/")
             }
+        },
+
+        setWidgetId:    function(wiId) {
+            this.widgetId = wiId
         }
     });
 	
@@ -112,23 +116,28 @@ define([
                 }
             );
 
-            // 监听是否需要保存
-            VtronEvents.onOut("center:save_args", _.bind(this.save, this));
             var self = this;
+
+            // 监听是否需要保存
+            VtronEvents.onOut("center:save_args", _.bind(this.onSave, this));
+
             //监听是否保存并返回
             Backbone.Events.on("center:save_args_and_back", function(){
-            	self.model.set(self.drawModel.toJSON());
-	            var imageBase64 = self.zr.toDataURL("image/png");
-	            self.model.set({"image":    imageBase64});
-            	self.model.save(null,{success: function(model, resp){
-            		location = "/widget";
-            	},error: function(model, resp){
-            		alert("出错了")
-            	}});
+                self.onSave("back")
             })
 		},
 
-        save:                   function() {
+        onSave:                 function(succCmd) {
+            if (!this.zr) {
+                alert("请做出可视化图形之后再保存");
+                return
+            }
+
+            this.save(succCmd)
+        },
+
+        save:                   function(succCmd) {
+
             // 抓取命名等参数
             // TBD
 
@@ -138,11 +147,18 @@ define([
             this.model.set({"image":    imageBase64});
 
             // 保存到服务器
-            this.model.save(null,{success: function(model, response){
-				 alert(response.msg)
-			},error: function(){
-				alert("服务器返回非json数据")
-			}})
+            this.model.save(null,{
+                success: function(model, response){
+                    if ("back" === succCmd) {
+                        location = "/widget";
+                    } else {
+                        model.setWidgetId(response.wiId)
+                        alert(response.msg)
+                    }
+                },error: function(){
+                    alert("服务器返回非json数据")
+                }
+            })
         },
 
         startRestore:           function() {
@@ -166,7 +182,7 @@ define([
 
 		onGetDrawData: function(data) {
 			this.drawer.run(this.el, data);
-            this.dataCenter.setZr(this.drawer.ec.getZrender())
+            this.dataCenter.setZr(this.drawer.getEc().getZrender())
 		}
 	});
 
