@@ -62,15 +62,6 @@ def widgetCreate(request):
     logging.debug("function widgetList() is called")
 
     if u'POST' == request.method:
-        """
-        widget_id = request.session[u'widget_id']
-        print widget_id
-
-        # 如果widget_id存在，证明是在create页面多次点击保存
-        if WidgetModel.objects.filter(m_id = widget_id):
-            return widgetEdit(request, widget_id)
-        """
-
         extent_data = json.loads(request.POST.get('data', '{}'))
 
         [table, x, y, color, size, graph, image] \
@@ -85,8 +76,9 @@ def widgetCreate(request):
             m_color = color, m_size = size, m_graph = graph, \
             m_external_db = external_conn, m_pic = image
         )
-        return MyHttpJsonResponse({u'succ': True, u'wiId': widget.pk})
 
+        return MyHttpJsonResponse({u'succ': True, u'wiId': widget.pk, \
+                                    u'msg': u'保存成功'})
     else:
         context = RequestContext(request)
         return render_to_response(u'add.html', context)
