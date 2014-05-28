@@ -191,15 +191,18 @@ define("compontnents", [], function() {
 
         // 保存本场景组件列表
         save:           function(ev, layoutArray) {
-            var layoutStr   = JSON.stringify(layoutArray);
-            var widgetsStr  = JSON.stringify(this.widgetsList);
+            var layoutStr       = JSON.stringify(layoutArray);
+            var widgetIdList    = $.map(this.widgetsList, function(wi) {
+                return wi.id
+            });
+            var widgetsIdStr  = JSON.stringify(widgetIdList);
             $.ajax({
                 url:            "/scene/create/"
                 , type:         "POST"
                 , dataType:     "json"
                 , data:         {
                     "layout":           layoutStr
-                    , "widget":         widgetsStr 
+                    , "widgets":        widgetsIdStr 
                 }        
                 , success:      function() {
                 }

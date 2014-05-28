@@ -16,11 +16,16 @@ class WidgetModel(ElementModel):
 
     GRAPH_CHOICES   = (
         ('bar',         'bar')
+        , ('s_bar',     'stack_bar')
         , ('line',      'line')
+        , ('s_line',    'stack_line')
+        , ('area',      'area')
+        , ('s_area',    's_area')
         , ('scatr',     'scatter')
+        , ('radar',     'radar')
         , ('map',       'map')
     )
-    m_graph         = models.CharField(max_length = 5, choices = GRAPH_CHOICES)               
+    m_graph         = models.CharField(max_length = 16, choices = GRAPH_CHOICES)               
     m_pic           = models.TextField()
     m_external_db   = models.ForeignKey('ExternalDbModel')
 
