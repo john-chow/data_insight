@@ -65,13 +65,14 @@ def widgetCreate(request):
     logging.debug("function widgetList() is called")
 
     if u'POST' == request.method:
+        """
         widget_id = request.session[u'widget_id']
         print widget_id
 
         # 如果widget_id存在，证明是在create页面多次点击保存
         if WidgetModel.objects.filter(m_id = widget_id):
             return widgetEdit(request, widget_id)
-
+        """
 
         extent_data = json.loads(request.POST.get('data', '{}'))
 
@@ -83,7 +84,7 @@ def widgetCreate(request):
         external_conn = ExternalDbModel.objects.get(pk = db_conn_pk)
 
         WidgetModel.objects.create( 
-            m_id = widget_id, m_name='组件', m_table = table, m_x=x, m_y=y, \
+            m_name='组件', m_table = table, m_x=x, m_y=y, \
             m_color = color, m_size = size, m_graph = graph, \
             m_external_db = external_conn, m_pic = image
         )
@@ -91,7 +92,7 @@ def widgetCreate(request):
 
     else:
         context = RequestContext(request)
-        request.session[u'widget_id'] = GetUniqueIntId()
+        #request.session[u'widget_id'] = GetUniqueIntId()
         data = {u'type': u'create'}
         return render_to_response(u'add.html', data, context)
 
@@ -102,11 +103,11 @@ def widgetOp(request, op):
     组件删除
     """
     if u'POST' == request.method:
-        m_id = request.POST.get('id')
+        id = request.POST.get('id')
         page = request.POST.get('page','')
         search = request.POST.get('search' , '')
         sort = request.POST.get('sort' , '-1')
-        widget = WidgetModel.objects.get(m_id=m_id)
+        widget = WidgetModel.objects.get(pk = id)
         if (op == 'dis'):
             widget.m_is_distributed = not widget.m_is_distributed
         else:
@@ -125,9 +126,9 @@ def batachOp(request, op):
     if u'POST' == request.method:
         id_list = request.POST.get('list')
         arr = id_list.split(',')
-        for m_id in arr:
-            print m_id+"____"
-            widget = WidgetModel.objects.get(m_id=m_id)
+        for id in arr:
+            print id+"____"
+            widget = WidgetModel.objects.get(pk=id)
             if(op == 'dis'):
                 widget.m_is_distributed = True
             elif(op == 'undis'):
@@ -155,7 +156,7 @@ def widgetEdit(request, widget_id):
         print "widget is %s".format(widget_id)
 
         try:
-            WidgetModel.objects.filter(m_id = widget_id) \
+            WidgetModel.objects.filter(pk = widget_id) \
                                 .update(m_x = x, m_y = y, m_color = color, \
                                         m_size = size, m_graph = graph, m_table = table, 
                                         m_pic = image)
@@ -167,7 +168,7 @@ def widgetEdit(request, widget_id):
     else:
         context = RequestContext(request)
 
-        widget_model = get_object_or_404(WidgetModel, m_id = widget_id)
+        widget_model = get_object_or_404(WidgetModel, pk = widget_id)
         request.session[u'widget_id'] = widget_id
         # 以后要去掉，没必要记在session里面
         request.session[u'tables'] = [widget_model.m_table]
@@ -196,7 +197,7 @@ def widgetShow(request, widget_id):
     获得该widget的图像数据
     """
     try:
-        widget_model = WidgetModel.objects.select_related().get(m_id = widget_id)
+        widget_model = WidgetModel.objects.select_related().get(pk = widget_id)
         extent_data = widget_model.getExtentDict()
         conn_arg = widget_model.m_external_db.getConnTuple()
     except WidgetModel.DoesNotExist:

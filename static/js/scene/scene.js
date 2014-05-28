@@ -165,6 +165,8 @@ define("compontnents", [], function() {
 
         init:           function($el) {
             this.$el = $el;
+
+            $body.on("scene_save", bindContext(this.save, this));
             
             // 从dom树上抓取该区域内全部element，并且组合成widget对象
             // 模拟为被选中，加入本场景组件列表
@@ -197,7 +199,22 @@ define("compontnents", [], function() {
         },
 
         // 保存本场景组件列表
-        save:           function() {
+        save:           function(ev, layoutArray) {
+            var layoutStr   = JSON.stringify(layoutArray);
+            var widgetsStr  = JSON.stringify(this.widgetsList);
+            $.ajax({
+                url:            "/scene/create/"
+                , type:         "POST"
+                , dataType:     "json"
+                , data:         {
+                    "layout":           layoutStr
+                    , "widget":         widgetsStr 
+                }        
+                , success:      function() {
+                }
+                , error:        function() {
+                }
+            })
         },
 
         restore:        function() {
@@ -247,6 +264,7 @@ define("compontnents", [], function() {
 define("display", ["drawer"], function(DrawManager) {
     var display = {
         $el:                $("#scene_design_right"),
+        $gridster:          $(".gridster ul"),
 
         run:                function() {
             this.init();
@@ -259,7 +277,7 @@ define("display", ["drawer"], function(DrawManager) {
         startListener:      function() {
             $body.on("show_widget",     bindContext(this.showWidget, this));
             $body.on("rm_widget",       bindContext(this.rmWidget, this));
-            this.$el.find("#save_scene").on("click", bindContext(this.save, this));
+            this.$el.find("#save_scene").on("click", bindContext(this.onSave, this));
         },
 
         showWidget:         function(ev, data) {
@@ -301,20 +319,10 @@ define("display", ["drawer"], function(DrawManager) {
             this.keepFlexible();
         },
 
-        save:               function() {
-            var gridster = $(".gridster ul").gridster().data('gridster');
-            var sceneData = gridster.serializeByStev();
-            $.ajax({
-                url:            ""
-                , type:         "POST"
-                , data:         sceneData
-                , dataType:     json
-                , success:      function(resp) {
-                    if (resp.succ)  alert("保存成功")
-                }
-                , error:        function() {
-                }           
-            }) 
+        onSave:               function() {
+            var gridObj     = this.$gridster.gridster().data('gridster');
+            var layoutArray = gridObj.serializeByStev();
+            $body.trigger("scene_save", layoutArray)
         },
 
         restore:            function() {

@@ -6,24 +6,26 @@ from MyTableau.models import ElementModel
 
 # Create your models here.
 class SceneModel(ElementModel):
-	"""
-	场景类，继承ElementModel
-	"""
-	m_layout = models.TextField()
-	m_widgets = models.ManyToManyField(WidgetModel \
-							, through='ScnToWiRelationModel' \
+    """
+    场景类，继承ElementModel
+    """
+    m_layout = models.TextField()
+    m_word = models.TextField()
+    m_pic = models.TextField()
+    m_widgets = models.ManyToManyField(WidgetModel \
+                            , through='ScnToWiRelationModel' \
                             , related_name = 's2w_set')
 
-	class Meta:
-		db_table = 'scenes'
+    class Meta:
+        db_table = 'scenes'
 
 class ScnToWiRelationModel(models.Model):
-	"""
-	场景与组件的关系类
-	"""
-	m_scn = models.ForeignKey(SceneModel, related_name = 's2r_set')
-	m_wi = models.ForeignKey(WidgetModel, related_name = 'w2r_set')
-	m_order = models.IntegerField()
+    """
+    场景与组件的关系类
+    """
+    m_scn = models.ForeignKey(SceneModel, related_name = 's2r_set')
+    m_wi = models.ForeignKey(WidgetModel, related_name = 'w2r_set')
+    m_order = models.IntegerField()
 
-	class Meta:
-		db_table = 'scene_to_widget'
+    class Meta:
+        db_table = 'scene_to_widget'

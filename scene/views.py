@@ -5,6 +5,7 @@ from widget.models import WidgetModel
 from common.tool import cvtDateTimeToStr
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.utils import simplejson as json
 from django.db import IntegrityError
 from datetime import datetime
 from common.tool import MyHttpJsonResponse, GetUniqueIntId
@@ -31,12 +32,22 @@ def sceneCreate(request):
     创建场景
     """
     if u'POST' == request.method:
-        pass
+        widgets, layout = map(lambda x: json.loads(request.POST.get(x, '[]')), \
+                                                ('widgets', 'layout')) 
+        owner = request.user.username
+        scene = SceneModel.objects.create(m_owner = owner, m_layout = layout)
+
+        for wi_id in widgets:
+            widget = WidgetModel.objects.get(pk = wi_id)
+            ScnToWiRelationModel.objects.create(m_scn = scene, m_wi = widget)
+
+        return MyHttpJsonResponse({u'succ': True})
+        
     else:
         # 全部已被允许可用的组件
         context = RequestContext(request)
         allow_use_widgets = WidgetModel.objects.filter(m_is_distributed = True) \
-                                        .values('m_id', 'm_name', 'm_owner', 'm_create_time')
+                                        .values('pk', 'm_name', 'm_owner', 'm_create_time')
         dict = {u'allowed_widgets': allow_use_widgets}
         return render_to_response('scene/add.html', dict, context)
 
@@ -46,7 +57,7 @@ def sceneDelete(request):
     删除场景
     """
     try:
-        obj = SceneModel.objects.get(m_id=request.POST.get(u'id')).delete()
+        obj = SceneModel.objects.get(pk=request.POST.get(u'id')).delete()
     except IntegrityError, e:
         return MyHttpJsonResponse({
             u'succ': False, u'msg': 'no exist'
