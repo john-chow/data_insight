@@ -157,8 +157,7 @@ define("compontnents", [], function() {
             var self = this;
             $.each(this.$el.find(".scene_list_widget"), function(i, ele) {
                 var widgetObj = new CWidget($(obj).attr("data-id"));
-                var ev = {"data": widgetObj};
-                self.respToSelect(ev)
+                self.respToSelect({"data": widgetObj})
             })
         },
 
@@ -234,7 +233,7 @@ define("compontnents", [], function() {
 // 呈现区域模块
 define("display", ["drawer"], function(DrawManager) {
     var display = {
-        $el:                null,
+        $el:                $("#scene_design_right"),
 
         run:                function() {
             this.initStyle();
@@ -246,7 +245,8 @@ define("display", ["drawer"], function(DrawManager) {
         
         startListener:      function() {
             $body.on("show_widget",     bindContext(this.showWidget, this));
-            $body.on("rm_widget",       this.rmWidget);
+            $body.on("rm_widget",       bindContext(this.rmWidget, this));
+            this.$el.find("#save_scene").on("click", bindContext(this.save, this));
         },
 
         showWidget:         function(ev, data) {
@@ -258,6 +258,25 @@ define("display", ["drawer"], function(DrawManager) {
         },
 
         rmWidget:           function() {
+        },
+
+        save:               function() {
+            var gridster = $(".gridster ul").gridster().data('gridster');
+            var sceneData = gridster.serializeByStev();
+            $.ajax({
+                url:            ""
+                , type:         "POST"
+                , data:         sceneData
+                , dataType:     json
+                , success:      function(resp) {
+                    if (resp.succ)  alert("保存成功")
+                }
+                , error:        function() {
+                }           
+            }) 
+        },
+
+        restore:            function() {
         }
     };
 
