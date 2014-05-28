@@ -1496,7 +1496,8 @@
                 row: $(widget).attr("data-row"),
                 size_x: $(widget).attr("data-sizex"),
                 size_y: $(widget).attr("data-sizey"),
-                data_id: $(widget).attr("data-id")
+                data_id: $(widget).attr("data-id"),
+                data_time: $(widget).attr("data-time")
                 }
             );
         }, this));
