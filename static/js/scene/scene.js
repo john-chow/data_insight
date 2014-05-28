@@ -1,15 +1,28 @@
 //初始化gridster
 $(function(){ //DOM Ready
     $(".gridster ul").gridster({
-      //widget_selector: "li",                        //确定哪个元素是widget
-      widget_margins: [5, 5],                       //margin大小
-      widget_base_dimensions: [150, 150],           //面积大小
-      helper:'clone',
-      autogrow_cols: true,
-      resize:{
-        enabled: true
-      },
-    });
+        //widget_selector: "li",                        //确定哪个元素是widget
+        widget_margins: [5, 5],                       //margin大小
+        widget_base_dimensions: [500, 300],           //面积大小
+        helper:'clone',
+        autogrow_cols: true,
+        resize: {
+            enabled: true,
+            start: function(e, ui, $widget) {
+             
+            },
+
+            resize: function(e, ui, $widget) {
+                //innerHTML = 'RESIZE offset: ' + ui.pointer.diff_top +' '+ ui.pointer.diff_left + "<br >";
+                //console.log(innerHTML);
+            },
+
+            stop: function(e, ui, $widget) {
+                innerHTML = '停止事件：' + ui.position.top +' '+ ui.position.left;
+                console.log(innerHTML);
+            }
+          }
+        });
 
 });
 
@@ -251,10 +264,11 @@ define("display", ["drawer"], function(DrawManager) {
 
         showWidget:         function(ev, data) {
             var gridster = $(".gridster ul").gridster().data('gridster');
-            gridster.add_widget("<li class='se_wi_"+data.widget_id+"' data-id='"+data.widget_id+"'></li>", 1, 1);
+            gridster.add_widget("<li class='se_wi_"+data.widget_id+"' data-id='"+data.widget_id+
+                "'><div class='se_wi_div se_wi_div_"+data.widget_id+"'></div></li>", 1, 1);
             var drawer = new DrawManager();
-            var len = $(".se_wi_"+data.widget_id).length-1;
-            drawer.run($(".se_wi_"+data.widget_id)[len], data.data)
+            var len = $(".se_wi_div_"+data.widget_id).length-1;
+            drawer.run($(".se_wi_div_"+data.widget_id)[len], data.data)
         },
 
         rmWidget:           function() {

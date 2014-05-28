@@ -9,7 +9,7 @@ class SceneModel(ElementModel):
 	"""
 	场景类，继承ElementModel
 	"""
-	m_layout = models.CharField(max_length=50)
+	m_layout = models.TextField()
 	m_widgets = models.ManyToManyField(WidgetModel \
 							, through='ScnToWiRelationModel' \
                             , related_name = 's2w_set')
