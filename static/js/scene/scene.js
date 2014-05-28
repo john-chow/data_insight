@@ -188,9 +188,8 @@ define("compontnents", [], function() {
         },
 
         addWidget:      function(widgetObj) {
-            this.$el.find("#scene_widgets")
-                    .append(this.template.replace(/{widget_id}/g, widgetObj.id)
-                                        .replace(/{widget_name}/g, widgetObj.name));
+            this.$el.append(this.template.replace(/{widget_id}/g, widgetObj.id)
+                                            .replace(/{widget_name}/g, widgetObj.name));
             this.widgetsList.push(widgetObj)
         },
 
