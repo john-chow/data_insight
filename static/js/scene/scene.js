@@ -20,6 +20,7 @@ $(function(){ //DOM Ready
             stop: function(e, ui, $widget) {
                 innerHTML = '停止事件：' + ui.position.top +' '+ ui.position.left;
                 console.log(innerHTML);
+                $body.trigger("widget_resize_" + $widget.attr("data-id"))
             }
           }
         });
@@ -170,8 +171,7 @@ define("compontnents", [], function() {
             var self = this;
             $.each(this.$el.find(".scene_list_widget"), function(i, ele) {
                 var widgetObj = new CWidget($(obj).attr("data-id"));
-                var ev = {"data": widgetObj};
-                self.respToSelect(ev)
+                self.respToSelect({"data": widgetObj})
             })
         },
 
@@ -247,31 +247,71 @@ define("compontnents", [], function() {
 // 呈现区域模块
 define("display", ["drawer"], function(DrawManager) {
     var display = {
-        $el:                null,
+        $el:                $("#scene_design_right"),
 
         run:                function() {
-            this.initStyle();
+            this.init();
             this.startListener()
         },
 
-        initStyle:          function() {
+        init:          function() {
         },
         
         startListener:      function() {
             $body.on("show_widget",     bindContext(this.showWidget, this));
-            $body.on("rm_widget",       this.rmWidget);
+            $body.on("rm_widget",       bindContext(this.rmWidget, this));
+            this.$el.find("#save_scene").on("click", bindContext(this.save, this));
         },
 
         showWidget:         function(ev, data) {
             var gridster = $(".gridster ul").gridster().data('gridster');
             gridster.add_widget("<li class='se_wi_"+data.widget_id+"' data-id='"+data.widget_id+
                 "'><div class='se_wi_div se_wi_div_"+data.widget_id+"'></div></li>", 1, 1);
-            var drawer = new DrawManager();
             var len = $(".se_wi_div_"+data.widget_id).length-1;
-            drawer.run($(".se_wi_div_"+data.widget_id)[len], data.data)
+            var drawer = new DrawManager();
+            drawer.run($(".se_wi_div_"+data.widget_id)[len], data.data);
+
+            this.afterWidgetShown(drawer, data.widget_id)
         },
 
         rmWidget:           function() {
+        },
+
+        keepFlexible:     function() {
+            // 把所有相关标签的width,height设为100%
+            // 只有某个div不需要去设置
+            $.each(this.$el.find(".se_wi_div").find(":not(.echarts-dataview)"), function(i, obj) {
+                $(obj).css("width", "100%");
+                $(obj).css("height", "100%")
+            })
+        },
+
+        afterWidgetShown:   function(drawer, widgetId) {
+            // 保持伸缩性，拖到的时候也可以增大缩小
+            this.keepFlexible();
+
+            // 监听自己的resize事件
+            var ec = drawer.getEc();
+            $body.on("widget_resize_" + widgetId, ec.resize)
+        },
+
+        save:               function() {
+            var gridster = $(".gridster ul").gridster().data('gridster');
+            var sceneData = gridster.serializeByStev();
+            $.ajax({
+                url:            ""
+                , type:         "POST"
+                , data:         sceneData
+                , dataType:     json
+                , success:      function(resp) {
+                    if (resp.succ)  alert("保存成功")
+                }
+                , error:        function() {
+                }           
+            }) 
+        },
+
+        restore:            function() {
         }
     };
 
