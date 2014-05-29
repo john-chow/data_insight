@@ -161,6 +161,7 @@ define("compontnents", [], function() {
             $(".scene_choose_widget").on('mouseleave', function(ev) {
                 $(".se_wi_color").removeClass('se_wi_color')
             });
+            //删除场景内某个组件
              $(".scene_choose_widget span.glyphicon").on('click', function(ev) {
                 $choose = $(this).parent();
                 data_id = $choose.attr("data-id");
