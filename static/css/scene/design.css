@@ -1,3 +1,28 @@
+body {
+font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
+}
+
+#header {
+    height: 25px;
+    color: white;
+    text-align: center;
+    background-color: #776677;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 25px;
+}
+
+.menu-ul li a{
+    padding:15px 50px;
+}
+
+.menu-home {
+    padding:15px 50px;
+}
+
+#menu .navbar {
+    margin-bottom: 0;
+}
 
 #choosed_chart ul {
     list-style-type: none;

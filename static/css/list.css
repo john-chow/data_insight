@@ -409,3 +409,8 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	padding: 10px;
 	border-bottom: 1px solid #ddd;
 }
+
+.content-menu{
+    border-bottom: 1px solid #ddd;
+    margin-top: 15px;
+}

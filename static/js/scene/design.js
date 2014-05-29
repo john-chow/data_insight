@@ -105,7 +105,7 @@ define("compontnents", ["display"], function(d) {
                     var clonedWidget = cloneObject(widgetObj);
 
                     //时间戳，使相同widget有唯一class，用于删除
-                    var timestamp = Date.parse(new Date()); 
+                    var timestamp = Date.now(); 
                     clonedWidget.setStmap(timestamp);
 
                     scnWidgetsObj.respToSelect(clonedWidget)
@@ -197,6 +197,19 @@ define("compontnents", ["display"], function(d) {
                 $choose.remove();
                 var gridster = $(".gridster ul").gridster().data('gridster');//获取对象
                 gridster.remove_widget($("."+choose));
+                 $.ajax({
+                url:            "/scene/create/"
+                , type:         "POST"
+                , dataType:     "json"
+                , data:         {
+                    "layout":           layoutStr
+                    , "widgets":        widgetsStr 
+                }        
+                , success:      function() {
+                }
+                , error:        function() {
+                }
+            })
             });
 
             this.widgetsList.push(widgetObj)
