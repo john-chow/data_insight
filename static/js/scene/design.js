@@ -188,6 +188,13 @@ define("compontnents", ["display"], function(d) {
             $(".scene_choose_widget").on('mouseleave', function(ev) {
                 $(".se_wi_color").removeClass('se_wi_color')
             });
+
+            //删除场景内某个组件
+            $(".scene_choose_widget span.glyphicon").on(
+                'click', bindContext(this.rmWidget, this)
+            );
+
+            /*
             //删除场景内某个组件
              $(".scene_choose_widget span.glyphicon").on('click', function(ev) {
                 $choose = $(this).parent();
@@ -197,25 +204,26 @@ define("compontnents", ["display"], function(d) {
                 $choose.remove();
                 var gridster = $(".gridster ul").gridster().data('gridster');//获取对象
                 gridster.remove_widget($("."+choose));
-                 $.ajax({
-                url:            "/scene/create/"
-                , type:         "POST"
-                , dataType:     "json"
-                , data:         {
-                    "layout":           layoutStr
-                    , "widgets":        widgetsStr 
-                }        
-                , success:      function() {
-                }
-                , error:        function() {
-                }
-            })
             });
+            */
 
             this.widgetsList.push(widgetObj)
         },
 
-        rmWidget:       function() {
+        rmWidget:       function(ev) {
+            // 样式上删除
+            $choose = $(ev.target).parent();
+            data_id = $choose.attr("data-id");
+            data_time = $choose.attr("data-time");
+            var choose = "se_wi_"+data_id+"_"+data_time;
+            $choose.remove();
+            var gridster = $(".gridster ul").gridster().data('gridster');//获取对象
+            gridster.remove_widget($("."+choose));
+            
+            // 数据中删除
+            this.widgetsList = this.widgetsList.filter(function(w) {
+                return (w.id !== data_id) || (w.stamp !== data_time)
+            })
         },
 
         // 保存本场景组件列表
@@ -224,16 +232,23 @@ define("compontnents", ["display"], function(d) {
             var widgetIdList    = $.map(this.widgetsList, function(wi) {
                 return {"id": wi.id,    "stamp": wi.stamp}
             });
+
+            if (window.scene_id) 
+                var url = "/scene/edit/" + window.scene_id + "/"
+            else 
+                var url = "/scene/create/"
+
             var widgetsStr  = JSON.stringify(widgetIdList);
             $.ajax({
-                url:            "/scene/create/"
+                url:            url
                 , type:         "POST"
                 , dataType:     "json"
                 , data:         {
                     "layout":           layoutStr
                     , "widgets":        widgetsStr 
                 }        
-                , success:      function() {
+                , success:      function(data) {
+                    window.scene_id = data.scn_id
                 }
                 , error:        function() {
                 }
