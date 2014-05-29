@@ -25,6 +25,7 @@ class ScnToWiRelationModel(models.Model):
     """
     m_scn = models.ForeignKey(SceneModel, related_name = 's2r_set')
     m_wi = models.ForeignKey(WidgetModel, related_name = 'w2r_set')
+    m_stamp = models.BigIntegerField()
 
     class Meta:
         db_table = 'scene_to_widget'
