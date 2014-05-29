@@ -73,12 +73,18 @@ function outtest() {
     });
 }
 
+
+
 // 传递全局事件对象
 $body = $("body");
 
 
+// *************************
 // 组织区域模块
-define("compontnents", [], function() {
+// ************************
+
+// 这里依赖是为了保证展示模块先加载，先启动监听事件
+define("compontnents", ["display"], function(d) {
     // 所有可以用组建类构造函数
     var allWidgetsObj = {
         $el:                null,
@@ -92,11 +98,18 @@ define("compontnents", [], function() {
             $.each(this.$el.find(".scene_list_widget"), function(i, ele) {
                 var widgetId        = $(ele).attr("data-id");
                 var widgetName      = $(ele).attr("title");
-                var widgetObj = new CWidget(widgetId, widgetName);
+                var widgetObj       = new CWidget(widgetId, widgetName);
 
                 // 监听点击事件，以抓取图像数据的函数作回掉函数
-                $(ele).on("click", {"widget": widgetObj}
-                                , bindContext(scnWidgetsObj.respToSelect, scnWidgetsObj));
+                $(ele).on("click", function() {
+                    var clonedWidget = cloneObject(widgetObj);
+
+                    //时间戳，使相同widget有唯一class，用于删除
+                    var timestamp = Date.parse(new Date()); 
+                    clonedWidget.setStmap(timestamp);
+
+                    scnWidgetsObj.respToSelect(clonedWidget)
+                })
 
                 self.addWidget(widgetObj)
             })
@@ -136,9 +149,12 @@ define("compontnents", [], function() {
             // 从dom树上抓取该区域内全部element，并且组合成widget对象
             // 模拟为被选中，加入本场景组件列表
             var self = this;
-            $.each(this.$el.find(".scene_list_widget"), function(i, ele) {
-                var widgetObj = new CWidget($(obj).attr("data-id"));
-                self.respToSelect({"data": widgetObj})
+            $.each(this.$el.find(".widget_chosen_template"), function(i, ele) {
+                var widgetId    = $(ele).attr("data-id");
+                var widgetName  = $(ele).attr("title");
+                var timeStamp   = $(ele).attr("data-time");
+                var widgetObj   = new CWidget(widgetId, widgetName, timeStamp);
+                self.respToSelect(widgetObj)
             })
         },
 
@@ -146,12 +162,23 @@ define("compontnents", [], function() {
         initElements:   function() {
         },
 
-        respToSelect:   function(ev) {
-            var widgetObj = ev.data["widget"];
-            //时间戳，使相同widget有唯一class，用于删除
-            var timestamp = Date.parse(new Date()); 
-            this.addWidget(widgetObj,timestamp);
+        respToSelect:   function(widgetObj) {
+            this.addWidget(widgetObj);
 
+            // 向服务器请求图像数据
+            widgetObj.fetchPicData()
+        },
+
+        addWidget:      function(widgetObj) {
+            // 增加组件到dom
+            var replaceId = widgetObj.id+"_"+widgetObj.stamp;
+            this.$el.find("#scene_widgets")
+                        .append(this.template.replace(/{widget_id_time}/g, replaceId)
+                        .replace(/{widget_time}/g, widgetObj.stamp)
+                        .replace(/{widget_id}/g, widgetObj.id)
+                        .replace(/{widget_name}/g, widgetObj.name));
+
+            // 增加给每个组件的样式及事件
             $(".scene_choose_widget").on('mouseenter', function(ev) {
                 data_id = $(this).attr("data-id");
                 data_time = $(this).attr("data-time");
@@ -171,18 +198,6 @@ define("compontnents", [], function() {
                 gridster.remove_widget($("."+choose));
             });
 
-            // 向服务器请求图像数据
-            widgetObj.fetchPicData(timestamp)
-        },
-
-        addWidget:      function(widgetObj, timeStamp) {
-            //var len = $(".se_wi_div_"+widgetObj.id).length;
-            //var replaceId = widgetObj.id+"_"+len;
-            var replaceId = widgetObj.id+"_"+timeStamp;
-            this.$el.append(this.template.replace(/{widget_id_time}/g, replaceId)
-                        .replace(/{widget_time}/g, timeStamp)
-                                    .replace(/{widget_id}/g, widgetObj.id)
-                                            .replace(/{widget_name}/g, widgetObj.name));
             this.widgetsList.push(widgetObj)
         },
 
@@ -193,16 +208,16 @@ define("compontnents", [], function() {
         save:           function(ev, layoutArray) {
             var layoutStr       = JSON.stringify(layoutArray);
             var widgetIdList    = $.map(this.widgetsList, function(wi) {
-                return wi.id
+                return {"id": wi.id,    "stamp": wi.stamp}
             });
-            var widgetsIdStr  = JSON.stringify(widgetIdList);
+            var widgetsStr  = JSON.stringify(widgetIdList);
             $.ajax({
                 url:            "/scene/create/"
                 , type:         "POST"
                 , dataType:     "json"
                 , data:         {
                     "layout":           layoutStr
-                    , "widgets":        widgetsIdStr 
+                    , "widgets":        widgetsStr 
                 }        
                 , success:      function() {
                 }
@@ -217,47 +232,54 @@ define("compontnents", [], function() {
 
 
     // 每个组件类构造函数
-    var CWidget =     function(id, name) {
+    var CWidget =     function(id, name, stamp) {
         // 组件id
         this.id     =           id;
-        this.name   =           name;
+        this.name   =           name || "组件";
+        this.stamp  =           stamp || "";
 
         // 组件布局位置
         this.layout =           "", 
     
         // 获取组件图像数据
-        this.fetchPicData =     function(timestamp) {
+        this.fetchPicData =     function() {
             var self = this;
             $.ajax({
                 url:            "/widget/show/" + this.id + "/"
                 , type:         "GET"
-                , success:      function(data) {
-                    self.onGetWidgetData(data, timestamp)
-                }
+                , success:      self.onGetWidgetData 
                 , error:        function() {}
+                , context:      self
             })
         };
 
-        this.onGetWidgetData =  function(data, timestamp) {
+        this.onGetWidgetData =  function(data) {
             // 如果成功，则传递数据到面板进行画图
             if (data.succ){
-                $body.trigger("show_widget", {"data":data, "time":timestamp})
+                $body.trigger("show_widget"
+                                , {"data":data, "time": this.stamp})
             } else {
                 alert(data.msg)
             }
+        },
+
+        this.setStmap       =   function(stamp) {
+            this.stamp  = stamp
         }
     };
     
     // 开始运行
     allWidgetsObj.init( $("#all_widgets") );
-    scnWidgetsObj.init( $("#scene_widgets") );
+    scnWidgetsObj.init( $("#choosed_layout") );
     myAttributesObj.init();
 })
 
 
 
 
+// *************************
 // 呈现区域模块
+// ************************
 define("display", ["drawer"], function(DrawManager) {
     var display = {
         $el:                $("#scene_design_right"),
@@ -336,6 +358,7 @@ define("display", ["drawer"], function(DrawManager) {
 })
 
 
-require(["compontnents", "display"], function() {
+require(["display", "compontnents"], function() {
 })
+
 
