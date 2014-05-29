@@ -1,9 +1,10 @@
 define([
-"backbone"
+'showmsg'
+,"backbone"
 , "base_sheet"
 , 'model/vtron_model'
 , "drawer"
-], function(Backbone, BaseSheetView, VtronModel, Drawer) {
+], function(Showmsg, Backbone, BaseSheetView, VtronModel, Drawer) {
 
 	var DrawModel 	= VtronModel.extend({
 		urlRoot:    "/widget/draw/",
@@ -139,7 +140,12 @@ define([
 
             // 保存到服务器
             this.model.save(null,{success: function(model, response){
-				 alert(response.msg)
+				 $(".show-msg").showmsg({
+				 	top: '76px',
+				 	left: '43%',
+				 	msg: response.msg,
+				 	delayTime: 1500
+				 });
 			},error: function(){
 				alert("服务器返回非json数据")
 			}})

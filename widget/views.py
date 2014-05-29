@@ -86,7 +86,7 @@ def widgetCreate(request):
             m_color = color, m_size = size, m_graph = graph, \
             m_external_db = external_conn, m_pic = image
         )
-        return MyHttpJsonResponse({u'succ': True})
+        return MyHttpJsonResponse({u'succ': True, u'msg': '保存成功'})
 
     else:
         context = RequestContext(request)

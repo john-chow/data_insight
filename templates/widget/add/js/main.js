@@ -51,6 +51,9 @@ requirejs.config({
 	  		},
 	  		'csrf' : {
 	  			deps: ['jquery']
+	  		},
+	  		'draw_panel' : {
+	  			deps: ['showmsg']
 	  		}
 	  	}
 });

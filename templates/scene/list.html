@@ -19,21 +19,26 @@
 {% block contentRight %}
 <div class="content-menu clearfix">
     <div class="btn-group" data-toggle="buttons">
-	  <label class="btn btn-info active">
+	  <label class="btn btn-default active">
 	    <input type="radio" name="options" id="option1">时间升序
+	    &nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-down"></span>
 	  </label>
-	  <label class="btn btn-info">
+	  <label class="btn btn-default">
 	    <input type="radio" name="options" id="option2">时间降序
+	    &nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>
 	  </label>
 	</div>
-	<button type="button" id="button_new_scene" class="btn btn-primary">新建</button>
-	<button type="button" class="btn btn-default">删除</button>
-	<form class="navbar-form navbar-left" role="search">
-      <div class="form-group">
-        <input type="text" class="form-control" placeholder="请输入搜索内容">
-      </div>
-      <button type="submit" class="btn btn-success">查找</button>
-    </form>
+	<button type="button" id="button_new_scene" class="btn btn-primary">新建
+	&nbsp;&nbsp;<span class="glyphicon glyphicon-plus"></button>
+	<button type="button" class="btn btn-default">删除&nbsp;&nbsp;<span class="glyphicon glyphicon-remove"></span></button>
+	<div class="" style="width: 365px;float: right;">
+	    <div class="input-group">
+	        <input type="text" id="widget_input_search" value="{{search}}" name="search" placeholder="请输入搜索内容" class="form-control"/>
+	        <div class="input-group-btn">
+	          <button id="widget_button_search" type="button" class="btn btn-default">查找&nbsp;<span class="glyphicon glyphicon-search"></span></button>
+	        </div><!-- /btn-group -->
+	    </div>
+    </div>
 </div>
 <div class="tab-pane fade active in element-list" id="scene_list">
 	<div class="element-list-div"><div></div><p>场景1</p></div>

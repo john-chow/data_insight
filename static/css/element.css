@@ -57,6 +57,7 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 .element-list-div {
 	float: left;
 	margin: 5px 30px 15px 5px;
+	border: 1px solid white;
 }
 
 .element-list-div p{
@@ -102,6 +103,14 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	padding: 3px 0 3px 35px;
 	border-radius: 5px;
 	cursor: pointer;
+	border-bottom: 1px solid #ddd;
+}
+.content-left ul li a{
+	display: block;
+	color: black;
+}
+.content-left ul li img{
+	border: 1px solid #ddd;
 }
 
 .content-left .panel {
