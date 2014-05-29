@@ -84,7 +84,50 @@ def sceneEdit(request, scn_id):
 
         dict = {u'allowed_widgets': allow_use_widgets, u'sw_rla_set': scn_wi_rla_set}
         return render_to_response('scene/add.html', dict, context)
-
+@login_required
+def sceneOp(request, op):
+    """
+    修改某个场景的发布状态
+    场景删除
+    """
+    if u'POST' == request.method:
+        id = request.POST.get('id')
+        page = request.POST.get('page','')
+        search = request.POST.get('search' , '')
+        sort = request.POST.get('sort' , '-1')
+        scene = SceneModel.objects.get(pk = id)
+        if (op == 'dis'):
+            scene.m_is_distributed = not scene.m_is_distributed
+        else:
+            scene.m_status = False
+        scene.save()
+        return HttpResponseRedirect(u'/scene/?page='+page+"&search="+search+"&sort="+sort)
+    else:
+        raise Http404()
+@login_required
+def batachOp(request, op):
+    """
+    场景批量发布
+    场景批量取消发布
+    场景批量删除
+    """
+    if u'POST' == request.method:
+        id_list = request.POST.get('list')
+        arr = id_list.split(',')
+        for id in arr:
+            print id+"____"
+            scene = SceneModel.objects.get(pk=id)
+            if(op == 'dis'):
+                scene.m_is_distributed = True
+            elif(op == 'undis'):
+                scene.m_is_distributed = False
+            else:
+                scene.m_status = False
+            scene.save()
+        page = request.POST.get('page','')
+        return HttpResponseRedirect(u'/scene/batch?page='+page)
+    else:
+        raise Http404()
 
 def sceneDelete(request):
     """
@@ -102,7 +145,7 @@ def sceneDelete(request):
 """
 def getScenesList(sub_id):
     try:
-        subject = SubjectModel.objects.get(m_id=sub_id)
+        subject = SubjectModel.objects.get(pk=sub_id)
     except SubjectModel.DoesNotExist:
         raise Exception(u'Cant find subject, id = %s'.format(sub_id))
 
@@ -115,8 +158,8 @@ def getScenesList(sub_id):
 def addScene(request, kind):
     sub_id, scn_id = map(lambda x: request.POST.get(x), ['sub_id', 'scn_id'])
     try:
-        sub = SubjectModel.objects.get(m_id=sub_id)
-        scn = SceneModel.objects.get(m_id=scn_id)
+        sub = SubjectModel.objects.get(pk=sub_id)
+        scn = SceneModel.objects.get(pk=scn_id)
         SubToScnRelationModel.objects.create(
             m_sub=sub, m_scn=scn, m_order=request.POST.get(u'order')
         )
@@ -132,8 +175,8 @@ def addScene(request, kind):
 def rmScene(request, kind):
     sub_id, scn_id = map(lambda x: request.POST.get(x), ['sub_id', 'scn_id'])
     try:
-        sub = SubjectModel.objects.get(m_id=sub_id)
-        scn = SceneModel.objects.get(m_id=scn_id)
+        sub = SubjectModel.objects.get(pk=sub_id)
+        scn = SceneModel.objects.get(pk=scn_id)
         SubToScnRelationModel.objects.get(
             m_sub=sub, m_scn=scn
         ).delete()
@@ -150,9 +193,9 @@ def orderScenes(request):
     scns_id_order_dict = request.POST.get(u'orders')
 
     try:
-        sub = SubjectModel.objects.get(m_id=sub_id)
+        sub = SubjectModel.objects.get(pk=sub_id)
         for scn_id, order_number in scns_id_order_dict.items():
-            scn = SceneModel.objects.get(m_id=scn_id)
+            scn = SceneModel.objects.get(pk=scn_id)
             relation = SubToScnRelationModel.objects.get(
                 m_sub = sub, m_scn = scn
             )
