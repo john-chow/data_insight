@@ -1,0 +1,140 @@
+
+#choosed_chart ul {
+    list-style-type: none;
+    padding:0;
+    margin:0;
+}
+
+#choosed_chart li:hover {
+    background-color: #E5F1FB;
+    border-radius: 5px;
+    border: 1px solid #CCC5EC;
+}
+
+#choosed_chart li {
+    border: 1px solid white;
+    padding: 0px 10px 1px 20px;
+    cursor: pointer;
+    overflow: hidden;
+    font-size: 15px;
+}
+
+#choosed_chart ,
+#choosed_layout ,
+#choosed_dashboard {
+    margin: 0;
+    border: none;
+    box-shadow: none;
+}
+
+#choosed_chart .glyphicon {
+    color: #AFAFAF;
+}
+
+.choosed_chart_extra {
+    padding:0 10px;
+    background-color: #E5E2F1;
+}
+
+.choosed_chart_extra span {
+    padding: 0 10px;
+    cursor: default;
+}
+
+.choosed_chart_extra span:hover {
+    background-color: #F6E8F5;
+    border-radius: 5px;
+}
+
+#choosed_chart .panel-heading , 
+#choosed_layout .panel-heading ,
+#choosed_dashboard .panel-heading {
+    padding: 3px 30px;
+}
+
+#choosed_dashboard ul {
+    height: 150px;
+    overflow: auto;
+}
+
+#choosed_chart ul{
+    overflow: auto;
+}
+
+#scene_design_right .gridster ul {
+    list-style: none;
+}
+
+.gridster ul{
+    list-style: none;
+}
+
+.gridster li {
+    border: 1px solid #C0BDD1;
+    cursor: pointer;
+    color:#fff;
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center;
+    line-height: 100%;
+}
+
+.gridster {
+    margin: 0 auto;
+    opacity: .8;
+    -webkit-transition: opacity .6s;
+    -moz-transition: opacity .6s;
+    -o-transition: opacity .6s;
+    -ms-transition: opacity .6s;
+    transition: opacity .6s;
+}
+
+#scene_design_right {
+    overflow: auto;
+}
+
+#scene_design_left ,
+#scene_design_right {
+    margin:0;
+    padding:0;
+}
+
+.se_wi_div {
+    height: 100%;
+}
+
+#choosed_layout ul li {
+    padding: 0px 20px 1px 20px;
+    cursor: default;
+    overflow: hidden;
+    font-size: 15px;
+}
+
+#choosed_layout ul {
+    overflow: auto;
+}
+
+#choosed_layout i {
+    color: #EB6283;
+}
+
+.se_wi_color {
+    background-color: #ddd;
+}
+
+.scene_choose_widget {
+    position: relative;
+}
+
+.scene_choose_widget span.glyphicon {
+    position: absolute;
+    color: #581212;
+    cursor: pointer;
+    top: 4px;
+    right: 0;
+    display:none;
+}
+
+.scene_choose_widget:hover span.glyphicon {
+    display:block;
+}

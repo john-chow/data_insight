@@ -16,6 +16,8 @@
 	<ul>
 		{% for widget in widgetList %}
 		<li class=""><a href="/widget/edit/{{widget.m_id}}"><img src="{{widget.m_pic}}" width="30px" height="30px" />{{widget.m_name}}</a></li>
+		<!-- <li class="">{{request.path}}</li>
+		<li class="">{{request.session.fav_color}}</li> -->
 		{% endfor %}
 	</ul>
 </div>
@@ -57,8 +59,8 @@
 <div class="tab-pane fade active in element-list clearfix" id="widget_list">
 	{% for widget in widgetList %}
 	    <div class="element-list-div" style="{% if widget.m_is_distributed %}background-color: #F3B9B9;{% endif %}">
-	    	<div class="element-list-widget" data-id="{{widget.m_id}}">
-	    		<a href="/widget/edit/{{widget.m_id}}">
+	    	<div class="element-list-widget" data-id="{{widget.pk}}">
+	    		<a href="/widget/edit/{{widget.pk}}">
 	    			<img src="{{widget.m_pic}}" width="130px" height="130px" />
 	    		</a>
 	    		<div class="js-mod-widget-top">
@@ -66,7 +68,7 @@
 				    <div class="js-mod-widget-con">
 				     	<ul>
 						    <li>
-						       <a href="/widget/edit/{{widget.m_id}}"><i class="icon-m icon-edit-m"></i>编辑</a>
+						       <a href="/widget/edit/{{widget.pk}}"><i class="icon-m icon-edit-m"></i>编辑</a>
 						    </li>
 						    <li>
 						    	{% if widget.m_is_distributed %}

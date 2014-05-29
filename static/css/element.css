@@ -26,7 +26,6 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 
 .content-right {
 	border-left: 2px solid #ddd;
-	min-height: 800px;
 }
 
 .content-right {
@@ -217,7 +216,7 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	padding: 15px;
 }
 
-#batch_widget_list .element-list-div{
+.element-list-div{
 	border: 2px solid #ddd;
 	padding: 5px;
 }
@@ -366,7 +365,7 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 
 
 .element-list-div:hover {
-	border: 1px solid #C7C1C5;
+	border: 2px solid #C7C1C5;
 }
 
 .element-list-div>span {

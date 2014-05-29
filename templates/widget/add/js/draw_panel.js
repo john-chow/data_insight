@@ -15,11 +15,17 @@ define([
 		size:		"",
 		shape:		"",
 
+        able_draw:  false,      // 是否可以画图
+
         assignDrawBasic: function() {
             this.triggerOut("dbbar:restore", this.toJSON());
         },
 
-		setToSev: function(data) {
+        getDrawAble:        function() {
+            return this.able_draw
+        },
+
+        onGetUserAct:           function(data) {
             // 如果属性没有新的变化，不提交
             var noChange = true;
             for (var k in data) {
@@ -28,20 +34,25 @@ define([
                     break
                 }
             }
-
             if (noChange)   return;
 
+            this.setToSev(data);
+        },
+
+		setToSev: function(data) {
 			this.set(data);
 
 			var self = this;
 			this.save(null, {
 				success: function(m, resp, opt) {
 					if (resp.succ) {
+                        self.able_draw  = true;
 						self.triggerOut("panel:draw_data", resp.data)
 					} else {
+                        self.able_draw  = false;
 						easy_dialog_error(resp.msg)						
 						// 通知清空
-						self.triggerOut("panel:draw_data", {})
+						self.triggerOut("panel:clear")
 					}
 				}, error: function() {
 				},
@@ -54,11 +65,14 @@ define([
 
     var WholeModel = VtronModel.extend({
         urlRoot:    function() {
-            if("create" === window.action_type) {
+            if(!this.widgetId) {
                 return ("/widget/create/")
             } else {
-                return ("/widget/edit/" + window.widget_id + "/")
+                return ("/widget/edit/" + this.widgetId + "/")
             }
+        },
+        setWidgetId:    function(wiId) {
+            this.widgetId = wiId
         }
     });
 	
@@ -71,6 +85,7 @@ define([
 		initialize: 		function() {
 			this.drawModel 	= new DrawModel();
 			this.model 	    = new WholeModel();
+            this.model.setWidgetId($("#page_data").data("id"))
 			this.run()
 		},
 
@@ -93,7 +108,7 @@ define([
 		run: 				function() {
 			this.onOut(
 				"area:user_set_action"
-				, _.bind(this.drawModel.setToSev, this.drawModel)
+				, _.bind(this.drawModel.onGetUserAct, this.drawModel)
 		  	);
 
 			var self = this;
@@ -107,29 +122,34 @@ define([
             this.onOut(
                 "center:page_loaded"
                 , function() {
-                    // 如果是edit，那么前端需要数据恢复现场
-                    if("edit" === window.action_type)   
+                    // 如果组件存在id，那么前端需要数据恢复现场   
+                    if($("#page_data").data("id"))   
                         self.startRestore()
                 }
             );
 
-            // 监听是否需要保存
-            VtronEvents.onOut("center:save_args", _.bind(this.save, this));
             var self = this;
+
+            // 监听是否需要保存
+            VtronEvents.onOut("center:save_args", _.bind(this.onSave, this));
+
             //监听是否保存并返回
             Backbone.Events.on("center:save_args_and_back", function(){
-            	self.model.set(self.drawModel.toJSON());
-	            var imageBase64 = self.zr.toDataURL("image/png");
-	            self.model.set({"image":    imageBase64});
-            	self.model.save(null,{success: function(model, resp){
-            		location = "/widget";
-            	},error: function(model, resp){
-            		alert("出错了")
-            	}});
+                self.onSave("back")
             })
 		},
 
-        save:                   function() {
+        onSave:                 function(succCmd) {
+            if (!this.drawModel.getDrawAble()) {
+                alert("请做出可视化图形之后再保存");
+                return
+            }
+
+            this.save(succCmd)
+        },
+
+        save:                   function(succCmd) {
+
             // 抓取命名等参数
             // TBD
 
@@ -139,16 +159,23 @@ define([
             this.model.set({"image":    imageBase64});
 
             // 保存到服务器
-            this.model.save(null,{success: function(model, response){
-				 $(".show-msg").showmsg({
-				 	top: '76px',
-				 	left: '43%',
-				 	msg: response.msg,
-				 	delayTime: 1500
-				 });
-			},error: function(){
-				alert("服务器返回非json数据")
-			}})
+            this.model.save(null,{
+                success: function(model, response){
+                    if ("back" === succCmd) {
+                        location = "/widget";
+                    } else {
+                      	model.setWidgetId(response.wiId)
+		                $(".show-msg").showmsg({
+						 	top: '76px',
+						 	left: '43%',
+						 	msg: response.msg,
+						 	delayTime: 1500
+				 		});
+                    }
+                },error: function(){
+                    alert("服务器返回非json数据")
+                }
+            })
         },
 
         startRestore:           function() {
@@ -164,15 +191,19 @@ define([
 		tagName: 		"div",
 		id:				"draw_panel",
 
+        imageOk:        false,        // 是否画出图
+
 		initialize: function() {
-			this.onOut("panel:draw_data", _.bind(this.onGetDrawData, this));
+			this.onOut("panel:draw_data",   _.bind(this.onGetDrawData, this));
+			this.onOut("panel:clear",       _.bind(this.onGetDrawData, this));
 			this.drawer = new Drawer();
             this.dataCenter = new DataCenter()
 		},
 
 		onGetDrawData: function(data) {
-			this.drawer.run(this.el, data);
-            this.dataCenter.setZr(this.drawer.ec.getZrender())
+            var imageData = data || {};
+			this.drawer.run(this.el, imageData);
+            this.dataCenter.setZr(this.drawer.getEc().getZrender())
 		}
 	});
 

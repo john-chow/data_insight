@@ -30,6 +30,7 @@ def cvtDateTimeToStr(dt=datetime.datetime.now()):
     return dt.strftime("%Y%m%d%H%M%S")
 
 
+# 不给外面调用
 def UniqIdGenerator():
     """
     以长整型形式返回n个随机数

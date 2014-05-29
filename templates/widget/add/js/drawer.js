@@ -1,12 +1,12 @@
 define([
-"backbone"
-, "echarts"
+"echarts"
 , "echarts/chart/bar"
 , "echarts/chart/line"
 , "echarts/chart/scatter"
 , "echarts/chart/pie"
 , "echarts/chart/radar"
-], function(Backbone, echart, _b, _l, _s, _p, _r) {
+, "common/tools"
+], function(echart, _b, _l, _s, _p, _r) {
 
 	var DrawManager = function(opt) {
 		this.now_drawer				= null;
@@ -14,6 +14,7 @@ define([
 		this.map_drawer				= null;
 		this.polar_drawer			= null;
 
+        // 对外提供的(重新)开始绘图接口
 		this.run	=				function(place, data) {
             var type    = data.type;
             this.ec     = this.ec || echart.init(place);
@@ -51,7 +52,12 @@ define([
 					self.now_drawer.work(data.data)
 				})
 			}
-		}
+		};
+
+        // 对外提供的获取画图对象的接口
+        this.getEc =                function() {
+            return this.ec
+        }
 	};
 	
 	var BaseDrawer = function() {

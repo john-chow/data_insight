@@ -4,9 +4,10 @@
 <head>
 	<meta charset='utf-8'>
 	<title>DataInsight</title>
-	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/scene/scene.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/element.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.gridster.css' %}">
+    {% include 'head.html' %}
 </head>
 <body>
 	<!--LOGO begin-->
@@ -38,8 +39,69 @@
 			</nav>
 		</div>
 		<!--menu end-->
+    </div>
+
+
+    <!--content begin-->
+		<div id="content">
+			<div class="row">
+		  		<div id="scene_design_left" class="content-left col-md-2 col-lg-2">
+		  			<div id="choosed_chart" class="panel panel-default">
+					    <div class="panel-heading">组件</div>
+					    <ul id="all_widgets">
+					    	{% for widget in allowed_widgets %}
+				            <li class="scene_list_widget" id="wi_{{ widget.pk }}" data-id={{ widget.pk }} title="{{ widget.m_name }}"><i class="glyphicon glyphicon-stats"></i>&nbsp;{{ widget.m_name }}</li>
+				            {% endfor %}
+
+				            <li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li>
+
+					    </ul>
+					    <div class="choosed_chart_extra"><span>文字</span><span>图片</span></div>
+					</div>
+
+					<div id="choosed_layout" class="panel panel-default">
+					    <div class="panel-heading">层次关系</div>
+					    <ul id="scene_widgets">
+					    </ul>
+
+                        <!-- 为上面层次关系渲染提供数据，自己隐藏 -->
+					    <ul style="display:none">
+					    	{% for rla in sw_rla_set %}
+                            <li class="widget_chosen_template" id="wi_{{ rla.m_wi.pk }}_{{ rla.m_stamp }}" data-id="{{ rla.m_wi.pk }}" data-time="{{ rla.m_stamp }}" title="{{ rla.m_wi.m_name }}"></li>
+                            {% endfor %}	
+					    </ul>
+					</div>
+					<div id="choosed_dashboard" class="panel panel-default">
+					    <div class="panel-heading">场景属性</div>
+					    <ul>
+					    	
+					    </ul>
+					</div>
+					
+		  		 </div>
+		  		 <!--场景设计区域content begin-->
+		  		<div id="scene_design_right" class="content-right col-md-10 col-lg-10">
+		  			<div style="padding: 5px 5px 10px 5px;background-image: -webkit-linear-gradient(top, #f5f5f5 0%, #e8e8e8 100%);background-image: linear-gradient(to bottom, #ECEBF0 0%, #DDFFE1 100%);">
+					    <button id="save_scene" type="button" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-floppy-save"></span>&nbsp;保存</button>
+					    <button id="save_scene_back" type="button" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-save"></span>&nbsp;保存并返回</button>
+					    <button type="button" id="scene_design_back" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-arrow-left"></span>&nbsp;返回</button>
+					    <button id="scene_design_ico_plus" type="button" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"> </span>&nbsp;放大</button>
+					    <button id="scene_design_ico_minus" type="button" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-minus"> </span>&nbsp;缩小</button>
+					    <input type="button"  class="btn btn-sm btn-default" onclick="sertest()" value="序列化保存测试" />
+					    <input type="button" class="btn btn-sm btn-default" onclick="outtest()" value="还原测试" />
+				    </div>
+					<div class="gridster">
+					    <ul>
+					    </ul>
+					</div>
+		  		</div>
+		  		<!--场景设计区域content end-->
+		  	</div>
+		</div>
+		<!--content end-->
 </body>
 
-<script src='{% static "js/jquery-2.1.0.js" %}'></script>
+<script src='{% static "js/scene/scene.js" %}'></script>
+<script src='{% static "js/lib/jquery.gridster.js" %}'></script>
 <script src='{% static "js/element.js" %}'></script>
-<script src='{% static "js/lib/bootstrap.js" %}'></script>
+<script src='{% static "js/common/tools.js" %}'></script>
