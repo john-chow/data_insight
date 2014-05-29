@@ -1,4 +1,5 @@
 {% extends "base/list.html" %}
+{% load pagination_tags %}
 
 {# 导航栏 #}
 {% block menu %}
@@ -11,50 +12,74 @@
 {# 左栏目 #}
 {% block contentLeft %}
 <div class="panel panel-default">
-	<div class="panel-heading">场景列表</div>
+	<div class="panel-heading"><span class="glyphicon glyphicon-th-list">&nbsp;</span>场景列表</div>
 </div>
 {% endblock %}
 
+
 {# 右栏目 #}
 {% block contentRight %}
+
 <div class="content-menu clearfix">
     <div class="btn-group" data-toggle="buttons">
-	  <label class="btn btn-default active">
-	    <input type="radio" name="options" id="option1">时间升序
-	    &nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-down"></span>
+	  <label class="btn btn-info active" id="scene_sort_drop">
+	    <input type="radio" name="scene_input_sort" >时间升序
 	  </label>
-	  <label class="btn btn-default">
-	    <input type="radio" name="options" id="option2">时间降序
-	    &nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>
+	  <label class="btn btn-info" id="scene_sort_rise">
+	    <input type="radio" name="scene_input_sort" >时间降序
 	  </label>
 	</div>
-	<button type="button" id="button_new_scene" class="btn btn-primary">新建
-	&nbsp;&nbsp;<span class="glyphicon glyphicon-plus"></button>
-	<button type="button" class="btn btn-default">删除&nbsp;&nbsp;<span class="glyphicon glyphicon-remove"></span></button>
-	<div class="" style="width: 365px;float: right;">
-	    <div class="input-group">
-	        <input type="text" id="widget_input_search" value="{{search}}" name="search" placeholder="请输入搜索内容" class="form-control"/>
-	        <div class="input-group-btn">
-	          <button id="widget_button_search" type="button" class="btn btn-default">查找&nbsp;<span class="glyphicon glyphicon-search"></span></button>
-	        </div><!-- /btn-group -->
-	    </div>
-    </div>
+	<button type="button" id="button_new_scene" class="btn btn-primary">新建</button>
+	<button type="button" id="button_scene_batch" class="btn btn-default">批量管理</button>
+	<form class="navbar-form navbar-left" role="search">
+      <div class="form-group">
+        <input type="text" id="scene_input_search" value="{{search}}" class="form-control" placeholder="请输入搜索内容">
+      </div>
+      <button id="scene_button_search" type="button" class="btn btn-success">查找</button>
+    </form>
+</div>
+<div id="scene_count" class="clearfix">共&nbsp;<span>{{allCount}}</span>&nbsp;个场景，本页有
+	&nbsp;<span>{{sceneList|length}}</span>&nbsp;个
+	{% if search %}
+    <button type="button" id="scene_list_back" class="btn pull-right btn-default"><span class="glyphicon glyphicon-arrow-left">&nbsp;</span>返回</button>
+    {% endif %}
 </div>
 <div class="tab-pane fade active in element-list clearfix" id="scene_list">
-	<div class="element-list-div"><div></div><p>场景1</p></div>
-	<div class="element-list-div"><div></div><p>场景1</p></div>
-	<div class="element-list-div"><div></div><p>场景1</p></div>
-	<div class="element-list-div"><div></div><p>场景1</p></div>
-	<div class="element-list-div"><div></div><p>场景1</p></div>
-	<div class="element-list-div"><div></div><p>场景1</p></div>
-	<div class="element-list-div"><div></div><p>场景1</p></div>
-	<div class="element-list-div"><div></div><p>场景1</p></div>
-	<div class="element-list-div"><div></div><p>场景1</p></div>
-	<div class="element-list-div"><div></div><p>场景1</p></div>
-	<div class="element-list-div"><div></div><p>场景1</p></div>
-	<div class="element-list-div"><div></div><p>场景1</p></div>
-	<div class="element-list-div"><div></div><p>场景1</p></div>
+	{% for scene in sceneList %}
+	    <div class="element-list-div" style="{% if scene.m_is_distributed %}background-color: #F3B9B9;{% endif %}">
+	    	<div class="element-list-scene" data-id="{{scene.pk}}">
+	    		<a href="/scene/edit/{{scene.pk}}">
+	    			<img src="{{scene.m_pic}}" width="130px" height="130px" />
+	    		</a>
+	    		<div class="js-mod-scene-top">
+				    <span class="js-mod-scene-ico"><i class="icon-m icon-expansion-m"></i></span>
+				    <div class="js-mod-scene-con">
+				     	<ul>
+						    <li>
+						       <a href="/scene/edit/{{scene.pk}}"><i class="icon-m icon-edit-m"></i>编辑</a>
+						    </li>
+						    <li>
+						    	{% if scene.m_is_distributed %}
+						    		<a class="scene_operate" href="#"><i class="icon-m icon-cover-m"></i>取消发布</a>
+								{% else %}
+									<a class="scene_operate"  href="#"><i class="icon-m icon-cover-m"></i>发布</a>
+								{% endif %}
+						    </li>
+						    <li>
+						       <a class="scene_operate" data-op="delete" href="#"><i class="icon-m icon-rubbish-m"></i>删除</a>
+						    </li>
+				     	</ul>
+				    </div>
+				</div>
+	    	</div>
+
+	    	<span>{{ scene.m_name | truncatewords:3 }}</span>
+	    </div>
+	{% empty %}
+		<div>没有符合条件的场景</div>
+	{% endfor %}
 </div>
+
 {% endblock %}
 
 

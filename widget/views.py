@@ -38,9 +38,8 @@ def widgetList(request, template_name):
     if 'GET' == request.method:
         search = request.GET.get('search' , '')
         sort = request.GET.get('sort' , '-1')
-        page = request.GET.get('page' , '1')
-        order = "m_create_time" 
-        if int(sort) == 1 else "-m_create_time"
+        page = request.GET.get('page' , '1') 
+        order = "m_create_time" if int(sort) == 1 else "-m_create_time"
         widgetList = WidgetModel.objects.filter(m_name__contains=search,m_status=True).order_by(order)
         context = RequestContext(request)
         print widgetList

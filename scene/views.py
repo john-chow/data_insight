@@ -15,17 +15,28 @@ from django.shortcuts import render_to_response
 from django.shortcuts import get_object_or_404
 import pdb
 
-def sceneList(request):
+def sceneList(request, template_name):
     """
     场景列表
     """
-    now = datetime.now()
-    data = {
-            'now':              now
-    }
-    context = RequestContext(request)
-    return render_to_response('scene/list.html', data, context)
-
+    if 'GET' == request.method:
+        search = request.GET.get('search' , '')
+        sort = request.GET.get('sort' , '-1')
+        page = request.GET.get('page' , '1')
+        order = "m_create_time" if int(sort) == 1 else "-m_create_time"
+        sceneList = SceneModel.objects.filter(m_name__contains=search,m_status=True).order_by(order)
+        context = RequestContext(request)
+        print sceneList
+        data = {
+            "sceneList": sceneList,
+            "search": search,
+            "sort": sort,
+            "page": page,
+            "allCount": len(sceneList)
+        }
+        return render_to_response(template_name, data, context)
+    else:
+        raise Http404()
 
 @login_required
 def sceneCreate(request):

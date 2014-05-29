@@ -1,3 +1,9 @@
+/*!
+ * 包含组件，场景，主题list页面样式
+ *
+ * Date: 2014-05-01
+ */
+
 body {
 font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
@@ -417,4 +423,9 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	text-align: left;
 	padding: 10px;
 	border-bottom: 1px solid #ddd;
+}
+
+.content-menu{
+    border-bottom: 1px solid #ddd;
+    margin-top: 15px;
 }
