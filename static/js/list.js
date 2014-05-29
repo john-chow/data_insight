@@ -1,12 +1,16 @@
-/****************************/
-/******此JS分为三部分********/
-/***第一部分为组件List页面***/
-/***第二部分为场景List页面***/
-/***第三部分为主题List页面***/
-/****************************/
+/*!
+ * 此JS分为三部分
+ * 第一部分为组件List页面
+ * 第二部分为场景List页面
+ * 第三部分为主题List页面
+ *
+ * Date: 2014-05-01
+ */
 
 
-
+/*********************************************************************************/
+/*****************************第一部分：组件List**********************************/
+/*********************************************************************************/
 
 // 点击新建组件时弹出模态框
 $('#button_new_widget').on('click', function(ev) {
@@ -72,7 +76,7 @@ $("#button_widget_batch").on('click', function(ev) {
 });
 
 //组件批量操作返回
-$("#batch_list_back").on('click', function(ev) {
+$("#batch_widget_back").on('click', function(ev) {
 	page = $("#list_page").val();
 	sort = $("#list_sort").val();
 	search = $("#list_search").val();
@@ -263,3 +267,155 @@ function onGetTables(data) {
 		alert(data.msg)
 	}
 }
+
+/*********************************************************************************/
+/*****************************第二部分：场景List**********************************/
+/*********************************************************************************/
+
+//跳转页面场景批量操作页面
+$("#button_scene_batch").on('click', function(ev) {
+	page = $("#list_page").val();
+	sort = $("#list_sort").val();
+	search = $("#list_search").val();
+	location.href = "/scene/batch/?page="+page+"&search="+search+"&sort="+sort;
+});
+
+//场景批量操作返回
+$("#batch_scene_back").on('click', function(ev) {
+	page = $("#list_page").val();
+	sort = $("#list_sort").val();
+	search = $("#list_search").val();
+	location.href = "/scene/list/?page="+page+"&search="+search+"&sort="+sort;
+});
+
+//点击scene的查找按钮事件
+$("#scene_button_search").on('click', function(ev) {
+    $("#scene_submit_search").val($("#scene_input_search").val());
+    $("#scene_submit_page").val("");
+    $("#scene_search_form").submit();
+});
+
+//点击scene的时间升序事件
+$("#scene_sort_rise").on('click', function(ev) {
+    $("#scene_submit_sort").val("1");
+    $("#scene_search_form").submit();
+});
+
+//点击scene的时间降序事件
+$("#scene_sort_drop").on('click', function(ev) {
+    $("#scene_submit_sort").val("-1");
+    $("#scene_search_form").submit();
+});
+
+//某个场景的操作(改变发布状态，删除等)
+$(".scene_operate").on('click', function(ev) {
+    if($(this).attr("data-op")=="delete"){
+        $("#scene_post_form").attr("action", "/scene/delete/");
+        if(!confirm("确定要删除吗？"))
+            return;
+    }
+    else
+        $("#scene_post_form").attr("action", "/scene/distr/");
+    id = $(this).parents(".element-list-scene").attr("data-id");
+    page = $("#list_page").val();
+    
+    $("#scene_post_id").val(id);
+    $("#scene_post_page").val(page);
+
+    $("#scene_post_form").submit();
+});
+
+//场景查询返回
+$("#scene_list_back").on('click', function(ev) {
+    page = $("#list_page").val();
+    sort = $("#list_sort").val();
+    location.href = "/scene/list/?page="+page+"&sort="+sort;
+});
+
+//批量操作通用函数
+function batch_scene_op() {
+    var arr = new Array();
+    $(".batch-scene-select").each(function(){
+        id=$(this).attr("data-id");
+        arr.push(id);
+    });
+    if(arr.length==0){
+        alert("请选择场景!");
+        return;
+    }
+    $("#scene_batch_list").val(arr);
+    $("#scene_batch_form").submit();
+}
+
+
+//场景批量发布
+$("#batch_scene_distri").on('click', function(ev) {
+    $("#scene_batch_form").attr("action","/scene/batch/distri/");
+    batch_scene_op();
+});
+
+//场景批量取消发布
+$("#batch_scene_undistri").on('click', function(ev) {
+    $("#scene_batch_form").attr("action","/scene/batch/undistri/");
+    batch_scene_op();
+});
+
+//场景批量删除
+$("#batch_scene_delete").on('click', function(ev) {
+    $("#scene_batch_form").attr("action","/scene/batch/delete/");
+    batch_scene_op();
+});
+
+
+//场景批量操作选中与取消
+$("#batch_scene_list .element-list-div").on('click', function(ev) {
+    if($(this).hasClass("batch-scene-select")){
+        $(this).removeClass('batch-scene-select');
+        countSelect();
+    }
+    else{
+        $(this).addClass('batch-scene-select');
+        countSelect();
+    }
+    var isSeleceAll = $(".element-list-div").length == $(".batch-scene-select").length;
+    $("#batch_scene_all").prop("checked",isSeleceAll);//全选
+
+});
+
+//统计选中场景个数
+function countSelect(){
+    var num = $(".batch-scene-select").length;
+    $(".content-menu-count span").html(num);
+}
+
+//场景批量操作选中全部
+$("#batch_scene_all").on('click', function(ev) {
+    var $selectCheckBox = $(ev.target);
+    if($selectCheckBox.is(":checked")){
+        $(".element-list-div").addClass('batch-scene-select');
+    }else{
+        $(".element-list-div").removeClass('batch-scene-select');
+    }
+    
+    countSelect();
+});
+
+//场景批量操作取消全部
+$("#batch_scene_none").on('click', function(ev) {
+    $(".element-list-div").removeClass('batch-scene-select');
+    countSelect();
+});
+
+
+//场景List中场景右上角按钮单击事件
+$(".js-mod-scene-ico").on('click', function(ev) {
+    $(ev.target).parent().siblings(".js-mod-scene-con").slideToggle('fast');
+}); 
+
+//场景List中，鼠标移开时隐藏
+$(".element-list-scene").on('mouseleave', function(ev) {
+    $(".js-mod-scene-con").hide();
+});
+/*********************************************************************************/
+/*****************************第三部分：主题List**********************************/
+/*********************************************************************************/

@@ -14,15 +14,18 @@
 <div class="panel panel-default">
 	<div class="panel-heading"><span class="glyphicon glyphicon-th-list">&nbsp;</span>组件列表</div>
 	<ul>
-		<li class="">diam1</li>
-		<li class="">{{request.path}}</li>
+		{% for widget in widgetList %}
+		<li class=""><a href="/widget/edit/{{widget.m_id}}"><img src="{{widget.m_pic}}" width="30px" height="30px" />{{widget.m_name}}</a></li>
+		<!-- <li class="">{{request.path}}</li>
+		<li class="">{{request.session.fav_color}}</li> -->
+		{% endfor %}
 	</ul>
 </div>
 {% endblock %}
 
 {# 右栏目 #}
 {% block contentRight %}
-{% autopaginate widgetList 2 %}
+{% autopaginate widgetList 24 %}
 <div class="content-menu clearfix">
     <div class="btn-group" data-toggle="buttons">
 	  <label class="btn btn-default active" id="widget_sort_drop">
@@ -32,18 +35,20 @@
 	    <input type="radio" name="widget_input_sort" >时间升序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>
 	  </label>
 	</div>
-	<div class="pull-right">
-		<button type="button" id="button_new_widget" class="btn btn-primary">新建&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-plus"></span></button>
+	<div class="pull-left">
+		<button type="button" id="button_new_widget" class="btn btn-primary">新建&nbsp;&nbsp;<span class="glyphicon glyphicon-plus"></span></button>
 	    <button type="button" id="button_widget_batch" class="btn btn-default">批量管理&nbsp;&nbsp;<span class="glyphicon glyphicon-list"></span></button>
-	 </div>
-    <div class="" style="width: 365px;float: right;">
+	    </div>
+	<div class="pull-right">
+	    <div class="" style="width: 365px;">
 	    <div class="input-group">
 	        <input type="text" id="widget_input_search" value="{{search}}" name="search" placeholder="请输入搜索内容" class="form-control"/>
 	        <div class="input-group-btn">
 	          <button id="widget_button_search" type="button" class="btn btn-default">查找&nbsp;<span class="glyphicon glyphicon-search"></span></button>
 	        </div><!-- /btn-group -->
 	    </div>
-    </div>
+	    </div>
+	 </div>
 </div>
 <div id="widget_count" class="clearfix">共&nbsp;<span>{{allCount}}</span>&nbsp;个组件，本页有
 	&nbsp;<span>{{widgetList|length}}</span>&nbsp;个

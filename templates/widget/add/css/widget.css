@@ -1,0 +1,12 @@
+.show-msg{
+	display: none;
+	position: absolute;
+	top: 76px;
+	text-align: center;
+	left: 43%;
+	line-height: 3;
+	width: 255px;
+	height: 37px;
+	letter-spacing: 10px;
+	font-size: 15px;
+}

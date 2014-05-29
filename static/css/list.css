@@ -1,3 +1,9 @@
+/*!
+ * 包含组件，场景，主题list页面样式
+ *
+ * Date: 2014-05-01
+ */
+
 body {
 font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
@@ -56,6 +62,7 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 .element-list-div {
 	float: left;
 	margin: 5px 30px 15px 5px;
+	border: 1px solid white;
 }
 
 .element-list-div p{
@@ -101,6 +108,14 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	padding: 3px 0 3px 35px;
 	border-radius: 5px;
 	cursor: pointer;
+	border-bottom: 1px solid #ddd;
+}
+.content-left ul li a{
+	display: block;
+	color: black;
+}
+.content-left ul li img{
+	border: 1px solid #ddd;
 }
 
 .content-left .panel {
@@ -202,7 +217,9 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
 
 #widget_list ,
-#batch_widget_list {
+#batch_widget_list,
+#scene_list ,
+#batch_scene_list {
 	min-height: 630px;
 	padding: 15px;
 }
@@ -212,16 +229,19 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	padding: 5px;
 }
 
-.batch-widget-select {
+.batch-widget-select,
+.batch-scene-select {
 	border: 2px solid #67B1EA !important;
 }
 
-.batch-widget-select:hover {
+.batch-widget-select:hover,
+.batch-scene-select:hover {
 	border: 2px solid #67B1EA !important;
 }
 
 
-#widget_list .element-list-div {
+#widget_list .element-list-div,
+#scene_list .element-list-div {
 /*	-webkit-box-shadow: 0 0 2px rgba(0,0,0,0.4);
 	-moz-box-shadow: 0 0 10px rgba(0,0,0,0.4);
 	box-shadow: 0px 0px 1px rgba(0,0,0,0.4);*/
@@ -229,33 +249,40 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	padding: 5px;
 }
 
-#batch_widget_list .element-list-div:hover {
+#batch_widget_list .element-list-div:hover,
+#batch_scene_list .element-list-div:hover {
 	border: 2px solid #C7C1C5;
 }
 
-#batch_widget_list .element-list-div:hover .icon-check{
+#batch_widget_list .element-list-div:hover .icon-check, 
+#batch_scene_list .element-list-div:hover .icon-check {
 	border: 2px solid #C7C1C5;
 }
 
-.batch-widget-select:hover .icon-check{
+.batch-widget-select:hover .icon-check,
+.batch-scene-select:hover .icon-check {
 	border: 2px solid #67B1EA !important;
 }
 
-#widget_list .element-list-div:hover {
+#widget_list .element-list-div:hover,
+#scene_list .element-list-div:hover {
 	border: 2px solid #C7C1C5;
 }
 
-.element-list-widget {
+.element-list-widget,
+.element-list-scene {
 	position: relative;
 }
 
-.js-mod-widget-top {
+.js-mod-widget-top,
+.js-mod-scene-top {
 	position: absolute;
 	top: 1px;
 	right: 1px;
 }
 
-.js-mod-widget-ico {
+.js-mod-widget-ico,
+.js-mod-scene-ico {
 	position: relative;
 	z-index: 50;
 	display: none;
@@ -268,7 +295,8 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	box-shadow: 0 0 2px rgba(0,0,0,.15);
 }
 
-.element-list-div:hover .js-mod-widget-ico {
+.element-list-div:hover .js-mod-widget-ico ,
+.element-list-div:hover .js-mod-scene-ico {
 	display: block;
 }
 
@@ -288,7 +316,8 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	background-position: -499px -170px;
 }
 
-.element-list-widget>a {
+.element-list-widget>a ,
+.element-list-wcene>a {
 	display: block;
 	width: 100%;
 	height: 100%;
@@ -296,7 +325,8 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	background-color: #F5F5F5;
 }
 
-.js-mod-widget-con {
+.js-mod-widget-con,
+.js-mod-scene-con {
 	display: none;
 	position: absolute;
 	top: 21px;
@@ -308,35 +338,39 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	box-shadow: 0 0 2px rgba(0,0,0,.15);
 }
 
-.js-mod-widget-con ul {
+.js-mod-widget-con ul,
+.js-mod-scene-con ul {
 	list-style: none;
 	min-width: 102px;
 	padding: 0;
 	margin: 0;
 }
 
-.js-mod-widget-con li {
+.js-mod-widget-con li,
+.js-mod-scene-con li {
 	padding: 2px 0;
 }
 
-.js-mod-widget-con li a {
+.js-mod-widget-con li a,
+.js-mod-scene-con li a {
 	color: #262626;
 	display: block;
 	padding: 3px 0;
 	margin: 0;
 }
 
-.js-mod-widget-con li a:hover {
+.js-mod-widget-con li a:hover,
+.js-mod-scene-con li a:hover  {
 	text-decoration: none;
 	background: #5caae6;
 	color: #fff;
 }
 
-.js-mod-widget-con i {
+.js-mod-widget-con i,
+.js-mod-scene-con i {
 	margin: 0 8px;
 	vertical-align: -3px;
 }
-
 
 .icon-edit-m {
 	background-image: url(../img/list-background.png);
@@ -352,8 +386,6 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	background-image: url(../img/list-background.png);
 	background-position: -499px -119px;
 }
-
-
 
 .element-list-div:hover {
 	border: 2px solid #C7C1C5;
@@ -383,7 +415,8 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	vertical-align: middle;
 }
 
-.batch-widget-select .icon-check {
+.batch-widget-select .icon-check,
+.batch-scene-select .icon-check {
 	background-image: url(../img/photo.32-gag140424115042.png);
 	background-position: -661px -150px;
 	background-color: #67B1EA;
@@ -404,7 +437,8 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	width: 160px;
 }
 
-#widget_count {
+#widget_count,
+#scene_count {
 	text-align: left;
 	padding: 10px;
 	border-bottom: 1px solid #ddd;

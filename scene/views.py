@@ -15,17 +15,28 @@ from django.shortcuts import render_to_response
 from django.shortcuts import get_object_or_404
 import pdb
 
-def sceneList(request):
+def sceneList(request, template_name):
     """
     场景列表
     """
-    now = datetime.now()
-    data = {
-            'now':              now
-    }
-    context = RequestContext(request)
-    return render_to_response('scene/list.html', data, context)
-
+    if 'GET' == request.method:
+        search = request.GET.get('search' , '')
+        sort = request.GET.get('sort' , '-1')
+        page = request.GET.get('page' , '1')
+        order = "m_create_time" if int(sort) == 1 else "-m_create_time"
+        sceneList = SceneModel.objects.filter(m_name__contains=search,m_status=True).order_by(order)
+        context = RequestContext(request)
+        print sceneList
+        data = {
+            "sceneList": sceneList,
+            "search": search,
+            "sort": sort,
+            "page": page,
+            "allCount": len(sceneList)
+        }
+        return render_to_response(template_name, data, context)
+    else:
+        raise Http404()
 
 @login_required
 def sceneCreate(request):
@@ -130,6 +141,50 @@ def sceneSave(request, scn_id):
     return MyHttpJsonResponse({u'succ': True, u'scn_id': scene.pk})
 
 
+@login_required
+def sceneOp(request, op):
+    """
+    修改某个场景的发布状态
+    场景删除
+    """
+    if u'POST' == request.method:
+        id = request.POST.get('id')
+        page = request.POST.get('page','')
+        search = request.POST.get('search' , '')
+        sort = request.POST.get('sort' , '-1')
+        scene = SceneModel.objects.get(pk = id)
+        if (op == 'dis'):
+            scene.m_is_distributed = not scene.m_is_distributed
+        else:
+            scene.m_status = False
+        scene.save()
+        return HttpResponseRedirect(u'/scene/?page='+page+"&search="+search+"&sort="+sort)
+    else:
+        raise Http404()
+@login_required
+def batachOp(request, op):
+    """
+    场景批量发布
+    场景批量取消发布
+    场景批量删除
+    """
+    if u'POST' == request.method:
+        id_list = request.POST.get('list')
+        arr = id_list.split(',')
+        for id in arr:
+            print id+"____"
+            scene = SceneModel.objects.get(pk=id)
+            if(op == 'dis'):
+                scene.m_is_distributed = True
+            elif(op == 'undis'):
+                scene.m_is_distributed = False
+            else:
+                scene.m_status = False
+            scene.save()
+        page = request.POST.get('page','')
+        return HttpResponseRedirect(u'/scene/batch?page='+page)
+    else:
+        raise Http404()
 
 def sceneDelete(request):
     """
@@ -143,67 +198,3 @@ def sceneDelete(request):
         })
     return MyHttpJsonResponse({u'succ': True})
 
-
-"""
-def getScenesList(sub_id):
-    try:
-        subject = SubjectModel.objects.get(m_id=sub_id)
-    except SubjectModel.DoesNotExist:
-        raise Exception(u'Cant find subject, id = %s'.format(sub_id))
-
-    scenes = subject.m_scenes.all()
-    aaa = scenes.values()
-    return MyHttpJsonResponse({u'succ': True, u'data': aaa})
-
-
-    
-def addScene(request, kind):
-    sub_id, scn_id = map(lambda x: request.POST.get(x), ['sub_id', 'scn_id'])
-    try:
-        sub = SubjectModel.objects.get(m_id=sub_id)
-        scn = SceneModel.objects.get(m_id=scn_id)
-        SubToScnRelationModel.objects.create(
-            m_sub=sub, m_scn=scn, m_order=request.POST.get(u'order')
-        )
-    except IntegrityError, e:
-        return MyHttpJsonResponse({
-            u'succ': False, u'msg': 'no exist'
-        })
-
-    return MyHttpJsonResponse({u'succ': True})
-
-
-
-def rmScene(request, kind):
-    sub_id, scn_id = map(lambda x: request.POST.get(x), ['sub_id', 'scn_id'])
-    try:
-        sub = SubjectModel.objects.get(m_id=sub_id)
-        scn = SceneModel.objects.get(m_id=scn_id)
-        SubToScnRelationModel.objects.get(
-            m_sub=sub, m_scn=scn
-        ).delete()
-    except IntegrityError, e:
-        return MyHttpJsonResponse({
-            u'succ': False, u'msg': 'no exist'
-        })
-
-    return MyHttpJsonResponse({u'succ': True})
-
-
-def orderScenes(request):
-    sub_id = request.POST.get(u'sub_id')
-    scns_id_order_dict = request.POST.get(u'orders')
-
-    try:
-        sub = SubjectModel.objects.get(m_id=sub_id)
-        for scn_id, order_number in scns_id_order_dict.items():
-            scn = SceneModel.objects.get(m_id=scn_id)
-            relation = SubToScnRelationModel.objects.get(
-                m_sub = sub, m_scn = scn
-            )
-            relation.save(order = order_number)
-    except Exception, e:
-        pass
-
-    return MyHttpJsonResponse({u'succ': True})
-"""

@@ -1,3 +1,9 @@
+/*!
+ * 场景设计界面JS
+ *
+ * Date: 2014-05-01
+ */
+
 //初始化gridster
 $(function(){ //DOM Ready
     $(".gridster ul").gridster({
