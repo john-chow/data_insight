@@ -1,3 +1,9 @@
+/*!
+ * 场景设计界面JS
+ *
+ * Date: 2014-05-01
+ */
+
 //初始化gridster
 $(function(){ //DOM Ready
     $(".gridster ul").gridster({
@@ -197,19 +203,6 @@ define("compontnents", ["display"], function(d) {
                 $choose.remove();
                 var gridster = $(".gridster ul").gridster().data('gridster');//获取对象
                 gridster.remove_widget($("."+choose));
-                 $.ajax({
-                url:            "/scene/create/"
-                , type:         "POST"
-                , dataType:     "json"
-                , data:         {
-                    "layout":           layoutStr
-                    , "widgets":        widgetsStr 
-                }        
-                , success:      function() {
-                }
-                , error:        function() {
-                }
-            })
             });
 
             this.widgetsList.push(widgetObj)

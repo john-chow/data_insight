@@ -1,3 +1,9 @@
+/*!
+ * django ajax 防止csrf攻击官方代码
+ *
+ * Date: 2014-05-01
+ */
+
 $(function(){
   function getCookie(name) {
         var cookieValue = null;
