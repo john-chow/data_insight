@@ -35,7 +35,7 @@
 
 {# 右栏目 #}
 {% block contentRight %}
-{% autopaginate widgetList 2 %}
+{% autopaginate widgetList 10 %}
 <div id="widget_count">共&nbsp;<span>{{allCount}}</span>&nbsp;个组件，本页有&nbsp;<span>{{widgetList|length}}</span>&nbsp;个</div>
 <div class="content-menu clearfix">
 	<div class="content-menu-title">批量操作</div>

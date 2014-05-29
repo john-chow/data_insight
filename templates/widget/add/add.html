@@ -5,6 +5,7 @@
     <head>
         <meta charset="utf-8">
         <title>Web like Tableau</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/widget.css' %}">
 		<link rel="stylesheet" type="text/css" href="{% static 'css/jquery-ui-1.10.4.custom.css' %}">
 		<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.minicolors.css' %}">
 		<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.gridster.css' %}">
@@ -13,10 +14,11 @@
 		{% include 'head.html' %}
     </head>
     <body>
+        <div class="show-msg alert-success">保存成功</div>
         <div id="header">DataInsight</div>
         <div id="content"></div>
         <div id="footer"></div>
-        <div id="page_data" action_type={{type}} style="display:none">{{content}}</div>
+        <div id="page_data" style="display:none">{{content}}</div>
     </body>
 </html>
 <script>
@@ -25,7 +27,7 @@
 window.onload = function (){
 	// 启动js脚本
 	requirejs(['app', 'csrf'], function(app, csrf) {
-        window.action_type = $("#page_data").attr("action_type")
+        $("#page_data").data("id", "{{id}}");
 	})
 }
 </script>

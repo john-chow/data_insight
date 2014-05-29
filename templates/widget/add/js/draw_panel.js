@@ -1,9 +1,10 @@
 define([
-"backbone"
+'showmsg'
+,"backbone"
 , "base_sheet"
 , 'model/vtron_model'
 , "drawer"
-], function(Backbone, BaseSheetView, VtronModel, Drawer) {
+], function(Showmsg, Backbone, BaseSheetView, VtronModel, Drawer) {
 
 	var DrawModel 	= VtronModel.extend({
 		urlRoot:    "/widget/draw/",
@@ -70,7 +71,6 @@ define([
                 return ("/widget/edit/" + this.widgetId + "/")
             }
         },
-
         setWidgetId:    function(wiId) {
             this.widgetId = wiId
         }
@@ -85,6 +85,7 @@ define([
 		initialize: 		function() {
 			this.drawModel 	= new DrawModel();
 			this.model 	    = new WholeModel();
+            this.model.setWidgetId($("#page_data").data("id"))
 			this.run()
 		},
 
@@ -121,8 +122,8 @@ define([
             this.onOut(
                 "center:page_loaded"
                 , function() {
-                    // 如果是edit，那么前端需要数据恢复现场
-                    if("edit" === window.action_type)   
+                    // 如果组件存在id，那么前端需要数据恢复现场   
+                    if($("#page_data").data("id"))   
                         self.startRestore()
                 }
             );
@@ -163,8 +164,13 @@ define([
                     if ("back" === succCmd) {
                         location = "/widget";
                     } else {
-                        model.setWidgetId(response.wiId)
-                        alert(response.msg)
+                      	model.setWidgetId(response.wiId)
+		                $(".show-msg").showmsg({
+						 	top: '76px',
+						 	left: '43%',
+						 	msg: response.msg,
+						 	delayTime: 1500
+				 		});
                     }
                 },error: function(){
                     alert("服务器返回非json数据")

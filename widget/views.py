@@ -38,7 +38,7 @@ def widgetList(request, template_name):
     if 'GET' == request.method:
         search = request.GET.get('search' , '')
         sort = request.GET.get('sort' , '-1')
-        page = request.GET.get('page' , '1')
+        page = request.GET.get('page' , '1') 
         order = "m_create_time" if int(sort) == 1 else "-m_create_time"
         widgetList = WidgetModel.objects.filter(m_name__contains=search,m_status=True).order_by(order)
         context = RequestContext(request)
@@ -81,7 +81,7 @@ def widgetCreate(request):
                                     u'msg': u'保存成功'})
     else:
         context = RequestContext(request)
-        dict = {u'type': u'create'}
+        dict = {}
         return render_to_response(u'add.html', dict, context)
 
 @login_required
@@ -174,7 +174,7 @@ def widgetEdit(request, widget_id):
         for key in to_del_key:
             del extent_data[key]
 
-        data = {u'type': u'edit', u'id': widget_id
+        data = {u'id': widget_id
                 , u'content': json.dumps(extent_data)}
         return render_to_response(u'add.html', data, context)
 
