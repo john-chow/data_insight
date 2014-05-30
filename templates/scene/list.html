@@ -79,6 +79,11 @@
 	{% for scene in sceneList %}
 	    <div class="element-list-div" style="{% if scene.m_is_distributed %}background-color: #F3B9B9;{% endif %}">
 	    	<div class="element-list-scene" data-id="{{scene.pk}}">
+	    		<div class="heading">
+					<i class="glyphicon glyphicon-align-justify"></i>
+					<span>{{ widget.m_name }}</span>
+					<span class="pull-right glyphicon {% if scene.m_is_distributed %}glyphicon-folder-open{%else%}glyphicon-folder-close{% endif %}"></span>
+				</div>
 	    		<a href="/scene/edit/{{scene.pk}}">
 	    			<img src="{{scene.m_pic}}" width="130px" height="130px" />
 	    		</a>
@@ -103,8 +108,6 @@
 				    </div>
 				</div>
 	    	</div>
-
-	    	<span>{{ scene.m_name | truncatewords:3 }}</span>
 	    </div>
 	{% empty %}
 		<div>没有符合条件的场景</div>

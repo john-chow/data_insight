@@ -21,6 +21,7 @@ define([
         events: {
             "click .intelligent-display-name":                "changeIntelligentDisplay"
             ,"mouseover .intelligent-display-pic button":     "showTips"
+            ,"mouseleave .intelligent-display-pic":            "hideDisplay"
             //,"click .intelligent-display-pic button":         "chooseChartStyle"
         },
 
@@ -64,6 +65,9 @@ define([
 
         setGraph:    function(attr) {
             this.$(".intelligent-display-pic button[chartname='"+attr+"']")[0].click();
+        },
+        hideDisplay: function(){
+            this.$(".intelligent-display-pic").slideUp("normal");
         }
     });
 
