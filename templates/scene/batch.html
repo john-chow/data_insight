@@ -1,0 +1,83 @@
+{% extends "base/list.html" %}
+{% load pagination_tags %}
+
+{# 导航栏 #}
+{% block menu %}
+	<li><a href="/widget">组件</a></li>
+	<li class="active"><a href="/scene">场景</a></li>
+	<li><a href="/theme">主题</a></li>
+	<li><a href="#">个人信息</a></li>
+{% endblock %}
+
+{# 左栏目 #}
+{% block contentLeft %}
+<div class="panel panel-default">
+	<div class="panel-heading"><span class="glyphicon glyphicon-th-list">&nbsp;</span>组件列表</div>
+	<ul>
+		<li class="">diam1</li>
+		<li class="">diam2</li>
+		<li class="">diam3</li>
+		<li class="">diam4</li>
+		<li class="">diam5</li>
+		<li class="">diam6</li>
+		<li class="">diam7</li>
+		<li class="">diam8</li>
+		<li class="">diam9</li>
+		<li class="">diam0</li>
+		<li class="">diam1</li>
+		<li class="">diam2</li>
+		<li class="">diam3</li>
+		<li class="">diam4</li>
+		<li class="">diam5</li>
+	</ul>
+</div>
+{% endblock %}
+
+{# 右栏目 #}
+{% block contentRight %}
+{% autopaginate sceneList 2 %}
+<div id="scene_count">共&nbsp;<span>{{allCount}}</span>&nbsp;个组件，本页有&nbsp;<span>{{sceneList|length}}</span>&nbsp;个</div>
+<div class="content-menu clearfix">
+	<div class="content-menu-title">批量操作</div>
+	<div class="content-menu-count">已选择&nbsp;<span>0</span>&nbsp;个组件</div>
+    <!-- <button type="button" id="batch_scene_all" class="btn btn-primary">全部选中</button>
+    <button type="button" id="batch_scene_none" class="btn btn-success">		全部取消</button> -->
+    <input type="checkbox" id="batch_scene_all"/>全选
+	<button type="button" id="batch_scene_distri" class="btn btn-default">
+		发布&nbsp;<span class="glyphicon glyphicon-arrow-up">&nbsp;</span>
+	</button>
+	<button type="button" id="batch_scene_undistri" class="btn btn-default">		取消发布&nbsp;<span class="glyphicon glyphicon-arrow-down">&nbsp;</span>
+	</button>
+    <button type="button" id="batch_scene_delete" class="btn btn-default">
+   		 删除&nbsp;<span class="glyphicon glyphicon-remove"></span>
+    </button>
+    <button type="button" id="batch_scene_back" class="btn btn-default pull-right">
+    	返回&nbsp;<span class="glyphicon glyphicon-arrow-left"></span>
+    </button>
+
+</div>
+<div class="tab-pane fade active in element-list clearfix" id="batch_scene_list">
+	{% for scene in sceneList %}
+	    <div class="element-list-div" data-id="{{scene.pk}}" style="{% if scene.m_is_distributed %}background-color: #F3B9B9;{% endif %}">
+	    	<div class="element-list-scene" style="cursor:default;">
+	    		<label class="batch-list-check"><i class="icon-check"></i></label>
+	    		<a href="#" style="cursor:default;">
+	    			<img src="{{scene.m_pic}}" width="130px" height="130px" />
+	    		</a>
+	    	</div>
+	    	<span>{{ scene.m_name }}</span>
+	    </div>
+	{% endfor %}
+</div>
+{% paginate %}
+{% endblock %}
+
+{% block extraContent %}
+<!-- 提交表单 begin -->
+<form id="scene_batch_form" method="post">
+	{% csrf_token %}
+    <input type="hidden" id="scene_batch_list" name="list" value="" />
+    <input type="hidden" id="scene_batch_page" name="page" value="{{page}}" />
+</form> 
+<!-- 提交表单 end -->
+{% endblock %}

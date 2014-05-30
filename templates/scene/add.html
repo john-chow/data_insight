@@ -42,7 +42,7 @@
 
 
     <!--content begin-->
-		<div id="content">
+		<div id="content" scene-id="{{ scene_id }}">
 			<div class="row">
 		  		<div id="scene_design_left" class="content-left col-md-2 col-lg-2">
 		  			<div id="choosed_chart" class="panel panel-default">
@@ -103,3 +103,4 @@
 <script src='{% static "js/scene/design.js" %}'></script>
 <script src='{% static "js/lib/jquery.gridster.js" %}'></script>
 <script src='{% static "js/common/tools.js" %}'></script>
+<script>window.scene_id = $("#content").attr("scene-id")</script>

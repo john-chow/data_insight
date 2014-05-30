@@ -19,6 +19,7 @@
 
 {# 右栏目 #}
 {% block contentRight %}
+{% autopaginate sceneList 2 %}
 <div class="content-menu clearfix">
     <div id="scene_count" class="clearfix">共&nbsp;<span>{{allCount}}</span>&nbsp;个场景，本页有
 	&nbsp;<span>{{sceneList|length}}</span>&nbsp;个
@@ -109,9 +110,34 @@
 		<div>没有符合条件的场景</div>
 	{% endfor %}
 </div>
-
+{% paginate %}
 {% endblock %}
 
 
 {% block extraContent %}
+<!-- 搜索表单 begin -->
+<form id="scene_search_form">
+    <input type="hidden" id="scene_submit_search" name="search" value="{{search}}" />
+    <input type="hidden" id="scene_submit_sort" name="sort" value="{{sort}}" />
+    <input type="hidden" id="scene_submit_page" name="page" value="{{page}}" />
+</form> 
+<!-- 搜索表单 end -->
+<!-- 提交表单 begin -->
+<form id="scene_post_form" method="post">
+	{% csrf_token %}
+    <input type="hidden" id="scene_post_id" name="id" value="" />
+    <input type="hidden" id="scene_post_search" name="search" value="{{search}}" />
+    <input type="hidden" id="scene_post_sort" name="sort" value="{{sort}}" />
+    <input type="hidden" id="scene_post_page" name="page" value="{{page}}" />
+</form> 
+<!-- 提交表单 end -->
+<!-- 初始按钮 begin -->
+<script>
+window.onload = function (){
+	if({{sort}}==1){
+		$("#scene_sort_drop").removeClass('active');
+		$("#scene_sort_rise").addClass('active');
+	}
+}
+</script>
 {% endblock %}
