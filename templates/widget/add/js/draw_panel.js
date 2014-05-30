@@ -71,6 +71,9 @@ define([
                 return ("/widget/edit/" + this.widgetId + "/")
             }
         },
+        initialize: function(){
+            this.widgetId = $("#page_data").data("id");
+        },
         setWidgetId:    function(wiId) {
             this.widgetId = wiId
         }
@@ -85,7 +88,6 @@ define([
 		initialize: 		function() {
 			this.drawModel 	= new DrawModel();
 			this.model 	    = new WholeModel();
-            this.model.setWidgetId($("#page_data").data("id"))
 			this.run()
 		},
 
@@ -164,7 +166,6 @@ define([
                     if ("back" === succCmd) {
                         location = "/widget";
                     } else {
-                      	model.setWidgetId(response.wiId)
 		                $(".show-msg").showmsg({
 						 	top: '76px',
 						 	left: '43%',

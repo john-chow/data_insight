@@ -7,9 +7,10 @@ define([
 , "base_sheet"
 , "model/vtron_model"
 , "model/vtron_collection"
+,"toolbar"
 ], function(Backbone, MenusView, WorkareaView
 			, InfoWorkplaceView, _Modal
-			, BaseSheetView, VtronModel, VtronCollection) {
+			, BaseSheetView, VtronModel, VtronCollection, Toolbar) {
 
 	// 使model save时，数据是object型
 	Backbone.emulateJSON = true;

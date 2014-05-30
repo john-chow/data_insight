@@ -57,6 +57,7 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 
 .element-list {
 	padding:25px 0;
+	min-height: 630px;
 }
 
 .element-list-div {
@@ -71,11 +72,11 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 
 .element-list-div>div{
 	cursor: pointer;
-	display: block;
+	/*display: block;
 	border-radius: 8px;
 	margin-bottom: 5px;
 	width: 130px;
-	height: 130px;
+	height: 130px;*/
 }
 
 .content-menu form {
@@ -125,6 +126,8 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
 .content-left .panel-heading{
 	padding-left: 30px;
+	background: #852b99 !important;
+	color: white;
 }
 
 .content-left ul li:hover {	
@@ -223,8 +226,22 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
 
 .element-list-div{
-	border: 2px solid #ddd;
-	padding: 5px;
+	margin-bottom: 20px;
+width: 500px;
+float: left;
+margin-right: 70px;
+border: 2px solid #bbb;
+}
+
+.element-list-div .heading{
+background: #27A9E3;
+color: white;
+padding: 8px;
+}
+.element-list-div .heading span{
+	font-size: 18px;
+padding-left: 10px;
+letter-spacing: 5px;
 }
 
 .batch-widget-select {
@@ -241,7 +258,6 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	-moz-box-shadow: 0 0 10px rgba(0,0,0,0.4);
 	box-shadow: 0px 0px 1px rgba(0,0,0,0.4);*/
 	border: 2px solid #ddd;
-	padding: 5px;
 }
 
 #batch_widget_list .element-list-div:hover {
@@ -257,7 +273,7 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
 
 #widget_list .element-list-div:hover {
-	border: 2px solid #C7C1C5;
+	border: 2px solid #27A9E3;
 }
 
 .element-list-widget {
@@ -422,10 +438,33 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 #widget_count {
 	text-align: left;
 	padding: 10px;
-	border-bottom: 1px solid #ddd;
 }
 
 .content-menu{
-    border-bottom: 1px solid #ddd;
-    margin-top: 15px;
+	padding: 15px;
+	background: #4b8df8;
+	color: white;
+}
+
+.toolbar{
+	background: #eee;
+padding: 5px 10px;
+border: 1px solid #bbb;
+}
+.test{
+margin-bottom: 20px;
+width: 500px;
+float: left;
+margin-right: 70px;
+border: 2px solid #bbb;
+}
+.test1{
+background: #27A9E3;
+color: white;
+padding: 8px;
+}
+.test1 span{
+	font-size: 18px;
+padding-left: 10px;
+letter-spacing: 5px;
 }

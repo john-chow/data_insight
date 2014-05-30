@@ -19,8 +19,41 @@
 
 {# 右栏目 #}
 {% block contentRight %}
-
 <div class="content-menu clearfix">
+    <div id="scene_count" class="clearfix">共&nbsp;<span>{{allCount}}</span>&nbsp;个场景，本页有
+	&nbsp;<span>{{sceneList|length}}</span>&nbsp;个
+</div>
+</div>
+<div class="toolbar clearfix">
+<div class="pull-left">
+	<div class="btn-group" data-toggle="buttons">
+		  <label class="btn btn-default active" id="scene_sort_drop">
+		    <input type="radio" name="scene_input_sort" >时间降序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-down"></span>
+		  </label>
+		  <label class="btn btn-default" id="scene_sort_rise">
+		    <input type="radio" name="scene_input_sort" >时间升序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>
+		  </label>
+		</div>
+	</div>
+	<div class="pull-left" style="margin-left: 15px">
+		<button type="button" id="button_new_scene" class="btn btn-info">新建&nbsp;&nbsp;<span class="glyphicon glyphicon-plus"></span></button>
+	    <button type="button" id="button_scene_batch" class="btn btn-warning">批量管理&nbsp;&nbsp;<span class="glyphicon glyphicon-list"></span></button>
+	    {% if search %}
+   			<button type="button" id="scene_list_back" class="btn  btn-info">返回&nbsp;<span class="glyphicon glyphicon-arrow-left"></span></button>
+   		{% endif %}
+	</div>
+	<div class="pull-right">
+	    <div class="" style="width: 365px;">
+	    <div class="input-group">
+	        <input type="text" id="scene_input_search" value="{{search}}" name="search" placeholder="请输入搜索内容" class="form-control"/>
+	        <div class="input-group-btn">
+	          <button id="scene_button_search" type="button" class="btn btn-default">查找&nbsp;<span class="glyphicon glyphicon-search"></span></button>
+	        </div><!-- /btn-group -->
+	    </div>
+	    </div>
+	 </div>
+</div>
+<!-- <div class="content-menu clearfix">
     <div class="btn-group" data-toggle="buttons">
 	  <label class="btn btn-info active" id="scene_sort_drop">
 	    <input type="radio" name="scene_input_sort" >时间升序
@@ -38,12 +71,9 @@
       <button id="scene_button_search" type="button" class="btn btn-success">查找</button>
     </form>
 </div>
-<div id="scene_count" class="clearfix">共&nbsp;<span>{{allCount}}</span>&nbsp;个场景，本页有
-	&nbsp;<span>{{sceneList|length}}</span>&nbsp;个
 	{% if search %}
     <button type="button" id="scene_list_back" class="btn pull-right btn-default"><span class="glyphicon glyphicon-arrow-left">&nbsp;</span>返回</button>
-    {% endif %}
-</div>
+    {% endif %} -->
 <div class="tab-pane fade active in element-list clearfix" id="scene_list">
 	{% for scene in sceneList %}
 	    <div class="element-list-div" style="{% if scene.m_is_distributed %}background-color: #F3B9B9;{% endif %}">

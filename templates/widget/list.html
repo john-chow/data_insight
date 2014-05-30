@@ -25,20 +25,30 @@
 
 {# 右栏目 #}
 {% block contentRight %}
-{% autopaginate widgetList 24 %}
+{% autopaginate widgetList 10 %}
 <div class="content-menu clearfix">
-    <div class="btn-group" data-toggle="buttons">
-	  <label class="btn btn-default active" id="widget_sort_drop">
-	    <input type="radio" name="widget_input_sort" >时间降序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-down"></span>
-	  </label>
-	  <label class="btn btn-default" id="widget_sort_rise">
-	    <input type="radio" name="widget_input_sort" >时间升序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>
-	  </label>
+    <div id="widget_count" class="clearfix">共&nbsp;<span>{{allCount}}</span>&nbsp;个组件，本页有
+	&nbsp;<span>{{widgetList|length}}</span>&nbsp;个
+</div>
+</div>
+<div class="toolbar clearfix">
+<div class="pull-left">
+	<div class="btn-group" data-toggle="buttons">
+		  <label class="btn btn-default active" id="widget_sort_drop">
+		    <input type="radio" name="widget_input_sort" >时间降序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-down"></span>
+		  </label>
+		  <label class="btn btn-default" id="widget_sort_rise">
+		    <input type="radio" name="widget_input_sort" >时间升序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>
+		  </label>
+		</div>
 	</div>
-	<div class="pull-left">
-		<button type="button" id="button_new_widget" class="btn btn-primary">新建&nbsp;&nbsp;<span class="glyphicon glyphicon-plus"></span></button>
-	    <button type="button" id="button_widget_batch" class="btn btn-default">批量管理&nbsp;&nbsp;<span class="glyphicon glyphicon-list"></span></button>
-	    </div>
+	<div class="pull-left" style="margin-left: 15px">
+		<button type="button" id="button_new_widget" class="btn btn-info">新建&nbsp;&nbsp;<span class="glyphicon glyphicon-plus"></span></button>
+	    <button type="button" id="button_widget_batch" class="btn btn-warning">批量管理&nbsp;&nbsp;<span class="glyphicon glyphicon-list"></span></button>
+	    {% if search %}
+   			<button type="button" id="widget_list_back" class="btn  btn-info">返回&nbsp;<span class="glyphicon glyphicon-arrow-left"></span></button>
+   		{% endif %}
+	</div>
 	<div class="pull-right">
 	    <div class="" style="width: 365px;">
 	    <div class="input-group">
@@ -50,18 +60,17 @@
 	    </div>
 	 </div>
 </div>
-<div id="widget_count" class="clearfix">共&nbsp;<span>{{allCount}}</span>&nbsp;个组件，本页有
-	&nbsp;<span>{{widgetList|length}}</span>&nbsp;个
-	{% if search %}
-    <button type="button" id="widget_list_back" class="btn pull-right btn-default"><span class="glyphicon glyphicon-arrow-left">&nbsp;</span>返回</button>
-    {% endif %}
-</div>
 <div class="tab-pane fade active in element-list clearfix" id="widget_list">
 	{% for widget in widgetList %}
-	    <div class="element-list-div" style="{% if widget.m_is_distributed %}background-color: #F3B9B9;{% endif %}">
+	    <div class="element-list-div">
 	    	<div class="element-list-widget" data-id="{{widget.pk}}">
+	    	<div class="heading">
+				<i class="glyphicon glyphicon-align-justify"></i>
+				<span>{{ widget.m_name }}</span>
+				<span class="pull-right glyphicon {% if widget.m_is_distributed %}glyphicon-folder-open{%else%}glyphicon-folder-close{% endif %}"></span>
+			</div>
 	    		<a href="/widget/edit/{{widget.pk}}">
-	    			<img src="{{widget.m_pic}}" width="130px" height="130px" />
+	    			<img src="{{widget.m_pic}}" width="480" height="227" />
 	    		</a>
 	    		<div class="js-mod-widget-top">
 				    <span class="js-mod-widget-ico"><i class="icon-m icon-expansion-m"></i></span>

@@ -14,11 +14,13 @@
 		{% include 'head.html' %}
     </head>
     <body>
-        <div class="show-msg alert-success">保存成功</div>
+        <div class="show-msg alert-success" style="font-weight: bold;">保存成功</div>
         <div id="header">DataInsight</div>
         <div id="content"></div>
         <div id="footer"></div>
         <div id="page_data" style="display:none">{{content}}</div>
+        <div class="hover-toolbar" id="toolbar">
+        </div>
     </body>
 </html>
 <script>

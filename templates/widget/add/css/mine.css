@@ -52,6 +52,11 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
     margin-bottom: 0;
 }
 
+#design_menu #design_menu_ico{
+    background: #eee;
+padding: 5px 10px;
+}
+
 #dbinfo_bar label {
     background-color: #DCDCDC;
     width: 100%;
@@ -153,7 +158,7 @@ margin-left: 161px;
 }
 
 #design_menu_ico button {
-    margin:3px 2px;
+    
 }
 
 #filter_box .panel-heading {
@@ -916,6 +921,21 @@ button.filter-close {
 #choosed_chart hr {
     margin-top: 5px;
     margin-bottom: 5px;
+}
+
+.hover-toolbar{
+  position: absolute;
+bottom: 58px;
+right: 8px;
+width: 330px;
+height: 50px;
+background: #eee;
+padding: 10px 32px;
+border: 1px solid #bbb;
+border-radius: 5px;
+-moz-border-radius: 5px;
+-webkit-border-radius: 5px;
+
 }
 
 
