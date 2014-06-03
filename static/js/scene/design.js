@@ -4,6 +4,10 @@
  * Date: 2014-05-01
  */
 
+var GRID_UNIT_WIDTH     = 500,
+    GRID_UNIT_HEIGHT    = 300;
+    
+
 //初始化gridster
 $(function(){ //DOM Ready
     $(".gridster ul").gridster({
@@ -233,8 +237,10 @@ define("compontnents", ["display"], function(d) {
         },
 
         // 保存本场景组件列表
-        save:           function(ev, layoutArray) {
-            var layoutStr       = JSON.stringify(layoutArray);
+        save:           function(ev, data) {
+            var image           = data.image;
+            var layoutStr       = JSON.stringify(data.layout);
+        
             var widgetIdList    = $.map(this.widgetsList, function(wi) {
                 return {"id": wi.id,    "stamp": wi.stamp}
             });
@@ -252,6 +258,7 @@ define("compontnents", ["display"], function(d) {
                 , data:         {
                     "layout":           layoutStr
                     , "widgets":        widgetsStr 
+                    , "image":          image 
                 }        
                 , success:      function(data) {
                     window.scene_id = data.scn_id
@@ -319,6 +326,7 @@ define("display", ["drawer"], function(DrawManager) {
     var display = {
         $el:                $("#scene_design_right"),
         $gridster:          $(".gridster ul"),
+        ecList:             [],             // 画图对象
 
         run:                function() {
             this.init();
@@ -329,12 +337,12 @@ define("display", ["drawer"], function(DrawManager) {
         },
         
         startListener:      function() {
-            $body.on("show_widget",     bindContext(this.showWidget, this));
+            $body.on("show_widget",     bindContext(this.addWidget, this));
             $body.on("rm_widget",       bindContext(this.rmWidget, this));
             this.$el.find("#save_scene").on("click", bindContext(this.onSave, this));
         },
 
-        showWidget:         function(ev, data) {
+        addWidget:         function(ev, data) {
             var timestamp = data.time;
             var data = data.data;
             var gridster = $(".gridster ul").gridster().data('gridster');
@@ -347,7 +355,9 @@ define("display", ["drawer"], function(DrawManager) {
             var drawer = new DrawManager();
             drawer.run($(".se_wi_div_"+data.widget_id)[len], data.data);
 
-            this.afterWidgetShown(drawer, data.widget_id)
+            this.ecList.push({"stamp": timestamp, "ec": drawer.getEc()});
+
+            this.afterWidgetAdd(drawer, data.widget_id)
         },
 
         rmWidget:               function() {
@@ -362,7 +372,7 @@ define("display", ["drawer"], function(DrawManager) {
             })
         },
 
-        afterWidgetShown:       function(drawer, widgetId) {
+        afterWidgetAdd:       function(drawer, widgetId) {
             // 保持伸缩性，拖到的时候也可以增大缩小
             this.keepFlexible();
 
@@ -381,10 +391,52 @@ define("display", ["drawer"], function(DrawManager) {
         onSave:               function() {
             var gridObj     = this.$gridster.gridster().data('gridster');
             var layoutArray = gridObj.serializeByStev();
-            $body.trigger("scene_save", layoutArray)
+            var image       = this.getImage(layoutArray);
+            $body.trigger("scene_save", {
+                "layout":       layoutArray
+                , "image":      image
+            })
         },
 
-        restore:            function() {
+        restore:            function()  {
+        },
+
+        getImage:           function(layoutArray)  {
+            var len     = this.ecList.length,
+                maxRow  = 0,
+                maxCol  = 0 ;
+
+            var self = this;
+            $.each(layoutArray, function(i, layout) {
+                // 找最大的行和最大的列，用来确定快照的尺寸
+                maxRow = (maxRow >= layout.row) ? maxRow : layout.row;
+                maxCol = (maxCol >= layout.col) ? maxCol : layout.col;
+
+                // 为每个grid单元保存它的canvas快照
+                for(var j = 0; j < len; j++) {
+                    if (self.ecList[i].stamp == layout.data_time)  {
+                        var ec = self.ecList[i].ec;  
+                        layout["canvas"] = ec.getZrender().toDataCanvas("");
+                        break
+                    }
+                }
+            })
+
+            var width   = maxCol * GRID_UNIT_WIDTH;
+            var height  = maxRow * GRID_UNIT_HEIGHT
+            $newDom = $("<canvas width="+width+" height="+height+" style='position: absolute; left: 0px; top: 0px'>");
+            newDom = $newDom[0];
+            var ctx = newDom.getContext("2d");
+            $.each(layoutArray, function(i, layout) {
+                var dy  = parseInt(layout.row - 1)  * GRID_UNIT_HEIGHT,
+                    dx  = parseInt(layout.col - 1)  * GRID_UNIT_WIDTH;
+                ctx.drawImage(layout.canvas, dx, dy);
+            
+                // 画到公共大面板之后移除画图对象
+                delete layout["canvas"]
+            })
+
+            return newDom.toDataURL()
         }
     };
 
