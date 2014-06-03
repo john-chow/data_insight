@@ -45,13 +45,18 @@ def sceneCreate(request):
     """
     if u'POST' == request.method:
         owner = request.user.username
-        widgets, layout = map(lambda x: json.loads(request.POST.get(x, '[]')), \
-                                                ('widgets', 'layout')) 
+        snapshot = request.POST.get('image')
+        widgets, layout   \
+            = map(lambda x: json.loads(request.POST.get(x)), \
+                    ('widgets', 'layout')) 
+
         # 没有组件拒绝保存，没有意义
         if not widgets:
             return MyHttpJsonResponse({u'succ': False, u'msg': 'no widgets'})
 
-        scene = SceneModel.objects.create(m_owner = owner, m_layout = layout)
+        scene = SceneModel.objects.create(  \
+            m_owner = owner, m_layout = layout, m_snapshot = snapshot   \
+        )
 
         rla_list = []
         for wi in widgets:
@@ -79,8 +84,13 @@ def sceneEdit(request, scn_id):
     编辑场景
     """
     if u'POST' == request.method:
-        widgets, layout = map(lambda x: json.loads(request.POST.get(x, '[]')), \
+        snapshot = request.POST.get('image')
+        widgets, layout = map(lambda x: json.loads(request.POST.get(x)), \
                                                 ('widgets', 'layout')) 
+        # 没有组件拒绝保存，没有意义
+        if not widgets:
+            return MyHttpJsonResponse({u'succ': False, u'msg': 'no widgets'})
+
         scene = SceneModel.objects.get(pk = scn_id)
         rla_list = []
         for wi in widgets:
@@ -90,10 +100,12 @@ def sceneEdit(request, scn_id):
             )
             rla_list.append(rla)
 
+        SceneModel.objects.filter(pk = scn_id)  \
+                    .update(m_layout = layout, m_snapshot = snapshot)
+
         # 删掉以前所有关联，重新全部建立
-        if rla_list:
-            ScnToWiRelationModel.objects.filter(m_scn = scene).delete()
-            ScnToWiRelationModel.objects.bulk_create(rla_list)
+        ScnToWiRelationModel.objects.filter(m_scn = scene).delete()
+        ScnToWiRelationModel.objects.bulk_create(rla_list)
             
         return MyHttpJsonResponse({u'succ': True, u'scn_id': scn_id, u'msg': u'xxxx'})
 

@@ -9,10 +9,11 @@ class SceneModel(ElementModel):
     """
     场景类，继承ElementModel
     """
-    m_layout = models.TextField()
-    m_word = models.TextField()
-    m_pic = models.TextField()
-    m_widgets = models.ManyToManyField(WidgetModel \
+    m_layout        = models.TextField()
+    m_insert_word   = models.TextField()
+    m_insert_pic    = models.TextField()
+    m_snapshot      = models.TextField()
+    m_widgets       = models.ManyToManyField(WidgetModel \
                             , through='ScnToWiRelationModel' \
                             , related_name = 's2w_set')
 

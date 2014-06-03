@@ -10935,6 +10935,13 @@ define(
             };
 
             /**
+             * 图像canvas对象导出 
+             */
+            self.toDataCanvas = function(type, backgroundColor, args) {
+                return painter.toDataCanvas(type, backgroundColor, args);
+            };
+
+            /**
              * 将常规shape转成image shape
              */
             self.shapeToImage = function(e, width, height) {
@@ -12017,6 +12024,62 @@ define(
                 _domList['bg'].removeChild(imageDom);
                 return image;
             }
+
+            function toDataCanvas(type, backgroundColor, args) {
+                if (G_vmlCanvasManager) {
+                    return null;
+                }
+                var imageDom = _createDom('image','canvas');
+                _domList['bg'].appendChild(imageDom);
+                var ctx = imageDom.getContext('2d');
+                _devicePixelRatio != 1 
+                && ctx.scale(_devicePixelRatio, _devicePixelRatio);
+                
+                ctx.fillStyle = backgroundColor || '#fff';
+                ctx.rect(
+                    0, 0, 
+                    _width * _devicePixelRatio,
+                    _height * _devicePixelRatio
+                );
+                ctx.fill();
+                
+                //升序遍历，shape上的zlevel指定绘画图层的z轴层叠
+                storage.iterShape(
+                    function (e) {
+                        if (!e.invisible) {
+                            if (!e.onbrush //没有onbrush
+                                //有onbrush并且调用执行返回false或undefined则继续粉刷
+                                || (e.onbrush && !e.onbrush(ctx, e, false))
+                            ) {
+                                if (zrender.catchBrushException) {
+                                    try {
+                                        shape.get(e.shape).brush(
+                                            ctx, e, false, update
+                                        );
+                                    }
+                                    catch(error) {
+                                        zrender.log(
+                                            error,
+                                            'brush error of ' + e.shape,
+                                            e
+                                        );
+                                    }
+                                }
+                                else {
+                                    shape.get(e.shape).brush(
+                                        ctx, e, false, update
+                                    );
+                                }
+                            }
+                        }
+                    },
+                    { normal: 'up' }
+                );
+                var image = imageDom.toDataURL(type, args); 
+                ctx = null;
+                //_domList['bg'].removeChild(imageDom);
+                return imageDom;
+            }
             
             var shapeToImage = (function() {
                 if (G_vmlCanvasManager) {
@@ -12088,6 +12151,7 @@ define(
             self.dispose = dispose;
             self.getDomHover = getDomHover;
             self.toDataURL = toDataURL;
+            self.toDataCanvas = toDataCanvas;
             self.shapeToImage = shapeToImage;
 
             _init();
