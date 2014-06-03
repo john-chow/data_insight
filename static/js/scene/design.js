@@ -220,43 +220,11 @@ define("compontnents", ["display"], function(d) {
 
         // 保存本场景组件列表
         getWidgetsStr:          function() {
-
-            /*
-            var image           = data.image;
-            var layoutStr       = JSON.stringify(data.layout);
-            */
-        
             var widgetIdList    = $.map(this.widgetsList, function(wi) {
                 return {"id": wi.id,    "stamp": wi.stamp}
             });
 
-            /*
-            if (window.scene_id) 
-                var url = "/scene/edit/" + window.scene_id + "/"
-            else 
-                var url = "/scene/create/"
-            */
-
-            var widgetsStr  = JSON.stringify(widgetIdList);
-            return widgetsStr
-
-            /*
-            $.ajax({
-                url:            url
-                , type:         "POST"
-                , dataType:     "json"
-                , data:         {
-                    "layout":           layoutStr
-                    , "widgets":        widgetsStr 
-                    , "image":          image 
-                }        
-                , success:      function(data) {
-                    window.scene_id = data.scn_id
-                }
-                , error:        function() {
-                }
-            })
-            */
+            return ( JSON.stringify(widgetIdList) )
         },
 
         restore:        function() {
@@ -325,36 +293,63 @@ define("display", ["drawer"], function(DrawManager) {
         $gridster:          $(".gridster ul"),
         ecList:             [],             // 画图对象
 
-        run:                function() {
+        run:                    function() {
             this.init();
             this.startListener()
         },
 
-        init:          function() {
+        init:                   function() {
+            var layoutStr   = this.$el.find(".layout").html(); 
+            this.layoutArr = layoutStr ? JSON.parse(layoutStr) : null
         },
         
-        startListener:      function() {
+        startListener:          function() {
             $body.on("show_widget",     bindContext(this.addWidget, this));
             $body.on("rm_widget",       bindContext(this.rmWidget, this));
-            //this.$el.find("#save_scene").on("click", bindContext(this.onSave, this));
         },
 
-        addWidget:         function(ev, data) {
+        addWidget:              function(ev, data) {
             var timestamp = data.time;
             var data = data.data;
             var gridster = $(".gridster ul").gridster().data('gridster');
+
             //利用时间戳
-            len = $(".se_wi_div_"+data.widget_id).length;
-            gridster.add_widget("<li class='se_wi_"+data.widget_id+"_"+timestamp+
-                "' data-id='"+data.widget_id+"' data-time='"+timestamp+
-                "'><div class='se_wi_div se_wi_div_"+
-                data.widget_id+"'></div></li>", 1, 1);
+            var len = $(".se_wi_div_"+data.widget_id).length;
+            var str =   "<li class='se_wi_"+data.widget_id+"_"+timestamp+
+                        "' data-id='"+data.widget_id+"' data-time='"+timestamp+
+                        "'><div class='se_wi_div se_wi_div_"+
+                        data.widget_id+"'></div></li>"
+            var posObj  = this.surePos(timestamp);
+            gridster.add_widget(
+                str
+                , parseInt(posObj.size_x),  parseInt(posObj.size_y)
+                , parseInt(posObj.col),     parseInt(posObj.row)
+            );
+
             var drawer = new DrawManager();
             drawer.run($(".se_wi_div_"+data.widget_id)[len], data.data);
 
             this.ecList.push({"stamp": timestamp, "ec": drawer.getEc()});
 
             this.afterWidgetAdd(drawer, data.widget_id)
+        },
+
+        surePos:                function(timestamp) {
+            var defaultPos  = {
+                "size_x": 1, "size_y": 1, "col": null, "row": null   
+            };
+
+            if(!this.layoutArr)        return defaultPos
+
+            var mypos = this.layoutArr.filter(function(layout) {
+                if (layout.data_time == timestamp)   return true
+            })
+
+            if (mypos && mypos.length > 0) {
+                return mypos[0]
+            } else {
+                return defaultPos
+            }
         },
 
         rmWidget:               function() {
@@ -393,13 +388,6 @@ define("display", ["drawer"], function(DrawManager) {
                 "layout":       JSON.stringify(layoutArray)
                 , "image":      image
             }
-
-            /*
-            $body.trigger("scene_save", {
-                "layout":       layoutArray
-                , "image":      image
-            })
-            */
         },
 
         restore:            function()  {

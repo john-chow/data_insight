@@ -45,11 +45,9 @@ def sceneCreate(request):
     """
     if u'POST' == request.method:
         owner = request.user.username
-        name, snapshot = map(lambda x: request.POST.get(x), \
-                    ('name', 'image'))
-        widgets, layout   \
-            = map(lambda x: json.loads(request.POST.get(x)), \
-                    ('widgets', 'layout')) 
+        name, snapshot, layout = map(lambda x: request.POST.get(x), \
+                                        ('name', 'image', 'layout'))
+        widgets = json.loads(request.POST.get('widgets'))
 
         # 没有组件拒绝保存，没有意义
         if not widgets:
@@ -85,10 +83,10 @@ def sceneEdit(request, scn_id):
     编辑场景
     """
     if u'POST' == request.method:
-        name, snapshot = map(lambda x: request.POST.get(x), \
-                    ('name', 'image'))
-        widgets, layout = map(lambda x: json.loads(request.POST.get(x)), \
-                                                ('widgets', 'layout')) 
+        name, snapshot, layout = map(lambda x: request.POST.get(x), \
+                                                ('name', 'image', 'layout'))
+        widgets = json.loads(request.POST.get(u'widgets'))
+
         # 没有组件拒绝保存，没有意义
         if not widgets:
             return MyHttpJsonResponse({u'succ': False, u'msg': 'no widgets'})
@@ -118,14 +116,7 @@ def sceneEdit(request, scn_id):
 
         scene = get_object_or_404(SceneModel, pk = scn_id)
         scn_wi_rla_set = scene.s2r_set.all()
-        length = len(scn_wi_rla_set)
-        print "relation len is {0}".format(length)
 
-        """
-        dict = {u'scene_id': scene.pk, \
-                u'allowed_widgets': allow_use_widgets, \
-                u'sw_rla_set': scn_wi_rla_set}
-        """
         dict = {u'scene': scene, \
                 u'allowed_widgets': allow_use_widgets,  \
                 u'sw_rla_set': scn_wi_rla_set}
