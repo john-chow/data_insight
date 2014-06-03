@@ -45,7 +45,8 @@ def sceneCreate(request):
     """
     if u'POST' == request.method:
         owner = request.user.username
-        snapshot = request.POST.get('image')
+        name, snapshot = map(lambda x: request.POST.get(x), \
+                    ('name', 'image'))
         widgets, layout   \
             = map(lambda x: json.loads(request.POST.get(x)), \
                     ('widgets', 'layout')) 
@@ -55,7 +56,7 @@ def sceneCreate(request):
             return MyHttpJsonResponse({u'succ': False, u'msg': 'no widgets'})
 
         scene = SceneModel.objects.create(  \
-            m_owner = owner, m_layout = layout, m_snapshot = snapshot   \
+            m_name = name, m_owner = owner, m_layout = layout, m_snapshot = snapshot   \
         )
 
         rla_list = []
@@ -84,7 +85,8 @@ def sceneEdit(request, scn_id):
     编辑场景
     """
     if u'POST' == request.method:
-        snapshot = request.POST.get('image')
+        name, snapshot = map(lambda x: request.POST.get(x), \
+                    ('name', 'image'))
         widgets, layout = map(lambda x: json.loads(request.POST.get(x)), \
                                                 ('widgets', 'layout')) 
         # 没有组件拒绝保存，没有意义
@@ -101,7 +103,7 @@ def sceneEdit(request, scn_id):
             rla_list.append(rla)
 
         SceneModel.objects.filter(pk = scn_id)  \
-                    .update(m_layout = layout, m_snapshot = snapshot)
+                    .update(m_name = name, m_layout = layout, m_snapshot = snapshot)
 
         # 删掉以前所有关联，重新全部建立
         ScnToWiRelationModel.objects.filter(m_scn = scene).delete()
@@ -116,9 +118,16 @@ def sceneEdit(request, scn_id):
 
         scene = get_object_or_404(SceneModel, pk = scn_id)
         scn_wi_rla_set = scene.s2r_set.all()
+        length = len(scn_wi_rla_set)
+        print "relation len is {0}".format(length)
 
+        """
         dict = {u'scene_id': scene.pk, \
                 u'allowed_widgets': allow_use_widgets, \
+                u'sw_rla_set': scn_wi_rla_set}
+        """
+        dict = {u'scene': scene, \
+                u'allowed_widgets': allow_use_widgets,  \
                 u'sw_rla_set': scn_wi_rla_set}
         return render_to_response('scene/add.html', dict, context)
 

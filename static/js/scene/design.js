@@ -97,11 +97,9 @@ $body = $("body");
 define("compontnents", ["display"], function(d) {
     // 所有可以用组建类构造函数
     var allWidgetsObj = {
-        $el:                null,
+        $el:                $("#all_widgets") ,
         widgetsList:        [],
-        init:               function($el) {
-            this.$el = $el;
-
+        init:               function() {
             // 从dom树上抓取该区域内全部element，并且组合成widget对象
             // 保存widget对象为属性成员
             var self = this;
@@ -132,7 +130,9 @@ define("compontnents", ["display"], function(d) {
 
     // 本场景属性设计类构造函数
     var myAttributesObj = {
+        $el:        $("#scene_name"),
         init:       function() {
+            this.name = $("#scene_name").val()
         }
     };
 
@@ -142,7 +142,7 @@ define("compontnents", ["display"], function(d) {
         widgetsList:        [],
 
         // 对应dom节点
-        $el:                "",
+        $el:                $("#choosed_layout") ,
 
         // 组件列表中组件模板
         template:           '<li class="scene_choose_widget" id="wi_{widget_id_time}" ' 
@@ -151,11 +151,7 @@ define("compontnents", ["display"], function(d) {
                         + '&nbsp;{widget_name}<span class="glyphicon glyphicon-remove"></span>'
                         + '</li>',
 
-        init:           function($el) {
-            this.$el = $el;
-
-            $body.on("scene_save", bindContext(this.save, this));
-            
+        init:           function() {
             // 从dom树上抓取该区域内全部element，并且组合成widget对象
             // 模拟为被选中，加入本场景组件列表
             var self = this;
@@ -203,25 +199,6 @@ define("compontnents", ["display"], function(d) {
             $toAddedObj.find("span.glyphicon")
                         .on("click", bindContext(this.rmWidget, this));
 
-            /*
-            $(".scene_choose_widget span.glyphicon").on(
-                'click', bindContext(this.rmWidget, this)
-            );
-            */
-
-            /*
-            //删除场景内某个组件
-             $(".scene_choose_widget span.glyphicon").on('click', function(ev) {
-                $choose = $(this).parent();
-                data_id = $choose.attr("data-id");
-                data_time = $choose.attr("data-time");
-                var choose = "se_wi_"+data_id+"_"+data_time;
-                $choose.remove();
-                var gridster = $(".gridster ul").gridster().data('gridster');//获取对象
-                gridster.remove_widget($("."+choose));
-            });
-            */
-
             this.widgetsList.push(widgetObj)
         },
 
@@ -242,20 +219,28 @@ define("compontnents", ["display"], function(d) {
         },
 
         // 保存本场景组件列表
-        save:           function(ev, data) {
+        getWidgetsStr:          function() {
+
+            /*
             var image           = data.image;
             var layoutStr       = JSON.stringify(data.layout);
+            */
         
             var widgetIdList    = $.map(this.widgetsList, function(wi) {
                 return {"id": wi.id,    "stamp": wi.stamp}
             });
 
+            /*
             if (window.scene_id) 
                 var url = "/scene/edit/" + window.scene_id + "/"
             else 
                 var url = "/scene/create/"
+            */
 
             var widgetsStr  = JSON.stringify(widgetIdList);
+            return widgetsStr
+
+            /*
             $.ajax({
                 url:            url
                 , type:         "POST"
@@ -271,6 +256,7 @@ define("compontnents", ["display"], function(d) {
                 , error:        function() {
                 }
             })
+            */
         },
 
         restore:        function() {
@@ -316,9 +302,15 @@ define("compontnents", ["display"], function(d) {
     };
     
     // 开始运行
-    allWidgetsObj.init( $("#all_widgets") );
-    scnWidgetsObj.init( $("#choosed_layout") );
+    allWidgetsObj.init();
+    scnWidgetsObj.init();
     myAttributesObj.init();
+
+    return {
+        "aw":       allWidgetsObj
+        , "sw":     scnWidgetsObj
+        , "at":     myAttributesObj
+    }
 })
 
 
@@ -344,7 +336,7 @@ define("display", ["drawer"], function(DrawManager) {
         startListener:      function() {
             $body.on("show_widget",     bindContext(this.addWidget, this));
             $body.on("rm_widget",       bindContext(this.rmWidget, this));
-            this.$el.find("#save_scene").on("click", bindContext(this.onSave, this));
+            //this.$el.find("#save_scene").on("click", bindContext(this.onSave, this));
         },
 
         addWidget:         function(ev, data) {
@@ -393,14 +385,21 @@ define("display", ["drawer"], function(DrawManager) {
             this.keepFlexible();
         },
 
-        onSave:               function() {
+        getDisplayData:      function() {
             var gridObj     = this.$gridster.gridster().data('gridster');
             var layoutArray = gridObj.serializeByStev();
             var image       = this.getImage(layoutArray);
+            return {
+                "layout":       JSON.stringify(layoutArray)
+                , "image":      image
+            }
+
+            /*
             $body.trigger("scene_save", {
                 "layout":       layoutArray
                 , "image":      image
             })
+            */
         },
 
         restore:            function()  {
@@ -446,11 +445,80 @@ define("display", ["drawer"], function(DrawManager) {
     };
 
     // 启动
-    display.run()
+    display.run();
+
+    return display
 })
 
 
-require(["display", "compontnents"], function() {
+// *************************
+// 整体区域
+// ************************
+
+define("whole", ["compontnents", "display"], function(C, D) {
+    var whole = {
+        init:               function() {
+            this.myAttributesObj = C.at;
+            this.scnWidgetsObj  = C.sw;
+            this.display        = D;
+            var self = this;
+            $("#save_scene").on("click", function() {
+                if(self.checkSave())        self.save()
+            });
+        },
+
+        checkSave:         function() {
+            // 必须要填写了场景名字
+            if( $("#scene_name").val() )  {
+                this.myAttributesObj.name = $("#scene_name").val().trim()
+            } else {
+                alert("请填写场景名称");
+                return false
+            }
+
+            // 必须要有组件，没有组件地保存没有任何意义
+            if( this.scnWidgetsObj.widgetsList.length <= 0) {
+                alert("请选择组件");
+                return false
+            }
+
+            return true
+        },
+
+        save:               function() {
+            var displayObj      = this.display.getDisplayData();          
+            var widgetsStr      = this.scnWidgetsObj.getWidgetsStr();
+            var name            = this.myAttributesObj.name;
+
+            if (window.scene_id) 
+                var url = "/scene/edit/" + window.scene_id + "/"
+            else 
+                var url = "/scene/create/"
+
+            $.ajax({
+                url:            url
+                , type:         "POST"
+                , dataType:     "json"
+                , data:         {
+                    "layout":           displayObj.layout
+                    , "image":          displayObj.image 
+                    , "widgets":        widgetsStr 
+                    , "name":           name 
+                }        
+                , success:      function(data) {
+                    window.scene_id = data.scn_id
+                }
+                , error:        function() {
+                }
+            })
+        }
+    }
+
+    whole.init();
+})
+
+
+require(["display", "compontnents", "whole"], function() {
 })
 
 

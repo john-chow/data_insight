@@ -42,7 +42,7 @@
 
 
     <!--content begin-->
-		<div id="content" scene-id="{{ scene_id }}">
+		<div id="content" scene-id="{{ scene.pk }}">
 			<div class="row">
 		  		<div id="scene_design_left" class="content-left col-md-2 col-lg-2">
 		  			<div id="choosed_chart" class="panel panel-default">
@@ -70,8 +70,11 @@
 					<div id="choosed_dashboard" class="panel panel-default">
 					    <div class="panel-heading">场景属性</div>
 					    <ul>
+                            {% if scene.m_name %}
+                            <li>名称：<input id="scene_name" type="text" value="{{ scene.m_name }}" /></li>
+                            {% else %}
 					    	<li>名称：<input id="scene_name" type="text" value="场景" /></li>
-
+                            {% endif %}
 					    </ul>
 					</div>
 					
