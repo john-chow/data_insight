@@ -15,7 +15,7 @@
 	<div class="panel-heading"><span class="glyphicon glyphicon-th-list">&nbsp;</span>组件列表</div>
 	<ul>
 		{% for widget in widgetList %}
-		<li class=""><a href="/widget/edit/{{widget.m_id}}"><img src="{{widget.m_pic}}" width="30px" height="30px" />{{widget.m_name}}</a></li>
+		<li class=""><a href="/widget/edit/{{widget.id}}"><img src="{{widget.m_pic}}" width="30px" height="30px" />{{widget.m_name}}</a></li>
 		<!-- <li class="">{{request.path}}</li>
 		<li class="">{{request.session.fav_color}}</li> -->
 		{% endfor %}
@@ -54,7 +54,7 @@
 	    <div class="input-group">
 	        <input type="text" id="widget_input_search" value="{{search}}" name="search" placeholder="请输入搜索内容" class="form-control"/>
 	        <div class="input-group-btn">
-	          <button id="widget_button_search" type="button" class="btn btn-default">查找&nbsp;<span class="glyphicon glyphicon-search"></span></button>
+	          <button id="widget_button_search" type="button" class="btn btn-primary">查找&nbsp;<span class="glyphicon glyphicon-search"></span></button>
 	        </div><!-- /btn-group -->
 	    </div>
 	    </div>
