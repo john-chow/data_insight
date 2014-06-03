@@ -181,12 +181,12 @@ define("compontnents", ["display"], function(d) {
 
         addWidget:      function(widgetObj) {
             // 增加组件到dom
-            var replaceId = widgetObj.id+"_"+widgetObj.stamp;
-            this.$el.find("#scene_widgets")
-                        .append(this.template.replace(/{widget_id_time}/g, replaceId)
-                        .replace(/{widget_time}/g, widgetObj.stamp)
-                        .replace(/{widget_id}/g, widgetObj.id)
-                        .replace(/{widget_name}/g, widgetObj.name));
+            var replaceId   = widgetObj.id+"_"+widgetObj.stamp;
+            var $toAddedObj  = $(this.template.replace(/{widget_id_time}/g, replaceId)
+                                    .replace(/{widget_time}/g, widgetObj.stamp)
+                                    .replace(/{widget_id}/g, widgetObj.id)
+                                    .replace(/{widget_name}/g, widgetObj.name));     
+            this.$el.find("#scene_widgets").append($toAddedObj);
 
             // 增加给每个组件的样式及事件
             $(".scene_choose_widget").on('mouseenter', function(ev) {
@@ -200,9 +200,14 @@ define("compontnents", ["display"], function(d) {
             });
 
             //删除场景内某个组件
+            $toAddedObj.find("span.glyphicon")
+                        .on("click", bindContext(this.rmWidget, this));
+
+            /*
             $(".scene_choose_widget span.glyphicon").on(
                 'click', bindContext(this.rmWidget, this)
             );
+            */
 
             /*
             //删除场景内某个组件
@@ -414,8 +419,8 @@ define("display", ["drawer"], function(DrawManager) {
 
                 // 为每个grid单元保存它的canvas快照
                 for(var j = 0; j < len; j++) {
-                    if (self.ecList[i].stamp == layout.data_time)  {
-                        var ec = self.ecList[i].ec;  
+                    if (self.ecList[j].stamp == layout.data_time)  {
+                        var ec = self.ecList[j].ec;  
                         layout["canvas"] = ec.getZrender().toDataCanvas("");
                         break
                     }
