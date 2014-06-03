@@ -8,6 +8,10 @@ body {
 font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
 
+#content .row {
+    margin: 0;
+}
+
 #header {
     height: 25px;
     color: white;
@@ -84,8 +88,14 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
 
 #choosed_dashboard ul {
-    height: 150px;
     overflow: auto;
+    padding: 0 0 0 20px;
+    margin:0;
+    list-style: none;
+}
+
+#choosed_dashboard ul li {
+    padding:10px 0;
 }
 
 #choosed_chart ul{
@@ -144,10 +154,15 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 
 #choosed_layout ul {
     overflow: auto;
+    padding: 0;
 }
 
 #choosed_layout i {
     color: #EB6283;
+}
+
+.scene_choose_widget:hover {
+    background-color: #ddd;
 }
 
 .se_wi_color {

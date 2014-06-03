@@ -81,11 +81,11 @@
 	    	<div class="element-list-scene" data-id="{{scene.pk}}">
 	    		<div class="heading">
 					<i class="glyphicon glyphicon-align-justify"></i>
-					<span>{{ widget.m_name }}</span>
+					<span>{{ scene.m_name }}</span>
 					<span class="pull-right glyphicon {% if scene.m_is_distributed %}glyphicon-folder-open{%else%}glyphicon-folder-close{% endif %}"></span>
 				</div>
 	    		<a href="/scene/edit/{{scene.pk}}">
-	    			<img src="{{scene.m_pic}}" width="130px" height="130px" />
+	    			<img src="{{scene.m_snapshot}}" width="480" height="240"  />
 	    		</a>
 	    		<div class="js-mod-scene-top">
 				    <span class="js-mod-scene-ico"><i class="icon-m icon-expansion-m"></i></span>
