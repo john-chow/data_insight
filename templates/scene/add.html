@@ -51,9 +51,6 @@
 					    	{% for widget in allowed_widgets %}
 				            <li class="scene_list_widget" id="wi_{{ widget.pk }}" data-id={{ widget.pk }} title="{{ widget.m_name }}"><i class="glyphicon glyphicon-stats"></i>&nbsp;{{ widget.m_name }}</li>
 				            {% endfor %}
-
-				            <li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li><li class="ui-state-highlight" ><i class="glyphicon glyphicon-stats"></i>&nbsp;组件实例</li>
-
 					    </ul>
 					    <div class="choosed_chart_extra"><span>文字</span><span>图片</span></div>
 					</div>
@@ -73,7 +70,8 @@
 					<div id="choosed_dashboard" class="panel panel-default">
 					    <div class="panel-heading">场景属性</div>
 					    <ul>
-					    	
+					    	<li>名称：<input id="scene_name" type="text" value="场景" /></li>
+
 					    </ul>
 					</div>
 					
