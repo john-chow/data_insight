@@ -130,9 +130,11 @@ define("compontnents", ["display"], function(d) {
 
     // 本场景属性设计类构造函数
     var myAttributesObj = {
-        $el:        $("#scene_name"),
-        init:       function() {
-            this.name = $("#scene_name").val()
+        $el:                $("#scene_name"),
+        init:               function() {
+        },
+        getName:            function() {
+            this.name = $("#scene_name").val().trim()
         }
     };
 
@@ -219,7 +221,7 @@ define("compontnents", ["display"], function(d) {
         },
 
         // 保存本场景组件列表
-        getWidgetsStr:          function() {
+        getWidgetsDataForAjax:          function() {
             var widgetIdList    = $.map(this.widgetsList, function(wi) {
                 return {"id": wi.id,    "stamp": wi.stamp}
             });
@@ -239,9 +241,6 @@ define("compontnents", ["display"], function(d) {
         this.name   =           name || "组件";
         this.stamp  =           stamp || "";
 
-        // 组件布局位置
-        this.layout =           "", 
-    
         // 获取组件图像数据
         this.fetchPicData =     function() {
             var self = this;
@@ -262,7 +261,7 @@ define("compontnents", ["display"], function(d) {
             } else {
                 alert(data.msg)
             }
-        },
+        };
 
         this.setStmap       =   function(stamp) {
             this.stamp  = stamp
@@ -304,11 +303,10 @@ define("display", ["drawer"], function(DrawManager) {
         },
         
         startListener:          function() {
-            $body.on("show_widget",     bindContext(this.addWidget, this));
-            $body.on("rm_widget",       bindContext(this.rmWidget, this));
+            $body.on("show_widget",     bindContext(this.showNewWidget, this));
         },
 
-        addWidget:              function(ev, data) {
+        showNewWidget:              function(ev, data) {
             var timestamp = data.time;
             var data = data.data;
             var gridster = $(".gridster ul").gridster().data('gridster');
@@ -319,7 +317,7 @@ define("display", ["drawer"], function(DrawManager) {
                         "' data-id='"+data.widget_id+"' data-time='"+timestamp+
                         "'><div class='se_wi_div se_wi_div_"+
                         data.widget_id+"'></div></li>"
-            var posObj  = this.surePos(timestamp);
+            var posObj  = this.sureShowPos(timestamp);
             gridster.add_widget(
                 str
                 , parseInt(posObj.size_x),  parseInt(posObj.size_y)
@@ -331,10 +329,10 @@ define("display", ["drawer"], function(DrawManager) {
 
             this.ecList.push({"stamp": timestamp, "ec": drawer.getEc()});
 
-            this.afterWidgetAdd(drawer, data.widget_id)
+            this.afterWidgetShown(drawer, data.widget_id)
         },
 
-        surePos:                function(timestamp) {
+        sureShowPos:                function(timestamp) {
             var defaultPos  = {
                 "size_x": 1, "size_y": 1, "col": null, "row": null   
             };
@@ -352,9 +350,6 @@ define("display", ["drawer"], function(DrawManager) {
             }
         },
 
-        rmWidget:               function() {
-        },
-
         keepFlexible:           function() {
             // 把所有相关标签的width,height设为100%
             // 只有某个div不需要去设置
@@ -364,7 +359,7 @@ define("display", ["drawer"], function(DrawManager) {
             })
         },
 
-        afterWidgetAdd:       function(drawer, widgetId) {
+        afterWidgetShown:       function(drawer, widgetId) {
             // 保持伸缩性，拖到的时候也可以增大缩小
             this.keepFlexible();
 
@@ -380,20 +375,17 @@ define("display", ["drawer"], function(DrawManager) {
             this.keepFlexible();
         },
 
-        getDisplayData:      function() {
+        getDisplayDataForAjax:      function() {
             var gridObj     = this.$gridster.gridster().data('gridster');
             var layoutArray = gridObj.serializeByStev();
-            var image       = this.getImage(layoutArray);
+            var image       = this.getSnapShot(layoutArray);
             return {
                 "layout":       JSON.stringify(layoutArray)
                 , "image":      image
             }
         },
 
-        restore:            function()  {
-        },
-
-        getImage:           function(layoutArray)  {
+        getSnapShot:           function(layoutArray)  {
             var len     = this.ecList.length,
                 maxRow  = 0,
                 maxCol  = 0 ;
@@ -457,9 +449,7 @@ define("whole", ["compontnents", "display"], function(C, D) {
 
         checkSave:         function() {
             // 必须要填写了场景名字
-            if( $("#scene_name").val() )  {
-                this.myAttributesObj.name = $("#scene_name").val().trim()
-            } else {
+            if( !this.myAttributesObj.getName() )   {
                 alert("请填写场景名称");
                 return false
             }
@@ -474,9 +464,9 @@ define("whole", ["compontnents", "display"], function(C, D) {
         },
 
         save:               function() {
-            var displayObj      = this.display.getDisplayData();          
-            var widgetsStr      = this.scnWidgetsObj.getWidgetsStr();
-            var name            = this.myAttributesObj.name;
+            var displayObj      = this.display.getDisplayDataForAjax();          
+            var widgetsStr      = this.scnWidgetsObj.getWidgetsDataForAjax();
+            var name            = this.myAttributesObj.getName();
 
             if (window.scene_id) 
                 var url = "/scene/edit/" + window.scene_id + "/"
