@@ -56,7 +56,7 @@ define([
 					this.now_drawer = this.scatterDrawer || new ScatterDrawer;
 					break;
 				case "polar":	
-					this.now_drawer = this.polar_drawer || new PolarDrawer;
+					this.now_drawer = this.polar_drawer || new RadarDrawer;
 					break;
 				default:
 					easy_dialog_error('xxxxxxxxxxxx');
@@ -285,40 +285,6 @@ define([
 
 	};
 
-    var PieDrawer   = function() {
-        this.seriesOne  =       {
-            "name":             ""
-            , "type":           "pie"
-            , "radius":         "55%"
-            , "center":         ['50%', 225]
-            , "data":           []
-        },
-
-        this.ready      =       function(el, type) {
-            PieDrawer.prototype.ready.call(this, el, "pie");
-
-            $.extend(this.optionCloned, {
-                "tooltip": {
-                    trigger:        'item'
-                    , formatter:    "{a} <br/>{b} : {c} ({d}%)"
-                }
-                , "calculable":     true
-            })
-        };
-
-        this.fillSeries     =   function(data) {
-            var self = this;
-            $.each(data.legend_series, function(i, pair) {
-                self.optionCloned.legend.data.push(pair.name);
-                self.seriesOneCloned.data.push(pair)
-                self.optionCloned.series.push(self.seriesOneCloned)
-            })
-        };
-
-		this.styleSeries = function() {
-		};
-    };
-
 	var ScatterDrawer = function() {
 		this.valStyle = {
 			power: 1
@@ -360,8 +326,47 @@ define([
 
 	};
 
-	var PolarDrawer = function() {
+
+
+
+    var PieDrawer   = function() {
+        this.seriesOne  =       {
+            "name":             ""
+            , "type":           "pie"
+            , "radius":         "55%"
+            , "center":         ['50%', 225]
+            , "data":           []
+        },
+
+        this.ready      =       function(el, type) {
+            PieDrawer.prototype.ready.call(this, el, "pie");
+
+            $.extend(this.optionCloned, {
+                "tooltip": {
+                    trigger:        'item'
+                    , formatter:    "{a} <br/>{b} : {c} ({d}%)"
+                }
+                , "calculable":     true
+            })
+        };
+
+        this.fillSeries     =   function(data) {
+            var self = this;
+            $.each(data.legend_series, function(i, pair) {
+                self.optionCloned.legend.data.push(pair.name);
+                self.seriesOneCloned.data.push(pair)
+                self.optionCloned.series.push(self.seriesOneCloned)
+            })
+        };
+
+		this.styleSeries = function() {
+		};
+    };
+
+
+	var RadarDrawer = function() {
 	};
+
 
 	var MapDrawer = function() {
 		this.seriesOne = {
@@ -440,7 +445,7 @@ define([
 	var baseDrawer = new BaseDrawer();
 	AxisDrawer.prototype 	= baseDrawer;
 	PieDrawer.prototype 	= baseDrawer;
-	PolarDrawer.prototype 	= baseDrawer;
+	RadarDrawer.prototype 	= baseDrawer;
 	MapDrawer.prototype 	= baseDrawer;
 	ScatterDrawer.prototype = baseDrawer;
 	var axisDrawer = new AxisDrawer();

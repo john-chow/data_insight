@@ -134,7 +134,8 @@ define("compontnents", ["display"], function(d) {
         init:               function() {
         },
         getName:            function() {
-            this.name = $("#scene_name").val().trim()
+            this.name = $("#scene_name").val().trim();
+            return this.name
         }
     };
 
