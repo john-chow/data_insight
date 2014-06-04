@@ -18,18 +18,36 @@ define([
 		this.run	=				function(place, data) {
             var type    = data.type;
             this.ec     = this.ec || echart.init(place);
-			switch(data.type) {
+			switch(type) {
 				case "map":	 	
 					this.now_drawer = this.map_drawer || new MapDrawer;
 					break;
 				case "bar":	
 					this.now_drawer = this.bar_drawer || new BarDrawer;
+                    this.now_drawer.setStacked(false);
 					break;
+                case "s_bar":
+					this.now_drawer = this.bar_drawer || new BarDrawer;
+                    this.now_drawer.setStacked(true);
+                    type = "bar";
+                    break;
 				case "line":	
 					this.now_drawer = this.line_drawer || new LineDrawer;
+                    this.now_drawer.setStacked(false);
+					break;
+                case "s_line":
+					this.now_drawer = this.line_drawer || new LineDrawer;
+                    this.now_drawer.setStacked(true);
+                    type = "line";
 					break;
 				case "area":	
 					this.now_drawer = this.areaDrawer || new AreaDrawer;
+                    this.now_drawer.setStacked(false);
+					break;
+				case "s_area":	
+					this.now_drawer = this.areaDrawer || new AreaDrawer;
+                    this.now_drawer.setStacked(true);
+                    type = "area";
 					break;
 				case "scatter":
 					this.now_drawer = this.scatterDrawer || new ScatterDrawer;
@@ -61,9 +79,9 @@ define([
 	};
 	
 	var BaseDrawer = function() {
-		this.optionCloned 	= {};
-		this.place			= "";
-		this.type			= "";
+		this.optionCloned 	            = {};
+		this.place			            = "";
+		this.type			            = "";
 		this.option = {
 			'title': 					{}
 			, 'tooltip': 				{}
@@ -114,7 +132,11 @@ define([
 		}
 	};
 
+
 	var AxisDrawer = function() {
+        // 是否是聚合型图，即有没有stacked
+        this.stacked        = false;
+
 		this.catStyle = {
 			boundaryGap : false
 		};
@@ -142,6 +164,10 @@ define([
 			, temStyle: {normal: {label : {show: true, position: 'inside'}}}
 			, data: []
 		};
+
+        this.setStacked         = function(stacked) {
+            this.stacked    = stacked
+        };
 
 		this.work = function(data) {
 			this.fillAxis(data);
@@ -171,6 +197,10 @@ define([
 						self.optionCloned.legend.data.push(legend_name);
 						seriesOneCloned.name = legend_name;
 					}
+
+                    // 是否要画成聚合状
+                    if (self.stacked)       seriesOneCloned.stack = "总量";
+
 					seriesOneCloned.data = l_s["series"];
 					seriesOneCloned.type = self.type;
 					self.optionCloned.series.push(seriesOneCloned)

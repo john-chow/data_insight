@@ -103,137 +103,15 @@ class Bar_Line_Base(EChart):
 
 
 
-
-
-		"""
-		# 产生从[length-1, ..., 0]的数字
-		legend_dict, iter_axis, val_axis = {}, [], []
-		
-		if HAVE_PDB: 	pdb.set_trace()
-
-		for idx in range(all_len -1, -1, -1):
-			(attr_name, attr_kind, attr_cmd, attr_axis) = all_list[idx]
-			if idx > msu_len + msn_len - 1:
-				group_iter_list = list( set(all_data[idx]) )
-				legend_dict = self.option[u'legend'] = {
-					u'data':	group_iter_list
-				}
-				group_iter_idx = idx
-
-			elif idx > msu_len - 1 and idx < msu_len + msn_len:
-				iter_axis = self.option[u'xAxis'] if u'col' == attr_axis \
-														else self.option[u'yAxis']
-				option_type = u'category' if 0 == attr_kind else u'value'
-				attr_iter_list = list( set(all_data[idx]) )
-				iter_axis.append({
-					u'type':	option_type
-					, u'data':	attr_iter_list
-				})
-
-			else:
-				(iter_axis, val_axis) = ( self.option[u'yAxis'], self.option[u'xAxis'] ) \
-														if u'col' == attr_axis else \
-											( self.option[u'xAxis'], self.option[u'yAxis'] )
-
-				option_type = u'category' if 0 == attr_kind else u'value'
-				val_axis.append({
-					u'type':	option_type
-				})
-
-
-		if (not legend_dict) and (not iter_axis):
-			self.option[u'series'].append(
-				self.makeSeriesUnit(name=attr_name, data=all_data)
-			)
-			
-		elif (not legend_dict) and iter_axis:
-			self.option[u'series'].append(
-				self.makeSeriesUnit(name=attr_name, data=all_data[0])
-			)
-
-		elif (legend_dict) and (not iter_axis):
-			self.option[u'series'] = [ \
-				self.makeSeriesUnit(name=le, data=[num]) \
-				for (num, le) in data_from_db \
-			]
-			
-		else:
-			for le in legend_dict[u'data']:
-				one_legend_list = []
-				for tmp_attr in iter_axis[0][u'data']:
-					[one_value] = [ value for (value, attr, group) in data_from_db if \
-										attr == tmp_attr and group == le ]
-					one_legend_list.append(one_value)
-
-				self.option[u'series'].append(
-					self.makeSeriesUnit(name=le, data=one_legend_list)
-				)
-
-		# 判断是否需要填充bar的空白处
-		if hasattr(self, u'placed'):
-			self.fillPlacehold()
-
-		# 根据echart，无论如何，迭代的轴上必须有属性和data
-		if 0 == len(iter_axis):
-			iter_axis.append({
-				u'type':	u'category'
-				, u'data':	['']
-			})
-			
-		return self.option
-		"""
-
-
-
 class Bar(Bar_Line_Base):
 	pass
-	"""
-	def __init__(self, stacked=False, placed=False):
-		Bar_Line_Base.__init__(self, stacked)
-		self.serial[u'type'] = u'bar'
-		if placed:
-			self[u'placed'] = placed
-
-
-	def fillPlacehold():
-		placeHoledStyle = {
-			u'normal':{
-				u'borderColor':	'rgba(0,0,0,0)',
-				u'color':		'rgba(0,0,0,0)'
-			},
-			u'emphasis':{
-				u'borderColor':	'rgba(0,0,0,0)',
-				u'color':		'rgba(0,0,0,0)'
-			}
-		}
-		dataStyle = { 
-			u'normal': {
-				u'label': {
-					u'show': 		True,
-					u'position': 	u'inside',
-					u'formatter': 	u'{c}%'
-				}
-			}
-		}
-
-		series_list 	= self.option.series
-		iter_list 		= range(len(series_list)).reverse()
-		for i in iter_list:
-			series_unit 			= self.option.series[i].copy()
-			placehold_data 			= [100 - idx for idx in series_unit.data]
-			series_unit.data 		= placehold_data
-			series_unit.itemStyle 	= placeHoledStyle
-			self.option.series.insert(i+1, series_unit)
-	"""
-
-
-
 				
 class Line(Bar_Line_Base):
 	pass
 
 class Area(Bar_Line_Base):
 	pass
+
 
 
 class Scatter(EChart):
@@ -483,23 +361,23 @@ class EChartManager():
 		if u'bar' == shape: 
 			return Bar()
 
-		elif u'stack_bar' == shape:
-			return Bar(stacked=True)
+		elif u's_bar' == shape:
+			return Bar()
 
 		elif u'placehold_bar' == shape:
-			return Bar(placed=True)
+			return Bar()
 
 		elif u'line' == shape:
 			return Line()
 
-		elif u'stack_line' == shape:
-			return Line(stacked=True)
+		elif u's_line' == shape:
+			return Line()
 
 		elif u'area' == shape:
 			return Area()
 
-		elif u'stack_area' == shape:
-			return Area(stacked=True)
+		elif u's_area' == shape:
+			return Area()
 
 		elif u'scatter' == shape:
 			return Scatter()
