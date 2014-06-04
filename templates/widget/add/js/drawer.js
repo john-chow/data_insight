@@ -78,6 +78,9 @@ define([
         }
 	};
 	
+    /*
+     * 虚基类，不给外面直接实例化
+     */
 	var BaseDrawer = function() {
 		this.optionCloned 	            = {};
 		this.place			            = "";
@@ -119,6 +122,7 @@ define([
             this.ec = ec;
 			this.type  = type;
 			this.optionCloned = cloneObject(this.option);
+            this.seriesOneCloned  = cloneObject(this.seriesOne);
         };
 
 		this.work = 	function(data) {
@@ -133,6 +137,9 @@ define([
 	};
 
 
+    /* 
+     * 虚基类
+     */
 	var AxisDrawer = function() {
         // 是否是聚合型图，即有没有stacked
         this.stacked        = false;
@@ -187,23 +194,21 @@ define([
 			if (data.legend_series.length > 0) {
 				var self = this;
 				$.each(data.legend_series, function(i, l_s) {
-					var seriesOneCloned = cloneObject(self.seriesOne);
-
 					// 调用子类去做样式
-					self.styleSeries(seriesOneCloned);
+					self.styleSeries(self.seriesOneCloned);
 
 					if ("legend" in  l_s) {
 						var legend_name = l_s["legend"];
 						self.optionCloned.legend.data.push(legend_name);
-						seriesOneCloned.name = legend_name;
+						self.seriesOneCloned.name = legend_name;
 					}
 
                     // 是否要画成聚合状
-                    if (self.stacked)       seriesOneCloned.stack = "总量";
+                    if (self.stacked)       self.seriesOneCloned.stack = "总量";
 
-					seriesOneCloned.data = l_s["series"];
-					seriesOneCloned.type = self.type;
-					self.optionCloned.series.push(seriesOneCloned)
+					self.seriesOneCloned.data = l_s["series"];
+					self.seriesOneCloned.type = self.type;
+					self.optionCloned.series.push(self.seriesOneCloned)
 				})
 			}
 			else {
@@ -251,6 +256,15 @@ define([
 	};
 
 	var AreaDrawer = function() {
+        this.ready          = function(ec, type) {
+            AreaDrawer.prototype.ready.call(this, ec, "line")
+
+            $.extend(this.seriesOneCloned, {
+                "smooth":       true
+                , "itemStyle":  {normal: {areaStyle: {type: 'default'}}}
+            })
+        };
+
 		this.catStyle = {
 		};
 		
