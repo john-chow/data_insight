@@ -97,11 +97,9 @@ $body = $("body");
 define("compontnents", ["display"], function(d) {
     // 所有可以用组建类构造函数
     var allWidgetsObj = {
-        $el:                null,
+        $el:                $("#all_widgets") ,
         widgetsList:        [],
-        init:               function($el) {
-            this.$el = $el;
-
+        init:               function() {
             // 从dom树上抓取该区域内全部element，并且组合成widget对象
             // 保存widget对象为属性成员
             var self = this;
@@ -132,7 +130,11 @@ define("compontnents", ["display"], function(d) {
 
     // 本场景属性设计类构造函数
     var myAttributesObj = {
-        init:       function() {
+        $el:                $("#scene_name"),
+        init:               function() {
+        },
+        getName:            function() {
+            this.name = $("#scene_name").val().trim()
         }
     };
 
@@ -142,7 +144,7 @@ define("compontnents", ["display"], function(d) {
         widgetsList:        [],
 
         // 对应dom节点
-        $el:                "",
+        $el:                $("#choosed_layout") ,
 
         // 组件列表中组件模板
         template:           '<li class="scene_choose_widget" id="wi_{widget_id_time}" ' 
@@ -151,11 +153,7 @@ define("compontnents", ["display"], function(d) {
                         + '&nbsp;{widget_name}<span class="glyphicon glyphicon-remove"></span>'
                         + '</li>',
 
-        init:           function($el) {
-            this.$el = $el;
-
-            $body.on("scene_save", bindContext(this.save, this));
-            
+        init:           function() {
             // 从dom树上抓取该区域内全部element，并且组合成widget对象
             // 模拟为被选中，加入本场景组件列表
             var self = this;
@@ -181,12 +179,12 @@ define("compontnents", ["display"], function(d) {
 
         addWidget:      function(widgetObj) {
             // 增加组件到dom
-            var replaceId = widgetObj.id+"_"+widgetObj.stamp;
-            this.$el.find("#scene_widgets")
-                        .append(this.template.replace(/{widget_id_time}/g, replaceId)
-                        .replace(/{widget_time}/g, widgetObj.stamp)
-                        .replace(/{widget_id}/g, widgetObj.id)
-                        .replace(/{widget_name}/g, widgetObj.name));
+            var replaceId   = widgetObj.id+"_"+widgetObj.stamp;
+            var $toAddedObj  = $(this.template.replace(/{widget_id_time}/g, replaceId)
+                                    .replace(/{widget_time}/g, widgetObj.stamp)
+                                    .replace(/{widget_id}/g, widgetObj.id)
+                                    .replace(/{widget_name}/g, widgetObj.name));     
+            this.$el.find("#scene_widgets").append($toAddedObj);
 
             // 增加给每个组件的样式及事件
             $(".scene_choose_widget").on('mouseenter', function(ev) {
@@ -200,22 +198,8 @@ define("compontnents", ["display"], function(d) {
             });
 
             //删除场景内某个组件
-            $(".scene_choose_widget span.glyphicon").on(
-                'click', bindContext(this.rmWidget, this)
-            );
-
-            /*
-            //删除场景内某个组件
-             $(".scene_choose_widget span.glyphicon").on('click', function(ev) {
-                $choose = $(this).parent();
-                data_id = $choose.attr("data-id");
-                data_time = $choose.attr("data-time");
-                var choose = "se_wi_"+data_id+"_"+data_time;
-                $choose.remove();
-                var gridster = $(".gridster ul").gridster().data('gridster');//获取对象
-                gridster.remove_widget($("."+choose));
-            });
-            */
+            $toAddedObj.find("span.glyphicon")
+                        .on("click", bindContext(this.rmWidget, this));
 
             this.widgetsList.push(widgetObj)
         },
@@ -237,35 +221,12 @@ define("compontnents", ["display"], function(d) {
         },
 
         // 保存本场景组件列表
-        save:           function(ev, data) {
-            var image           = data.image;
-            var layoutStr       = JSON.stringify(data.layout);
-        
+        getWidgetsDataForAjax:          function() {
             var widgetIdList    = $.map(this.widgetsList, function(wi) {
                 return {"id": wi.id,    "stamp": wi.stamp}
             });
 
-            if (window.scene_id) 
-                var url = "/scene/edit/" + window.scene_id + "/"
-            else 
-                var url = "/scene/create/"
-
-            var widgetsStr  = JSON.stringify(widgetIdList);
-            $.ajax({
-                url:            url
-                , type:         "POST"
-                , dataType:     "json"
-                , data:         {
-                    "layout":           layoutStr
-                    , "widgets":        widgetsStr 
-                    , "image":          image 
-                }        
-                , success:      function(data) {
-                    window.scene_id = data.scn_id
-                }
-                , error:        function() {
-                }
-            })
+            return ( JSON.stringify(widgetIdList) )
         },
 
         restore:        function() {
@@ -280,9 +241,6 @@ define("compontnents", ["display"], function(d) {
         this.name   =           name || "组件";
         this.stamp  =           stamp || "";
 
-        // 组件布局位置
-        this.layout =           "", 
-    
         // 获取组件图像数据
         this.fetchPicData =     function() {
             var self = this;
@@ -303,7 +261,7 @@ define("compontnents", ["display"], function(d) {
             } else {
                 alert(data.msg)
             }
-        },
+        };
 
         this.setStmap       =   function(stamp) {
             this.stamp  = stamp
@@ -311,9 +269,15 @@ define("compontnents", ["display"], function(d) {
     };
     
     // 开始运行
-    allWidgetsObj.init( $("#all_widgets") );
-    scnWidgetsObj.init( $("#choosed_layout") );
+    allWidgetsObj.init();
+    scnWidgetsObj.init();
     myAttributesObj.init();
+
+    return {
+        "aw":       allWidgetsObj
+        , "sw":     scnWidgetsObj
+        , "at":     myAttributesObj
+    }
 })
 
 
@@ -328,39 +292,62 @@ define("display", ["drawer"], function(DrawManager) {
         $gridster:          $(".gridster ul"),
         ecList:             [],             // 画图对象
 
-        run:                function() {
+        run:                    function() {
             this.init();
             this.startListener()
         },
 
-        init:          function() {
+        init:                   function() {
+            var layoutStr   = this.$el.find(".layout").html(); 
+            this.layoutArr = layoutStr ? JSON.parse(layoutStr) : null
         },
         
-        startListener:      function() {
-            $body.on("show_widget",     bindContext(this.addWidget, this));
-            $body.on("rm_widget",       bindContext(this.rmWidget, this));
-            this.$el.find("#save_scene").on("click", bindContext(this.onSave, this));
+        startListener:          function() {
+            $body.on("show_widget",     bindContext(this.showNewWidget, this));
         },
 
-        addWidget:         function(ev, data) {
+        showNewWidget:              function(ev, data) {
             var timestamp = data.time;
             var data = data.data;
             var gridster = $(".gridster ul").gridster().data('gridster');
+
             //利用时间戳
-            len = $(".se_wi_div_"+data.widget_id).length;
-            gridster.add_widget("<li class='se_wi_"+data.widget_id+"_"+timestamp+
-                "' data-id='"+data.widget_id+"' data-time='"+timestamp+
-                "'><div class='se_wi_div se_wi_div_"+
-                data.widget_id+"'></div></li>", 1, 1);
+            var len = $(".se_wi_div_"+data.widget_id).length;
+            var str =   "<li class='se_wi_"+data.widget_id+"_"+timestamp+
+                        "' data-id='"+data.widget_id+"' data-time='"+timestamp+
+                        "'><div class='se_wi_div se_wi_div_"+
+                        data.widget_id+"'></div></li>"
+            var posObj  = this.sureShowPos(timestamp);
+            gridster.add_widget(
+                str
+                , parseInt(posObj.size_x),  parseInt(posObj.size_y)
+                , parseInt(posObj.col),     parseInt(posObj.row)
+            );
+
             var drawer = new DrawManager();
             drawer.run($(".se_wi_div_"+data.widget_id)[len], data.data);
 
             this.ecList.push({"stamp": timestamp, "ec": drawer.getEc()});
 
-            this.afterWidgetAdd(drawer, data.widget_id)
+            this.afterWidgetShown(drawer, data.widget_id)
         },
 
-        rmWidget:               function() {
+        sureShowPos:                function(timestamp) {
+            var defaultPos  = {
+                "size_x": 1, "size_y": 1, "col": null, "row": null   
+            };
+
+            if(!this.layoutArr)        return defaultPos
+
+            var mypos = this.layoutArr.filter(function(layout) {
+                if (layout.data_time == timestamp)   return true
+            })
+
+            if (mypos && mypos.length > 0) {
+                return mypos[0]
+            } else {
+                return defaultPos
+            }
         },
 
         keepFlexible:           function() {
@@ -372,7 +359,7 @@ define("display", ["drawer"], function(DrawManager) {
             })
         },
 
-        afterWidgetAdd:       function(drawer, widgetId) {
+        afterWidgetShown:       function(drawer, widgetId) {
             // 保持伸缩性，拖到的时候也可以增大缩小
             this.keepFlexible();
 
@@ -388,20 +375,17 @@ define("display", ["drawer"], function(DrawManager) {
             this.keepFlexible();
         },
 
-        onSave:               function() {
+        getDisplayDataForAjax:      function() {
             var gridObj     = this.$gridster.gridster().data('gridster');
             var layoutArray = gridObj.serializeByStev();
-            var image       = this.getImage(layoutArray);
-            $body.trigger("scene_save", {
-                "layout":       layoutArray
+            var image       = this.getSnapShot(layoutArray);
+            return {
+                "layout":       JSON.stringify(layoutArray)
                 , "image":      image
-            })
+            }
         },
 
-        restore:            function()  {
-        },
-
-        getImage:           function(layoutArray)  {
+        getSnapShot:           function(layoutArray)  {
             var len     = this.ecList.length,
                 maxRow  = 0,
                 maxCol  = 0 ;
@@ -414,8 +398,8 @@ define("display", ["drawer"], function(DrawManager) {
 
                 // 为每个grid单元保存它的canvas快照
                 for(var j = 0; j < len; j++) {
-                    if (self.ecList[i].stamp == layout.data_time)  {
-                        var ec = self.ecList[i].ec;  
+                    if (self.ecList[j].stamp == layout.data_time)  {
+                        var ec = self.ecList[j].ec;  
                         layout["canvas"] = ec.getZrender().toDataCanvas("");
                         break
                     }
@@ -441,11 +425,78 @@ define("display", ["drawer"], function(DrawManager) {
     };
 
     // 启动
-    display.run()
+    display.run();
+
+    return display
 })
 
 
-require(["display", "compontnents"], function() {
+// *************************
+// 整体区域
+// ************************
+
+define("whole", ["compontnents", "display"], function(C, D) {
+    var whole = {
+        init:               function() {
+            this.myAttributesObj = C.at;
+            this.scnWidgetsObj  = C.sw;
+            this.display        = D;
+            var self = this;
+            $("#save_scene").on("click", function() {
+                if(self.checkSave())        self.save()
+            });
+        },
+
+        checkSave:         function() {
+            // 必须要填写了场景名字
+            if( !this.myAttributesObj.getName() )   {
+                alert("请填写场景名称");
+                return false
+            }
+
+            // 必须要有组件，没有组件地保存没有任何意义
+            if( this.scnWidgetsObj.widgetsList.length <= 0) {
+                alert("请选择组件");
+                return false
+            }
+
+            return true
+        },
+
+        save:               function() {
+            var displayObj      = this.display.getDisplayDataForAjax();          
+            var widgetsStr      = this.scnWidgetsObj.getWidgetsDataForAjax();
+            var name            = this.myAttributesObj.getName();
+
+            if (window.scene_id) 
+                var url = "/scene/edit/" + window.scene_id + "/"
+            else 
+                var url = "/scene/create/"
+
+            $.ajax({
+                url:            url
+                , type:         "POST"
+                , dataType:     "json"
+                , data:         {
+                    "layout":           displayObj.layout
+                    , "image":          displayObj.image 
+                    , "widgets":        widgetsStr 
+                    , "name":           name 
+                }        
+                , success:      function(data) {
+                    window.scene_id = data.scn_id
+                }
+                , error:        function() {
+                }
+            })
+        }
+    }
+
+    whole.init();
+})
+
+
+require(["display", "compontnents", "whole"], function() {
 })
 
 

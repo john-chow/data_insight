@@ -151,10 +151,10 @@ define([
         },
 
         save:                   function(succCmd) {
-
             // 抓取命名等参数
             // TBD
 
+            // 合并画图参数
             this.model.set(this.drawModel.toJSON());
             
             var imageBase64 = this.zr.toDataURL("image/png");
