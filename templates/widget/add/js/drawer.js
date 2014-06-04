@@ -49,6 +49,9 @@ define([
                     this.now_drawer.setStacked(true);
                     type = "area";
 					break;
+				case "pie":
+					this.now_drawer = this.pieDrawer || new PieDrawer;
+					break;
 				case "scatter":
 					this.now_drawer = this.scatterDrawer || new ScatterDrawer;
 					break;
@@ -133,7 +136,8 @@ define([
 		this.draw =		function() {
             this.ec.clear();
 			this.ec.setOption(this.optionCloned)
-		}
+		};
+
 	};
 
 
@@ -215,7 +219,6 @@ define([
 				easy_dialog_error("xxxxxxxxxxx")
 			}
 		};
-
 	};
 
 
@@ -281,6 +284,40 @@ define([
 		};
 
 	};
+
+    var PieDrawer   = function() {
+        this.seriesOne  =       {
+            "name":             ""
+            , "type":           "pie"
+            , "radius":         "55%"
+            , "center":         ['50%', 225]
+            , "data":           []
+        },
+
+        this.ready      =       function(el, type) {
+            PieDrawer.prototype.ready.call(this, el, "pie");
+
+            $.extend(this.optionCloned, {
+                "tooltip": {
+                    trigger:        'item'
+                    , formatter:    "{a} <br/>{b} : {c} ({d}%)"
+                }
+                , "calculable":     true
+            })
+        };
+
+        this.fillSeries     =   function(data) {
+            var self = this;
+            $.each(data.legend_series, function(i, pair) {
+                self.optionCloned.legend.data.push(pair.name);
+                self.seriesOneCloned.data.push(pair)
+                self.optionCloned.series.push(self.seriesOneCloned)
+            })
+        };
+
+		this.styleSeries = function() {
+		};
+    };
 
 	var ScatterDrawer = function() {
 		this.valStyle = {
@@ -402,6 +439,7 @@ define([
     // 确定继承关系
 	var baseDrawer = new BaseDrawer();
 	AxisDrawer.prototype 	= baseDrawer;
+	PieDrawer.prototype 	= baseDrawer;
 	PolarDrawer.prototype 	= baseDrawer;
 	MapDrawer.prototype 	= baseDrawer;
 	ScatterDrawer.prototype = baseDrawer;
