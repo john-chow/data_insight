@@ -84,7 +84,8 @@
 					<span>{{ scene.m_name }}</span>
 					<span class="pull-right glyphicon {% if scene.m_is_distributed %}glyphicon-folder-open{%else%}glyphicon-folder-close{% endif %}"></span>
 				</div>
-	    		<a href="/scene/edit/{{scene.pk}}">
+	    		
+	    		<a href="{% url 'scene:edit' scene.pk %}">
 	    			<img src="{{scene.m_snapshot}}" width="480" height="240"  />
 	    		</a>
 	    		<div class="js-mod-scene-top">

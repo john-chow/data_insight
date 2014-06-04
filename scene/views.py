@@ -198,15 +198,4 @@ def batachOp(request, op):
     else:
         raise Http404()
 
-def sceneDelete(request):
-    """
-    删除场景
-    """
-    try:
-        obj = SceneModel.objects.get(pk=request.POST.get(u'id')).delete()
-    except IntegrityError, e:
-        return MyHttpJsonResponse({
-            u'succ': False, u'msg': 'no exist'
-        })
-    return MyHttpJsonResponse({u'succ': True})
 
