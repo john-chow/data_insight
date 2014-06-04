@@ -46,12 +46,12 @@ define([
 			this.save(null, {
 				success: function(m, resp, opt) {
 					if (resp.succ) {
+                        //easy_dialog_close();
                         self.able_draw  = true;
 						self.triggerOut("panel:draw_data", resp.data)
 					} else {
-                        self.able_draw  = false;
 						easy_dialog_error(resp.msg)						
-						// 通知清空
+                        self.able_draw  = false;
 						self.triggerOut("panel:clear")
 					}
 				}, error: function() {
@@ -196,16 +196,19 @@ define([
 
 		initialize: function() {
 			this.onOut("panel:draw_data",   _.bind(this.onGetDrawData, this));
-			this.onOut("panel:clear",       _.bind(this.onGetDrawData, this));
+			this.onOut("panel:clear",       _.bind(this.clear, this));
 			this.drawer = new Drawer();
             this.dataCenter = new DataCenter()
 		},
 
 		onGetDrawData: function(data) {
-            var imageData = data || {};
-			this.drawer.run(this.el, imageData);
+			this.drawer.run(this.el, data);
             this.dataCenter.setZr(this.drawer.getEc().getZrender())
-		}
+		},
+
+        clear:      function() {
+            this.drawer.stop()
+        }
 	});
 
 	return DrawPanelView

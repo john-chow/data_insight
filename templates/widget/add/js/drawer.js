@@ -75,6 +75,11 @@ define([
 			}
 		};
 
+        // 退出管理图型工作
+        this.stop =                function() {
+            if(this.ec)         this.ec.clear()
+        };
+
         // 对外提供的获取画图对象的接口
         this.getEc =                function() {
             return this.ec
@@ -82,7 +87,7 @@ define([
 	};
 	
     /*
-     * 虚基类，不给外面直接实例化
+     * 虚基类，不直接实例化
      */
 	var BaseDrawer = function() {
 		this.optionCloned 	            = {};

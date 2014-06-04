@@ -61,24 +61,24 @@ class Bar_Line_Base(EChart):
 
         x_info_list, y_info_list = [], []
 
-        # 先看度量列表，确定所在轴
-        if msu_len > 0:
-            msu_idx = 0
-            attr_name, attr_kind, attr_cmd, attr_axis = msu_list[0]
-            msu_info_list = x_info_list if u'col' == attr_axis else y_info_list
-            msu_info_list.append({u'type': u'value'})
-        else:
+        # 必须要有1个度量和至多1个维度
+        if msu_len != 1 or msn_len > 1:
             raise Exception(u'cant draw %s', self.serial[u'type'])
 
+        # 先看度量列表，确定所在轴
+        attr_name, attr_kind, attr_cmd, attr_axis = msu_list[0]
+        msu_info_list = x_info_list if u'col' == attr_axis else y_info_list
+        msu_info_list.append({u'type': u'value'})
+
         # 再看维度列表
-        if msn_len > 0:
+        if 1 == msn_len:
             msn_idx = msu_len
             attr_name, attr_kind, attr_cmd, attr_axis = msn_list[0]
             msn_info_list = x_info_list if u'col' == attr_axis else y_info_list
             msn_info_list.append({u'type': u'category', u'data': list(set(all_data[msn_idx]))})
-        else:
+        elif 0 == msn_len:
             # measure所在轴的另一个轴就是mension
-            msn_info_list = x_info_list if len(x_info_list) > 0 else y_info_list
+            msn_info_list = y_info_list if len(x_info_list) > 0 else x_info_list
             msn_info_list.append({u'type': u'category', u'data': ['']})
             
         legend_series_data = []
@@ -157,16 +157,6 @@ class Pie(EChart):
             raise Exception(u'cant have color mark')
 
         legend_series_data = [{u"name": a[1], u"value": a[0]} for a in data_from_db]
-        """
-        legend_data     = [a[1] for a in data_from_db]
-        data_list       = [{u'value': i, u'name': j} for (i, j) in data_from_db]
-
-        pdb.set_trace()
-        legend_series_data = []
-        for le in legend_data:
-            one_series_data = [d[0] for d in data_from_db if le in d[1:]]
-            legend_series_data.append({'legend': le, 'series': one_series_data})
-        """
 
         return {u'legend_series':   legend_series_data}
 

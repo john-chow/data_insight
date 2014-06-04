@@ -52,7 +52,7 @@ define([
 		},
 
 		render: function() {
-			var label = ('x' === this.name) ? 'x' : 'y';
+			var label = ('x' === this.name) ? '横轴' : '纵轴';
 			this.$el.html( this.templateFun({
 					'name':		this.name
 					, 'label':	label

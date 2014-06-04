@@ -588,6 +588,8 @@ def searchDataFromDb(extent_data, conn_arg, msu_list, msn_list, group_list):
     sql     = sql_template.format(attrs=sel_str, table=table_name, \
                                     filter=filter_sentence, option=group_str)
 
+    print "sql is       {0}".format(sql)
+
     conn        = connDb(*conn_arg)
     cursor      = conn.cursor()
     cursor.execute(sql)
