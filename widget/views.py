@@ -302,16 +302,6 @@ def getTableInfo(request):
 
     print '********     getTableInfo  *********'
 
-    """
-    if DEBUG_IN_LINUX:      
-        request.session[u'ip']      = u'127.0.0.1'
-        request.session[u'port']      = 5432
-        request.session[u'db']      = u'data_insight'
-        request.session[u'user']      = u'postgres'
-        request.session[u'pwd']      = u'123456'
-        request.session[u'tables'] = ['diamond']
-    """
-
     conn  = findDbConn(request)
     if not conn:
         print 'redirect to login'
@@ -322,32 +312,30 @@ def getTableInfo(request):
     tables = request.session.get(u'tables')
     data_list = []
     for t in tables:
-        cursor.execute(u'select * from %s' % t)
-        results         = cursor.fetchall()
-        col_names       = [ q[0] for q in cursor.description ]
+        cursor.execute( \
+            u"SELECT columns.column_name,columns.data_type \
+            FROM information_schema.columns \
+            WHERE columns.table_schema = 'public' \
+            AND columns.table_name = '{0}'".format(t) \
+        )
 
-        (dm_dict, me_dict) = ( {}, {} )
-        for i, name in enumerate(col_names):
-            val_list = list( set(       \
-                [ q[i] for q in results ]   \
-            ) )
+        results             = cursor.fetchall()
 
-            tmp = val_list[0]
-            if isinstance(tmp, int) or isinstance(tmp, float):
-                me_dict[name] = None
-            else:
-                #dm_dict[name] = json.dumps(val_list, default=date_handler)
-                dm_dict[name] = val_list
+        dm_list, me_list    = [], []
+        for name, type in results:
+            xxx_list = me_list if (u'int' in type or u'double' in type) \
+                                else dm_list
+            xxx_list.append(name)
 
-        data = {
-            u'name':        t
-            , u'dm':        dm_dict
-            , u'me':        me_dict
-        }
+            data = {
+                u'name':        t
+                , u'dm':        dm_list
+                , u'me':        me_list
+            }
+
         data_list.append(data)
-    
-    res_dict = {u'succ': True, u'data': data_list}
 
+    res_dict = {u'succ': True, u'data': data_list}
     return MyHttpJsonResponse(res_dict)
 
 

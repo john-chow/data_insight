@@ -25,7 +25,7 @@
 	<% _.each(dm, function(v, k) { %> 
 		<li class="mension ui-state-highlight coordinate" type="mension">
 		<m class="axes-math" data=""></m>
-		<span class='attr'><%= k %></span>
+		<span class='attr'><%= v %></span>
 		<b data-toggle='dropdown' class='glyphicon glyphicon-plus-sign dropdown-toggle'></b>
 		<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 			<li class="coordinate-filter"><a href="#">筛选</a></li>
@@ -48,7 +48,7 @@
 	<% _.each(me, function(v, k) { %> 
 		<li class="measure coordinate" draggable="true" type="measure">
 		<m class="axes-math" data="sum">(求和)</m>
-		<span class='attr'><%= k %></span>
+		<span class='attr'><%= v %></span>
 		<b data-toggle='dropdown' class='glyphicon glyphicon-plus-sign dropdown-toggle'></b>
 		<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 			<li class="coordinate-filter"><a href="#">筛选</a></li>
