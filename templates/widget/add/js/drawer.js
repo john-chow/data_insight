@@ -55,7 +55,7 @@ define([
 				case "scatter":
 					this.now_drawer = this.scatterDrawer || new ScatterDrawer;
 					break;
-				case "polar":	
+				case "radar":	
 					this.now_drawer = this.polar_drawer || new RadarDrawer;
 					break;
 				default:
@@ -332,8 +332,6 @@ define([
 	};
 
 
-
-
     var PieDrawer   = function() {
         this.seriesOne  =       {
             "name":             ""
@@ -370,6 +368,33 @@ define([
 
 
 	var RadarDrawer = function() {
+        this.seriesOne = {
+            name:           ""
+            , type:         "radar"
+            , data:         []
+        };
+
+        this.ready      =       function(el, type) {
+            RadarDrawer.prototype.ready.call(this, el, "radar");
+
+            $.extend(this.optionCloned, {
+                "polar":            []
+                , "calculable":     true
+            })
+        };
+
+        this.fillSeries     =       function(data) {
+            var self = this;
+            $.each(data.legend_series, function(i, pair) {
+                self.seriesOneCloned.data.push(pair);
+                self.optionCloned.legend.data.push(pair.name)
+                self.optionCloned.series.push(self.seriesOneCloned)
+            })
+
+            self.optionCloned.polar.push({
+                "indicator":            data.indicator
+            })
+        }
 	};
 
 

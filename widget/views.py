@@ -396,10 +396,12 @@ def checkExtentData(extent_data):
     x_len, y_len = map(lambda i: len(i) if isinstance(i, list) else 0,
                                     (x, y))
 
+    """
     if x_len > 1:
         return (False, u'uuuuuuuuu')
     if y_len > 1:
         return (False, u'vvvvvvvvv')
+    """
 
     # 这么写好像不行的吧
     def check_size_color_graph(i):

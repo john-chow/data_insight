@@ -46,7 +46,7 @@ define([
 			this.save(null, {
 				success: function(m, resp, opt) {
 					if (resp.succ) {
-                        //easy_dialog_close();
+                        easy_dialog_close();
                         self.able_draw  = true;
 						self.triggerOut("panel:draw_data", resp.data)
 					} else {

@@ -162,15 +162,37 @@ class Pie(EChart):
 
 
 class Radar(EChart):
-    def __init__(self):
-        EChart.__init__(self)
-        self.option[u'polar'] = []
-        pass
-
     def makeData(self, data_from_db, msu_list, msn_list, group_list):
-        # 画图的条件应该是至少要有1个measure列，2个mension列
-        if len(msn_list) < 1 or len(msu_list) < 1:
+        # 画图的条件应该是1个mension列，至少3个measure列，且不能有group列
+        if len(msn_list) != 1 or len(msu_list) < 3 or len(group_list) > 0:
             raise Exception(u'cant draw radar')
+
+        # 数据库查询最后一列的结果是种类的名称列表
+        legend_series_data = [{
+            u"value": n[:-1]
+            , u"name": n[-1]
+        } for n in data_from_db]
+
+        # 找到每个列中最大值
+        indicator = [{
+            u"text":                pro[0]                    
+            , u"max":               max([a[i] for a in data_from_db])        
+        } for i, pro in enumerate(msu_list)]
+
+        return {
+            u'legend_series':       legend_series_data
+            , u'indicator':         indicator
+        }
+
+        """
+        name_list = [n[-1] for n in data_from_db]
+        
+        legend_series_data = []
+        for name in name_list:
+
+
+        
+
             
         msu_list_len, msn_list_len, group_list_len = map( len, [msu_list, msn_list, group_list] )
         all_list        = msu_list + msn_list + group_list
@@ -233,6 +255,7 @@ class Radar(EChart):
                 
 
         return self.option
+        """
 
 
 
