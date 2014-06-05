@@ -18,24 +18,45 @@ define([
 		this.run	=				function(place, data) {
             var type    = data.type;
             this.ec     = this.ec || echart.init(place);
-			switch(data.type) {
+			switch(type) {
 				case "map":	 	
 					this.now_drawer = this.map_drawer || new MapDrawer;
 					break;
 				case "bar":	
 					this.now_drawer = this.bar_drawer || new BarDrawer;
+                    this.now_drawer.setStacked(false);
 					break;
+                case "s_bar":
+					this.now_drawer = this.bar_drawer || new BarDrawer;
+                    this.now_drawer.setStacked(true);
+                    type = "bar";
+                    break;
 				case "line":	
 					this.now_drawer = this.line_drawer || new LineDrawer;
+                    this.now_drawer.setStacked(false);
+					break;
+                case "s_line":
+					this.now_drawer = this.line_drawer || new LineDrawer;
+                    this.now_drawer.setStacked(true);
+                    type = "line";
 					break;
 				case "area":	
 					this.now_drawer = this.areaDrawer || new AreaDrawer;
+                    this.now_drawer.setStacked(false);
+					break;
+				case "s_area":	
+					this.now_drawer = this.areaDrawer || new AreaDrawer;
+                    this.now_drawer.setStacked(true);
+                    type = "area";
+					break;
+				case "pie":
+					this.now_drawer = this.pieDrawer || new PieDrawer;
 					break;
 				case "scatter":
 					this.now_drawer = this.scatterDrawer || new ScatterDrawer;
 					break;
 				case "polar":	
-					this.now_drawer = this.polar_drawer || new PolarDrawer;
+					this.now_drawer = this.polar_drawer || new RadarDrawer;
 					break;
 				default:
 					easy_dialog_error('xxxxxxxxxxxx');
@@ -54,16 +75,24 @@ define([
 			}
 		};
 
+        // 退出管理图型工作
+        this.stop =                function() {
+            if(this.ec)         this.ec.clear()
+        };
+
         // 对外提供的获取画图对象的接口
         this.getEc =                function() {
             return this.ec
         }
 	};
 	
+    /*
+     * 虚基类，不直接实例化
+     */
 	var BaseDrawer = function() {
-		this.optionCloned 	= {};
-		this.place			= "";
-		this.type			= "";
+		this.optionCloned 	            = {};
+		this.place			            = "";
+		this.type			            = "";
 		this.option = {
 			'title': 					{}
 			, 'tooltip': 				{}
@@ -101,6 +130,7 @@ define([
             this.ec = ec;
 			this.type  = type;
 			this.optionCloned = cloneObject(this.option);
+            this.seriesOneCloned  = cloneObject(this.seriesOne);
         };
 
 		this.work = 	function(data) {
@@ -111,10 +141,18 @@ define([
 		this.draw =		function() {
             this.ec.clear();
 			this.ec.setOption(this.optionCloned)
-		}
+		};
+
 	};
 
+
+    /* 
+     * 虚基类
+     */
 	var AxisDrawer = function() {
+        // 是否是聚合型图，即有没有stacked
+        this.stacked        = false;
+
 		this.catStyle = {
 			boundaryGap : false
 		};
@@ -143,6 +181,10 @@ define([
 			, data: []
 		};
 
+        this.setStacked         = function(stacked) {
+            this.stacked    = stacked
+        };
+
 		this.work = function(data) {
 			this.fillAxis(data);
 			AxisDrawer.prototype.work.call(this, data);
@@ -161,26 +203,27 @@ define([
 			if (data.legend_series.length > 0) {
 				var self = this;
 				$.each(data.legend_series, function(i, l_s) {
-					var seriesOneCloned = cloneObject(self.seriesOne);
-
 					// 调用子类去做样式
-					self.styleSeries(seriesOneCloned);
+					self.styleSeries(self.seriesOneCloned);
 
 					if ("legend" in  l_s) {
 						var legend_name = l_s["legend"];
 						self.optionCloned.legend.data.push(legend_name);
-						seriesOneCloned.name = legend_name;
+						self.seriesOneCloned.name = legend_name;
 					}
-					seriesOneCloned.data = l_s["series"];
-					seriesOneCloned.type = self.type;
-					self.optionCloned.series.push(seriesOneCloned)
+
+                    // 是否要画成聚合状
+                    if (self.stacked)       self.seriesOneCloned.stack = "总量";
+
+					self.seriesOneCloned.data = l_s["series"];
+					self.seriesOneCloned.type = self.type;
+					self.optionCloned.series.push(self.seriesOneCloned)
 				})
 			}
 			else {
 				easy_dialog_error("xxxxxxxxxxx")
 			}
 		};
-
 	};
 
 
@@ -221,6 +264,15 @@ define([
 	};
 
 	var AreaDrawer = function() {
+        this.ready          = function(ec, type) {
+            AreaDrawer.prototype.ready.call(this, ec, "line")
+
+            $.extend(this.seriesOneCloned, {
+                "smooth":       true
+                , "itemStyle":  {normal: {areaStyle: {type: 'default'}}}
+            })
+        };
+
 		this.catStyle = {
 		};
 		
@@ -279,8 +331,47 @@ define([
 
 	};
 
-	var PolarDrawer = function() {
+
+
+
+    var PieDrawer   = function() {
+        this.seriesOne  =       {
+            "name":             ""
+            , "type":           "pie"
+            , "radius":         "55%"
+            , "center":         ['50%', 225]
+            , "data":           []
+        },
+
+        this.ready      =       function(el, type) {
+            PieDrawer.prototype.ready.call(this, el, "pie");
+
+            $.extend(this.optionCloned, {
+                "tooltip": {
+                    trigger:        'item'
+                    , formatter:    "{a} <br/>{b} : {c} ({d}%)"
+                }
+                , "calculable":     true
+            })
+        };
+
+        this.fillSeries     =   function(data) {
+            var self = this;
+            $.each(data.legend_series, function(i, pair) {
+                self.optionCloned.legend.data.push(pair.name);
+                self.seriesOneCloned.data.push(pair)
+                self.optionCloned.series.push(self.seriesOneCloned)
+            })
+        };
+
+		this.styleSeries = function() {
+		};
+    };
+
+
+	var RadarDrawer = function() {
 	};
+
 
 	var MapDrawer = function() {
 		this.seriesOne = {
@@ -358,7 +449,8 @@ define([
     // 确定继承关系
 	var baseDrawer = new BaseDrawer();
 	AxisDrawer.prototype 	= baseDrawer;
-	PolarDrawer.prototype 	= baseDrawer;
+	PieDrawer.prototype 	= baseDrawer;
+	RadarDrawer.prototype 	= baseDrawer;
 	MapDrawer.prototype 	= baseDrawer;
 	ScatterDrawer.prototype = baseDrawer;
 	var axisDrawer = new AxisDrawer();
