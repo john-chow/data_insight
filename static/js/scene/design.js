@@ -4,8 +4,8 @@
  * Date: 2014-05-01
  */
 
-var GRID_UNIT_WIDTH     = 500,
-    GRID_UNIT_HEIGHT    = 300;
+var GRID_UNIT_WIDTH     = 50,
+    GRID_UNIT_HEIGHT    = 50;
     
 
 //初始化gridster
@@ -13,7 +13,7 @@ $(function(){ //DOM Ready
     $(".gridster ul").gridster({
         //widget_selector: "li",                        //确定哪个元素是widget
         widget_margins: [1, 1],                       //margin大小
-        widget_base_dimensions: [50, 50],           //面积大小
+        widget_base_dimensions: [GRID_UNIT_WIDTH, GRID_UNIT_HEIGHT],           //面积大小
         helper:'clone',
         autogrow_cols: true,
         resize: {
@@ -394,8 +394,10 @@ define("display", ["drawer"], function(DrawManager) {
             var self = this;
             $.each(layoutArray, function(i, layout) {
                 // 找最大的行和最大的列，用来确定快照的尺寸
-                maxRow = (maxRow >= layout.row) ? maxRow : layout.row;
-                maxCol = (maxCol >= layout.col) ? maxCol : layout.col;
+                var rowUnitNum = layout.row - 1 + layout.size_y;
+                var colUnitNum = layout.col - 1 + layout.size_x; 
+                maxRow = (maxRow >= rowUnitNum) ? maxRow : rowUnitNum;
+                maxCol = (maxCol >= colUnitNum) ? maxCol : colUnitNum;
 
                 // 为每个grid单元保存它的canvas快照
                 for(var j = 0; j < len; j++) {
@@ -410,7 +412,7 @@ define("display", ["drawer"], function(DrawManager) {
             var width   = maxCol * GRID_UNIT_WIDTH;
             var height  = maxRow * GRID_UNIT_HEIGHT
             $newDom = $("<canvas width="+width+" height="+height+" style='position: absolute; left: 0px; top: 0px'>");
-            newDom = $newDom[0];
+            var newDom = $newDom[0];
             var ctx = newDom.getContext("2d");
             $.each(layoutArray, function(i, layout) {
                 var dy  = parseInt(layout.row - 1)  * GRID_UNIT_HEIGHT,

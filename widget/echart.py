@@ -63,7 +63,7 @@ class Bar_Line_Base(EChart):
 
         # 必须要有1个度量和至多1个维度
         if msu_len != 1 or msn_len > 1:
-            raise Exception(u'cant draw %s', self.serial[u'type'])
+            raise Exception(u'cant draw {0}'.format(self.type))
 
         # 先看度量列表，确定所在轴
         attr_name, attr_kind, attr_cmd, attr_axis = msu_list[0]
@@ -104,13 +104,16 @@ class Bar_Line_Base(EChart):
 
 
 class Bar(Bar_Line_Base):
-    pass
+    def __init__(self):
+        self.type = u'bar'
                 
 class Line(Bar_Line_Base):
-    pass
+    def __init__(self):
+        self.type = u'line'
 
 class Area(Bar_Line_Base):
-    pass
+    def __init__(self):
+        self.type = u'area'
 
 
 
