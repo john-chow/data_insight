@@ -935,7 +935,10 @@ border: 1px solid #bbb;
 border-radius: 5px;
 -moz-border-radius: 5px;
 -webkit-border-radius: 5px;
+}
 
+#dbinfo_bar .axes-math {
+    display: none;
 }
 
 

@@ -89,7 +89,7 @@ def themeEdit(request):
     主题编辑
     """
     pass
-def view(request):
+def view(request, id):
     """
     某个主题浏览界面
     """

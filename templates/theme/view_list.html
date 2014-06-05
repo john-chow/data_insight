@@ -29,7 +29,14 @@
 				    <!--搜索栏 begin-->
 				    <div class="view-list-search clearfix">
 				    	<div class="col-md-1 col-xs-12">
-				    		<span class="view-list-sort">时间排序&nbsp;<i class="glyphicon glyphicon-arrow-down"></i></span>
+				    		<span class="view-list-sort">&nbsp;时间排序&nbsp;
+				    		{% if sort == "-1" %}
+				    			<i class="glyphicon glyphicon-arrow-down "></i>
+				    		{% else %}
+				    			<i class="glyphicon glyphicon-arrow-up "></i>
+				    		{% endif %}
+				    		&nbsp;
+				    		</span>
 				    	</div>
 				    	<div class="col-md-1 col-xs-12 col-md-offset-10">
 				    		<span>共有<b>{{allCount}}</b>个主题</span>
@@ -54,7 +61,15 @@
 		<!--content end-->
 	</div>
 	<!--section end-->
+	<!-- 搜索表单 begin -->
+	<form id="view_list_get_form">
+	    <input type="hidden" id="view_list_get_search" name="search" value="{{search}}" />
+	    <input type="hidden" id="view_list_get_sort" name="sort" value="{{sort}}" />
+	    <input type="hidden" id="view_list_get_page" name="page" value="{{page}}" />
+	</form> 
+	<!-- 搜索表单 end -->
 </body>
 
 <script src='{% static "js/jquery-2.1.0.js" %}'></script>
 <script src='{% static "js/lib/bootstrap.js" %}'></script>
+<script src='{% static "js/view.js" %}'></script>

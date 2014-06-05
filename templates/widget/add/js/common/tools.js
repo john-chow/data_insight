@@ -73,7 +73,7 @@ function jquery_to_html($obj) {
 
 //错误提示弹出窗口
 function easy_dialog_error(message, level){
-	var str="<p>错误级别：<span id='error_level'>"+level+"</span></p>"+
+/*	var str="<p>错误级别：<span id='error_level'>"+level+"</span></p>"+
 			"<p>错误信息：<span id='error_message'>"+message+"</span></p>";
     var width = (document.documentElement.clientWidth)/2-160;
 	easyDialog.open({
@@ -86,7 +86,7 @@ function easy_dialog_error(message, level){
       follow:'header',
       followX : width,
       followY : 77
-	});
+	});*/
 }
 
 //loading弹出窗口
