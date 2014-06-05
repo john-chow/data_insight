@@ -89,3 +89,12 @@ def themeEdit(request):
     主题编辑
     """
     pass
+def view(request):
+    """
+    某个主题浏览界面
+    """
+    if u'GET' == request.method:
+        context = RequestContext(request)
+        return render_to_response("theme/view.html", {}, context)
+    else:
+        raise Http404()

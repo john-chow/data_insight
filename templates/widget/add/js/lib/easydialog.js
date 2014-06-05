@@ -708,9 +708,15 @@ var extend = {
 			
 		clearTimer();
 		//	隐藏遮罩层
-		if( options.overlay && elements.overlay ){
+		if(!options && !elements){
+			return;
+		}
+
+		if(options.overlay && elements.overlay ){
 			elements.overlay.style.display = 'none';
 		}
+			
+		
 		// 隐藏弹出层
 		elements.dialogBox.style.display = 'none';
 		// IE6清除CSS表达式

@@ -1,0 +1,60 @@
+{% load static %}
+{% load pagination_tags %}
+
+<!DOCTYPE html>
+<head>
+	<meta charset='utf-8'>
+	<title>DataInsight</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/view.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.css' %}">
+</head>
+<body>
+	<!--menu begin-->
+	<div id="header" class="row navbar navbar-default ">
+		<div class="col-md-10 col-xs-12 col-md-offset-1">
+			<div class="text-center">
+				<span class="menu-home">DataInsight</span>
+			</div>
+		</div>
+	</div>
+	<!--menu end-->
+	<!--section begin-->
+	{% autopaginate themeList 6 %}
+	<div id="section">
+		<!--content begin-->
+		<div id="content">
+			<div class="row">
+		  		<div class="col-md-10 col-xs-12 col-md-offset-1">
+				    <!--搜索栏 begin-->
+				    <div class="view-list-search clearfix">
+				    	<div class="col-md-1 col-xs-12">
+				    		<span class="view-list-sort">时间排序&nbsp;<i class="glyphicon glyphicon-arrow-down"></i></span>
+				    	</div>
+				    	<div class="col-md-1 col-xs-12 col-md-offset-10">
+				    		<span>共有<b>{{allCount}}</b>个主题</span>
+				    	</div>
+				    </div>
+				    <!--搜索栏 end-->
+				    <!--内容 begin-->
+				    <div class="row">
+				    {% for theme in themeList %}
+				    	<div class="col-md-6 col-xs-12">
+					    	<div class="view-list-theme">
+					    		{{theme.m_name}}
+					    	</div>
+				    	</div>
+				    {% endfor %}
+				    {% paginate %}
+				    </div>
+				    <!--内容 end-->
+		  		</div>
+		  	</div>
+		</div>
+		<!--content end-->
+	</div>
+	<!--section end-->
+</body>
+
+<script src='{% static "js/jquery-2.1.0.js" %}'></script>
+<script src='{% static "js/lib/bootstrap.js" %}'></script>

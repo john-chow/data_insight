@@ -16,4 +16,7 @@ urlpatterns = patterns('',
 	url(r'^batch/distri/$',		views.batachOp, {'op': 'dis'} ),
 	url(r'^batch/undistri/$',	views.batachOp, {'op': 'undis'} ),
 	url(r'^batch/delete/$',		views.batachOp, {'op': 'delete'} ),
+
+	url(r'^viewList/$', 		views.themeList ,{'template_name': 'theme/view_list.html'}),
+	url(r'^view/(\w+)/$', 		views.view),
 )
