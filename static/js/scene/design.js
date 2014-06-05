@@ -13,7 +13,7 @@ $(function(){ //DOM Ready
     $(".gridster ul").gridster({
         //widget_selector: "li",                        //确定哪个元素是widget
         widget_margins: [1, 1],                       //margin大小
-        widget_base_dimensions: [20, 20],           //面积大小
+        widget_base_dimensions: [50, 50],           //面积大小
         helper:'clone',
         autogrow_cols: true,
         resize: {
@@ -335,7 +335,7 @@ define("display", ["drawer"], function(DrawManager) {
 
         sureShowPos:                function(timestamp) {
             var defaultPos  = {
-                "size_x": 28, "size_y": 16, "col": null, "row": null   
+                "size_x": 10, "size_y": 5, "col": null, "row": null   
             };
 
             if(!this.layoutArr)        return defaultPos
