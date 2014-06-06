@@ -34,9 +34,6 @@ def timeblock(label):
 
 
 def startLog(strLevel='INFO',logFile='log.txt'):
-    LOGFORMAT = "  %(log_color)s%(levelname)-8s%(reset)s | %(log_color)s%(message)s%(reset)s"
-    formatter = ColoredFormatter(LOGFORMAT)
-
     if not os.path.exists(head.LOG_PATH):
         os.mkdir(head.LOG_PATH)
     logFilename = os.path.join(head.LOG_PATH,logFile)
@@ -70,7 +67,7 @@ LEVELS={'DEBUG':logging.DEBUG,
         }
 
 # 设置默认可打印的级别，及保存文件名
-logger = startLog('DEBUG', time.strftime(
+logger = startLog('INFO', time.strftime(
     '%Y-%m-%d_%H-%M-%S.txt' , time.localtime(time.time())
 ))
 
