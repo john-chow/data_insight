@@ -63,9 +63,6 @@ def widgetCreate(request):
             = map(lambda arg: extent_data.get(arg, u''), \
                     ['table', 'x', 'y', 'color', 'size', 'graph', 'image'])
 
-        logger.info(u'length of table, x, y is {0}, {1}, {2}' \
-                            .format(len(table), len(x), len(y)))
-
         db_conn_pk = request.session.get('db_pk')
         external_conn = ExternalDbModel.objects.get(pk = db_conn_pk)
 
@@ -541,31 +538,28 @@ def searchDataFromDb(extent_data, conn_arg, msu_list, msn_list, group_list):
     sel_str_list, group_str_list, combine_flag = [], [], False
     for (attr_name, kind, cmd, x_y) in msu_list:
         if 'sum' == cmd:
-            sel_str_list.append( 'sum(%s) %s' % (attr_name, attr_name) )
+            sel_str_list.append('sum("{0}") "{0}"'.format(attr_name))
             combine_flag = True
         elif 'avg' == cmd:
-            sel_str_list.append( 'avg(%s) %s' % (attr_name, attr_name) )
+            sel_str_list.append('avg("{0}") "{0}"'.format(attr_name))
             combine_flag = True
         else:
-            sel_str_list.append(attr_name)
+            sel_str_list.append('"{0}"'.format(attr_name))
 
 
     # 处理 msn_list
     for (attr_name, kind, cmd, x_y) in msn_list:
         if combine_flag:
-            group_str_list.append(attr_name)
+            group_str_list.append('"{0}"'.format(attr_name))
         else:
-            sel_str_list.append(attr_name)
+            sel_str_list.append('"{0}"'.format(attr_name))
 
     # 处理 group_list
     group_str_list.extend([attr_name for (attr_name, _, _, __) in group_list])
     sel_str_list += group_str_list
 
-    #map(lambda i: i.extend([attr for (attr, _, _, _) in group_list]), \
-                                                #(sel_str_list, group_attr_list) )
-
     # 以第一个类目属性做group by参数，其他的全部做成where条件
-    sql_template = u'select {attrs} from {table} {filter} {option}'
+    sql_template = u'select {attrs} from "{table}" {filter} {option}'
     table_name   = extent_data[u'table']
 
     group_str = u''
