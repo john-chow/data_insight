@@ -130,7 +130,6 @@ define([
             this.ec = ec;
 			this.type  = type;
 			this.optionCloned = cloneObject(this.option);
-            this.seriesOneCloned  = cloneObject(this.seriesOne);
         };
 
 		this.work = 	function(data) {
@@ -203,6 +202,8 @@ define([
 			if (data.legend_series.length > 0) {
 				var self = this;
 				$.each(data.legend_series, function(i, l_s) {
+                    self.seriesOneCloned  = cloneObject(self.seriesOne);
+
 					// 调用子类去做样式
 					self.styleSeries(self.seriesOneCloned);
 
@@ -356,6 +357,7 @@ define([
         this.fillSeries     =   function(data) {
             var self = this;
             $.each(data.legend_series, function(i, pair) {
+                self.seriesOneCloned  = cloneObject(self.seriesOne);
                 self.optionCloned.legend.data.push(pair.name);
                 self.seriesOneCloned.data.push(pair)
                 self.optionCloned.series.push(self.seriesOneCloned)
@@ -386,6 +388,7 @@ define([
         this.fillSeries     =       function(data) {
             var self = this;
             $.each(data.legend_series, function(i, pair) {
+                self.seriesOneCloned  = cloneObject(self.seriesOne);
                 self.seriesOneCloned.data.push(pair);
                 self.optionCloned.legend.data.push(pair.name)
                 self.optionCloned.series.push(self.seriesOneCloned)
