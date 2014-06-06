@@ -19,4 +19,6 @@ urlpatterns = patterns('',
 
 	url(r'^viewList/$', 		views.themeList ,{'template_name': 'theme/view_list.html'}),
 	url(r'^view/(\w+)/$', 		views.view),
+
+	url(r'^add/$', 		        views.themeCreate),
 )

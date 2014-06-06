@@ -240,11 +240,11 @@ border: 2px solid #bbb;
 .element-list-div .heading{
 background: #27A9E3;
 color: white;
-padding: 8px;
+padding: 4px;
 }
 .element-list-div .heading span{
-	font-size: 18px;
-padding-left: 10px;
+font-size: 15px;
+padding-left: 4px;
 letter-spacing: 5px;
 }
 

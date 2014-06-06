@@ -1,9 +1,8 @@
 /*简单的工具视图，主要作用是监听添加/编辑组件页按钮的事件*/
 define([
-"jquery"
-, "backbone"
+ "backbone"
 , "bootstrap"
-], function($, Backbone, x) {
+], function(Backbone, x) {
 
     var ToobarView = Backbone.View.extend({
         el: "div#toolbar",

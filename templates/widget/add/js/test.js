@@ -1,7 +1,6 @@
 define([
-  'jquery'
-  ,'backbone'
-], function($,Backbone) {
+'backbone'
+], function(Backbone) {
 
 	var People = Backbone.Model.extend({
 		initialize: function(){

@@ -19,41 +19,34 @@ requirejs.config({
 	        , "echarts/chart/radar": 	"lib/src/echarts-original"
 	        , "echarts/chart/map": 		"lib/src/echarts-original-map"
 	        , "validform":              "Validform_v5.3.2_min"
-	        , "csrf": 					"csrf"
+	        //, "csrf": 					"csrf"
+	        , "themeDesign": 			"theme/design"
+	        , "boxslider": 				"theme/box-slider-all.jquery.min"	
 	        //, "echarts/config": 		"lib/src/config"
 		},
 
 		//添加依赖关系
 		shim: {
-	　　　　'bootstrap': {
-	　　　　　　deps: ['jquery']
-	　　　　},
 			'backbone': {
-	　　　　　　deps: ['underscore', 'jquery']
+	　　　　　　deps: ['underscore']
 	　　　　},
-			'jqueryUi': {
-			　　deps: ['jquery']
-			},
 			'color': {
-        　　　　deps: ['jquery',"bootstrap"]
+        　　　　deps: ["bootstrap"]
 	        },
-	        'gridster': {
-	            deps: ['jquery']
-			},
 			'model/vtron_model': {
 				deps: ['backbone']
 			},
 			'base_sheet': {
 				deps: ['backbone']
 			},
-			'validform': {
-　　　　　　	deps: ['jquery']
-	  		},
-	  		'csrf' : {
-	  			deps: ['jquery']
-	  		},
 	  		'draw_panel' : {
 	  			deps: ['showmsg']
+	  		},
+	  		'themeDesign' : {
+	  			deps: ['jqueryUi','bootstrap']
+	  		},
+	  		'boxslider': {
+	  			deps: ['theme/Modernizr']
 	  		}
 	  	}
 });

@@ -1,11 +1,10 @@
 define([
-"jquery"
-, "backbone"
+"backbone"
 , "base_sheet"
 , "bootstrap"
 , "model/vtron_model"
 , "text!../template/intelligent_display.html" 
-], function($, Backbone, BaseSheetView, b, VtronModel, intelligentHtml) {
+], function(Backbone, BaseSheetView, b, VtronModel, intelligentHtml) {
 
     var ChartStyleModel   = VtronModel.extend({
             urlRoot:        "chart/"

@@ -1,0 +1,290 @@
+/*!
+ * 场景设计界面样式
+ *
+ * Date: 2014-05-01
+ */
+
+body {
+font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
+}
+
+#header {
+    height: 25px;
+    color: white;
+    text-align: center;
+    background-color: #776677;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 25px;
+}
+
+.menu-ul li a{
+    padding:15px 50px;
+}
+
+.menu-home {
+    padding:15px 50px;
+}
+
+#menu .navbar {
+    margin-bottom: 0;
+}
+
+#choosed_chart ul {
+    list-style-type: none;
+    padding:0;
+    margin:0;
+}
+
+#choosed_chart li:hover {
+    background-color: #E5F1FB;
+    border-radius: 5px;
+    border: 1px solid #CCC5EC;
+}
+
+#choosed_chart li {
+    border: 1px solid white;
+    padding: 0px 10px 1px 20px;
+    cursor: move;
+    overflow: hidden;
+    font-size: 15px;
+    list-style: none;
+}
+#choosed_layout{
+
+}
+#choosed_chart ,
+#choosed_layout  {
+    margin: 0;
+    border: none;
+    box-shadow: none;
+overflow: auto;
+}
+
+#choosed_chart .glyphicon {
+    color: #AFAFAF;
+}
+
+.choosed_chart_extra {
+    padding:0 10px;
+    background-color: #E5E2F1;
+}
+
+.choosed_chart_extra span {
+    padding: 0 10px;
+    cursor: default;
+}
+
+.choosed_chart_extra span:hover {
+    background-color: #F6E8F5;
+    border-radius: 5px;
+}
+
+#choosed_chart .panel-heading , 
+#choosed_layout .panel-heading ,
+#choosed_dashboard .panel-heading {
+    padding: 3px 30px;
+    border: 1px solid #ddd;
+}
+
+#choosed_dashboard ul {
+    height: 150px;
+    overflow: auto;
+}
+
+#choosed_chart ul{
+    overflow: auto;
+}
+
+#scene_design_right .gridster ul {
+    list-style: none;
+}
+
+.gridster ul{
+    list-style: none;
+}
+
+.gridster li {
+    border: 1px solid #C0BDD1;
+    cursor: pointer;
+    color:#fff;
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center;
+    line-height: 100%;
+}
+
+.gridster {
+    margin: 0 auto;
+    opacity: .8;
+    -webkit-transition: opacity .6s;
+    -moz-transition: opacity .6s;
+    -o-transition: opacity .6s;
+    -ms-transition: opacity .6s;
+    transition: opacity .6s;
+}
+
+#scene_design_right {
+    overflow: auto;
+    background: #ddd;
+    padding-bottom: 33px!important;
+}
+
+#scene_design_left ,
+#scene_design_right {
+    margin:0;
+    padding:0;
+}
+#scene_design_left{
+    border-right: 1px solid #bbb;
+}
+.se_wi_div {
+    height: 100%;
+}
+
+#choosed_layout ul li {
+    padding: 0px 20px 1px 20px;
+    cursor: default;
+    overflow: hidden;
+    font-size: 15px;
+}
+
+#choosed_layout ul {
+    overflow: auto;
+}
+
+#choosed_layout i {
+    color: #666;
+    margin-right: 10px;
+}
+
+.se_wi_color {
+    background-color: #ddd;
+}
+
+.scene_choose_widget {
+    position: relative;
+}
+
+.scene_choose_widget span.glyphicon {
+    position: absolute;
+    color: #581212;
+    cursor: pointer;
+    top: 4px;
+    right: 0;
+    display:none;
+}
+
+.scene_choose_widget:hover span.glyphicon {
+    display:block;
+}
+.toolbar {
+background: #eee;
+padding: 5px 10px;
+border: 1px solid #bbb;
+}
+
+/*这里开始*/
+.content-left table tr{
+    vertical-align: top;
+}
+.theme-draggable{
+    border: 2px solid #ddd;
+    padding: 5px 15px;
+    width: 150px;
+    height: 50px;
+    background: #E5F1FB;
+    z-index: 10;
+}
+.theme-item{
+    width: 240px;
+    list-style: none;
+    cursor: move;
+}
+.slider-viewport { 
+width: 1020px;
+height: 620px;
+overflow: hidden; 
+position: relative;
+margin: auto;
+padding: 0 21px 140px;
+}
+#viewport, #draw_theme, .slide {
+  width: 1020px;
+  height: 620px;
+  
+}
+
+#viewport {
+  overflow: hidden;
+  margin-top: 25px;
+}
+
+#play_order{
+  height: 150px;  
+  padding: 0
+}
+#play_order li{
+    cursor: move!important;
+    list-style-type: decimal;
+    margin-left: 45px;
+}
+#play_order li:hover{
+    background: #E5F1FB;
+}
+.scene-remove{
+    cursor: pointer;
+float: right;
+padding-top: 7px;
+display: none;
+font-size: 18px;
+line-height: 1;
+color: #666;
+font-weight: bold;
+padding-right: 5px;
+text-decoration: none;
+}
+.scence-title{
+	background: #4b8df8;
+color: white;
+padding: 5px 10px;
+margin-bottom: 0;
+width: 1020px;
+}
+.theme-scence-count{
+	color: white;
+	background: #4b8df8;
+	margin-bottom: 0;
+}
+#effect-list{
+	padding: 0;
+}
+#effect-list li{
+    border: 1px solid white;
+    margin-top: 5px;
+}
+#effect-list li:hover{
+ 	background-color: #E5F1FB;
+    border-radius: 5px;
+    border: 1px solid #CCC5EC;
+}
+#effect-list li.current{
+	background-color: #E5F1FB;
+    border-radius: 5px;
+    border: 1px solid #CCC5EC;
+}
+#effect-list li a{
+    color: black;
+    text-decoration: none;
+}
+#time-indicator {
+  width: 0px;
+  height: 3px;
+  background-color: #4b8df8;
+}
+#theme_design_left .panel>.panel-heading {
+    height: 30px;
+    padding: 3px 8px;
+border: 1px solid #ddd;
+}
+/*结束*/

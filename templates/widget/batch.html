@@ -15,7 +15,7 @@
 	<div class="panel-heading lcontent-heading"><span class="glyphicon glyphicon-th-list">&nbsp;</span>组件列表</div>
 	<ul>
 		{% for widget in widgetList %}
-		<li class=""><a href="/widget/edit/{{widget.m_id}}"><img src="{{widget.m_pic}}" width="30px" height="30px" />{{widget.m_name}}</a></li>
+		<li class=""><a href="/widget/edit/{{widget.id}}"><img src="{{widget.m_pic}}" width="30px" height="30px" />{{widget.m_name}}</a></li>
 		<!-- <li class="">{{request.path}}</li>
 		<li class="">{{request.session.fav_color}}</li> -->
 		{% endfor %}

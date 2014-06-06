@@ -10,7 +10,7 @@ import pdb
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from django.db import IntegrityError
+from django.db import IntegrityError, DatabaseError
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.utils import simplejson as json
@@ -63,14 +63,22 @@ def widgetCreate(request):
             = map(lambda arg: extent_data.get(arg, u''), \
                     ['table', 'x', 'y', 'color', 'size', 'graph', 'image'])
 
+        logger.info(u'length of table, x, y is {0}, {1}, {2}' \
+                            .format(len(table), len(x), len(y)))
+
         db_conn_pk = request.session.get('db_pk')
         external_conn = ExternalDbModel.objects.get(pk = db_conn_pk)
 
-        widget = WidgetModel.objects.create( 
-            m_name='组件', m_table = table, m_x=x, m_y=y, \
-            m_color = color, m_size = size, m_graph = graph, \
-            m_external_db = external_conn, m_pic = image  \
-        )
+        try:
+            widget = WidgetModel.objects.create( 
+                m_name='组件', m_table = table, m_x=x, m_y=y, \
+                m_color = color, m_size = size, m_graph = graph, \
+                m_external_db = external_conn, m_pic = image  \
+            )
+        except DatabaseError, e:
+            logger.error(e[0])
+            return MyHttpJsonResponse({u'succ': False   \
+                                        , u'msg': u'无法保存到数据库'})
 
         return MyHttpJsonResponse({u'succ': True, u'wiId': widget.pk, \
                                     u'msg': u'保存成功'})
@@ -315,7 +323,10 @@ def getTableInfo(request):
 
         dm_list, me_list    = [], []
         for name, type in results:
-            xxx_list = me_list if (u'int' in type or u'double' in type) \
+            xxx_list = me_list if (u'int' in type \
+                                    or u'double' in type \
+                                    or u'float' in type \
+                                    ) \
                                 else dm_list
             xxx_list.append(name)
 
