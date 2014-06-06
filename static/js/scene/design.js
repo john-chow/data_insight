@@ -165,6 +165,16 @@ define("compontnents", ["display"], function(d) {
                 var widgetObj   = new CWidget(widgetId, widgetName, timeStamp);
                 self.respToSelect(widgetObj)
             })
+            // 增加给每个组件的样式及事件
+            $("#scene_widgets").on('mouseenter',".scene_choose_widget", function(ev) {
+                data_id = $(this).attr("data-id");
+                data_time = $(this).attr("data-time");
+                var choose = "se_wi_"+data_id+"_"+data_time;
+                $("."+choose).find(".se_wi_div").addClass("se_wi_color");
+            });
+            $("#scene_widgets").on('mouseleave',".scene_choose_widget", function(ev) {
+                $(".se_wi_color").removeClass('se_wi_color')
+            });
         },
 
         // 初始化dom样式等等
@@ -186,17 +196,6 @@ define("compontnents", ["display"], function(d) {
                                     .replace(/{widget_id}/g, widgetObj.id)
                                     .replace(/{widget_name}/g, widgetObj.name));     
             this.$el.find("#scene_widgets").append($toAddedObj);
-
-            // 增加给每个组件的样式及事件
-            $(".scene_choose_widget").on('mouseenter', function(ev) {
-                data_id = $(this).attr("data-id");
-                data_time = $(this).attr("data-time");
-                var choose = "se_wi_"+data_id+"_"+data_time;
-                $("."+choose).find(".se_wi_div").addClass("se_wi_color");
-            });
-            $(".scene_choose_widget").on('mouseleave', function(ev) {
-                $(".se_wi_color").removeClass('se_wi_color')
-            });
 
             //删除场景内某个组件
             $toAddedObj.find("span.glyphicon")

@@ -322,9 +322,10 @@ def getTableInfo(request):
         for name, type in results:
             xxx_list = me_list if (u'int' in type \
                                     or u'double' in type \
-                                    or u'float' in type \
+                                    or u'real' in type \
                                     ) \
                                 else dm_list
+            #logger.info("type is {0}".format(type))
             xxx_list.append(name)
 
             data = {

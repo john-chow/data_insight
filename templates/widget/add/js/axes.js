@@ -38,6 +38,7 @@ define([
 			"click .coordinate-count"           :"coordinateCount",
 			"click .coordinate-sum"             :"coordinateSum",
 			"click .coordinate-avg"             :"coordinateAvg",
+			"click .coordinate-edit"            :"coordinateEdit",
 
 		},
 		
@@ -169,6 +170,10 @@ define([
 			$(ev.target).parents(".coordinate").find(".axes-math").html("(平均)");
 			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","avg");
 			this.coordinateMathSet(this);
+		},
+
+		coordinateEdit: function(ev) {
+
 		},
 
 

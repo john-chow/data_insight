@@ -185,8 +185,9 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 .scene_choose_widget:hover span.glyphicon {
     display:block;
 }
+
 .toolbar {
-background: #eee;
-padding: 5px 10px;
-border: 1px solid #bbb;
+    background: #eee;
+    padding: 5px 10px;
+    border: 1px solid #bbb;
 }
