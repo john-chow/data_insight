@@ -75,13 +75,17 @@ function jquery_to_html($obj) {
 function easy_dialog_error(message, level){
 	var str="<p>错误级别：<span id='error_level'>"+level+"</span></p>"+
 			"<p>错误信息：<span id='error_message'>"+message+"</span></p>";
+    var width = (document.documentElement.clientWidth)/2-160;
 	easyDialog.open({
 	  container : {
 	    header : '错误提示&nbsp;&nbsp;&nbsp;(5秒后自动关闭)',
 	    content : str
 	  },
 	  overlay : false,
-	  autoClose : 5000
+	  autoClose : 5000,
+      follow:'header',
+      followX : width,
+      followY : 77
 	});
 }
 
@@ -97,7 +101,7 @@ function easy_dialog_loading(){
 
 //关闭窗口
 function easy_dialog_close(){
-	easyDialog.close();
+	   easyDialog.close();
 }
 
 

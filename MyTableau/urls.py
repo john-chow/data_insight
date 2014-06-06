@@ -18,8 +18,8 @@ urlpatterns = patterns('',
     url(r'^test/$', 	views.test),
     url(r'^admin/', 	include(admin.site.urls)),
     url(r'^account/', 	include('account.url')),
-    url(r'^widget/', 	include('widget.url')),
-    url(r'^scene/', 	include('scene.url')),
-    url(r'^theme/', 	include('theme.url')),
+    url(r'^widget/', 	include('widget.url', namespace="widget")),
+    url(r'^scene/', 	include('scene.url', namespace="scene")),
+    url(r'^theme/', 	include('theme.url', namespace="theme")),
 	
 )

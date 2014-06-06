@@ -574,7 +574,7 @@ button.filter-close {
 }
 
 .menu-home {
-    padding: 15px 50px;
+    padding: 15px 50px !important;
 }
 
 #filter_tag .dropdown {
@@ -935,7 +935,10 @@ border: 1px solid #bbb;
 border-radius: 5px;
 -moz-border-radius: 5px;
 -webkit-border-radius: 5px;
+}
 
+#dbinfo_bar .axes-math {
+    display: none;
 }
 
 

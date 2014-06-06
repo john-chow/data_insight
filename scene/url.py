@@ -7,8 +7,8 @@ urlpatterns = patterns('',
 	url(r'^list/$', 			views.sceneList ,{'template_name': 'scene/list.html'}),
 	url(r'^batch/$',			views.sceneList ,{'template_name': 'scene/batch.html'}),
 	
-	url(r'^create/$', 	    views.sceneCreate),
-	url(r'^edit/(\w+)/$', 	views.sceneEdit),
+	url(r'^create/$',			views.sceneCreate),
+	url(r'^edit/(\w+)/$',		views.sceneEdit, name='edit'),
 
 	url(r'^distr/$', 			views.sceneOp, {'op': 'dis'}),
 	url(r'^delete/$', 			views.sceneOp, {'op': 'delete'}),

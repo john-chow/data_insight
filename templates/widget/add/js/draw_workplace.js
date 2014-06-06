@@ -26,8 +26,8 @@ define([
 
         render: function() {
 			this.$el.append( $('<div id=draw_plots></div>').append(
-				this.xAxesView.el
-				, this.yAxesView.el
+				this.yAxesView.el
+				, this.xAxesView.el
 			), this.drawPanelView.el );
         }
 

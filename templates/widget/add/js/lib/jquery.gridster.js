@@ -1492,10 +1492,10 @@
         $widgets.each($.proxy(function(i, widget) {
             result.push(
                 { 
-                col: $(widget).attr("data-col"),
-                row: $(widget).attr("data-row"),
-                size_x: $(widget).attr("data-sizex"),
-                size_y: $(widget).attr("data-sizey"),
+                col: parseInt($(widget).attr("data-col")),
+                row: parseInt($(widget).attr("data-row")),
+                size_x: parseInt($(widget).attr("data-sizex")),
+                size_y: parseInt($(widget).attr("data-sizey")),
                 data_id: $(widget).attr("data-id"),
                 data_time: $(widget).attr("data-time")
                 }

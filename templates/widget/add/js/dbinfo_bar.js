@@ -58,9 +58,15 @@ define([
 			});
 
             this.onOut("dbbar:restore",  _.bind(this.restoreCenter, this));
+
+            // 显示正在加载标志
+            this.showLoading()
 		},
 
 		onTablesFetch: function() {
+            // 关闭loading
+            this.endLoading();
+
 			this.render();
 			var self = this;
 			
@@ -202,8 +208,15 @@ define([
                     this.triggerOut("display:restore_graph", attr)
                 }
             }
-        }
+        },
 
+        showLoading:                function() {
+            this.$el.append("<img class='loading' src='/static/images/loading.gif'>")
+        },
+
+        endLoading:                 function() {
+            this.$(".loading").remove()
+        }
     });
 
     return DbInfoBarView;

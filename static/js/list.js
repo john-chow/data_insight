@@ -25,11 +25,6 @@ $('.button_cancel_modal').on('click', function(ev) {
 	$("#db_link_modal").modal("hide");
 });
 
-//新建场景绑定事件，跳转页面
-$("#button_new_scene").on('click', function(ev) {
-	location.href = "/scene/create";
-});
-
 //点击widget的查找按钮事件
 $("#widget_button_search").on('click', function(ev) {
 	$("#widget_submit_search").val($("#widget_input_search").val());
@@ -272,6 +267,11 @@ function onGetTables(data) {
 /*****************************第二部分：场景List**********************************/
 /*********************************************************************************/
 
+//新建场景绑定事件，跳转页面
+$("#button_new_scene").on('click', function(ev) {
+	location.href = "/scene/create";
+});
+
 //跳转页面场景批量操作页面
 $("#button_scene_batch").on('click', function(ev) {
 	page = $("#list_page").val();
@@ -416,6 +416,158 @@ $(".js-mod-scene-ico").on('click', function(ev) {
 $(".element-list-scene").on('mouseleave', function(ev) {
     $(".js-mod-scene-con").hide();
 });
+
 /*********************************************************************************/
 /*****************************第三部分：主题List**********************************/
 /*********************************************************************************/
+
+//新建主题绑定事件，跳转页面
+$("#button_new_theme").on('click', function(ev) {
+	location.href = "/theme/create";
+});
+
+
+//跳转页面主题批量操作页面
+$("#button_theme_batch").on('click', function(ev) {
+	page = $("#list_page").val();
+	sort = $("#list_sort").val();
+	search = $("#list_search").val();
+	location.href = "/theme/batch/?page="+page+"&search="+search+"&sort="+sort;
+});
+
+//主题批量操作返回
+$("#batch_theme_back").on('click', function(ev) {
+	page = $("#list_page").val();
+	sort = $("#list_sort").val();
+	search = $("#list_search").val();
+	location.href = "/theme/list/?page="+page+"&search="+search+"&sort="+sort;
+});
+
+//点击theme的查找按钮事件
+$("#theme_button_search").on('click', function(ev) {
+    $("#theme_submit_search").val($("#theme_input_search").val());
+    $("#theme_submit_page").val("");
+    $("#theme_search_form").submit();
+});
+
+//点击theme的时间升序事件
+$("#theme_sort_rise").on('click', function(ev) {
+    $("#theme_submit_sort").val("1");
+    $("#theme_search_form").submit();
+});
+
+//点击theme的时间降序事件
+$("#theme_sort_drop").on('click', function(ev) {
+    $("#theme_submit_sort").val("-1");
+    $("#theme_search_form").submit();
+});
+
+//某个主题的操作(改变发布状态，删除等)
+$(".theme_operate").on('click', function(ev) {
+    if($(this).attr("data-op")=="delete"){
+        $("#theme_post_form").attr("action", "/theme/delete/");
+        if(!confirm("确定要删除吗？"))
+            return;
+    }
+    else
+        $("#theme_post_form").attr("action", "/theme/distr/");
+    id = $(this).parents(".element-list-theme").attr("data-id");
+    page = $("#list_page").val();
+    
+    $("#theme_post_id").val(id);
+    $("#theme_post_page").val(page);
+
+    $("#theme_post_form").submit();
+});
+
+//主题查询返回
+$("#theme_list_back").on('click', function(ev) {
+    page = $("#list_page").val();
+    sort = $("#list_sort").val();
+    location.href = "/theme/list/?page="+page+"&sort="+sort;
+});
+
+//批量操作通用函数
+function batch_theme_op() {
+    var arr = new Array();
+    $(".batch-theme-select").each(function(){
+        id=$(this).attr("data-id");
+        arr.push(id);
+    });
+    if(arr.length==0){
+        alert("请选择主题!");
+        return;
+    }
+    $("#theme_batch_list").val(arr);
+    $("#theme_batch_form").submit();
+}
+
+
+//主题批量发布
+$("#batch_theme_distri").on('click', function(ev) {
+    $("#theme_batch_form").attr("action","/theme/batch/distri/");
+    batch_theme_op();
+});
+
+//主题批量取消发布
+$("#batch_theme_undistri").on('click', function(ev) {
+    $("#theme_batch_form").attr("action","/theme/batch/undistri/");
+    batch_theme_op();
+});
+
+//主题批量删除
+$("#batch_theme_delete").on('click', function(ev) {
+    $("#theme_batch_form").attr("action","/theme/batch/delete/");
+    batch_theme_op();
+});
+
+
+//主题批量操作选中与取消
+$("#batch_theme_list .element-list-div").on('click', function(ev) {
+    if($(this).hasClass("batch-theme-select")){
+        $(this).removeClass('batch-theme-select');
+        countSelect();
+    }
+    else{
+        $(this).addClass('batch-theme-select');
+        countSelect();
+    }
+    var isSeleceAll = $(".element-list-div").length == $(".batch-theme-select").length;
+    $("#batch_theme_all").prop("checked",isSeleceAll);//全选
+
+});
+
+//统计选中主题个数
+function countSelect(){
+    var num = $(".batch-theme-select").length;
+    $(".content-menu-count span").html(num);
+}
+
+//主题批量操作选中全部
+$("#batch_theme_all").on('click', function(ev) {
+    var $selectCheckBox = $(ev.target);
+    if($selectCheckBox.is(":checked")){
+        $(".element-list-div").addClass('batch-theme-select');
+    }else{
+        $(".element-list-div").removeClass('batch-theme-select');
+    }
+    
+    countSelect();
+});
+
+//主题批量操作取消全部
+$("#batch_theme_none").on('click', function(ev) {
+    $(".element-list-div").removeClass('batch-theme-select');
+    countSelect();
+});
+
+
+//主题List中主题右上角按钮单击事件
+$(".js-mod-theme-ico").on('click', function(ev) {
+    $(ev.target).parent().siblings(".js-mod-theme-con").slideToggle('fast');
+}); 
+
+//主题List中，鼠标移开时隐藏
+$(".element-list-theme").on('mouseleave', function(ev) {
+    $(".js-mod-theme-con").hide();
+});

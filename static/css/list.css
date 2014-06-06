@@ -57,7 +57,7 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 
 .element-list {
 	padding:25px 0;
-	min-height: 630px;
+	/*min-height: 630px;*/
 }
 
 .element-list-div {
@@ -222,8 +222,10 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 #widget_list ,
 #batch_widget_list,
 #scene_list ,
-#batch_scene_list {
-	min-height: 630px;
+#batch_scene_list ,
+#theme_list ,
+#batch_theme_list {
+	min-height: 300px;
 	padding: 15px;
 }
 
@@ -247,18 +249,21 @@ letter-spacing: 5px;
 }
 
 .batch-widget-select,
-.batch-scene-select {
+.batch-scene-select,
+.batch-theme-select {
 	border: 2px solid #67B1EA !important;
 }
 
 .batch-widget-select:hover,
-.batch-scene-select:hover {
+.batch-scene-select:hover,
+.batch-theme-select:hover {
 	border: 2px solid #67B1EA !important;
 }
 
 
 #widget_list .element-list-div,
-#scene_list .element-list-div {
+#scene_list .element-list-div,
+#theme_list .element-list-div {
 /*	-webkit-box-shadow: 0 0 2px rgba(0,0,0,0.4);
 	-moz-box-shadow: 0 0 10px rgba(0,0,0,0.4);
 	box-shadow: 0px 0px 1px rgba(0,0,0,0.4);*/
@@ -266,17 +271,20 @@ letter-spacing: 5px;
 }
 
 #batch_widget_list .element-list-div:hover,
-#batch_scene_list .element-list-div:hover {
+#batch_scene_list .element-list-div:hover,
+#batch_theme_list .element-list-div:hover {
 	border: 2px solid #C7C1C5;
 }
 
 #batch_widget_list .element-list-div:hover .icon-check, 
-#batch_scene_list .element-list-div:hover .icon-check {
+#batch_scene_list .element-list-div:hover .icon-check,
+#batch_theme_list .element-list-div:hover .icon-check {
 	border: 2px solid #C7C1C5;
 }
 
 .batch-widget-select:hover .icon-check,
-.batch-scene-select:hover .icon-check {
+.batch-scene-select:hover .icon-check,
+.batch-theme-select:hover .icon-check {
 	border: 2px solid #67B1EA !important;
 }
 
@@ -285,19 +293,22 @@ letter-spacing: 5px;
 }
 
 .element-list-widget,
-.element-list-scene {
+.element-list-scene,
+.element-list-theme {
 	position: relative;
 }
 
 .js-mod-widget-top,
-.js-mod-scene-top {
+.js-mod-scene-top,
+.js-mod-theme-top {
 	position: absolute;
 	top: 1px;
 	right: 1px;
 }
 
 .js-mod-widget-ico,
-.js-mod-scene-ico {
+.js-mod-scene-ico,
+.js-mod-theme-ico {
 	position: relative;
 	z-index: 50;
 	display: none;
@@ -311,7 +322,8 @@ letter-spacing: 5px;
 }
 
 .element-list-div:hover .js-mod-widget-ico ,
-.element-list-div:hover .js-mod-scene-ico {
+.element-list-div:hover .js-mod-scene-ico,
+.element-list-div:hover .js-mod-theme-ico {
 	display: block;
 }
 
@@ -341,7 +353,8 @@ letter-spacing: 5px;
 }
 
 .js-mod-widget-con,
-.js-mod-scene-con {
+.js-mod-scene-con,
+.js-mod-theme-con {
 	display: none;
 	position: absolute;
 	top: 21px;
@@ -354,7 +367,8 @@ letter-spacing: 5px;
 }
 
 .js-mod-widget-con ul,
-.js-mod-scene-con ul {
+.js-mod-scene-con ul,
+.js-mod-theme-con ul {
 	list-style: none;
 	min-width: 102px;
 	padding: 0;
@@ -362,12 +376,14 @@ letter-spacing: 5px;
 }
 
 .js-mod-widget-con li,
-.js-mod-scene-con li {
+.js-mod-scene-con li,
+.js-mod-theme-con li {
 	padding: 2px 0;
 }
 
 .js-mod-widget-con li a,
-.js-mod-scene-con li a {
+.js-mod-scene-con li a,
+.js-mod-theme-con li a {
 	color: #262626;
 	display: block;
 	padding: 3px 0;
@@ -375,14 +391,16 @@ letter-spacing: 5px;
 }
 
 .js-mod-widget-con li a:hover,
-.js-mod-scene-con li a:hover  {
+.js-mod-scene-con li a:hover,
+.js-mod-theme-con li a:hover  {
 	text-decoration: none;
 	background: #5caae6;
 	color: #fff;
 }
 
 .js-mod-widget-con i,
-.js-mod-scene-con i {
+.js-mod-scene-con i,
+.js-mod-theme-con i {
 	margin: 0 8px;
 	vertical-align: -3px;
 }
@@ -431,7 +449,8 @@ letter-spacing: 5px;
 }
 
 .batch-widget-select .icon-check,
-.batch-scene-select .icon-check {
+.batch-scene-select .icon-check,
+.batch-theme-select .icon-check {
 	background-image: url(../img/photo.32-gag140424115042.png);
 	background-position: -661px -150px;
 	background-color: #67B1EA;
@@ -453,7 +472,8 @@ letter-spacing: 5px;
 }
 
 #widget_count,
-#scene_count {
+#scene_count,
+#theme_count {
 	text-align: left;
 	padding: 10px;
 }
