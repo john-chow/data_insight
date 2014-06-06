@@ -81,4 +81,26 @@
             	$("#play").attr("disabled","disabled");
             }
        })
+
+		//场景模板
+        var SceneModel = {
+        	init: function(){
+        		this.id = 0;
+        	},
+        	setId: function(id){
+        		this.id = id;
+        	}
+
+        }
+        //场景集合，即主题
+        var ScenceCollection = {
+        	init: function(){
+        		this.models = new Array();
+        	},
+        	model: SceneModel,
+        	add: function(model){
+        		this.models.push(model);
+        	}
+
+        }
 })(jQuery)

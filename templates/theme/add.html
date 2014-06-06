@@ -45,33 +45,52 @@
     <!--content begin-->
 		<div id="content">
 			<div class="row">
-		  		<div id="scene_design_left" style="height:680px" class="content-left col-md-2 col-lg-2">
-		  			<div id="choosed_chart" class="panel panel-default">
-					    <div class="panel-heading">场景</div>
-					    <ul id="theme_list">
-					    	{% for scene in allowed_scenes %}
-				            <li class="theme-item"  title="{{ scene.m_name }}"><img data-id='{{ scene.pk }}' data-name="{{ scene.m_name }}" width="30" height="30" src="{{scene.m_snapshot}}"/>{{ scene.m_name }}</li>
-				            {% endfor %}
-					    </ul>
-					</div>
-					<div id="choosed_layout" class="panel panel-default">
-					    <div class="panel-heading">播放顺序</div>
-					    <ol id="play_order">
-					    	
-					    </ol>
-					</div>
-					<div id="choosed_layout" class="panel panel-default">
-					    <div id="switch_effect" class="panel-heading">播放效果</div>
-					    	 <ul id="effect-list">
-					          <li><a href="#" class="effect " data-fx="scrollVert3d">Vertical 3D scroll</a></li>
-					          <li class="current"><a href="#" class="effect" data-id="1" data-fx="scrollHorz3d">Horizontal 3D scroll</a></li>
-					          <li><a href="#" class="effect" data-id="2" data-fx="scrollVert">Vertical scroll</a></li>
-					          <li><a href="#" class="effect" data-id="3" data-fx="scrollHorz">Horizontal scroll</a></li>
-					          <!-- <li><a href="#" class="effect" data-id="4" data-fx="blindLeft">Blind left</a></li>
-					          <li><a href="#" class="effect" data-id="6" data-fx="blindDown">Blind down</a></li> -->
-					          <li><a href="#" class="effect" data-id="7" data-fx="fade">Fade</a></li>
-       					 </ul>
-					</div>
+		  		<div id="theme_design_left" style="height:680px" class="content-left col-md-2 col-lg-2">
+		  			<table height="100%">	
+		  				<tbody>
+		  					<tr height="30%"><td>
+		  						<div id="choosed_chart" class="panel panel-default">
+								    <div class="panel-heading">场景</div>
+								    <ul id="theme_list">
+								    	{% for scene in allowed_scenes %}
+							            <li class="theme-item"  title="{{ scene.m_name }}"><img data-id='{{ scene.pk }}' data-name="{{ scene.m_name }}" width="30" height="30" src="{{scene.m_snapshot}}"/>{{ scene.m_name }}</li>
+							            {% endfor %}
+								    </ul>
+								</div>
+		  					</td></tr>
+		  					<tr height="30%"><td>
+		  						<div id="choosed_layout" class="panel panel-default">
+								    <div class="panel-heading">播放顺序</div>
+								    <ol id="play_order">
+								    	
+								    </ol>
+								</div>
+		  					</td></tr>
+		  					<tr height="25%"><td>
+		  						<div id="choosed_layout" class="panel panel-default">
+								    <div id="switch_effect" class="panel-heading">播放效果</div>
+								    	 <ul id="effect-list">
+								          <li><a href="#" class="effect " data-fx="scrollVert3d">Vertical 3D scroll</a></li>
+								          <li class="current"><a href="#" class="effect" data-id="1" data-fx="scrollHorz3d">Horizontal 3D scroll</a></li>
+								          <li><a href="#" class="effect" data-id="2" data-fx="scrollVert">Vertical scroll</a></li>
+								          <li><a href="#" class="effect" data-id="3" data-fx="scrollHorz">Horizontal scroll</a></li>
+								          <!-- <li><a href="#" class="effect" data-id="4" data-fx="blindLeft">Blind left</a></li>
+								          <li><a href="#" class="effect" data-id="6" data-fx="blindDown">Blind down</a></li> -->
+								          <li><a href="#" class="effect" data-id="7" data-fx="fade">Fade</a></li>
+			       					 </ul>
+								</div>
+		  					</td></tr>
+		  					<tr><td>
+		  						<div class="panel panel-default">	
+		  							<div class="panel-heading">主题属性</div>
+		  							<div style="margin-top:5px">名字:<input name="m_name" id="theme_id" type="text" value="主题"/></div>
+		  						</div>
+		  					</td></tr>
+		  				</tbody>
+		  			</table>
+		  			
+					
+					
 		  		 </div>
 		  		 
 		  		<div id="scene_design_right" class="content-right col-md-10 col-lg-10">
