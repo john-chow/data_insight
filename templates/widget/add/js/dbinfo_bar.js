@@ -121,7 +121,7 @@ define([
 			model.passTableName()
 		},
 
-        drag: function(ev) {
+        drag: function(ev) {console.log("s")
 			$tar = $(ev.target);
 			data = {
 				"pro_id": 		$tar.attr("id")

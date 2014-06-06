@@ -28,7 +28,7 @@
 //否则按照chrome加载顺序是一起加载的
 window.onload = function (){
 	// 启动js脚本
-	requirejs(['app', 'csrf'], function(app, csrf) {
+	requirejs(['app'], function(app) {
         $("#page_data").data("id", "{{id}}");
 	})
 }

@@ -48,7 +48,7 @@
 	    <div class="input-group">
 	        <input type="text" id="scene_input_search" value="{{search}}" name="search" placeholder="请输入搜索内容" class="form-control"/>
 	        <div class="input-group-btn">
-	          <button id="scene_button_search" type="button" class="btn btn-default">查找&nbsp;<span class="glyphicon glyphicon-search"></span></button>
+	          <button id="scene_button_search" type="button" class="btn btn-primary">查找&nbsp;<span class="glyphicon glyphicon-search"></span></button>
 	        </div><!-- /btn-group -->
 	    </div>
 	    </div>
@@ -83,8 +83,7 @@
 					<i class="glyphicon glyphicon-align-justify"></i>
 					<span>{{ scene.m_name }}</span>
 					<span class="pull-right glyphicon {% if scene.m_is_distributed %}glyphicon-folder-open{%else%}glyphicon-folder-close{% endif %}"></span>
-				</div>
-	    		
+				</div>	
 	    		<a href="{% url 'scene:edit' scene.pk %}">
 	    			<img src="{{scene.m_snapshot}}" width="480" height="240"  />
 	    		</a>

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Create your views here.
 from theme.models import ThemeModel, TheToScnRelationModel
+from scene.models import SceneModel
 from common.tool import cvtDateTimeToStr
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -36,9 +37,15 @@ def themeList(request, template_name):
         raise Http404()
 def themeCreate(request):
     """
-    主题创建
+        添加主题
     """
-    pass
+    sceneList = SceneModel.objects.all
+    data = {
+            'allowed_scenes':                sceneList,
+    }
+    now = datetime.now()
+    context = RequestContext(request)
+    return render_to_response('theme/add.html', data, context)
 
 @login_required
 def themeOp(request, op):

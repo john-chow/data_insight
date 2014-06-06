@@ -76,5 +76,12 @@ def myregister(request):
 		context_dict['form'] = user_form
 	return render_to_response(u'account/register.html', context_dict, context)
 
+def mylogout(request):
+	"""
+	退出登录函数
+	"""
+	logout(request)
+	return HttpResponseRedirect(u'account/login')
+
 
 

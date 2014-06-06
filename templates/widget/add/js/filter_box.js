@@ -5,11 +5,10 @@ define([
 , "model/vtron_collection"
 , 'model/filter_box'
 , "color"
-, "jquery"
 , "jqueryUi"
 , "text!../template/filter_box.html"
 ], function(Backbone, BaseSheetView, b, VtronCollection, FilterModel, 
-            color, jquery, jqueryUi, filterBoxHtml) {
+            color, jqueryUi, filterBoxHtml) {
 
     var FiltersCollection = VtronCollection.extend({
         model: FilterModel
