@@ -1,11 +1,10 @@
 define([
-"jquery"
-, "backbone"
+"backbone"
 , "bootstrap"
 , "link_db_modal"
 , "intelligent_display"
 , "text!../template/design_menu.html" 
-], function($, Backbone, x, linkDbModal, intelligentDisplay, menuHtml) {
+], function(Backbone, x, linkDbModal, intelligentDisplay, menuHtml) {
 
     var MenusView = Backbone.View.extend({
 

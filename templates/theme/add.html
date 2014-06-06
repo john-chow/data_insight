@@ -1,0 +1,237 @@
+{% load static %}
+
+<!DOCTYPE html>
+<head>
+	<meta charset='utf-8'>
+	<title>DataInsight</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.gridster.css' %}">
+    {% include 'head.html' %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/theme/design.css' %}">
+   <!--  <link rel="stylesheet" type="text/css" href="{% static 'css/theme/style.css' %}"> -->
+</head>
+<body>
+	<!--LOGO begin-->
+	<div id="header">DataInsight</div>
+	<!--LOGO end-->
+
+	<!--section begin-->
+	<div id="section">
+		<!--menu begin-->
+		<div id="menu">
+			<nav class="navbar navbar-default" role="navigation">
+		       	<div class="navbar-header">
+				    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				      <span class="sr-only">DataInsight</span>
+				      <span class="icon-bar"></span>
+				      <span class="icon-bar"></span>
+				      <span class="icon-bar"></span>
+				    </button>
+				    <a class="menu-home navbar-brand" href="#">DataInsight</a>
+				</div>
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				    <ul class="nav navbar-nav menu-ul" >
+				      	<li><a href="/widget">组件</a></li>
+						<li><a href="/scene">场景</a></li>
+						<li class="active"><a href="/theme">主题</a></li>
+						<li><a href="#">个人信息</a></li>
+				    </ul>
+				</div>
+			</nav>
+		</div>
+		<!--menu end-->
+    </div>
+
+
+    <!--content begin-->
+		<div id="content">
+			<div class="row">
+		  		<div id="scene_design_left" style="height:680px" class="content-left col-md-2 col-lg-2">
+		  			<div id="choosed_chart" class="panel panel-default">
+					    <div class="panel-heading">场景</div>
+					    <ul id="theme_list">
+					    	{% for scene in allowed_scenes %}
+				            <li class="theme-item"  title="{{ scene.m_name }}"><img data-id='{{ scene.pk }}' data-name="{{ scene.m_name }}" width="30" height="30" src="{{scene.m_snapshot}}"/>{{ scene.m_name }}</li>
+				            {% endfor %}
+					    </ul>
+					</div>
+					<div id="choosed_layout" class="panel panel-default">
+					    <div class="panel-heading">播放顺序</div>
+					    <ol id="play_order">
+					    	
+					    </ol>
+					</div>
+					<div id="choosed_layout" class="panel panel-default">
+					    <div id="switch_effect" class="panel-heading">播放效果</div>
+					    	 <ul id="effect-list">
+					          <li><a href="#" class="effect " data-fx="scrollVert3d">Vertical 3D scroll</a></li>
+					          <li class="current"><a href="#" class="effect" data-id="1" data-fx="scrollHorz3d">Horizontal 3D scroll</a></li>
+					          <li><a href="#" class="effect" data-id="2" data-fx="scrollVert">Vertical scroll</a></li>
+					          <li><a href="#" class="effect" data-id="3" data-fx="scrollHorz">Horizontal scroll</a></li>
+					          <!-- <li><a href="#" class="effect" data-id="4" data-fx="blindLeft">Blind left</a></li>
+					          <li><a href="#" class="effect" data-id="6" data-fx="blindDown">Blind down</a></li> -->
+					          <li><a href="#" class="effect" data-id="7" data-fx="fade">Fade</a></li>
+       					 </ul>
+					</div>
+		  		 </div>
+		  		 
+		  		<div id="scene_design_right" class="content-right col-md-10 col-lg-10">
+		  			<div class="alert theme-scence-count">
+		  				已添加<span data-count="0" id="scenceCount">0</span>个场景
+		  				,当前播放效果为<span id="playStyle">scrollVert3d</span>
+		  			</div>
+		  			<div class="toolbar">
+					    <button id="save_scene" disabled="disabled" type="button" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-floppy-save"></span>&nbsp;保存</button>
+					    <button id="prev" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-chevron-left"></span>&nbsp;上一张</button>
+					    <button id="play" disabled="disabled" data-fx="scrollHorz3d" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-play"></span>&nbsp;播放</button>
+					    <button id="pause" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-pause"></span>&nbsp;暂停</button>
+				   		<button id="stop" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-stop"></span>&nbsp;停止</button>
+				   		<button id="next" disabled="disabled" class="btn btn-sm btn-default">下一张&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></button>
+				    </div>
+				     <!-- 进度条 -->
+					<div id="time-indicator"></div>
+				    <div class="slider-viewport">
+				    <div id="viewport">
+						<div id="draw_theme" class="">
+							
+						</div>
+					</div>
+					</div>
+		  		</div>
+		  		
+		  	</div>
+		</div>
+		<!--content end-->
+</body>
+
+<!-- <script src='{% static "js/lib/jquery.gridster.js" %}'></script>
+<script src='{% static "js/lib/jquery-ui-1.10.4.custom.min.js" %}'></script>
+<script src='{% static "js/common/tools.js" %}'></script> -->
+<!--<script src='{% static "js/theme/modernizr.min.js" %}'></script>
+<script src='{% static "js/theme/box-slider-all.jquery.min.js" %}'></script>-->
+<script src="{% static 'js/theme/box-slider.jquery.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-scroll-3d.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-fade.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-scroll.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-blinds.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-carousel-3d.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-tile-3d.js' %}"></script>
+
+<script>
+
+window.onload = function(){
+	requirejs(['jqueryUi','themeDesign'], function(Jqueryui,design, BoxSlider){
+   			 var $box = $('#draw_theme')
+	          , $effects = $('.effect')
+	          , $timeIndicator = $('#time-indicator')
+	          , slideInterval = 5000;
+	          var switchIndicator = function ($c, $n, currIndex, nextIndex) {
+		          $timeIndicator.stop().css('width', 0);
+		       };
+
+		        var startTimeIndicator = function () {
+		        	var leftTime = slideInterval;
+		        	if($timeIndicator.width() > 0){
+		        		leftTime = ($("#scene_design_right").width() - $timeIndicator.width()) / $("#scene_design_right").width() * slideInterval;
+		        	}
+		          	$timeIndicator.animate({width: '100%'}, leftTime, function(){
+		          		if($box.data("fx"))
+		          			$("#next").click();
+		          });
+		        };
+		        
+		        var pauseTimeIndicator = function(){
+		        	$timeIndicator.stop();
+		        }
+		        
+		        var stopTimeIndicator = function(){
+		        	$timeIndicator.stop().css('width', 0);
+		        }
+		        
+	        $("#play").click(function(){
+	        	$(this).attr("disabled", "disabled");
+	        	$("#pause").removeAttr("disabled");
+	        	$("#stop").removeAttr("disabled");
+	        	$("#next").removeAttr("disabled");
+	        	$("#prev").removeAttr("disabled");
+		    	var fx = $(this).data("fx");
+		    	if(!$box.data("fx")){
+		    		$box.boxSlider({
+			            speed: 1000
+			          , autoScroll: true
+			          , timeout: slideInterval
+			          , next: '#next'
+			          , prev: '#prev'
+			          //, pause: '#pause'
+			          , effect: fx
+			          , blindCount: 15
+			          , onbefore: switchIndicator
+			          , onafter: startTimeIndicator
+			        });
+			        $box.data("fx", fx);
+		    	}else{
+		    		
+		    	}
+		    	 startTimeIndicator();
+		    });
+		    
+		     $('#effect-list').on('click', '.effect', function (ev) {
+		     	$("#play").attr("disabled", "disabled");
+	        	$("#pause").removeAttr("disabled");
+	        	$("#stop").removeAttr("disabled");
+	        	$("#next").removeAttr("disabled");
+	        	$("#prev").removeAttr("disabled");
+		          var $effect = $(this);
+		          var fx = $(this).data("fx");
+		          if(!$box.data("fx")){
+		    		$box.boxSlider({
+			            speed: 1000
+			          , autoScroll: true
+			          , timeout: slideInterval
+			          , next: '#next'
+			          , prev: '#prev'
+			          //, pause: '#pause'
+			          , effect: fx
+			          , blindCount: 15
+			          , onbefore: switchIndicator
+			          , onafter: startTimeIndicator
+			        });
+			        $box.data("fx", fx);
+		    	}else{
+		    		$box.boxSlider('option', 'effect', fx);
+		    	}
+		          $("#playStyle").html($effect.data('fx'));
+		          $("#effect-list li.current").removeClass("current");
+		          $effect.parent().addClass("current");
+		          switchIndicator(null, null, 0, 0);
+		          startTimeIndicator();
+		          //ev.preventDefault();
+	        });
+	        
+	        $("#pause").on("click", function(){
+	        	$("#play").removeAttr("disabled");
+	        	$("#pause").attr("disabled", "disabled");
+	        	pauseTimeIndicator();
+	        	$box.boxSlider('playPause');
+	        });
+	        
+	        $("#prev,#next").on("click", function(){
+	        	$("#pause").removeAttr("disabled");
+	        	$("#play").attr("disabled", "disabled");
+	        });
+	        
+	        $("#stop").click(function(){
+	        	$box.boxSlider('destroy');
+	        	$box.data("fx", "");
+	        	stopTimeIndicator();
+	        	$("#play").removeAttr("disabled");
+	        	$(this).attr("disabled","disabled");
+	        	$("#next").attr("disabled","disabled");
+	        	$("#prev").attr("disabled","disabled");
+	        	$("#pause").attr("disabled","disabled");
+	        })
+	        
+		},function(err){
+			alert("js加载出错了")
+		});
+}
+</script>
