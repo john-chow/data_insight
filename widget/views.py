@@ -1,33 +1,29 @@
 # -*- coding: utf-8 -*-
 # Create your views here.
-from widget.models import WidgetModel, ExternalDbModel
-from common.tool import cvtDateTimeToStr
+
+from datetime import datetime
+from collections import OrderedDict
+import psycopg2 as pysql
+import datetime as dt
+import time
+import pdb
+import logging
+
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
-from datetime import datetime
-from common.tool import MyHttpJsonResponse, GetUniqueIntId
-from django.template import RequestContext, Template
+from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.utils import simplejson as json
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
-
-from psycopg2.extensions import adapt
-from collections import OrderedDict
-
-import psycopg2 as pysql
-import logging
-import datetime as dt
-import time
-from widget.echart import EChartManager
-
-from widget.forms import ConnDbForm
-from common.head import *
-from common.tool import *
-import pdb
 from django.http import Http404
 from django.views.decorators.csrf import csrf_exempt
+
+from widget.models import WidgetModel, ExternalDbModel
+from widget.echart import EChartManager
+from widget.forms import ConnDbForm
+from common.tool import MyHttpJsonResponse, logger
 
 
 @login_required
@@ -430,7 +426,6 @@ def makeupFilterSql(filter_list):
         lll = []
         for x in val_list:
             x = x if type(x) == u'unicode' else unicode(x)  
-            #lll.append( property + '=' + adapt(x).getquoted() ) 
             lll.append( property + u'=' + x ) 
 
         sens.append( u' or '.join(lll) ) 
@@ -444,8 +439,6 @@ def genWidgetImageData(extent_data, conn_arg):
     生成返回前端数据
     """
     logging.debug("function genWidgetImageData() is called")
-
-    if HAVE_PDB:        pdb.set_trace()
 
     # 地图先特殊对待
     if 'china_map' == extent_data.get(u'graph') or \
@@ -550,7 +543,6 @@ def searchDataFromDb(extent_data, conn_arg, msu_list, msn_list, group_list):
         else:
             sel_str_list.append(attr_name)
 
-    if HAVE_PDB:        pdb.set_trace()
 
     # 处理 msn_list
     for (attr_name, kind, cmd, x_y) in msn_list:

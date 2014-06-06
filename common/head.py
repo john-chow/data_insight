@@ -7,9 +7,9 @@ STATIC_PATH         	= os.path.join(PROJECT_ROOT_PATH, "static")
 REQUIREJS_MODULE_PATH	= os.path.join(PROJECT_ROOT_PATH, 'templates/widget/add')
 
 TEMP_DRAW_DATA_FILE		= os.path.join(PROJECT_ROOT_PATH, 'temp/111.json')
+LOG_PATH                = os.path.join(PROJECT_ROOT_PATH, 'log')
 
 IS_RELEASE				= True
-HAVE_PDB				= False
 
 # for debug in linux
 DEBUG_IN_LINUX          = True
