@@ -7,7 +7,6 @@ import psycopg2 as pysql
 import datetime as dt
 import time
 import pdb
-import logging
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -23,7 +22,8 @@ from django.views.decorators.csrf import csrf_exempt
 from widget.models import WidgetModel, ExternalDbModel
 from widget.echart import EChartManager
 from widget.forms import ConnDbForm
-from common.tool import MyHttpJsonResponse, logger
+from common.tool import MyHttpJsonResponse
+from common.log import logger
 
 
 @login_required
@@ -38,7 +38,6 @@ def widgetList(request, template_name):
         order = "m_create_time" if int(sort) == 1 else "-m_create_time"
         widgetList = WidgetModel.objects.filter(m_name__contains=search,m_status=True).order_by(order)
         context = RequestContext(request)
-        print widgetList
         data = {
             "widgetList": widgetList,
             "search": search,
@@ -55,7 +54,7 @@ def widgetCreate(request):
     """
     组件创建
     """
-    logging.debug("function widgetList() is called")
+    logger.debug("function widgetList() is called")
 
     if u'POST' == request.method:
         extent_data = json.loads(request.POST.get('data', '{}'))
@@ -111,7 +110,6 @@ def batachOp(request, op):
         id_list = request.POST.get('list')
         arr = id_list.split(',')
         for id in arr:
-            print id+"____"
             widget = WidgetModel.objects.get(pk=id)
             if(op == 'dis'):
                 widget.m_is_distributed = True
@@ -129,7 +127,7 @@ def widgetEdit(request, widget_id):
     """
     组件编辑
     """
-    logging.debug("function widgetEdit() is called")
+    logger.debug("function widgetEdit() is called")
 
     if u'POST' == request.method:
         extent_data = json.loads(request.POST.get('data', '{}'))
@@ -137,7 +135,7 @@ def widgetEdit(request, widget_id):
         [x, y, color, size, graph, table, image] \
             = map(lambda arg: extent_data.get(arg, u''), \
                     ['x', 'y', 'color', 'size', 'graph', 'table', 'image'])
-        print "widget is %s".format(widget_id)
+        logger.info("widget is %s".format(widget_id))
 
         try:
             WidgetModel.objects.filter(pk = widget_id) \
@@ -197,7 +195,7 @@ def connectDb(request):
     """
     连接数据库
     """
-    logging.debug("function connectDb() is called")
+    logger.debug("function connectDb() is called")
 
     if u'POST' == request.method:
         args_list = map(lambda x: request.POST.get(x, u'') \
@@ -228,7 +226,7 @@ def selectTables(request):
     """
     选择数据表
     """
-    logging.debug("function selectTables() is called")
+    logger.debug("function selectTables() is called")
 
     if u'POST' == request.method:
         chosen_tables   = request.POST.getlist(u'table', u'[]')
@@ -239,7 +237,7 @@ def selectTables(request):
 
         if 0 == len(unkonwn_tables):
             request.session[u'tables']  =   chosen_tables
-            print 'redirect to widget/create'
+            logger.debug('redirect to widget/create')
             return HttpResponseRedirect(u'/widget/create')
         else:
             res_dict = {u'succ': False, u'msg': u'xxxxx'}
@@ -254,11 +252,11 @@ def getTableList(request):
     """
     获取数据表的列表
     """
-    logging.debug("function getTableList() is called")
+    logger.debug("function getTableList() is called")
 
     conn    = findDbConn(request)
     if not conn:
-        print 'redirect to login'
+        logger.debug('redirect to login')
         return HttpResponseRedirect(u'http://10.1.50.125:9000/')
     cursor          = conn.cursor()
     cursor.execute(u"SELECT table_name FROM information_schema.tables \
@@ -272,7 +270,7 @@ def showDbForChosen(request):
     """
     显示选择的数据表
     """
-    logging.debug("function showDbForChosen() is called")
+    logger.debug("function showDbForChosen() is called")
 
     if 'POST' == request.method:
         form = ConnDbForm(request.POST)
@@ -294,13 +292,11 @@ def getTableInfo(request):
     """
     获取数据表信息
     """
-    logging.debug("function getTableInfo() is called")
-
-    print '********     getTableInfo  *********'
+    logger.debug("function getTableInfo() is called")
 
     conn  = findDbConn(request)
     if not conn:
-        print 'redirect to login'
+        logger.debug('redirect to login')
         #return HttpResponseRedirect(u'http://10.1.50.125:9000/')
         return HttpResponseRedirect(reverse('widget.showDbForChosen'))
     cursor          = conn.cursor()
@@ -339,9 +335,8 @@ def reqDrawData(request):
     """
     生成chart的数据
     """
-    logging.debug("function reqDrawData() is called")
+    logger.debug("function reqDrawData() is called")
 
-    print '********     reqDrawData  *********'
     if 'POST' == request.method:
         extent_data = json.loads(request.POST.get(u'data', u'{}'), 
                                     object_pairs_hook=OrderedDict)
@@ -355,7 +350,7 @@ def reqDrawData(request):
             conn_arg = ExternalDbModel.objects.get(pk = db_pk).getConnTuple()
             data = genWidgetImageData(extent_data, conn_arg)
         except Exception, e:
-            print "catch Exception: %s" % e
+            logger.debug("catch Exception: %s" % e)
             error_dict = {u'succ': False, u'msg': str(e)}
             return MyHttpJsonResponse(error_dict)
         else:
@@ -410,7 +405,7 @@ def makeupFilterSql(filter_list):
     """
     根据筛选器生成对应的SQL
     """
-    logging.debug("function makeupFilterSql() is called")
+    logger.debug("function makeupFilterSql() is called")
 
     if type(filter_list) != list \
         or 0 == len(filter_list):
@@ -438,7 +433,7 @@ def genWidgetImageData(extent_data, conn_arg):
     """
     生成返回前端数据
     """
-    logging.debug("function genWidgetImageData() is called")
+    logger.debug("function genWidgetImageData() is called")
 
     # 地图先特殊对待
     if 'china_map' == extent_data.get(u'graph') or \
@@ -457,7 +452,7 @@ def getDrawData(extent_data, shape_in_use, conn_arg):
     """
     获取画图参数
     """
-    logging.debug("function getDrawData() is called")
+    logger.debug("function getDrawData() is called")
 
     # 先看请求里面分别有多少个文字类和数字类的属性
     msn_list, msu_list, group_list = calc_msu_msn_list(extent_data)
@@ -482,7 +477,7 @@ def calc_msu_msn_list(extent_data):
     cmd:  表示运算符号，'sum','avg'等等
     x_y:  表示属于哪个轴，值有x、y，还有'group'
     """
-    logging.debug("function calc_msu_msn_list() is called")
+    logger.debug("function calc_msu_msn_list() is called")
 
     [col_kind_attr_list, row_kind_attr_list] = \
             map( lambda i: extent_data.get(i, []), \
@@ -516,7 +511,7 @@ def searchDataFromDb(extent_data, conn_arg, msu_list, msn_list, group_list):
     """
     要保证select的顺序是 measure、mension、group
     """
-    logging.debug("function searchDataFromDb() is called")
+    logger.debug("function searchDataFromDb() is called")
 
     [col_kind_attr_list, row_kind_attr_list] = \
             map( lambda i: extent_data.get(i, []), \
@@ -570,7 +565,7 @@ def searchDataFromDb(extent_data, conn_arg, msu_list, msn_list, group_list):
     sql     = sql_template.format(attrs=sel_str, table=table_name, \
                                     filter=filter_sentence, option=group_str)
 
-    print "sql is       {0}".format(sql)
+    logger.info("sql is       {0}".format(sql))
 
     conn        = connDb(*conn_arg)
     cursor      = conn.cursor()
@@ -594,7 +589,7 @@ def formatData(data_from_db, msu_list, msn_list, group_list, shape_in_use):
     """
     格式化数据
     """
-    logging.debug("function formatData() is called")
+    logger.debug("function formatData() is called")
 
     echart = EChartManager().get_echart(shape_in_use)
     return echart.makeData(data_from_db, msu_list, msn_list, group_list)
