@@ -14,7 +14,6 @@ define([
 
         events: {
             "click .filter_cancel":                "close"
-            , "click .filter_ok":                  "ensureFilter"
         },
 
         initialize: function() {
