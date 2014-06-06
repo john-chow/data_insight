@@ -43,7 +43,7 @@ requirejs.config({
 	  			deps: ['showmsg']
 	  		},
 	  		'themeDesign' : {
-	  			deps: ['jqueryUi','bootstrap','boxslider']
+	  			deps: ['jqueryUi','bootstrap']
 	  		},
 	  		'boxslider': {
 	  			deps: ['theme/Modernizr']
