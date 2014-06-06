@@ -1,10 +1,9 @@
 requirejs([
- "gridster",
  "design_main",
  "jqueryUi",
  "bootstrap",
  "easydialog",
-], function(g, MainView ,ui ,b, e) {
+], function(MainView ,ui ,b, e) {
 	new MainView;
 
     var MainRouter = Backbone.Router.extend({
@@ -39,17 +38,6 @@ requirejs([
 	})*/
 
 
-   /*  //流动布局
-     gridster = $(".gridster ul").gridster({
-      //widget_selector: "li",                        //确定哪个元素是widget
-      widget_margins: [5, 5],                       //margin大小
-      widget_base_dimensions: [140, 140],           //面积大小
-      helper:'clone',
-      autogrow_cols: true,
-      resize:{
-        enabled: true
-      },
-    }).data('gridster');*/
 
 /*
     //设置可自动排序
