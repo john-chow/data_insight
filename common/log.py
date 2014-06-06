@@ -1,4 +1,4 @@
-#coding=gb2312
+#coding=utf-8
 import sys,getopt    
 import logging
 import os
@@ -33,7 +33,7 @@ def timeblock(label):
 
 
 
-def setLog(strLevel='INFO',logFile='log.txt'):
+def startLog(strLevel='INFO',logFile='log.txt'):
     LOGFORMAT = "  %(log_color)s%(levelname)-8s%(reset)s | %(log_color)s%(message)s%(reset)s"
     formatter = ColoredFormatter(LOGFORMAT)
 
@@ -45,6 +45,7 @@ def setLog(strLevel='INFO',logFile='log.txt'):
         strLevel='INFO'
     level=LEVELS[strLevel]
 
+    # ColoredFormatter模块中的构造函数
     formatter = ColoredFormatter(
         format='%(asctime)s %(filename)s[line:%(lineno)d] \
                 %(log_color)s%(message)s%(reset)s',
@@ -68,7 +69,11 @@ LEVELS={'DEBUG':logging.DEBUG,
         'CRITICAL':logging.CRITICAL,
         }
 
-logger = setLog('DEBUG')
+# 设置默认可打印的级别，及保存文件名
+logger = startLog('DEBUG', time.strftime(
+    '%Y-%m-%d_%H-%M-%S.txt' , time.localtime(time.time())
+))
+
 
 if __name__ == '__main__':
-    log = setLog('DEBUG')
+    log = startLog('DEBUG')
