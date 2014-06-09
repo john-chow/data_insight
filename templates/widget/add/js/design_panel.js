@@ -1,14 +1,13 @@
 define([
 "backbone"
-, "base_sheet"
 , "draw_workplace"
 , "bootstrap"
 , "filter_box"
 , "info_workplace"
-], function(Backbone, BaseSheetView, DrawPlaceView, b, filterBoxView
+], function(Backbone, DrawPlaceView, b, filterBoxView
 			, infoWorkplaceView) {
 
-    var DesignPanelView = BaseSheetView.extend({
+    var DesignPanelView = Backbone.View.extend({
 
         tagName:            "div",
         id:                 "design_panel",
@@ -51,8 +50,8 @@ define([
         },
 
 		startListeners: function() {
-            this.onOut("choose_filter", this.addFilter);
-            this.onOut( "ensure_filter", _.bind(this.ensureFilter, this) )
+            Backbone.Events.on("choose_filter", this.addFilter);
+            Backbone.Events.on( "ensure_filter", _.bind(this.ensureFilter, this) )
 			//Backbone.Events.on("choose_filter", this.addFilter);
 			//Backbone.Events.on( "ensure_filter", _.bind(this.ensureFilter, this) )
 		},

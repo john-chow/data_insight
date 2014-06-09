@@ -1,14 +1,12 @@
 define([
-	'vtron_events'
-	, "choose_filter"
-], function(VtronEvents, ChooseFilterView) {
+	"choose_filter"
+], function(ChooseFilterView) {
 
 	var idToViewMap = {
 	};
 
 
-	VtronEvents.onOut("modal:show_filter", function(data) {
-		var sheetId = data["sheetId"];
+	Backbone.Events.on("modal:show_filter", function(data) {
 		var id 		= data["pro_id"];
 		var title 	= data["content"];
 		var view 	= idToViewMap[id];
@@ -42,7 +40,7 @@ define([
 				return f
 			}
 
-			VtronEvents.triggerOut(sheetId + "dbinfo:model_data", {
+			Backbone.Events.trigger("dbinfo:model_data", {
 				"title": title, "callback": renderFilter()
 			})
 			idToViewMap[id] = view

@@ -1,9 +1,9 @@
 define([
 	'backbone'
-	, "vtron_events" 
-], function(Backbone, FilterModel, VtronEvents) {
+], function(Backbone, FilterModel) {
 	var VtronCollection = Backbone.Collection.extend({
 
+        /*
 		// 对外传递事件
 		triggerOut: function(ev, data) {
 		  	VtronEvents.trigger(this.sheetId + ev, data)
@@ -13,6 +13,7 @@ define([
 		onOut: function(ev, callback) {
 		  	VtronEvents.on(this.sheetId + ev, callback)
 		},
+        */
 
 		// 丰富用户的success回调
 		fetch:	function(options) {
@@ -38,7 +39,7 @@ define([
 		/* 取出全部model的json内容，做序列化 */
 		myPass: function() {
 			//Backbone.Events.trigger(
-			this.triggerOut(
+			Backbone.Events.trigger(
 				"area:user_set_action"
 				, {"filter": JSON.stringify(this)}
 			)

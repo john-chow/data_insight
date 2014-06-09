@@ -1,12 +1,11 @@
 define([
 "backbone"
-, "base_sheet"
 , "dbinfo_bar"
 , "design_panel"
-], function(Backbone,BaseSheetView, DbBarView, PanelView
+], function(Backbone,DbBarView, PanelView
 			) {
 
-    var WorkAreaView = BaseSheetView.extend({
+    var WorkAreaView = Backbone.View.extend({
 
         tagName: 	"div",
         id: 		"work_area",

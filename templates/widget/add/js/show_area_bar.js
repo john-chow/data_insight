@@ -1,11 +1,10 @@
 define([
 "backbone"
-, "base_sheet"
 , "bootstrap"
 , "text!../template/show_area_bar.html" 
-], function(Backbone, BaseSheetView, b, showAreaBarHtml) {
+], function(Backbone, b, showAreaBarHtml) {
 
-    var showAreaBarView = BaseSheetView.extend({
+    var showAreaBarView = Backbone.View.extend({
 
         tagName:            "div",
         id:                 "show_area_bar",
@@ -24,7 +23,7 @@ define([
 
         addWidget: function(ev) {
             var data = $("#draw_panel").children();
-            this.triggerOut("gridster:add", data);
+            Backbone.Events.trigger("gridster:add", data);
         }
     });
 

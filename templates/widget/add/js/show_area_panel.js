@@ -1,14 +1,13 @@
 define([
 "backbone"
-, "base_sheet"
 , "bootstrap"
 , "gridster"
 , "info_workplace"
 , "text!../template/show_area_panel.html" 
-], function(Backbone, BaseSheetView, b, g, infoWorkplaceView
+], function(Backbone, b, g, infoWorkplaceView
 			, showAreaPanelHtml) {
 
-    var showAreaPanelView = BaseSheetView.extend({
+    var showAreaPanelView = Backbone.View.extend({
 
         tagName:            "div",
         id:                 "show_area_panel",
@@ -32,7 +31,7 @@ define([
 
         addWidget: function() {
 			var self = this;
-            this.onOut("gridster:add", function(srcObj) {
+            Backbone.Events.on("gridster:add", function(srcObj) {
 				self.$(".gridster").remove("ul");
 				var destObj = self.cloneCvsObj(srcObj)
 				self.$(".gridster").append(destObj);

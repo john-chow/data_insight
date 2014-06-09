@@ -1,9 +1,8 @@
 define([
 "backbone"
-, "base_sheet"
 , "bootstrap"
 , "text!../template/widget_modal.html" 
-], function(Backbone, BaseSheetView, b, cfTemplate) {
+], function(Backbone, b, cfTemplate) {
 
     var FilterModel = Backbone.Model.extend({
     });
