@@ -1,11 +1,10 @@
 define([
 "backbone"
-, "base_sheet"
 , "model/dbinfo"
 , "bootstrap"
 , "vtron_events"
 , "text!../template/dbinfo_bar.html" 
-], function(Backbone, BaseSheetView, DbinfoModel, b, VtronEvents, dataAreaHtml) {
+], function(Backbone, DbinfoModel, b, VtronEvents, dataAreaHtml) {
 
 	var TablesCollection = Backbone.Collection.extend({
 		model: 	DbinfoModel, 
@@ -36,7 +35,7 @@ define([
 	});
 
 
-    var DbInfoBarView = BaseSheetView.extend({
+    var DbInfoBarView = Backbone.View.extend({
 
         tagName:    			"div",
         id:         			"dbinfo_bar",
@@ -57,7 +56,7 @@ define([
 				, success: this.onTablesFetch
 			});
 
-            this.onOut("dbbar:restore",  _.bind(this.restoreCenter, this));
+            Backbone.Events.on("dbbar:restore",  _.bind(this.restoreCenter, this));
 
             // 显示正在加载标志
             this.showLoading()
@@ -72,7 +71,7 @@ define([
 			
 			this.$(".table_name").each( function(idx, ele) {
 				var model = self.collection.at(idx);
-				self.onOut("dbinfo:model_data", function(ev) {
+				Backbone.Events.on("dbinfo:model_data", function(ev) {
 					var data = model.getContentsBykey(ev.title);
 					ev.callback(data)
 				})
@@ -84,7 +83,7 @@ define([
 			this.$(".table_name:first").trigger("click");
 
             // 通知整个页面正式加载完成
-            this.triggerOut("center:page_loaded")
+            Backbone.Events.trigger("center:page_loaded")
 		},
 
 		render: function(model) {
@@ -189,9 +188,9 @@ define([
                     }
 
                     if("x" === type) {
-                        this.triggerOut("axis:restore_x", restoreList);
+                        Backbone.Events.trigger("axis:restore_x", restoreList);
                     } else {
-                        this.triggerOut("axis:restore_y", restoreList);
+                        Backbone.Events.trigger("axis:restore_y", restoreList);
                     }
                 }
                 else if("color" === type || "size" === type) {
@@ -201,11 +200,11 @@ define([
                     }).clone()[0];
 
                     var restoreData = {"item": restoreItem, "kind": type};
-                    this.triggerOut("box:restore_color_size", restoreData);
+                    Backbone.Events.trigger("box:restore_color_size", restoreData);
                 }
                 else if("graph" === type) {
                     var attr = posAttrObj[type];
-                    this.triggerOut("display:restore_graph", attr)
+                    Backbone.Events.trigger("display:restore_graph", attr)
                 }
             }
         },

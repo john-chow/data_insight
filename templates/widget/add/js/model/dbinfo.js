@@ -76,7 +76,7 @@ define([
 
 		passTableName: function() {
 			var table = this.get("name");
-			this.triggerOut( "area:change_table"
+			Backbone.Events.trigger( "area:change_table"
 							, {"table": table} )
 		}
     });

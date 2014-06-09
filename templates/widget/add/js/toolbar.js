@@ -12,7 +12,7 @@ define([
             , "click #toolbar_ico_plus":        "plusCanvas"
             , "click #toolbar_save":            function() {
                 //触发自定义事件center:save_args
-                VtronEvents.triggerOut("center:save_args")
+                Backbone.Events.trigger("center:save_args")
             }
             , "click #toolbar_save_and_back":       function() {
                 Backbone.Events.trigger("center:save_args_and_back")

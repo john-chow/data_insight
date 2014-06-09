@@ -1,13 +1,12 @@
 define([
 "backbone"
-, "base_sheet"
 , "model/vtron_collection"
 , "model/vtron_model"
 , "vtron_events"
 , "bootstrap"
 , "gridster"
 , "text!../template/info_workplace.html" 
-], function(Backbone, BaseSheetView, VtronCollection, VtronModel, 
+], function(Backbone, VtronCollection, VtronModel, 
 			VtronEvents, b, g, infoWorkplaceHtml) {
 
 	var TableModel = VtronModel.extend({}), 
@@ -21,7 +20,7 @@ define([
 		});
 
 
-    var infoWorkplaceView = BaseSheetView.extend({
+    var infoWorkplaceView = Backbone.View.extend({
 
         tagName:            "div",
         id:                 "info_workplace",
@@ -102,10 +101,6 @@ define([
         },
 
 		readyForNewTable: function() {
-			this.sheetNumber += 1;
-			BaseSheetView.prototype.sheetId 	= this.sheetNumber;
-			VtronModel.prototype.sheetId 		= this.sheetNumber;
-			VtronCollection.prototype.sheetId 	= this.sheetNumber;
 			VtronEvents.trigger("main:add_worktable", this.sheetNumber);
 		},
 
