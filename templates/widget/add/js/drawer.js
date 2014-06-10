@@ -302,11 +302,6 @@ define([
 	var AreaDrawer = function() {
         this.init          = function(ec, type) {
             AreaDrawer.prototype.init.call(this, ec, "line")
-
-            $.extend(this.seriesOneCloned, {
-                "smooth":       true
-                , "itemStyle":  {normal: {areaStyle: {type: 'default'}}}
-            })
         };
 
 		this.catStyle = {
@@ -322,6 +317,10 @@ define([
 		};
 		
 		this.styleSeries = function() {
+            $.extend(this.seriesOneCloned, {
+                "smooth":       true
+                , "itemStyle":  {normal: {areaStyle: {type: 'default'}}}
+            })
 		};
 
 	};
