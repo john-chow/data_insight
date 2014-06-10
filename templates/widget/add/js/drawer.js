@@ -391,12 +391,12 @@ define([
 
         this.fillSeries     =   function(data) {
             var self = this;
+            self.seriesOneCloned  = cloneObject(self.seriesOne);
             $.each(data.legend_series, function(i, pair) {
-                self.seriesOneCloned  = cloneObject(self.seriesOne);
                 self.optionCloned.legend.data.push(pair.name);
                 self.seriesOneCloned.data.push(pair)
-                self.optionCloned.series.push(self.seriesOneCloned)
             })
+            self.optionCloned.series.push(self.seriesOneCloned)
         };
 
 		this.styleSeries = function() {
@@ -557,11 +557,7 @@ define([
     };
 
 
-
 	return DrawManager
 })
-
-
-
 
 
