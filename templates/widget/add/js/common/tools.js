@@ -164,6 +164,40 @@ function bindContext(func, context) {
     }
 }
 
+//扩展js Array对象，使其可以删除指定元素
+Array.prototype.indexOf = function(val) {              
+    for (var i = 0; i < this.length; i++) {  
+        if (this[i] == val) return i;  
+    }  
+    return -1;  
+};  
 
+Array.prototype.remove = function(val) {  
+    
+    if(!val) {
+        return this;
+    }
+
+    function splice_array(arr, idx) {
+        arr.splice(idx, 1);
+        return arr
+    }
+
+
+    var cloned = this.slice(0);
+    var idx = cloned.indexOf(val);
+    if (idx >= 0) {
+        return this.splice(idx, 1)
+    }
+
+    if(val instanceof Object) {
+        for (var idx in this) {
+            if ( JSON.stringify(this[idx]) === JSON.stringify(val) )
+                return splice_array(cloned, idx)
+        }
+    }
+
+    return cloned
+};  
 
 

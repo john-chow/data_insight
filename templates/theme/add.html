@@ -7,6 +7,7 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.gridster.css' %}">
     {% include 'head.html' %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/theme/design.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
    <!--  <link rel="stylesheet" type="text/css" href="{% static 'css/theme/style.css' %}"> -->
 </head>
 <body>
@@ -98,6 +99,7 @@
 		  				已添加<span data-count="0" id="scenceCount">0</span>个场景
 		  				,当前播放效果为<span id="playStyle">scrollVert3d</span>
 		  			</div>
+		  			<div class="show-msg alert-success" style="font-weight: bold;">保存成功</div>
 		  			<div class="toolbar">
 					    <button id="save_scene" disabled="disabled" type="button" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-floppy-save"></span>&nbsp;保存</button>
 					    <button id="prev" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-chevron-left"></span>&nbsp;上一张</button>
@@ -127,6 +129,7 @@
 <script src='{% static "js/common/tools.js" %}'></script> -->
 <!--<script src='{% static "js/theme/modernizr.min.js" %}'></script>
 <script src='{% static "js/theme/box-slider-all.jquery.min.js" %}'></script>-->
+<script src='{% static "js/common/tools.js" %}'></script>
 <script src="{% static 'js/theme/box-slider.jquery.js' %}"></script>
 <script src="{% static 'js/theme/effects/box-slider-fx-scroll-3d.js' %}"></script>
 <script src="{% static 'js/theme/effects/box-slider-fx-fade.js' %}"></script>
@@ -134,6 +137,7 @@
 <script src="{% static 'js/theme/effects/box-slider-fx-blinds.js' %}"></script>
 <script src="{% static 'js/theme/effects/box-slider-fx-carousel-3d.js' %}"></script>
 <script src="{% static 'js/theme/effects/box-slider-fx-tile-3d.js' %}"></script>
+<script src="{% static 'js/showmsg.js' %}"></script>
 
 <script>
 

@@ -2,15 +2,12 @@
 # Create your views here.
 from theme.models import ThemeModel, TheToScnRelationModel
 from scene.models import SceneModel
-from common.tool import cvtDateTimeToStr
-from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse
-from django.db import IntegrityError
-from datetime import datetime
-from common.tool import MyHttpJsonResponse, GetUniqueIntId
-from django.template import RequestContext, Template
+from django.http import HttpResponseRedirect
+from common.tool import MyHttpJsonResponse
+from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
+from django.utils import simplejson as json
 import pdb
 
 def themeList(request, template_name):
@@ -39,13 +36,35 @@ def themeCreate(request):
     """
         添加主题
     """
-    sceneList = SceneModel.objects.all
-    data = {
-            'allowed_scenes':                sceneList,
-    }
-    now = datetime.now()
-    context = RequestContext(request)
-    return render_to_response('theme/add.html', data, context)
+    if request.method == u'GET':
+        sceneList = SceneModel.objects.all
+        data = {
+                'allowed_scenes':                sceneList,
+        }
+        context = RequestContext(request)
+        return render_to_response('theme/add.html', data, context)
+    else:
+        owner = request.user.username
+        name, switch_effect = map(lambda x: request.POST.get(x), \
+                                        ('name', 'switch_effect'))
+        scences = json.loads(request.POST.get('scences'))
+        print(name)
+        theme = ThemeModel.objects.create(
+            m_name=name, m_switch_effect=switch_effect, \
+            m_owner=owner
+        )
+
+        rla_list = []
+        for order, sc in enumerate(scences):
+            scence = SceneModel.objects.get(pk = sc.get(u'id'))
+            rla = TheToScnRelationModel( \
+                m_sub = theme, m_scn = scence,m_order=order
+            )
+            rla_list.append(rla)
+        TheToScnRelationModel.objects.bulk_create(rla_list)
+
+        return MyHttpJsonResponse({u'succ': True, u'id': theme.pk, \
+                                    u'msg': u'保存成功'})
 
 @login_required
 def themeOp(request, op):
