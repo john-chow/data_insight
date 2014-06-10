@@ -6,7 +6,7 @@ define([
 , "echarts/chart/pie"
 , "echarts/chart/radar"
 , "common/tools"
-], function(echart, _b, _l, _s, _p, _r) {
+], function(echart, _b, _l, _s, _p, _r, _tools) {
 
 	var DrawManager = function(opt) {
 		this.now_drawer				= null;
