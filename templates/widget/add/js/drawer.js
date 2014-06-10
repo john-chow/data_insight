@@ -66,7 +66,7 @@ define([
 			this.now_drawer.init(this.ec, type);
 
             // 是否设置自动更新
-            if(dynamicObj.yes)     this.now_drawer.setDynamic(dynamicObj)
+            if(dynamicObj && dynamicObj.yes)     this.now_drawer.setDynamic(dynamicObj)
 
 			if ("map" !== type) {
 				this.now_drawer.work(data.data)
