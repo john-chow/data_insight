@@ -14,7 +14,8 @@ define([
 		size:		"",
 		shape:		"",
 
-        able_draw:  false,      // 是否可以画图
+        ifAutoUpdate:       false,        // 是否开自动更新机制
+        autoHandle:         null,             
 
         assignDrawBasic: function() {
             Backbone.Events.trigger("dbbar:restore", this.toJSON());
@@ -39,24 +40,35 @@ define([
         },
 
 		setToSev: function(data) {
-			this.set(data);
+            var self = this;
+			self.set(data);
 
-			var self = this;
-			this.save(null, {
-				success: function(m, resp, opt) {
-					if (resp.succ) {
-                        easy_dialog_close();
-                        self.able_draw  = true;
-						Backbone.Events.trigger("panel:draw_data", resp.data)
-					} else {
-						easy_dialog_error(resp.msg)						
-                        self.able_draw  = false;
-						Backbone.Events.trigger("panel:clear")
-					}
-				}, error: function() {
-				},
-				no_feeding: true
-			})
+            var requestUpdate = function() {
+                self.save(null, {
+                    success: function(m, resp, opt) {
+                        if (resp.succ) {
+                            easy_dialog_close();
+                            self.able_draw  = true;
+                            Backbone.Events.trigger("panel:draw_data", resp.data)
+                        } else {
+                            easy_dialog_error(resp.msg)						
+                            self.able_draw  = false;
+                            if (self.autoHandle)        clearInterval(self.autoHandle)
+                            Backbone.Events.trigger("panel:clear")
+                        }
+                    }, error: function() {
+                    },
+                    no_feeding: true
+                })
+            }
+
+            // 是否需要更新
+            if(self.ifAutoUpdate) {
+                if (self.autoHandle)        clearInterval(self.autoHandle)
+                self.autoHandle = setInterval(requestUpdate, 5000)
+            } else {
+                requestUpdate()
+            }
 		}
 
 	});
@@ -188,26 +200,25 @@ define([
 
 	
 	var DrawPanelView = Backbone.View.extend({
-		tagName: 		"div",
-		id:				"draw_panel",
+		tagName: 		    "div",
+		id:				    "draw_panel",
 
-        imageOk:        false,        // 是否画出图
-
-		initialize: function() {
+		initialize:         function() {
 			Backbone.Events.on("panel:draw_data",   _.bind(this.onGetDrawData, this));
 			Backbone.Events.on("panel:clear",       _.bind(this.clear, this));
 			this.drawer = new Drawer();
             this.dataCenter = new DataCenter()
 		},
 
-		onGetDrawData: function(data) {
+		onGetDrawData:      function(data) {
 			this.drawer.run(this.el, data);
-            this.dataCenter.setZr(this.drawer.getEc().getZrender())
+            this.dataCenter.setZr(this.drawer.getEc().getZrender());
 		},
 
-        clear:      function() {
+        clear:              function() {
             this.drawer.stop()
         }
+
 	});
 
 	return DrawPanelView
