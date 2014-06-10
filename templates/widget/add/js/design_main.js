@@ -3,13 +3,9 @@ define([
 , "design_menus"
 , "work_area"
 , "info_workplace"
-, "modal_manager"
-, "model/vtron_model"
-, "model/vtron_collection"
 ,"toolbar"
 ], function(Backbone, MenusView, WorkareaView
-			, InfoWorkplaceView, _Modal
-			, VtronModel, VtronCollection, Toolbar) {
+			, InfoWorkplaceView, Toolbar) {
 
 	// 使model save时，数据是object型
 	Backbone.emulateJSON = true;
