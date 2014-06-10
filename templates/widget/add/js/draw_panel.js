@@ -6,15 +6,15 @@ define([
 ], function(Showmsg, Backbone, VtronModel, Drawer) {
 
 	var DrawModel 	= VtronModel.extend({
-		urlRoot:    "/widget/draw/",
+		urlRoot:            "/widget/draw/",
 
-		x:			[],
-		y:			[],
-		color:		"",
-		size:		"",
-		shape:		"",
+		x:			        [],
+		y:			        [],
+		color:		        "",
+		size:		        "",
+		shape:		        "",
 
-        ifAutoUpdate:       false,        // 是否开自动更新机制
+        ifAutoRedraw:       false,        // 是否开自动重画功能
         autoHandle:         null,             
 
         assignDrawBasic: function() {
@@ -63,7 +63,7 @@ define([
             }
 
             // 是否需要更新
-            if(self.ifAutoUpdate) {
+            if(self.ifAutoRedraw) {
                 if (self.autoHandle)        clearInterval(self.autoHandle)
                 self.autoHandle = setInterval(requestUpdate, 5000)
             } else {
@@ -211,7 +211,11 @@ define([
 		},
 
 		onGetDrawData:      function(data) {
-			this.drawer.run(this.el, data);
+			this.drawer.run(this.el, data, {
+                "yes":          false
+                , "url":        "xxx"
+                , "period":     2000
+            });
             this.dataCenter.setZr(this.drawer.getEc().getZrender());
 		},
 
