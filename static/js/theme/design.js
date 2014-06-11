@@ -4,12 +4,16 @@
         	var obj = {
         		init: function(){
         		this.id = 0;
+        		this.order = 0;
 	        	},
 	        	setId: function(id){
 	        		this.id = id;
 	        	},
 	        	getId: function(){
 	        		return this.id;
+	        	},
+	        	setOrder: function(order){
+	        		this.order = order;
 	        	}
         	}
         	
@@ -24,9 +28,11 @@
         		this.m_switch_effect = $("#playStyle").text();
         		this.id = 0;
         	},
-        	url: function(){
-        		return "/theme/create/";
+        	refresh: function(){
+        		this.m_name = $("#theme_id").val();
+        		this.m_switch_effect = $("#playStyle").text();
         	},
+        	url: "/theme/create/",
         	add: function(model){
         		this.models.push(model);
         	},
@@ -39,10 +45,22 @@
         		}	
         	},
         	save: function(options){
-        		var url = this.url();
+        		this.refresh();
+        		var self = this;
+        		//保存前控制好播放顺序
+        		$("#play_order li").each(function(i){
+        			var sId = $(this).data("orderid");
+        			$.each(self.models, function(index){
+        				if(self.models[index].getId() == sId){
+        					self.models[index].setOrder(i);
+        				}
+        			})
+        		})
+
+        		//drawthemeViews.$el
         		if(!this.id){
         			$.ajax({
-	        			url: url,
+	        			url: this.url,
 	        			type: "post",
 	        			data: {
 	        				name: this.m_name,
@@ -50,7 +68,7 @@
 	        				scences: JSON.stringify(this.models)
 	        			},
 	        			success: function(data){
-	        				this.id = data.id;
+	        				self.id = data.id;
 	        				options.success(data);
 	        			},
 	        			error: function(data){
@@ -83,7 +101,7 @@
         	$el: $("#theme_list")
         };
 
-		//播放顺序列表现视图
+		//播放顺序列表项视图
 		var playorderView = {
 			render: function(){
 				return $("<li data-orderId='" + this.scenceId + "'><img width= '30' height='30' src='"+ this.imgSrc +"'/>" + this.scenceName + "<a class='scene-remove'>"+ 
@@ -126,18 +144,21 @@
         //播放顺序列表视图
         var playorderViews = {
         	init: function(){
+        		var fromIdex, toIndex;
         		 //播放顺序拉拽
 			    this.$el.sortable({
+			    	start : function(event, ui){
+			    		fromIdex = ui.item.index();
+			    	},
 			    	stop : function( event, ui ) {
 						var sId = ui.item.data("orderid");
-						var moveIndex = ui.item.index();
-						var $selectObj = $("#s_" + sId);
-						if(moveIndex == $("#draw_theme .slide").last().index()){
+					 	toIndex = ui.item.index();
+						if(toIndex == $("#draw_theme .slide").last().index()){
 							$selectObj.appendTo($("#draw_theme"));
-						}else if(moveIndex == 0){
+						}else if(toIndex == 0){
 							$selectObj.prependTo($("#draw_theme"));
 						}else{
-							$selectObj.insertAfter("#draw_theme .slide:eq(" + (moveIndex - 1) + ")");
+							$selectObj.insertAfter("#draw_theme .slide:eq(" + (toIndex - 1) + ")");
 						}
 					}
 			    });

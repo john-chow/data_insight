@@ -7,6 +7,10 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/list.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.css' %}">
+	<script src='{% static "js/jquery-2.1.0.js" %}'></script>
+	<script src='{% static "js/list.js" %}'></script>
+	<script src='{% static "js/lib/bootstrap.js" %}'></script>
+	<script src='{% static "js/csrf.js" %}'></script>
 </head>
 <body>
 	<!--LOGO begin-->
@@ -60,8 +64,3 @@
 
 	{% block extraContent %}{% endblock %}
 </body>
-
-<script src='{% static "js/jquery-2.1.0.js" %}'></script>
-<script src='{% static "js/list.js" %}'></script>
-<script src='{% static "js/lib/bootstrap.js" %}'></script>
-<script src='{% static "js/csrf.js" %}'></script>

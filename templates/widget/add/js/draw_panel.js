@@ -158,7 +158,8 @@ define([
             this.model.set(this.drawModel.toJSON());
             
             var imageBase64 = this.zr.toDataURL("image/png");
-            this.model.set({"image":    imageBase64});
+            var name = $("#widget_name").val();
+            this.model.set({"image":    imageBase64, "name": name});
 
             // 保存到服务器
             this.model.save(null,{

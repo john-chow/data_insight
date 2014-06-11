@@ -50,7 +50,7 @@
 		  			<table height="100%">	
 		  				<tbody>
 		  					<tr height="30%"><td>
-		  						<div id="choosed_chart" class="panel panel-default">
+		  						<div style="height:100%" id="choosed_chart" class="panel panel-default">
 								    <div class="panel-heading">场景</div>
 								    <ul id="theme_list">
 								    	{% for scene in allowed_scenes %}
@@ -60,7 +60,7 @@
 								</div>
 		  					</td></tr>
 		  					<tr height="30%"><td>
-		  						<div id="choosed_layout" class="panel panel-default">
+		  						<div style="height:100%" id="choosed_layout" class="panel panel-default">
 								    <div class="panel-heading">播放顺序</div>
 								    <ol id="play_order">
 								    	
@@ -68,7 +68,7 @@
 								</div>
 		  					</td></tr>
 		  					<tr height="25%"><td>
-		  						<div id="choosed_layout" class="panel panel-default">
+		  						<div style="height:100%" id="choosed_layout" class="panel panel-default">
 								    <div id="switch_effect" class="panel-heading">播放效果</div>
 								    	 <ul id="effect-list">
 								          <li><a href="#" class="effect " data-fx="scrollVert3d">Vertical 3D scroll</a></li>
@@ -142,7 +142,7 @@
 <script>
 
 window.onload = function(){
-	requirejs(['jqueryUi','themeDesign'], function(Jqueryui,design, BoxSlider){
+	requirejs(['jqueryUi','themeDesign'], function(Jqueryui, design, BoxSlider){
    			 var $box = $('#draw_theme')
 	          , $effects = $('.effect')
 	          , $timeIndicator = $('#time-indicator')

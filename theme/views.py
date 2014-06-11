@@ -8,6 +8,8 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.utils import simplejson as json
+from django.shortcuts import get_object_or_404
+from common.log import logger
 import pdb
 
 def themeList(request, template_name):
@@ -58,7 +60,7 @@ def themeCreate(request):
         for order, sc in enumerate(scences):
             scence = SceneModel.objects.get(pk = sc.get(u'id'))
             rla = TheToScnRelationModel( \
-                m_sub = theme, m_scn = scence,m_order=order
+                m_sub = theme, m_scn = scence,m_order=sc.get(u'order')
             )
             rla_list.append(rla)
         TheToScnRelationModel.objects.bulk_create(rla_list)
@@ -120,7 +122,14 @@ def view(request, id):
     某个主题浏览界面
     """
     if u'GET' == request.method:
+        logger.info("xxxxxxxxxxxxx")
         context = RequestContext(request)
-        return render_to_response("theme/view.html", {}, context)
+        theme = get_object_or_404(ThemeModel, pk = id)
+        theme_scene_rla_set = theme.t2r_set.all().order_by(u'm_order')
+        data = {
+            u"theme" : theme,
+            u"theme_scene_rla" : theme_scene_rla_set
+        }
+        return render_to_response("theme/view.html", data, context)
     else:
         raise Http404()

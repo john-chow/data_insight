@@ -1,5 +1,6 @@
 {% extends "base/list.html" %}
 {% load pagination_tags %}
+{% load static %}
 
 <!-- {# 导航栏 #}
 {% block menu %}
@@ -19,7 +20,7 @@
 
 {# 右栏目 #}
 {% block contentRight %}
-{% autopaginate themeList 2 %}
+{% autopaginate themeList 10 %}
 <div class="content-menu clearfix">
     <div id="theme_count" class="clearfix">共&nbsp;<span>{{allCount}}</span>&nbsp;个主题，本页有
 	&nbsp;<span>{{themeList|length}}</span>&nbsp;个
@@ -84,9 +85,20 @@
 					<span>{{ theme.m_name }}</span>
 					<span class="pull-right glyphicon {% if theme.m_is_distributed %}glyphicon-folder-open{%else%}glyphicon-folder-close{% endif %}"></span>
 				</div>
-	    		
 	    		<a href="{% url 'theme:edit' theme.pk %}">
-	    			<img src="" width="480" height="240"  />
+	    		<!-- {{theme.m_scenes.all.0.m_snapshot}} -->
+	    		<div class="slider-viewport">
+				    <div id="viewport">
+						<div class="box" data-fx="{{theme.m_switch_effect}}">
+							{% for sc in theme.m_scenes.all %}
+							<figure class="slide">
+								<img src="{{sc.m_snapshot}}" width="480" height="240"  />
+							</figure>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+	    			
 	    		</a>
 	    		<div class="js-mod-theme-top">
 				    <span class="js-mod-theme-ico"><i class="icon-m icon-expansion-m"></i></span>
@@ -136,12 +148,36 @@
 </form> 
 <!-- 提交表单 end -->
 <!-- 初始按钮 begin -->
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/theme/design.css' %}">
+<script src="{% static 'js/theme/box-slider.jquery.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-scroll-3d.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-fade.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-scroll.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-blinds.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-carousel-3d.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-tile-3d.js' %}"></script>
 <script>
 window.onload = function (){
+
 	if({{sort}}==1){
 		$("#theme_sort_drop").removeClass('active');
 		$("#theme_sort_rise").addClass('active');
 	}
+	
+	$(".box").each(function(i){
+		var $box = $(this);
+		var fx = $box.data("fx");
+		$box.boxSlider({
+            speed: 1000
+          , autoScroll: true
+          , timeout: 1000
+          , effect: fx
+    	});
+	})
+	
+	
+	
 }
 </script>
 {% endblock %}

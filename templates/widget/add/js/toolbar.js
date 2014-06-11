@@ -1,7 +1,7 @@
 /*简单的工具视图，主要作用是监听添加/编辑组件页按钮的事件*/
 define([
  "backbone"
-, "bootstrap"
+, "jqueryUi"
 ], function(Backbone, x) {
 
     var ToobarView = Backbone.View.extend({
@@ -24,6 +24,9 @@ define([
             '<button id="design_menu_back" type="button" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-refresh"> </span>&nbsp;返回</button></div>' +
             '<div class="btn-group btn-group-md" style="margin-left: 15px;"><button id="toolbar_ico_plus" type="button" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-zoom-in"> </span>&nbsp;放大</button>'  +
             '<button id="toolbar_ico_minus" type="button" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-zoom-out"> </span>&nbsp;缩小</button></button></div>'));
+            this.$el.draggable({
+                scroll: "false"
+            });
         },
         minusCanvas: function() {
             $("#draw_panel canvas ,#draw_panel div, #draw_panel textarea").each(function(){

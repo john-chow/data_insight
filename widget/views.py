@@ -59,15 +59,15 @@ def widgetCreate(request):
     if u'POST' == request.method:
         extent_data = json.loads(request.POST.get('data', '{}'))
 
-        [table, x, y, color, size, graph, image] \
+        [table, x, y, color, size, graph, image, name] \
             = map(lambda arg: extent_data.get(arg, u''), \
-                    ['table', 'x', 'y', 'color', 'size', 'graph', 'image'])
+                    ['table', 'x', 'y', 'color', 'size', 'graph', 'image', 'name'])
 
         db_conn_pk = request.session.get('db_pk')
         external_conn = ExternalDbModel.objects.get(pk = db_conn_pk)
 
         widget = WidgetModel.objects.create( 
-            m_name='组件', m_table = table, m_x=x, m_y=y, \
+            m_name=name, m_table = table, m_x=x, m_y=y, \
             m_color = color, m_size = size, m_graph = graph, \
             m_external_db = external_conn, m_pic = image  \
         )
