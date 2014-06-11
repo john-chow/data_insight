@@ -1,9 +1,7 @@
 define([
 	'backbone'
-	, 'base_sheet'
 	, 'model/vtron_model'
-	, 'vtron_events'
-], function(Backbone, BaseSheetView, VtronModel, VtronEvents) {
+], function(Backbone, VtronModel) {
 
 	var DrawModel 	= VtronModel.extend({
 		urlRoot: "/widget/draw/",
@@ -15,7 +13,7 @@ define([
 		shape:		"",
 
         assignDrawBasic: function() {
-            this.triggerOut("dbbar:restore", this.toJSON());
+            Backbone.Events.trigger("dbbar:restore", this.toJSON());
         },
 
 		setToSev: function(data) {
@@ -36,11 +34,11 @@ define([
 			this.save(null, {
 				success: function(m, resp, opt) {
 					if (resp.succ) {
-						self.triggerOut("panel:draw_data", resp.data)
+						Backbone.Events.trigger("panel:draw_data", resp.data)
 					} else {
 						easy_dialog_error(resp.msg)						
 						// 通知清空
-						self.triggerOut("panel:draw_data", {})
+						Backbone.Events.trigger("panel:draw_data", {})
 					}
 				}, error: function() {
 				},
@@ -66,7 +64,7 @@ define([
 	// 其一是图像数据部分，影响图像成像的数据，如 x/shape等等
 	// 其二是图像呈现部分，不影响图像本身，只影响图像标注等，如name等等
 	// 这里其实根本不是view，只是为了获取View中的属性
-	var DataCenter = BaseSheetView.extend({
+	var DataCenter = Backbone.View.extend({
 		initialize: 		function() {
 			this.drawModel 	= new DrawModel();
 			this.model 	    = new WholeModel();
@@ -86,20 +84,20 @@ define([
 		},
 
 		run: 				function() {
-			this.onOut(
+			Backbone.Events.on(
 				"area:user_set_action"
 				, _.bind(this.drawModel.setToSev, this.drawModel)
 		  	);
 
 			var self = this;
-			this.onOut(
+			Backbone.Events.on(
 				"area:change_table"
 				, function(data) {
 					self.drawModel.set(data)
 				}
 			);
 
-            this.onOut(
+            Backbone.Events.on(
                 "center:page_loaded"
                 , function() {
                     // 如果是edit，那么前端需要数据恢复现场
@@ -109,7 +107,7 @@ define([
             );
 
             // 监听是否需要保存
-            VtronEvents.onOut("center:save_args", _.bind(this.saveArgs, this))
+            Backbone.Events.on("center:save_args", _.bind(this.saveArgs, this))
 		},
 
         saveArgs:                function() {

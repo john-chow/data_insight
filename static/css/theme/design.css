@@ -289,22 +289,4 @@ width: 1020px;
 border: 1px solid #ddd;
 }
 
-.slider-viewport { 
-width: 500px;
-height: 270px;
-overflow: hidden; 
-position: relative;
-margin: auto;
-padding: 0 21px 140px;
-}
-#viewport, #draw_theme, .slide {
-  width: 500px;
-  height: 270px;
-  
-}
-
-#viewport {
-  overflow: hidden;
-  margin-top: 25px;
-}
 /*结束*/

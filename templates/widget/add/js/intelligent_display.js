@@ -1,17 +1,16 @@
 define([
 "backbone"
-, "base_sheet"
 , "bootstrap"
 , "model/vtron_model"
 , "text!../template/intelligent_display.html" 
-], function(Backbone, BaseSheetView, b, VtronModel, intelligentHtml) {
+], function(Backbone, b, VtronModel, intelligentHtml) {
 
     var ChartStyleModel   = VtronModel.extend({
             urlRoot:        "chart/"
         });
 
 
-    var IntelligentHtml = BaseSheetView.extend({
+    var IntelligentHtml = Backbone.View.extend({
 
         tagName: "div",
         id: "intelligent_display",
@@ -29,7 +28,7 @@ define([
             this.render();
 
             // 监听
-            this.onOut("display:restore_graph", _.bind(this.setGraph, this));
+            Backbone.Events.on("display:restore_graph", _.bind(this.setGraph, this));
 
             // 如何让托管事件在更早之前就启动呢？
             this.$(".intelligent-display-pic button")

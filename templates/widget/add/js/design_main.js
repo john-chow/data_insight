@@ -3,14 +3,9 @@ define([
 , "design_menus"
 , "work_area"
 , "info_workplace"
-, "modal_manager"
-, "base_sheet"
-, "model/vtron_model"
-, "model/vtron_collection"
 ,"toolbar"
 ], function(Backbone, MenusView, WorkareaView
-			, InfoWorkplaceView, _Modal
-			, BaseSheetView, VtronModel, VtronCollection, Toolbar) {
+			, InfoWorkplaceView, Toolbar) {
 
 	// 使model save时，数据是object型
 	Backbone.emulateJSON = true;
@@ -22,13 +17,6 @@ define([
 		},
 
         initialize: function() {
-			// 先写在这里，以后都是会在info_workplace里面
-			this.sheetNumber = 1;
-			BaseSheetView.prototype.sheetId 	= this.sheetNumber;
-			VtronModel.prototype.sheetId 		= this.sheetNumber;
-			VtronCollection.prototype.sheetId 	= this.sheetNumber;
-
-
             this.menusView         = new MenusView();
             this.workareaView      = new WorkareaView();
             this.infoWorkplaceView = new InfoWorkplaceView();
@@ -42,15 +30,15 @@ define([
                 , _.bind(this.showWorkbookInfo, this)
             );
 
-			VtronEvents.onOut(
+			Backbone.Events.on(
 				"main:add_show_worktable"
                 , _.bind(this.showWorktableInfo, this) 
 			);
-			VtronEvents.onOut(
+			Backbone.Events.on(
 				"main:add_worktable"
                 , _.bind(this.addWorkTable, this) 
 			);
-			VtronEvents.onOut(
+			Backbone.Events.on(
 				"main:add_workbook"
                 , _.bind(this.addWorkBook, this) 
 			);

@@ -6,7 +6,7 @@ define([
 , "echarts/chart/pie"
 , "echarts/chart/radar"
 , "common/tools"
-], function(echart, _b, _l, _s, _p, _r) {
+], function(echart, _b, _l, _s, _p, _r, _tools) {
 
 	var DrawManager = function(opt) {
 		this.now_drawer				= null;
@@ -15,7 +15,7 @@ define([
 		this.polar_drawer			= null;
 
         // 对外提供的(重新)开始绘图接口
-		this.run	=				function(place, data) {
+		this.run	=				function(place, data, dynamicObj) {
             var type    = data.type;
             this.ec     = this.ec || echart.init(place);
 			switch(type) {
@@ -63,7 +63,11 @@ define([
 					return
 			}
 
-			this.now_drawer.ready(this.ec, type);
+			this.now_drawer.init(this.ec, type);
+
+            // 是否设置自动更新
+            if(dynamicObj.yes)     this.now_drawer.setDynamic(dynamicObj)
+
 			if ("map" !== type) {
 				this.now_drawer.work(data.data)
 			} else {
@@ -126,7 +130,7 @@ define([
 			]
 		};
 	
-        this.ready =    function(ec, type) {
+        this.init =    function(ec, type) {
             this.ec = ec;
 			this.type  = type;
 			this.optionCloned = cloneObject(this.option);
@@ -142,6 +146,28 @@ define([
 			this.ec.setOption(this.optionCloned)
 		};
 
+        this.setDynamic =   function(dynamicObj) {
+            // 开启自动更新机制
+            this.dyer = new Dynamicer(
+                dynamicObj.url
+                , dynamicObj.period
+            );
+
+            var self        =  this;
+            var genDyUpdate = function() {
+                var ec      =   self.ec;
+
+                return function() {
+                    data = {"cat": "测试", "val":  Math.round(Math.random() * 1000)};
+                    var newDataTem  = [
+                        0, data.val, true, false, data.cat
+                    ];
+
+                    ec.addData([newDataTem])
+                }
+            }
+            this.dyer.start(genDyUpdate())
+        };
 	};
 
 
@@ -225,6 +251,15 @@ define([
 				easy_dialog_error("xxxxxxxxxxx")
 			}
 		};
+
+        this.dyUpdate   =   function(data) {
+            data = {"cat": "测试", "val":  Math.round(Math.random() * 1000)};
+            var newDataTem  = [
+                0, data.val, true, false, data.cat
+            ];
+
+            this.ec.addData([newDataTem])
+        }
 	};
 
 
@@ -265,13 +300,8 @@ define([
 	};
 
 	var AreaDrawer = function() {
-        this.ready          = function(ec, type) {
-            AreaDrawer.prototype.ready.call(this, ec, "line")
-
-            $.extend(this.seriesOneCloned, {
-                "smooth":       true
-                , "itemStyle":  {normal: {areaStyle: {type: 'default'}}}
-            })
+        this.init          = function(ec, type) {
+            AreaDrawer.prototype.init.call(this, ec, "line")
         };
 
 		this.catStyle = {
@@ -287,6 +317,10 @@ define([
 		};
 		
 		this.styleSeries = function() {
+            $.extend(this.seriesOneCloned, {
+                "smooth":       true
+                , "itemStyle":  {normal: {areaStyle: {type: 'default'}}}
+            })
 		};
 
 	};
@@ -342,8 +376,8 @@ define([
             , "data":           []
         },
 
-        this.ready      =       function(el, type) {
-            PieDrawer.prototype.ready.call(this, el, "pie");
+        this.init      =       function(el, type) {
+            PieDrawer.prototype.init.call(this, el, "pie");
 
             $.extend(this.optionCloned, {
                 "tooltip": {
@@ -356,12 +390,12 @@ define([
 
         this.fillSeries     =   function(data) {
             var self = this;
+            self.seriesOneCloned  = cloneObject(self.seriesOne);
             $.each(data.legend_series, function(i, pair) {
-                self.seriesOneCloned  = cloneObject(self.seriesOne);
                 self.optionCloned.legend.data.push(pair.name);
                 self.seriesOneCloned.data.push(pair)
-                self.optionCloned.series.push(self.seriesOneCloned)
             })
+            self.optionCloned.series.push(self.seriesOneCloned)
         };
 
 		this.styleSeries = function() {
@@ -376,8 +410,8 @@ define([
             , data:         []
         };
 
-        this.ready      =       function(el, type) {
-            RadarDrawer.prototype.ready.call(this, el, "radar");
+        this.init      =       function(el, type) {
+            RadarDrawer.prototype.init.call(this, el, "radar");
 
             $.extend(this.optionCloned, {
                 "polar":            []
@@ -488,5 +522,41 @@ define([
 	ScatterDrawer.prototype = axisDrawer;
 
 
+    // 动态更新器
+    var Dynamicer       =   function(url, period, form) {
+        this.destUrl        = url;
+        this.period         = period || 5000;
+        this.form           = "";
+        this.tick           = null;
+
+        this.start  =       function(callback) {
+            this.stop();
+            this.tick   = setInterval( function() {
+                $.ajax({
+                    url:            url
+                    , type:         "POST"
+                    , dataType:     "json"
+                    , success:      function(resp) {
+                        if(resp.succ)       callback(resp.data)
+                        else                alert("xxxxxxxx")
+                    }
+                    , error:        callback
+                    /*
+                    , error:        function() {
+                        alert("自动更新失败，请检查网络")
+                    }
+                    */
+                })
+            }, period)
+        };
+
+        this.stop    =       function() {
+            if(this.tick)   clearInterval(this.tick);
+        }
+    };
+
+
 	return DrawManager
 })
+
+

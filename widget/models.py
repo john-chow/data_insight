@@ -9,8 +9,8 @@ class WidgetModel(ElementModel):
     场景类，继承ElementModel
     """
     m_table         = models.CharField(max_length=50)               
-    m_x             = models.CharField(max_length=50)               
-    m_y             = models.CharField(max_length=50)               
+    m_x             = models.CharField(max_length=1024)               
+    m_y             = models.CharField(max_length=1024)               
     m_size          = models.CharField(max_length=20)               
     m_color         = models.CharField(max_length=20)               
 

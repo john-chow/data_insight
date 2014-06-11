@@ -1,13 +1,12 @@
 define([
 "backbone"
-, "base_sheet"
 , "bootstrap"
 , "model/vtron_collection"
 , 'model/filter_box'
 , "color"
 , "jqueryUi"
 , "text!../template/filter_box.html"
-], function(Backbone, BaseSheetView, b, VtronCollection, FilterModel, 
+], function(Backbone, b, VtronCollection, FilterModel, 
             color, jqueryUi, filterBoxHtml) {
 
     var FiltersCollection = VtronCollection.extend({
@@ -15,7 +14,7 @@ define([
     });
 
 
-    var FilterBoxView = BaseSheetView.extend({
+    var FilterBoxView = Backbone.View.extend({
 
         tagName:    "div",
         id:         "filter_box",
@@ -52,7 +51,7 @@ define([
             this.$("#filter_tag_shape").on( "drop", this.chooseShape);
 
             // 舰艇恢复事件
-            this.onOut("box:restore_color_size", _.bind(this.restore, this));
+            Backbone.Events.on("box:restore_color_size", _.bind(this.restore, this));
         },
 
         render: function() {
@@ -86,12 +85,8 @@ define([
         },
 
         chooseFilter: function(ev) {
-            var data = $.extend( 
-                JSON.parse(sessionStorage.dragment)
-                , {"sheetId": this.sheetId} 
-            );
-
-            VtronEvents.triggerOut("modal:show_filter", data)
+            var data = JSON.parse(sessionStorage.dragment);
+            Backbone.Events.trigger("modal:show_filter", data)
         },
 
         /*showMenuB: function(ev){
@@ -123,7 +118,7 @@ define([
             var button ="<b class='close'>×</b>";
             var insert = "<li class='filter_tag_color' type='"+type+"'>颜色：<span data='color'>"+title+"</span>"+button+"</li>";
             $("#filter_tag_choosed").append(insert);
-            this.triggerOut(
+            Backbone.Events.trigger(
             //Backbone.Events.trigger(
                 "area:user_set_action"
                 , {"color":title}
@@ -137,7 +132,7 @@ define([
             var button ="<b class='close'>×</b>";
             var insert = "<li class='filter_tag_size' type='"+type+"'>大小：<span data='size'>"+title+"</span>"+button+"</li>";
             $("#filter_tag_choosed").append(insert);
-            this.triggerOut(
+            Backbone.Events.trigger(
             //Backbone.Events.trigger(
                 "area:user_set_action"
                 , {"size":title}
@@ -151,7 +146,7 @@ define([
             var button ="<b class='close'>×</b>";
             var insert = "<li class='filter_tag_shape' type='"+type+"'>形状：<span data='size'>"+title+"</span>"+button+"</li>";
             $("#filter_tag_choosed").append(insert);
-            this.triggerOut(
+            Backbone.Events.trigger(
             //Backbone.Events.trigger(
                 "area:user_set_action"
                 , {"shape":title}
@@ -165,17 +160,17 @@ define([
 
         removeColor: function(ev) {
             $(".filter_tag_color").remove();
-            this.triggerOut("area:user_set_action", {"color": null})
+            Backbone.Events.trigger("area:user_set_action", {"color": null})
         },
 
         removeSize: function(ev) {
             $(".filter_tag_size").remove(); 
-            this.triggerOut("area:user_set_action", {"size": null})
+            Backbone.Events.trigger("area:user_set_action", {"size": null})
         },
 
         removeShape: function(ev) {
             $(".filter_tag_shape").remove();    
-            this.triggerOut("area:user_set_action", {"shape": null})
+            Backbone.Events.trigger("area:user_set_action", {"shape": null})
         },
 
         restore:   function(data) {

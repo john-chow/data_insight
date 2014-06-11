@@ -1,24 +1,24 @@
 define([
 'showmsg'
 ,"backbone"
-, "base_sheet"
 , 'model/vtron_model'
 , "drawer"
-], function(Showmsg, Backbone, BaseSheetView, VtronModel, Drawer) {
+], function(Showmsg, Backbone, VtronModel, Drawer) {
 
 	var DrawModel 	= VtronModel.extend({
-		urlRoot:    "/widget/draw/",
+		urlRoot:            "/widget/draw/",
 
-		x:			[],
-		y:			[],
-		color:		"",
-		size:		"",
-		shape:		"",
+		x:			        [],
+		y:			        [],
+		color:		        "",
+		size:		        "",
+		shape:		        "",
 
-        able_draw:  false,      // 是否可以画图
+        ifAutoRedraw:       false,        // 是否开自动重画功能
+        autoHandle:         null,             
 
         assignDrawBasic: function() {
-            this.triggerOut("dbbar:restore", this.toJSON());
+            Backbone.Events.trigger("dbbar:restore", this.toJSON());
         },
 
         getDrawAble:        function() {
@@ -40,24 +40,35 @@ define([
         },
 
 		setToSev: function(data) {
-			this.set(data);
+            var self = this;
+			self.set(data);
 
-			var self = this;
-			this.save(null, {
-				success: function(m, resp, opt) {
-					if (resp.succ) {
-                        easy_dialog_close();
-                        self.able_draw  = true;
-						self.triggerOut("panel:draw_data", resp.data)
-					} else {
-						easy_dialog_error(resp.msg)						
-                        self.able_draw  = false;
-						self.triggerOut("panel:clear")
-					}
-				}, error: function() {
-				},
-				no_feeding: true
-			})
+            var requestUpdate = function() {
+                self.save(null, {
+                    success: function(m, resp, opt) {
+                        if (resp.succ) {
+                            easy_dialog_close();
+                            self.able_draw  = true;
+                            Backbone.Events.trigger("panel:draw_data", resp.data)
+                        } else {
+                            easy_dialog_error(resp.msg)						
+                            self.able_draw  = false;
+                            if (self.autoHandle)        clearInterval(self.autoHandle)
+                            Backbone.Events.trigger("panel:clear")
+                        }
+                    }, error: function() {
+                    },
+                    no_feeding: true
+                })
+            }
+
+            // 是否需要更新
+            if(self.ifAutoRedraw) {
+                if (self.autoHandle)        clearInterval(self.autoHandle)
+                self.autoHandle = setInterval(requestUpdate, 5000)
+            } else {
+                requestUpdate()
+            }
 		}
 
 	});
@@ -84,7 +95,7 @@ define([
 	// 其一是图像数据部分，影响图像成像的数据，如 x/shape等等
 	// 其二是图像呈现部分，不影响图像本身，只影响图像标注等，如name等等
 	// 这里其实根本不是view，只是为了获取View中的属性
-	var DataCenter = BaseSheetView.extend({
+	var DataCenter = Backbone.View.extend({
 		initialize: 		function() {
 			this.drawModel 	= new DrawModel();
 			this.model 	    = new WholeModel();
@@ -108,20 +119,20 @@ define([
 		},
 
 		run: 				function() {
-			this.onOut(
+			Backbone.Events.on(
 				"area:user_set_action"
 				, _.bind(this.drawModel.onGetUserAct, this.drawModel)
 		  	);
 
 			var self = this;
-			this.onOut(
+			Backbone.Events.on(
 				"area:change_table"
 				, function(data) {
 					self.drawModel.set(data)
 				}
 			);
 
-            this.onOut(
+            Backbone.Events.on(
                 "center:page_loaded"
                 , function() {
                     // 如果组件存在id，那么前端需要数据恢复现场   
@@ -133,7 +144,7 @@ define([
             var self = this;
 
             // 监听是否需要保存
-            VtronEvents.onOut("center:save_args", _.bind(this.onSave, this));
+            Backbone.Events.on("center:save_args", _.bind(this.onSave, this));
 
             //监听是否保存并返回
             Backbone.Events.on("center:save_args_and_back", function(){
@@ -189,27 +200,30 @@ define([
 	});
 
 	
-	var DrawPanelView = BaseSheetView.extend({
-		tagName: 		"div",
-		id:				"draw_panel",
+	var DrawPanelView = Backbone.View.extend({
+		tagName: 		    "div",
+		id:				    "draw_panel",
 
-        imageOk:        false,        // 是否画出图
-
-		initialize: function() {
-			this.onOut("panel:draw_data",   _.bind(this.onGetDrawData, this));
-			this.onOut("panel:clear",       _.bind(this.clear, this));
+		initialize:         function() {
+			Backbone.Events.on("panel:draw_data",   _.bind(this.onGetDrawData, this));
+			Backbone.Events.on("panel:clear",       _.bind(this.clear, this));
 			this.drawer = new Drawer();
             this.dataCenter = new DataCenter()
 		},
 
-		onGetDrawData: function(data) {
-			this.drawer.run(this.el, data);
-            this.dataCenter.setZr(this.drawer.getEc().getZrender())
+		onGetDrawData:      function(data) {
+			this.drawer.run(this.el, data, {
+                "yes":          false
+                , "url":        "xxx"
+                , "period":     2000
+            });
+            this.dataCenter.setZr(this.drawer.getEc().getZrender());
 		},
 
-        clear:      function() {
+        clear:              function() {
             this.drawer.stop()
         }
+
 	});
 
 	return DrawPanelView

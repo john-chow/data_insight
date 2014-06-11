@@ -1,10 +1,9 @@
 define([
 "backbone"
-, "base_sheet"
 , "model/vtron_model"
 , "common/tools"
 , "underscore"
-], function(Backbone, BaseSheetView, VtronModel, _t, _) {
+], function(Backbone, VtronModel, _t, _) {
 
 	/*
 		数据格式:  只有一对key-value
@@ -16,7 +15,7 @@ define([
 	});
 	
 
-	var AxesView = BaseSheetView.extend({
+	var AxesView = Backbone.View.extend({
 
 		name:		"",				// [column, row]
 		tagName:	"div",
@@ -38,6 +37,7 @@ define([
 			"click .coordinate-count"           :"coordinateCount",
 			"click .coordinate-sum"             :"coordinateSum",
 			"click .coordinate-avg"             :"coordinateAvg",
+			"click .coordinate-edit"            :"coordinateEdit",
 
 		},
 		
@@ -47,7 +47,7 @@ define([
 
 			this.model = new AxesModel();
 			this.listenTo(this.model, 'change:'+this.name, this.passToTotal);
-            this.onOut("axis:restore_" + this.name, _.bind(this.restore, this));
+            Backbone.Events.on("axis:restore_" + this.name, _.bind(this.restore, this));
 			this.render();
 		},
 
@@ -97,7 +97,7 @@ define([
 				"pro_id": 		pro_id
 				, "content": 	title
 			};
-			this.triggerOut("modal:show_filter",data)
+			Backbone.Events.trigger("modal:show_filter",data)
 			//Backbone.Events.trigger("modal:show_filter",data);
 		},
 
@@ -169,6 +169,10 @@ define([
 			$(ev.target).parents(".coordinate").find(".axes-math").html("(平均)");
 			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","avg");
 			this.coordinateMathSet(this);
+		},
+
+		coordinateEdit: function(ev) {
+
 		},
 
 

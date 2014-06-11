@@ -150,6 +150,26 @@
 <!-- 初始按钮 begin -->
 
 <link rel="stylesheet" type="text/css" href="{% static 'css/theme/design.css' %}">
+<style>
+	.slider-viewport { 
+width: 500px;
+height: 270px;
+overflow: hidden; 
+position: relative;
+margin: auto;
+padding: 0 21px 140px;
+}
+#viewport, #draw_theme, .slide {
+  width: 500px;
+  height: 270px;
+  
+}
+
+#viewport {
+  overflow: hidden;
+  margin-top: 25px;
+}
+</style>
 <script src="{% static 'js/theme/box-slider.jquery.js' %}"></script>
 <script src="{% static 'js/theme/effects/box-slider-fx-scroll-3d.js' %}"></script>
 <script src="{% static 'js/theme/effects/box-slider-fx-fade.js' %}"></script>

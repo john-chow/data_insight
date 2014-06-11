@@ -10,7 +10,7 @@ import pdb
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from django.db import IntegrityError
+from django.db import IntegrityError, DatabaseError
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.utils import simplejson as json
@@ -66,12 +66,17 @@ def widgetCreate(request):
         db_conn_pk = request.session.get('db_pk')
         external_conn = ExternalDbModel.objects.get(pk = db_conn_pk)
 
-        widget = WidgetModel.objects.create( 
-            m_name=name, m_table = table, m_x=x, m_y=y, \
-            m_color = color, m_size = size, m_graph = graph, \
-            m_external_db = external_conn, m_pic = image  \
-        )
 
+        try:
+            widget = WidgetModel.objects.create( 
+                m_name='组件', m_table = table, m_x=x, m_y=y, \
+                m_color = color, m_size = size, m_graph = graph, \
+                m_external_db = external_conn, m_pic = image  \
+            )
+        except DatabaseError, e:
+            logger.error(e[0])
+            return MyHttpJsonResponse({u'succ': False   \
+                                        , u'msg': u'无法保存到数据库'})
         return MyHttpJsonResponse({u'succ': True, u'wiId': widget.pk, \
                                     u'msg': u'保存成功'})
     else:
@@ -315,8 +320,12 @@ def getTableInfo(request):
 
         dm_list, me_list    = [], []
         for name, type in results:
-            xxx_list = me_list if (u'int' in type or u'double' in type) \
+            xxx_list = me_list if (u'int' in type \
+                                    or u'double' in type \
+                                    or u'real' in type \
+                                    ) \
                                 else dm_list
+            #logger.info("type is {0}".format(type))
             xxx_list.append(name)
 
             data = {
@@ -530,31 +539,28 @@ def searchDataFromDb(extent_data, conn_arg, msu_list, msn_list, group_list):
     sel_str_list, group_str_list, combine_flag = [], [], False
     for (attr_name, kind, cmd, x_y) in msu_list:
         if 'sum' == cmd:
-            sel_str_list.append( 'sum(%s) %s' % (attr_name, attr_name) )
+            sel_str_list.append('sum("{0}") "{0}"'.format(attr_name))
             combine_flag = True
         elif 'avg' == cmd:
-            sel_str_list.append( 'avg(%s) %s' % (attr_name, attr_name) )
+            sel_str_list.append('avg("{0}") "{0}"'.format(attr_name))
             combine_flag = True
         else:
-            sel_str_list.append(attr_name)
+            sel_str_list.append('"{0}"'.format(attr_name))
 
 
     # 处理 msn_list
     for (attr_name, kind, cmd, x_y) in msn_list:
         if combine_flag:
-            group_str_list.append(attr_name)
+            group_str_list.append('"{0}"'.format(attr_name))
         else:
-            sel_str_list.append(attr_name)
+            sel_str_list.append('"{0}"'.format(attr_name))
 
     # 处理 group_list
     group_str_list.extend([attr_name for (attr_name, _, _, __) in group_list])
     sel_str_list += group_str_list
 
-    #map(lambda i: i.extend([attr for (attr, _, _, _) in group_list]), \
-                                                #(sel_str_list, group_attr_list) )
-
     # 以第一个类目属性做group by参数，其他的全部做成where条件
-    sql_template = u'select {attrs} from {table} {filter} {option}'
+    sql_template = u'select {attrs} from "{table}" {filter} {option}'
     table_name   = extent_data[u'table']
 
     group_str = u''

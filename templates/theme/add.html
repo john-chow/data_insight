@@ -124,11 +124,6 @@
 		<!--content end-->
 </body>
 
-<!-- <script src='{% static "js/lib/jquery.gridster.js" %}'></script>
-<script src='{% static "js/lib/jquery-ui-1.10.4.custom.min.js" %}'></script>
-<script src='{% static "js/common/tools.js" %}'></script> -->
-<!--<script src='{% static "js/theme/modernizr.min.js" %}'></script>
-<script src='{% static "js/theme/box-slider-all.jquery.min.js" %}'></script>-->
 <script src='{% static "js/common/tools.js" %}'></script>
 <script src="{% static 'js/theme/box-slider.jquery.js' %}"></script>
 <script src="{% static 'js/theme/effects/box-slider-fx-scroll-3d.js' %}"></script>
@@ -142,7 +137,7 @@
 <script>
 
 window.onload = function(){
-	requirejs(['jqueryUi','themeDesign'], function(Jqueryui, design, BoxSlider){
+	requirejs(['jqueryUi','themeDesign'], function(Jqueryui,design){
    			 var $box = $('#draw_theme')
 	          , $effects = $('.effect')
 	          , $timeIndicator = $('#time-indicator')
