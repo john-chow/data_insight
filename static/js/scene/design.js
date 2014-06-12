@@ -299,6 +299,7 @@ define("display", ["drawer"], function(DrawManager) {
 
         init:                   function() {
             var layoutStr   = this.$el.find(".layout").html(); 
+            console.log(layoutStr)
             this.layoutArr = layoutStr ? JSON.parse(layoutStr) : null
         },
         

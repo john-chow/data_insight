@@ -35,7 +35,7 @@
 
 {# 右栏目 #}
 {% block contentRight %}
-{% autopaginate themeList 2 %}
+{% autopaginate themeList 10 %}
 <div class="content-menu clearfix">
 	<div class="content-menu-title">批量操作</div>
 	<div class="content-menu-count">已选择&nbsp;<span>0</span>&nbsp;个主题</div>
@@ -94,7 +94,7 @@
 			<span>{{ theme.m_name }}</span>
 			<span class="pull-right glyphicon {% if theme.m_is_distributed %}glyphicon-folder-open{%else%}glyphicon-folder-close{% endif %}"></span>
 			</div>
-		<div><img width="480" height="227" src="{{theme.m_pic}}"/></div>
+		<div><img width="480" height="227" src="{{theme.m_scenes.all.0.m_snapshot}}"/></div>
 		</div>
 	{% endfor %}
 </div>

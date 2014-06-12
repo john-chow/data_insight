@@ -35,7 +35,7 @@
 
 {# 右栏目 #}
 {% block contentRight %}
-{% autopaginate sceneList 2 %}
+{% autopaginate sceneList 10 %}
 <div class="content-menu clearfix">
 	<div class="content-menu-title">批量操作</div>
 	<div class="content-menu-count">已选择&nbsp;<span>0</span>&nbsp;个场景</div>
@@ -94,7 +94,7 @@
 			<span>{{ scene.m_name }}</span>
 			<span class="pull-right glyphicon {% if scene.m_is_distributed %}glyphicon-folder-open{%else%}glyphicon-folder-close{% endif %}"></span>
 			</div>
-		<div><img width="480" height="227" src="{{scene.m_pic}}"/></div>
+		<div><img width="480" height="227" src="{{scene.m_snapshot}}"/></div>
 		</div>
 	{% endfor %}
 </div>

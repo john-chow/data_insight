@@ -4,14 +4,12 @@
 <head>
 	<meta charset='utf-8'>
 	<title>DataInsight</title>
-	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/view.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.css' %}">
 	 {% include 'head.html' %}
 </head>
 <body>
 	<!--menu begin-->
-	<div id="header" class="row navbar navbar-default ">
+	<div id="" class="row navbar navbar-default ">
 		<div class="col-md-10 col-xs-12 col-md-offset-1">
 			<div class="text-center">
 				<span class="menu-home">DataInsight</span>
@@ -31,21 +29,42 @@
     <div id="time-indicator"></div>
     <div class="slider-viewport">
     <div id="viewport">
-		<div id="draw_theme" class="">
-			{% for ts_rla in theme_scene_rla %}
-				{% for wi in ts_rla.m_scn.m_widgets.all %}
-					{{wi.pk}},
-				{% endfor %}
-				|
+		<div id="box" class="">
+		    {% for ts_rla in theme_scene_rla %}
+		    	<!-- 一个figure对应一个场景 -->
+				 <figure>
+				 	<!-- {{ts_rla.m_scn.m_layout}} -->
+					<div class="gridster">
+					 <ul>
+					 	<!-- 一个布局(gridster.js里面的组件)相对一个组件 -->
+						<li class="s1" data-row="1" data-col="1" data-sizex="1" data-sizey="1"></li>
+					 </ul>
+					</div>
+				</figure>
+			
 			{% endfor %}
 		</div>
 	</div>
 	</div>
+	<!-- 此处是为了让design.js能够获取查看的主题的所有场景信息和组件信息而设的隐藏dom -->
+	<div style="display:none" id="theme_scences">
+		<ul>
+		{% for sc in theme.m_scenes.all %}
+			<li data-id="{{sc.pk}}" data-layout="{{sc.m_layout}}">
+			<p class="layout" style="display:none">{{ sc.m_layout }}</p>
+			<div id="scence_wigets">
+				<ul>
+					{% for wi in sc.m_widgets.all %}
+						<li data-id="{{wi.pk}}"></li>
+					{% endfor %}
+				</ul>
+			</div>
+			</li>
+		{% endfor %}
+		</ul>
+	</div>
 </body>
-
-<script src='{% static "js/jquery-2.1.0.js" %}'></script>
 <script src='{% static "js/lib/bootstrap.js" %}'></script>
-<script src='{% static "js/view.js" %}'></script>
 <script src="{% static 'js/theme/box-slider.jquery.js' %}"></script>
 <script src="{% static 'js/theme/effects/box-slider-fx-scroll-3d.js' %}"></script>
 <script src="{% static 'js/theme/effects/box-slider-fx-fade.js' %}"></script>
@@ -54,5 +73,16 @@
 <script src="{% static 'js/theme/effects/box-slider-fx-carousel-3d.js' %}"></script>
 <script src="{% static 'js/theme/effects/box-slider-fx-tile-3d.js' %}"></script>
 <script>
-
+window.onload = function(){
+	requirejs(['theme/view'], function(Jqueryui,design){
+		var $box = $("#box");
+		var fx = $box.data("fx");
+		/*$box.boxSlider({
+	        speed: 1000
+	      , autoScroll: true
+	      , timeout: 1000
+	      , effect: fx
+		});*/
+	})
+}
 </script>
