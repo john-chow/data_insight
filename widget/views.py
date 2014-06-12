@@ -59,12 +59,13 @@ def widgetCreate(request):
     if u'POST' == request.method:
         extent_data = json.loads(request.POST.get('data', '{}'))
 
-        [table, x, y, color, size, graph, image] \
+        [table, x, y, color, size, graph, image, name] \
             = map(lambda arg: extent_data.get(arg, u''), \
-                    ['table', 'x', 'y', 'color', 'size', 'graph', 'image'])
+                    ['table', 'x', 'y', 'color', 'size', 'graph', 'image', 'name'])
 
         db_conn_pk = request.session.get('db_pk')
         external_conn = ExternalDbModel.objects.get(pk = db_conn_pk)
+
 
         try:
             widget = WidgetModel.objects.create( 
@@ -76,7 +77,6 @@ def widgetCreate(request):
             logger.error(e[0])
             return MyHttpJsonResponse({u'succ': False   \
                                         , u'msg': u'无法保存到数据库'})
-
         return MyHttpJsonResponse({u'succ': True, u'wiId': widget.pk, \
                                     u'msg': u'保存成功'})
     else:

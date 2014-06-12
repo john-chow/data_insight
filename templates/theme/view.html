@@ -7,6 +7,7 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/view.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.css' %}">
+	 {% include 'head.html' %}
 </head>
 <body>
 	<!--menu begin-->
@@ -15,11 +16,43 @@
 			<div class="text-center">
 				<span class="menu-home">DataInsight</span>
 			</div>
+			
 		</div>
 	</div>
 	<!--menu end-->
+	<div class="toolbar">
+	    <button id="prev" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-chevron-left"></span>&nbsp;上一张</button>
+	    <button id="play" disabled="disabled" data-fx="scrollHorz3d" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-play"></span>&nbsp;播放</button>
+	    <button id="pause"  class="btn btn-sm btn-default"><span class="glyphicon glyphicon-pause"></span>&nbsp;暂停</button>
+   		<button id="stop" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-stop"></span>&nbsp;停止</button>
+   		<button id="next" disabled="disabled" class="btn btn-sm btn-default">下一张&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></button>
+    </div>
+
+    <div id="time-indicator"></div>
+    <div class="slider-viewport">
+    <div id="viewport">
+		<div id="draw_theme" class="">
+			{% for ts_rla in theme_scene_rla %}
+				{% for wi in ts_rla.m_scn.m_widgets.all %}
+					{{wi.pk}},
+				{% endfor %}
+				|
+			{% endfor %}
+		</div>
+	</div>
+	</div>
 </body>
 
 <script src='{% static "js/jquery-2.1.0.js" %}'></script>
 <script src='{% static "js/lib/bootstrap.js" %}'></script>
 <script src='{% static "js/view.js" %}'></script>
+<script src="{% static 'js/theme/box-slider.jquery.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-scroll-3d.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-fade.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-scroll.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-blinds.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-carousel-3d.js' %}"></script>
+<script src="{% static 'js/theme/effects/box-slider-fx-tile-3d.js' %}"></script>
+<script>
+
+</script>

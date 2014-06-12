@@ -93,7 +93,8 @@ overflow: auto;
 }
 
 #choosed_chart ul{
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #scene_design_right .gridster ul {
@@ -241,7 +242,7 @@ font-size: 18px;
 line-height: 1;
 color: #666;
 font-weight: bold;
-padding-right: 5px;
+padding-right: 19px;
 text-decoration: none;
 }
 .scence-title{
@@ -284,7 +285,8 @@ width: 1020px;
 }
 #theme_design_left .panel>.panel-heading {
     height: 30px;
-    padding: 3px 8px;
+    padding: 3px 20px;
 border: 1px solid #ddd;
 }
+
 /*结束*/

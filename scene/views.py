@@ -66,7 +66,7 @@ def sceneCreate(request):
             rla_list.append(rla)
         ScnToWiRelationModel.objects.bulk_create(rla_list)
 
-        return MyHttpJsonResponse({u'succ': True, u'scn_id': scene.pk})
+        return MyHttpJsonResponse({u'succ': True, u'scn_id': scene.pk, u'msg': u'保存成功'})
         
     else:
         # 全部已被允许可用的组件
@@ -107,7 +107,7 @@ def sceneEdit(request, scn_id):
         ScnToWiRelationModel.objects.filter(m_scn = scene).delete()
         ScnToWiRelationModel.objects.bulk_create(rla_list)
             
-        return MyHttpJsonResponse({u'succ': True, u'scn_id': scn_id, u'msg': u'xxxx'})
+        return MyHttpJsonResponse({u'succ': True, u'scn_id': scn_id, u'msg': u'编辑成功'})
 
     else:
         context = RequestContext(request)
@@ -150,7 +150,7 @@ def sceneSave(request, scn_id):
 
         ScnToWiRelationModel.objects.bulk_create(rla_list)
 
-    return MyHttpJsonResponse({u'succ': True, u'scn_id': scene.pk})
+    return MyHttpJsonResponse({u'succ': True, u'scn_id': scene.pk, u'msg': u'保存成功'})
 
 
 @login_required

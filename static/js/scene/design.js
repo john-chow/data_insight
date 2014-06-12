@@ -325,6 +325,7 @@ define("display", ["drawer"], function(DrawManager) {
             );
 
             var drawer = new DrawManager();
+           // alert(data.data.type)//////////////
             drawer.run($(".se_wi_div_"+data.widget_id)[len], data.data);
 
             this.ecList.push({"stamp": timestamp, "ec": drawer.getEc()});
@@ -437,7 +438,7 @@ define("display", ["drawer"], function(DrawManager) {
 // 整体区域
 // ************************
 
-define("whole", ["compontnents", "display"], function(C, D) {
+define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
     var whole = {
         init:               function() {
             this.myAttributesObj = C.at;
@@ -486,7 +487,13 @@ define("whole", ["compontnents", "display"], function(C, D) {
                     , "name":           name 
                 }        
                 , success:      function(data) {
-                    window.scene_id = data.scn_id
+                    window.scene_id = data.scn_id;
+                    $(".show-msg").showmsg({
+                    top: '55px',
+                    left: '37%',
+                    msg: data.msg,
+                    delayTime: 1500
+                 });
                 }
                 , error:        function() {
                 }

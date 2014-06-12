@@ -57,11 +57,9 @@
 		<input type="hidden" id="list_search"  value="{{search}}" />
 	</div>
 	<!--footer end-->
-
+	<script src='{% static "js/jquery-2.1.0.js" %}'></script>
+	<script src='{% static "js/list.js" %}'></script>
+	<script src='{% static "js/lib/bootstrap.js" %}'></script>
+	<script src='{% static "js/csrf.js" %}'></script>
 	{% block extraContent %}{% endblock %}
 </body>
-
-<script src='{% static "js/jquery-2.1.0.js" %}'></script>
-<script src='{% static "js/list.js" %}'></script>
-<script src='{% static "js/lib/bootstrap.js" %}'></script>
-<script src='{% static "js/csrf.js" %}'></script>
