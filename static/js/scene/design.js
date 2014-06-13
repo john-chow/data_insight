@@ -317,7 +317,7 @@ define("display", ["drawer"], function(DrawManager) {
             var str =   "<li class='se_wi_"+data.widget_id+"_"+timestamp+
                         "' data-id='"+data.widget_id+"' data-time='"+timestamp+
                         "'><div class='se_wi_div se_wi_div_"+
-                        data.widget_id+"'></div></li>"
+                        data.widget_id+"'></div></li>";
             var posObj  = this.sureShowPos(timestamp);
             gridster.add_widget(
                 str

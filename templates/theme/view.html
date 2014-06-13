@@ -4,7 +4,8 @@
 <head>
 	<meta charset='utf-8'>
 	<title>DataInsight</title>
-	<link rel="stylesheet" type="text/css" href="{% static 'css/view.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/theme/view.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.gridster.css' %}">
 	 {% include 'head.html' %}
 </head>
 <body>
@@ -18,31 +19,36 @@
 		</div>
 	</div>
 	<!--menu end-->
-	<div class="toolbar">
-	    <button id="prev" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-chevron-left"></span>&nbsp;上一张</button>
-	    <button id="play" disabled="disabled" data-fx="scrollHorz3d" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-play"></span>&nbsp;播放</button>
-	    <button id="pause"  class="btn btn-sm btn-default"><span class="glyphicon glyphicon-pause"></span>&nbsp;暂停</button>
+	<div id="contianer">
+    <div class="hover-toolbar" id="toolbar">
+    <div class="btn-group btn-group-md">
+    	<button id="play"  data-fx="scrollHorz3d" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-play"></span>&nbsp;播放</button>
+	    <button id="pause" disabled="disabled"  class="btn btn-sm btn-default"><span class="glyphicon glyphicon-pause"></span>&nbsp;暂停</button>
    		<button id="stop" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-stop"></span>&nbsp;停止</button>
+     </div>
+     <div class="btn-group btn-group-md" style="margin-left: 15px;">
+     	<button id="prev" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-chevron-left"></span>&nbsp;上一张</button>
    		<button id="next" disabled="disabled" class="btn btn-sm btn-default">下一张&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></button>
-    </div>
-
+     </div>
+     </div>
     <div id="time-indicator"></div>
     <div class="slider-viewport">
     <div id="viewport">
-		<div id="box" class="">
-		    {% for ts_rla in theme_scene_rla %}
-		    	<!-- 一个figure对应一个场景 -->
+		<div id="box" class="" data-fx="{{theme.m_switch_effect}}">
+		    <!--{% for ts_rla in theme_scene_rla %}
+		    	 一个figure对应一个场景 
 				 <figure>
-				 	<!-- {{ts_rla.m_scn.m_layout}} -->
+				 	{{ts_rla.m_scn.m_layout}} 
 					<div class="gridster">
 					 <ul>
-					 	<!-- 一个布局(gridster.js里面的组件)相对一个组件 -->
+					 	一个布局(gridster.js里面的组件)相对一个组件
 						<li class="s1" data-row="1" data-col="1" data-sizex="1" data-sizey="1"></li>
 					 </ul>
 					</div>
 				</figure>
-			
-			{% endfor %}
+			{{theme.m_scenes.all | length}}
+			{{theme.id}}
+			{% endfor %}-->
 		</div>
 	</div>
 	</div>
@@ -51,9 +57,8 @@
 		<ul>
 		{% for sc in theme.m_scenes.all %}
 			<li data-id="{{sc.pk}}" data-layout="{{sc.m_layout}}">
-			<p class="layout" style="display:none">{{ sc.m_layout }}</p>
-			<div id="scence_wigets">
-				<ul>
+			<div class="scence_wigets">
+				<ul id="scId_{{sc.id}}">
 					{% for wi in sc.m_widgets.all %}
 						<li data-id="{{wi.pk}}"></li>
 					{% endfor %}
@@ -62,6 +67,7 @@
 			</li>
 		{% endfor %}
 		</ul>
+	</div>
 	</div>
 </body>
 <script src='{% static "js/lib/bootstrap.js" %}'></script>
@@ -74,15 +80,11 @@
 <script src="{% static 'js/theme/effects/box-slider-fx-tile-3d.js' %}"></script>
 <script>
 window.onload = function(){
-	requirejs(['theme/view'], function(Jqueryui,design){
-		var $box = $("#box");
-		var fx = $box.data("fx");
-		/*$box.boxSlider({
-	        speed: 1000
-	      , autoScroll: true
-	      , timeout: 1000
-	      , effect: fx
-		});*/
+	requirejs(['theme/view', 'toolbar'], function(Jqueryui,design){
+		$("#toolbar").toolbar({
+			bottom: "88px",
+			left: "37%"
+		})
 	})
 }
 </script>
