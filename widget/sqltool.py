@@ -148,6 +148,7 @@ class SqlTool():
         if group_part:
             sql_obj = sql_obj.group_by(*group_part)
 
+        logger.info(u'{0}'.format(str(sql_obj)))
         results = self.conn.execute(sql_obj).fetchall()
         return results
 
@@ -183,6 +184,29 @@ class SqlTool():
 
     def cvtFilter(self):
         pass
+
+
+    def cvtJoin(self, joins):
+        join_style  = joins[u'style']
+
+        # 连接至少需要2个表
+        if len(joins[u'data']) < 2:
+            return None
+
+        for idx, j_unit in enumerate(joins[u'data']):
+            t_str, c_str = j_unit.get(u'table'), j_unit.get(u'column')
+            table   = self.rf.get(t_str)
+            column  = getattr(table.c, c_str)
+
+            if 0 == idx:
+                my_join       = table
+                prev_column     = getattr(table.c, c_str)
+            else:
+                my_join = my_join.join(table, prev_column == column)
+
+        return my_join
+
+
 
 
     def cvtGroup(self, groups):

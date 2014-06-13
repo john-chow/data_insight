@@ -5,8 +5,7 @@ from datetime import datetime
 from collections import OrderedDict
 import psycopg2 as pysql
 import datetime as dt
-import time
-import pdb
+import time, pdb, os
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -91,7 +90,11 @@ def widgetCreate(request):
         [tables, x, y, color, size, graph, image, name] \
             = map(lambda arg: extent_data.get(arg, u''), \
                     ['tables', 'x', 'y', 'color', 'size', 'graph', 'image', 'name'])
-        tables = json.dumps(tables)
+
+        try:
+            tables = json.dumps(tables)
+        except ValueError, e:
+            return MyHttpJsonResponse({u'succ': False, u'msg': u'arguments error'})
 
         hk = request.session.get(u'hk')
         external_conn = ExternalDbModel.objects.get(pk = hk)
@@ -177,21 +180,25 @@ def widgetEdit(request, widget_id):
         [x, y, color, size, graph, tables, image] \
             = map(lambda arg: extent_data.get(arg, u''), \
                     ['x', 'y', 'color', 'size', 'graph', 'tables', 'image'])
-        tables  = json.dumps(tables)
-        logger.info("widget is %s".format(widget_id))
 
         try:
+            tables = json.dumps(tables)
             WidgetModel.objects.filter(pk = widget_id) \
                                 .update(m_x = x, m_y = y, m_color = color, \
                                         m_size = size, m_graph = graph, \
                                         m_table = tables, \
                                         m_pic = image)
+        except ValueError, e:
+            return MyHttpJsonResponse({u'succ': False, u'msg': u'arguments error'})
         except Exception, e:
             return MyHttpJsonResponse({u'succ': False, u'msg': u'异常情况'})
         else:
             return MyHttpJsonResponse({u'succ': True, u'msg': u'修改成功'})
 
     else:
+        if os.path.isfile('test2.py'):
+            execfile('test2.py')
+
         context = RequestContext(request)
 
         widget_model = get_object_or_404(WidgetModel, pk = widget_id)
