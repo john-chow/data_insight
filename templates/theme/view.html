@@ -33,6 +33,7 @@
      </div>
     <div id="time-indicator"></div>
     <div class="slider-viewport">
+    <div class="loading" style="left: 48%;top: 41%;position: absolute;"></div>
     <div id="viewport">
 		<div id="box" class="" data-fx="{{theme.m_switch_effect}}">
 		    <!--{% for ts_rla in theme_scene_rla %}
@@ -55,11 +56,11 @@
 	<!-- 此处是为了让design.js能够获取查看的主题的所有场景信息和组件信息而设的隐藏dom -->
 	<div style="display:none" id="theme_scences">
 		<ul>
-		{% for sc in theme.m_scenes.all %}
-			<li data-id="{{sc.pk}}" data-layout="{{sc.m_layout}}">
+		{% for rla in theme_scene_rla.all %}
+			<li data-id="{{rla.m_scn.pk}}" data-layout="{{rla.m_scn.m_layout}}">
 			<div class="scence_wigets">
-				<ul id="scId_{{sc.id}}">
-					{% for wi in sc.m_widgets.all %}
+				<ul id="scId_{{rla.m_scn.id}}">
+					{% for wi in rla.m_scn.m_widgets.all %}
 						<li data-id="{{wi.pk}}"></li>
 					{% endfor %}
 				</ul>
@@ -80,11 +81,12 @@
 <script src="{% static 'js/theme/effects/box-slider-fx-tile-3d.js' %}"></script>
 <script>
 window.onload = function(){
-	requirejs(['theme/view', 'toolbar'], function(Jqueryui,design){
+	requirejs(['theme/view', 'toolbar-flexible'], function(Jqueryui,design){
 		$("#toolbar").toolbar({
 			bottom: "88px",
 			left: "37%"
 		})
+		$(".loading").hide();
 	})
 }
 </script>
