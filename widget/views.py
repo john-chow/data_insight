@@ -139,6 +139,8 @@ def widgetOp(request, op):
         return HttpResponseRedirect(u'/widget/?page='+page+"&search="+search+"&sort="+sort)
     else:
         raise Http404()
+
+
 @login_required
 def batachOp(request, op):
     """
@@ -195,16 +197,6 @@ def widgetEdit(request, widget_id):
         widget_model = get_object_or_404(WidgetModel, pk = widget_id)
         request.session[u'widget_id'] = widget_id
 
-        """
-        hk      = request.session.get('hk')
-        tables  = json.loads(widget_model.m_table)
-        stRestore(hk).reflectTables(tables)
-        """
-        
-
-        # 以后要去掉，没必要记在session里面
-        #request.session[u'tables'] = [widget_model.m_table]
-
         # 有没有直接把Model里面全部属性转换成dict的办法？ 
         extent_data = widget_model.getExtentDict()
 
@@ -257,15 +249,6 @@ def connectDb(request):
         )
 
         if succ:
-            """
-            conn_model, created = ExternalDbModel.objects.get_or_create( \
-                m_ip = ip, m_port = port, m_db = db, m_user = user, m_pwd = pwd \
-            )
-
-            # 把数据库连接信息放进session
-            request.session[u'db_pk'] = conn_model.pk
-            """
-
             kind    = u'postgres'
             hk  = genConnHk(ip = ip, port = port, db = db, user = user, pwd = pwd, kind = kind)
             HK_ST_MAP[hk] = st
@@ -365,10 +348,6 @@ def reqDrawData(request):
             return MyHttpJsonResponse({u'succ': False, u'msg': rsu[1]})
 
         try:
-            """
-            db_pk = request.session[u'db_pk']
-            conn_arg = ExternalDbModel.objects.get(pk = db_pk).getConnTuple()
-            """
             hk      = request.session[u'hk']
             data = genWidgetImageData(extent_data, hk)
         except Exception, e:
