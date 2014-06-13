@@ -208,7 +208,9 @@ height: 620px;
 overflow: hidden; 
 position: relative;
 margin: auto;
-padding: 0 21px 140px;
+padding: 0 8px 149px;
+box-shadow: 1px 1px 18px #292929;
+margin-top: 25px;
 }
 #viewport, #draw_theme, .slide {
   width: 1020px;
@@ -218,7 +220,6 @@ padding: 0 21px 140px;
 
 #viewport {
   overflow: hidden;
-  margin-top: 25px;
 }
 
 #play_order{
@@ -246,11 +247,11 @@ padding-right: 19px;
 text-decoration: none;
 }
 .scence-title{
-	background: #4b8df8;
+background: #4b8df8;
 color: white;
-padding: 5px 10px;
+padding: 9px 13px;
 margin-bottom: 0;
-width: 1020px;
+width: 1000px;
 }
 .theme-scence-count{
 	color: white;

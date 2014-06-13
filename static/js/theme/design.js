@@ -91,10 +91,10 @@
 								return $( "<div class='theme-draggable'>"+ $(this).html()+"</div>" );
 							},
 					start: function(event,ui) {
-						$("#scene_design_right").css("border", "2px solid #666");
+						$(".slider-viewport").css("border", "2px solid #666");
 					},
 					stop: function(event,ui) {
-						$("#scene_design_right").css("border", "0");
+						$(".slider-viewport").css("border", "0");
 					}
 				});
         	},

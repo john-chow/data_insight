@@ -22,10 +22,15 @@ def themeList(request, template_name):
         page = request.GET.get('page' , '1')
         order = "m_create_time" if int(sort) == 1 else "-m_create_time"
         themeList = ThemeModel.objects.filter(m_name__contains=search,m_status=True).order_by(order)
+        scenceDict = {};
+        for theme in themeList:
+            t2sRal = theme.t2r_set.all().order_by("m_order")
+            for index,ral in enumerate(t2sRal):
+                scenceDict[str(theme.pk) + "_" + str(index)] = ral.m_scn
         context = RequestContext(request)
-        print themeList
         data = {
             "themeList": themeList,
+            "scenceDict": scenceDict,
             "search": search,
             "sort": sort,
             "page": page,
