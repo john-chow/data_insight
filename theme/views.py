@@ -21,7 +21,8 @@ def themeList(request, template_name):
         sort = request.GET.get('sort' , '-1')
         page = request.GET.get('page' , '1')
         order = "m_create_time" if int(sort) == 1 else "-m_create_time"
-        themeList = ThemeModel.objects.filter(m_name__contains=search,m_status=True).order_by(order)
+        themeList = ThemeModel.objects.filter(m_name__contains=search,m_status=True)\
+                    .order_by(order)
         scenceDict = {};
         for theme in themeList:
             t2sRal = theme.t2r_set.all().order_by("m_order")
@@ -90,7 +91,8 @@ def themeOp(request, op):
         else:
             theme.m_status = False
         theme.save()
-        return HttpResponseRedirect(u'/theme/?page='+page+"&search="+search+"&sort="+sort)
+        return HttpResponseRedirect(u'/theme/?page='+page+"&search="+search+\
+                "&sort="+sort)
     else:
         raise Http404()
 @login_required
