@@ -301,7 +301,6 @@ def selectTables(request):
         hk  = request.session.get(u'hk')
         st  = stRestore(hk)
         tables_list = st.listTables()
-        #tables_list     = getTableList(request)
 
         # 注意传多个来怎么办
         unkonwn_tables = list(set(chosen_tables) - set(tables_list))
@@ -319,49 +318,9 @@ def selectTables(request):
         st  = stRestore(hk)
         tables_list = st.listTables()
 
-        #tables_list = getTableList(request)
         return MyHttpJsonResponse( {u'succ': True, \
                                     u'data': json.dumps(tables_list)} )
 
-@require_http_methods(['GET'])
-def getTableList(request):
-    """
-    获取数据表的列表
-    """
-    logger.debug("function getTableList() is called")
-
-    conn    = findDbConn(request)
-    if not conn:
-        logger.debug('redirect to login')
-        return HttpResponseRedirect(u'http://10.1.50.125:9000/')
-    cursor          = conn.cursor()
-    cursor.execute(u"SELECT table_name FROM information_schema.tables \
-                                                WHERE table_schema='public'")
-    results         = cursor.fetchall()
-    table_list      = [ q[0] for q in results ]
-    return table_list
-
-
-def showDbForChosen(request):
-    """
-    显示选择的数据表
-    """
-    logger.debug("function showDbForChosen() is called")
-
-    if 'POST' == request.method:
-        form = ConnDbForm(request.POST)
-        if form.is_valid():
-            return HttpResponseRedirect('/widget/create')
-    else:
-        form = ConnDbForm
-
-    data = {
-        'form':             form
-        , 'supported_dbs':  SUPPORTED_DBS
-    }
-    context = RequestContext(request)
-
-    return render_to_response('widget/list.html', data, context)
 
 
 @require_http_methods(['GET'])
@@ -371,55 +330,24 @@ def getTableInfo(request):
     """
     logger.debug("function getTableInfo() is called")
 
-    tables = json.loads(request.GET.get(u'tables'))
     hk = request.session.get('hk')
-    st = stRestore(hk)
+    if not hk:
+        return MyHttpJsonResponse(  \
+            {u'succ': False, u'msg': u'Connect db first'}   \
+        )
+
+    try:
+        st = stRestore(hk)
+    except Exception, e:
+        return MyHttpJsonResponse(  \
+            {u'succ': False, u'msg': u'Connect db first'}   \
+        )
+
+    tables = json.loads(request.GET.get(u'tables'))
     tables_info_list = st.getTablesInfo(tables)
 
     res_dict = {u'succ': True, u'data': tables_info_list}
     return MyHttpJsonResponse(res_dict)
-
-"""
-    conn  = findDbConn(request)
-    if not conn:
-        logger.debug('redirect to login')
-        #return HttpResponseRedirect(u'http://10.1.50.125:9000/')
-        return HttpResponseRedirect(reverse('widget.showDbForChosen'))
-    cursor          = conn.cursor()
-
-    tables = request.session.get(u'tables')
-    data_list = []
-    for t in tables:
-        cursor.execute( \
-            u"SELECT columns.column_name,columns.data_type \
-            FROM information_schema.columns \
-            WHERE columns.table_schema = 'public' \
-            AND columns.table_name = '{0}'".format(t) \
-        )
-
-        results             = cursor.fetchall()
-
-        dm_list, me_list    = [], []
-        for name, type in results:
-            xxx_list = me_list if (u'int' in type \
-                                    or u'double' in type \
-                                    or u'real' in type \
-                                    ) \
-                                else dm_list
-            #logger.info("type is {0}".format(type))
-            xxx_list.append(name)
-
-            data = {
-                u'name':        t
-                , u'dm':        dm_list
-                , u'me':        me_list
-            }
-
-        data_list.append(data)
-
-    res_dict = {u'succ': True, u'data': data_list}
-    return MyHttpJsonResponse(res_dict)
-"""
 
 
 def reqDrawData(request):
@@ -629,68 +557,6 @@ def searchDataFromDb(extent_data, hk, msu_list, msn_list, group_list):
     return resultes
 
 
-    """
-    logger.debug("function searchDataFromDb() is called")
-
-    [col_kind_attr_list, row_kind_attr_list] = \
-            map( lambda i: extent_data.get(i, []), \
-                    (u'x', u'y') \
-                ) 
-
-
-    # echart 最多支持 1*2 的属性
-    col_len, row_len =  len(col_kind_attr_list), len(row_kind_attr_list) 
-
-    filters_list    = json.loads( extent_data.get(u'filter', u'[]') )
-    filter_sentence = makeupFilterSql(filters_list)
-
-
-    # 处理 msu_list
-    sel_str_list, group_str_list, combine_flag = [], [], False
-    for (attr_name, kind, cmd, x_y) in msu_list:
-        if 'sum' == cmd:
-            sel_str_list.append('sum("{0}") "{0}"'.format(attr_name))
-            combine_flag = True
-        elif 'avg' == cmd:
-            sel_str_list.append('avg("{0}") "{0}"'.format(attr_name))
-            combine_flag = True
-        else:
-            sel_str_list.append('"{0}"'.format(attr_name))
-
-
-    # 处理 msn_list
-    for (attr_name, kind, cmd, x_y) in msn_list:
-        if combine_flag:
-            group_str_list.append('"{0}"'.format(attr_name))
-        else:
-            sel_str_list.append('"{0}"'.format(attr_name))
-
-    # 处理 group_list
-    group_str_list.extend([attr_name for (attr_name, _, _, __) in group_list])
-    sel_str_list += group_str_list
-
-    # 以第一个类目属性做group by参数，其他的全部做成where条件
-    sql_template = u'select {attrs} from "{table}" {filter} {option}'
-    table_name   = extent_data[u'table']
-
-    group_str = u''
-    if len(group_str_list) > 0 and combine_flag:
-        group_str = 'group by ' + u','.join(group_str_list)
-
-    sel_str = u', '.join(sel_str_list)
-    sql     = sql_template.format(attrs=sel_str, table=table_name, \
-                                    filter=filter_sentence, option=group_str)
-
-    logger.info("sql is       {0}".format(sql))
-
-    conn        = connDb(*conn_arg)
-    cursor      = conn.cursor()
-    cursor.execute(sql)
-    data        = cursor.fetchall()
-    
-    return data
-    """
-
 
 def judgeWhichShapes(extent_data):
     """
@@ -710,39 +576,6 @@ def formatData(data_from_db, msu_list, msn_list, group_list, shape_in_use):
 
     echart = EChartManager().get_echart(shape_in_use)
     return echart.makeData(data_from_db, msu_list, msn_list, group_list)
-
-
-def findDbConn(request):
-    """
-    找到数据库连接对象
-    """
-    db_conn_pk      = request.session.get(u'db_pk', u'')
-    db_conn_model   = ExternalDbModel.objects.get(pk = db_conn_pk)
-    conn_arg        = db_conn_model.getConnTuple()
-    return connDb(*conn_arg)
-
-
-def connDb(ip, port, db, user, pwd):
-    """
-    连接数据库函数
-    """
-    ip      = ip if ip else u'127.0.0.1'
-    port    = port if port else u'5432'
-
-    conn_str = u'host={i} port={p} dbname={d} user={u} password={pw}'\
-                    .format(i=ip, p=port, d=db, u=user, pw=pwd)
-
-    try:
-        conn = pysql.connect(conn_str)
-
-    except Exception, e:
-        return None
-    else:
-        return conn
-
-
-    
-
 
 
 

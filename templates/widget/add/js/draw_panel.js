@@ -124,16 +124,6 @@ define([
 				, _.bind(this.drawModel.onGetUserAct, this.drawModel)
 		  	);
 
-            /*
-			var self = this;
-			Backbone.Events.on(
-				"area:change_table"
-				, function(data) {
-					self.drawModel.set(data)
-				}
-			);
-            */
-
 			var self = this;
 			Backbone.Events.on(
 				"center:tables_ok"
