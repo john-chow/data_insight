@@ -521,7 +521,7 @@ def searchDataFromDb(extent_data, hk, msu_list, msn_list, group_list):
 
     selects, groups  = [], []
     for axis_tuple in (msu_list + msn_list):
-        kind    = axis_tuple[1]
+        kind    = axis_tuple[2]
         if 0 == kind:
             selects.append(axis_tuple)
         else:

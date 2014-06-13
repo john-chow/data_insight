@@ -53,7 +53,6 @@ class EChart():
 
 class Bar_Line_Base(EChart):
     def makeData(self, data_from_db, msu_list, msn_list, group_list):
-    
         msu_len, msn_len, group_len = \
                 map(lambda x: len(x), (msu_list, msn_list, group_list))
 
