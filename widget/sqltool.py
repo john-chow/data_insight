@@ -161,7 +161,7 @@ class SqlTool():
 
             t_str, c_str    = s[u'table'], s[u'column']
             """
-            t_str, c_str    = u'diamond', s[0]
+            t_str, c_str    = s[0], s[1]
             table           = self.rf.get(t_str)
 
             if not hasattr(table.c, c_str):  
@@ -170,7 +170,7 @@ class SqlTool():
 
             sel_obj = getattr(table.c, c_str)
 
-            cmd    = s[2]
+            cmd    = s[3]
             if cmd and u'rgl' != cmd:
                 f       = self.cvtFunc(cmd)
                 sel_obj = f(sel_obj)
@@ -194,7 +194,7 @@ class SqlTool():
 
             t_str, c_str    = g[u'table'], g[u'col']
             """
-            t_str, c_str    = u'diamond', g[0]
+            t_str, c_str    = g[0], g[1]
             table   = self.rf.get(t_str)
 
             if not hasattr(table.c, c_str):  

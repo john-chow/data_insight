@@ -66,14 +66,14 @@ class Bar_Line_Base(EChart):
             raise Exception(u'cant draw {0}'.format(self.type))
 
         # 先看度量列表，确定所在轴
-        attr_name, attr_kind, attr_cmd, attr_axis = msu_list[0]
+        _table, attr_name, attr_kind, attr_cmd, attr_axis = msu_list[0]
         msu_info_list = x_info_list if u'col' == attr_axis else y_info_list
         msu_info_list.append({u'type': u'value'})
 
         # 再看维度列表
         if 1 == msn_len:
             msn_idx = msu_len
-            attr_name, attr_kind, attr_cmd, attr_axis = msn_list[0]
+            _table, attr_name, attr_kind, attr_cmd, attr_axis = msn_list[0]
             msn_info_list = x_info_list if u'col' == attr_axis else y_info_list
             msn_info_list.append({u'type': u'category', u'data': list(set(all_data[msn_idx]))})
         elif 0 == msn_len:
@@ -186,80 +186,6 @@ class Radar(EChart):
             u'legend_series':       legend_series_data
             , u'indicator':         indicator
         }
-
-        """
-        name_list = [n[-1] for n in data_from_db]
-        
-        legend_series_data = []
-        for name in name_list:
-
-
-        
-
-            
-        msu_list_len, msn_list_len, group_list_len = map( len, [msu_list, msn_list, group_list] )
-        all_list        = msu_list + msn_list + group_list
-        all_len         = len(all_list)
-
-        all_data        = map(list, zip(*data_from_db))
-
-        for idx in range(all_len -1, -1, -1):
-            (attr_name, attr_kind, attr_cmd, attr_axis) = all_list[idx]
-            if idx >= all_len - group_list_len:
-                legend_data = list(set(all_data[idx]))
-                self.option[u'legend'] = {
-                    u'orient':  u'vertical',
-                    u'x':       u'right',
-                    u'y':       u'bottom',
-                    u'data':    legend_data
-                }
-
-            elif idx >= msu_list_len and idx < all_len - group_list_len:
-                one_indicator = []
-                text_list = list(set(all_data[idx]))
-                one_indicator = [ {u'text': t} for t in text_list ]
-                self.option[u'polar'].append({
-                    u'indicator':   one_indicator
-                })
-
-            else:
-                # 如果没有legend，也就是没有group的属性
-                #if not hasattr(self.option, u'legend'):
-                if not u'legend' in self.option.keys():
-                    self.option[u'series'].append({
-                        u'type':        u'radar'
-                        , u'data':      {
-                            u'value':   all_data[idx]
-                        }
-                    })
-                else:
-                    series_unit = {
-                        u'type':    u'radar'
-                        , u'data':  []
-                    }
-
-                    series_data = []
-                    for le in self.option[u'legend'][u'data']:
-                        series_data_unit = {
-                            u'name':    le
-                        }
-                        indicator_list = self.option[u'polar'][0][u'indicator']
-                        series_data_unit[u'value'] = [value for d in indicator_list \
-                                                        for (value, attr, group) in data_from_db \
-                                                            if le == group and attr == d[u'text']]
-                        series_data.append(series_data_unit)
-
-                    self.option[u'series'].append({
-                        u'type':        u'radar'
-                        , u'data':      series_data
-                    })
-
-                # 添加max值进去     TBD
-                
-
-        return self.option
-        """
-
 
 
 class Map():

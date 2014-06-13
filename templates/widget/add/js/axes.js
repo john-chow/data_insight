@@ -212,10 +212,12 @@ define([
 			var kind = ( "mension" == $attrObj.attr("type") ? 1 : 0 );
 			var cmd = $attrObj.find(".axes-math").attr("data");
 			var cmd =(cmd=="")?"rgl":cmd;
+            var table = $attrObj.attr("table");
 			return {
 				"attr": 	$attrObj.find(".attr").html()
 				, "kind": 	kind
 				, "cmd": 	cmd
+				, "table": 	table
 			}
 		},
 

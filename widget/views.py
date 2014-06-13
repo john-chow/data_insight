@@ -349,7 +349,7 @@ def reqDrawData(request):
 
         try:
             hk      = request.session[u'hk']
-            data = genWidgetImageData(extent_data, hk)
+            data    = genWidgetImageData(extent_data, hk)
         except Exception, e:
             logger.debug("catch Exception: %s" % e)
             error_dict = {u'succ': False, u'msg': str(e)}
@@ -490,18 +490,19 @@ def calc_msu_msn_list(extent_data):
     len_col_attr_list = len(col_kind_attr_list)
     for idx, attr_kind_cmd in enumerate(col_kind_attr_list + row_kind_attr_list):
         attr_kind_cmd_tuple = tuple(map(lambda x: attr_kind_cmd[x], \
-                                        [u'attr', u'kind', u'cmd']))
+                                        [u'table', u'attr', u'kind', u'cmd']))
 
         col_row_flag = u'col' if idx < len_col_attr_list else u'row'
-        tmp_attr_list = msn_list if u'rgl' == attr_kind_cmd_tuple[2] \
+        tmp_attr_list = msn_list if u'rgl' == attr_kind_cmd_tuple[3] \
                                         else msu_list
         tmp_attr_list.append( attr_kind_cmd_tuple + (col_row_flag,) )
 
     # xxx
     group_list = []
     color_attr = extent_data.get( u'color', u'' )
+    color_attr_table = extent_data.get( u'table', u'' )
     if color_attr:
-        group_list.append( (color_attr, 2, u'', u'group') )
+        group_list.append((color_attr_table, color_attr, 2, u'', u'group'))
 
 
     return msn_list, msu_list, group_list

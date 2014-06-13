@@ -115,6 +115,7 @@ define([
 			$.each( this.$(".mension, .measure"), function(i, obj) {
 				$(obj).attr("id", "db_property_" + i);
 				$(obj).attr("db-data", "db_property_" + i);
+				$(obj).attr("table", model.get("name"))
 			})
 
             this.$(".mension, .measure").on("dragstart", this.drag);
