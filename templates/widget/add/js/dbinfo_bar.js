@@ -50,8 +50,11 @@ define([
 			_.bindAll(this, "onTablesFetch", "onTableClicked");
 
 			this.collection = new TablesCollection();
+
+            this.collection.tables = JSON.parse($("#page_data").html()).tables;
 			this.collection.fetch({
 				"reset": true
+                , data: {tables: JSON.stringify(this.collection.tables)}
 				, success: this.onTablesFetch
 			});
 
@@ -82,7 +85,9 @@ define([
 			this.$(".table_name:first").trigger("click");
 
             // 通知整个页面正式加载完成
-            Backbone.Events.trigger("center:page_loaded")
+            Backbone.Events.trigger("center:page_loaded");
+            Backbone.Events.trigger("center:tables_ok"
+                                    , {tables: this.collection.tables})
 		},
 
 		render: function(model) {

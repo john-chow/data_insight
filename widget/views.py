@@ -22,8 +22,37 @@ from django.views.decorators.csrf import csrf_exempt
 from widget.models import WidgetModel, ExternalDbModel
 from widget.echart import EChartManager
 from widget.forms import ConnDbForm
+from widget.sqltool import SqlTool
 from common.tool import MyHttpJsonResponse
 from common.log import logger
+
+
+# 登陆数据库信息的hash key到SqlTool对象之间的映射表
+HK_ST_MAP   = {}
+
+def stCreate():
+    return SqlTool()
+
+def stRestore(hk):
+    if not hk:
+        return False
+
+    st = HK_ST_MAP.get(hk)
+    if not st:
+        st = SqlTool().restore(hk)
+
+    return st
+
+
+def genConnHk(kind, ip, port, db, user, pwd):
+    str = u'{kind}_{ip}_{port}_{db}_{user}_{pwd}'
+    cnt = str.format(   \
+        kind = kind, user = user, pwd = pwd, \
+        ip = ip,   port = port, db = db   \
+    )
+    return hash(cnt)
+
+
 
 
 @login_required
@@ -59,17 +88,17 @@ def widgetCreate(request):
     if u'POST' == request.method:
         extent_data = json.loads(request.POST.get('data', '{}'))
 
-        [table, x, y, color, size, graph, image, name] \
+        [tables, x, y, color, size, graph, image, name] \
             = map(lambda arg: extent_data.get(arg, u''), \
-                    ['table', 'x', 'y', 'color', 'size', 'graph', 'image', 'name'])
+                    ['tables', 'x', 'y', 'color', 'size', 'graph', 'image', 'name'])
+        tables = json.dumps(tables)
 
-        db_conn_pk = request.session.get('db_pk')
-        external_conn = ExternalDbModel.objects.get(pk = db_conn_pk)
-
+        hk = request.session.get(u'hk')
+        external_conn = ExternalDbModel.objects.get(pk = hk)
 
         try:
             widget = WidgetModel.objects.create( 
-                m_name='组件', m_table = table, m_x=x, m_y=y, \
+                m_name='组件', m_table = tables, m_x=x, m_y=y, \
                 m_color = color, m_size = size, m_graph = graph, \
                 m_external_db = external_conn, m_pic = image  \
             )
@@ -80,9 +109,15 @@ def widgetCreate(request):
         return MyHttpJsonResponse({u'succ': True, u'wiId': widget.pk, \
                                     u'msg': u'保存成功'})
     else:
+        hk      = request.session.get(u'hk')
+        st      = stRestore(hk)
+
+        tables  = request.session.get('tables')
+
         context = RequestContext(request)
-        dict = {}
+        dict = {u'content': json.dumps({u'tables': tables})}
         return render_to_response(u'add.html', dict, context)
+
 
 @login_required
 def widgetOp(request, op):
@@ -137,15 +172,17 @@ def widgetEdit(request, widget_id):
     if u'POST' == request.method:
         extent_data = json.loads(request.POST.get('data', '{}'))
         
-        [x, y, color, size, graph, table, image] \
+        [x, y, color, size, graph, tables, image] \
             = map(lambda arg: extent_data.get(arg, u''), \
-                    ['x', 'y', 'color', 'size', 'graph', 'table', 'image'])
+                    ['x', 'y', 'color', 'size', 'graph', 'tables', 'image'])
+        tables  = json.dumps(tables)
         logger.info("widget is %s".format(widget_id))
 
         try:
             WidgetModel.objects.filter(pk = widget_id) \
                                 .update(m_x = x, m_y = y, m_color = color, \
-                                        m_size = size, m_graph = graph, m_table = table, 
+                                        m_size = size, m_graph = graph, \
+                                        m_table = tables, \
                                         m_pic = image)
         except Exception, e:
             return MyHttpJsonResponse({u'succ': False, u'msg': u'异常情况'})
@@ -157,9 +194,16 @@ def widgetEdit(request, widget_id):
 
         widget_model = get_object_or_404(WidgetModel, pk = widget_id)
         request.session[u'widget_id'] = widget_id
+
+        """
+        hk      = request.session.get('hk')
+        tables  = json.loads(widget_model.m_table)
+        stRestore(hk).reflectTables(tables)
+        """
+        
+
         # 以后要去掉，没必要记在session里面
-        request.session[u'tables'] = [widget_model.m_table]
-        request.session[u'db_pk'] = widget_model.m_external_db.pk
+        #request.session[u'tables'] = [widget_model.m_table]
 
         # 有没有直接把Model里面全部属性转换成dict的办法？ 
         extent_data = widget_model.getExtentDict()
@@ -203,22 +247,38 @@ def connectDb(request):
     logger.debug("function connectDb() is called")
 
     if u'POST' == request.method:
-        args_list = map(lambda x: request.POST.get(x, u'') \
-                                , [u'ip', u'port', u'db', u'user', u'pwd'])
+        [ip, port, db, user, pwd, kind] \
+                = map(lambda x: request.POST.get(x)  \
+                        , [u'ip', u'port', u'db', u'user', u'pwd', u'kind'])
 
-        if connDb(*tuple(args_list)):
-            [ip, port, db, user, pwd] = args_list
+        st = stCreate()
+        succ, msg = st.connDb( \
+            kind = 'postgres', ip = ip, port = port, db = db, user = user, pwd = pwd \
+        )
 
+        if succ:
+            """
             conn_model, created = ExternalDbModel.objects.get_or_create( \
                 m_ip = ip, m_port = port, m_db = db, m_user = user, m_pwd = pwd \
             )
 
             # 把数据库连接信息放进session
             request.session[u'db_pk'] = conn_model.pk
+            """
+
+            kind    = u'postgres'
+            hk  = genConnHk(ip = ip, port = port, db = db, user = user, pwd = pwd, kind = kind)
+            HK_ST_MAP[hk] = st
+            request.session[u'hk'] = hk
+
+            ExternalDbModel.objects.get_or_create(pk = hk, \
+                m_kind = kind, m_user = user, m_pwd = pwd, \
+                m_ip = ip, m_port = port, m_db = db \
+            )
 
             return HttpResponseRedirect(u'/widget/tables')
         else:
-            err_dict = {u'succ': False, u'msg': u'无法连接数据库'}
+            err_dict = {u'succ': False, u'msg': msg}
             return MyHttpJsonResponse(err_dict)
 
     else:
@@ -226,6 +286,8 @@ def connectDb(request):
         form_str    = f.as_p()
         res_dict    = {u'succ': True, u'data': form_str}
         return MyHttpJsonResponse(res_dict)
+
+
 @csrf_exempt
 def selectTables(request):
     """
@@ -235,24 +297,33 @@ def selectTables(request):
 
     if u'POST' == request.method:
         chosen_tables   = request.POST.getlist(u'table', u'[]')
-        tables_list     = getTableList(request)
+
+        hk  = request.session.get(u'hk')
+        st  = stRestore(hk)
+        tables_list = st.listTables()
+        #tables_list     = getTableList(request)
 
         # 注意传多个来怎么办
         unkonwn_tables = list(set(chosen_tables) - set(tables_list))
 
         if 0 == len(unkonwn_tables):
             request.session[u'tables']  =   chosen_tables
+            st.reflectTables(chosen_tables)
             logger.debug('redirect to widget/create')
             return HttpResponseRedirect(u'/widget/create')
         else:
             res_dict = {u'succ': False, u'msg': u'xxxxx'}
             return HttpResponse(res_dict, content_type='application/json')
     else:
-        tables_list = getTableList(request)
+        hk  = request.session.get(u'hk')
+        st  = stRestore(hk)
+        tables_list = st.listTables()
+
+        #tables_list = getTableList(request)
         return MyHttpJsonResponse( {u'succ': True, \
                                     u'data': json.dumps(tables_list)} )
 
-
+@require_http_methods(['GET'])
 def getTableList(request):
     """
     获取数据表的列表
@@ -293,12 +364,22 @@ def showDbForChosen(request):
     return render_to_response('widget/list.html', data, context)
 
 
+@require_http_methods(['GET'])
 def getTableInfo(request):
     """
     获取数据表信息
     """
     logger.debug("function getTableInfo() is called")
 
+    tables = json.loads(request.GET.get(u'tables'))
+    hk = request.session.get('hk')
+    st = stRestore(hk)
+    tables_info_list = st.getTablesInfo(tables)
+
+    res_dict = {u'succ': True, u'data': tables_info_list}
+    return MyHttpJsonResponse(res_dict)
+
+"""
     conn  = findDbConn(request)
     if not conn:
         logger.debug('redirect to login')
@@ -338,6 +419,7 @@ def getTableInfo(request):
 
     res_dict = {u'succ': True, u'data': data_list}
     return MyHttpJsonResponse(res_dict)
+"""
 
 
 def reqDrawData(request):
@@ -355,9 +437,12 @@ def reqDrawData(request):
             return MyHttpJsonResponse({u'succ': False, u'msg': rsu[1]})
 
         try:
+            """
             db_pk = request.session[u'db_pk']
             conn_arg = ExternalDbModel.objects.get(pk = db_pk).getConnTuple()
-            data = genWidgetImageData(extent_data, conn_arg)
+            """
+            hk      = request.session[u'hk']
+            data = genWidgetImageData(extent_data, hk)
         except Exception, e:
             logger.debug("catch Exception: %s" % e)
             error_dict = {u'succ': False, u'msg': str(e)}
@@ -438,7 +523,7 @@ def makeupFilterSql(filter_list):
 
 
 
-def genWidgetImageData(extent_data, conn_arg):
+def genWidgetImageData(extent_data, hk):
     """
     生成返回前端数据
     """
@@ -452,12 +537,12 @@ def genWidgetImageData(extent_data, conn_arg):
 
     shape_list, shape_in_use    = judgeWhichShapes(extent_data)
     shape_in_use                = extent_data.get(u'graph', u'bar')
-    chart_data                  = getDrawData(extent_data, shape_in_use, conn_arg)
+    chart_data                  = getDrawData(extent_data, shape_in_use, hk)
 
     return {u'type': shape_in_use, u'data': chart_data}
 
 
-def getDrawData(extent_data, shape_in_use, conn_arg):
+def getDrawData(extent_data, shape_in_use, hk):
     """
     获取画图参数
     """
@@ -467,7 +552,7 @@ def getDrawData(extent_data, shape_in_use, conn_arg):
     msn_list, msu_list, group_list = calc_msu_msn_list(extent_data)
 
     # 从数据库中找出该图形要画得数据
-    data_from_db = searchDataFromDb(extent_data, conn_arg, msu_list, msn_list, group_list)
+    data_from_db = searchDataFromDb(extent_data, hk, msu_list, msn_list, group_list)
 
     # 为echart格式化数据
     echart_data = formatData(data_from_db, msu_list, msn_list, group_list, shape_in_use)
@@ -516,9 +601,34 @@ def calc_msu_msn_list(extent_data):
     
 
 
-def searchDataFromDb(extent_data, conn_arg, msu_list, msn_list, group_list):
+def searchDataFromDb(extent_data, hk, msu_list, msn_list, group_list):
     """
     要保证select的顺序是 measure、mension、group
+    """
+
+    # 轴上面的数字列一定存在sql语句中select段
+    # 轴上面的文字列一定存在sql语句中的select段和group段
+    # 选择区别里面的数字列不存在sql语句中，它只是做值域范围设定用的
+    # 选择区别里面的文字列存在sql语句中的select段和group段
+
+    selects, groups  = [], []
+    for axis_tuple in (msu_list + msn_list):
+        kind    = axis_tuple[1]
+        if 0 == kind:
+            selects.append(axis_tuple)
+        else:
+            selects.append(axis_tuple)
+            groups.append(axis_tuple)
+
+    for group_tuple in group_list:
+        selects.append(group_tuple)
+        groups.append(group_tuple)       
+
+    st  = stRestore(hk)
+    resultes = st.exeSelect(selects = selects, groups = groups)
+    return resultes
+
+
     """
     logger.debug("function searchDataFromDb() is called")
 
@@ -579,6 +689,7 @@ def searchDataFromDb(extent_data, conn_arg, msu_list, msn_list, group_list):
     data        = cursor.fetchall()
     
     return data
+    """
 
 
 def judgeWhichShapes(extent_data):

@@ -209,7 +209,7 @@ define([
 		},
 
 		makeAttrData: function($attrObj) {	
-			var kind = ( "mension" == $attrObj.attr("type") ? 0 : 1 );
+			var kind = ( "mension" == $attrObj.attr("type") ? 1 : 0 );
 			var cmd = $attrObj.find(".axes-math").attr("data");
 			var cmd =(cmd=="")?"rgl":cmd;
 			return {
