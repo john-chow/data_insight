@@ -21,6 +21,21 @@ def key(d, key_name):
     return value
 key = register.filter('key', key) 
 
+def valOfKey(d, key_attr):
+    """
+        通过字典key获取的对象的指定属性的值,参数key_attr的格式为"'key'+'_'+'attributeName'"，在html中使用格式:{{ dict|key:key,attr }}
+    """
+    try:
+        newKA = [el.strip() for el in key_attr.split(",")]
+        key = newKA[0]
+        attr = newKA[1]
+        value = d[key]
+    except:
+        from django.conf import settings
+        value = settings.TEMPLATE_STRING_IF_INVALID
+    return eval('value.%s'%attr)
+valOfKey = register.filter('valOfKey', valOfKey) 
+
   
 def percent_decimal(value):  
     """
