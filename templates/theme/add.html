@@ -47,7 +47,7 @@
 		<div id="content">
 			<div class="row">
 		  		<div id="theme_design_left" style="height:680px" class="content-left col-md-2 col-lg-2">
-		  			<table height="100%">	
+		  			<table height="100%" width="100%">	
 		  				<tbody>
 		  					<tr height="30%"><td>
 		  						<div style="height:100%" id="choosed_chart" class="panel panel-default">
@@ -63,7 +63,8 @@
 		  						<div style="height:100%" id="choosed_layout" class="panel panel-default">
 								    <div class="panel-heading">播放顺序</div>
 								    <ol id="play_order">
-								    	
+								    	{% for theme.t2r_set.all %}
+								    	{% endfor %}
 								    </ol>
 								</div>
 		  					</td></tr>

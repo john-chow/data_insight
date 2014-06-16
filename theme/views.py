@@ -22,16 +22,16 @@ def themeList(request, template_name):
         page = request.GET.get('page' , '1')
         order = "m_create_time" if int(sort) == 1 else "-m_create_time"
         themeList = ThemeModel.objects.filter(m_name__contains=search,m_status=True)\
-                    .order_by(order)
-        scenceDict = {};
-        for theme in themeList:
-            t2sRal = theme.t2r_set.all().order_by("m_order")
-            for index,ral in enumerate(t2sRal):
-                scenceDict[str(theme.pk) + "_" + str(index)] = ral.m_scn
+        #             .order_by(order)
+        # scenceDict = {};
+        # for theme in themeList:
+        #     t2sRal = theme.t2r_set.all().order_by("m_order")
+        #     for index,ral in enumerate(t2sRal):
+        #         scenceDict[str(theme.pk) + "_" + str(index)] = ral.m_scn
         context = RequestContext(request)
         data = {
             "themeList": themeList,
-            "scenceDict": scenceDict,
+            # "scenceDict": scenceDict,
             "search": search,
             "sort": sort,
             "page": page,
@@ -45,7 +45,8 @@ def themeCreate(request):
         添加主题
     """
     if request.method == u'GET':
-        sceneList = SceneModel.objects.all
+        sceneList = SceneModel.objects.filter(m_is_distributed = True)\
+                                                .values(u'pk', u'm_snapshot', u'm_name')
         data = {
                 'allowed_scenes':                sceneList,
         }
@@ -119,11 +120,39 @@ def batachOp(request, op):
         return HttpResponseRedirect(u'/theme/batch?page='+page)
     else:
         raise Http404()
-def themeEdit(request):
+def themeEdit(request, id):
     """
     主题编辑
     """
-    pass
+    if request.method == u'GET':
+        logger.info("id:" + id)
+        context = RequestContext(request)
+        theme = get_object_or_404(ThemeModel, pk = id)
+        sceneList = SceneModel.objects.filter(m_is_distributed = True)\
+                                                .values(u'pk', u'm_snapshot', u'm_name')
+        data = {
+                'theme':                         theme,
+                'allowed_scenes':                sceneList
+        }
+        return render_to_response('theme/add.html', data, context)
+    else:
+        name, switch_effect = map(lambda x: request.POST.get(x), \
+                                        ('name', 'switch_effect'))
+        scences = json.loads(request.POST.get('scences'))
+        ThemeModel.objects.filter(pk = id).update(\
+                                                  m_name = name, m_switch_effect = switch_effect)
+        rla_list = []
+        for sc in scences:
+            scence = SceneModel.objects.get(pk = sc.get(u'id'))
+            rla = TheToScnRelationModel( \
+                m_sub = theme, m_scn = scence,m_order=sc.get(u'order')
+            )
+            rla_list.append(rla)
+        TheToScnRelationModel.objects.filter(m_sub = theme).delete()
+        TheToScnRelationModel.objects.bulk_create(rla_list)
+        return MyHttpJsonResponse({u'succ': True, u'id': theme.pk, \
+                                    u'msg': u'编辑成功'})
+        
 def view(request, id):
     """
     某个主题浏览界面

@@ -1,9 +1,3 @@
-/*!
- * 包含组件，场景，主题list页面样式
- *
- * Date: 2014-05-01
- */
-
 body {
 font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
@@ -57,7 +51,6 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 
 .element-list {
 	padding:25px 0;
-	/*min-height: 630px;*/
 }
 
 .element-list-div {
@@ -72,11 +65,11 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 
 .element-list-div>div{
 	cursor: pointer;
-	/*display: block;
+	display: block;
 	border-radius: 8px;
 	margin-bottom: 5px;
 	width: 130px;
-	height: 130px;*/
+	height: 130px;
 }
 
 .content-menu form {
@@ -126,8 +119,6 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
 .content-left .panel-heading{
 	padding-left: 30px;
-	background: #852b99 !important;
-	color: white;
 }
 
 .content-left ul li:hover {	
@@ -220,95 +211,60 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
 
 #widget_list ,
-#batch_widget_list,
-#scene_list ,
-#batch_scene_list ,
-#theme_list ,
-#batch_theme_list {
-	min-height: 300px;
+#batch_widget_list {
+	min-height: 630px;
 	padding: 15px;
 }
 
 .element-list-div{
-	margin-bottom: 20px;
-width: 503px;
-float: left;
-margin-right: 70px;
-border: 2px solid #bbb;
+	border: 2px solid #ddd;
+	padding: 5px;
 }
 
-.element-list-div .heading{
-background: #27A9E3;
-color: white;
-padding: 4px;
-}
-.element-list-div .heading span{
-font-size: 15px;
-padding-left: 4px;
-letter-spacing: 5px;
-}
-
-.batch-widget-select,
-.batch-scene-select,
-.batch-theme-select {
+.batch-widget-select {
 	border: 2px solid #67B1EA !important;
 }
 
-.batch-widget-select:hover,
-.batch-scene-select:hover,
-.batch-theme-select:hover {
+.batch-widget-select:hover {
 	border: 2px solid #67B1EA !important;
 }
 
 
-#widget_list .element-list-div,
-#scene_list .element-list-div,
-#theme_list .element-list-div {
+#widget_list .element-list-div {
 /*	-webkit-box-shadow: 0 0 2px rgba(0,0,0,0.4);
 	-moz-box-shadow: 0 0 10px rgba(0,0,0,0.4);
 	box-shadow: 0px 0px 1px rgba(0,0,0,0.4);*/
 	border: 2px solid #ddd;
+	padding: 5px;
 }
 
-#batch_widget_list .element-list-div:hover,
-#batch_scene_list .element-list-div:hover,
-#batch_theme_list .element-list-div:hover {
+#batch_widget_list .element-list-div:hover {
 	border: 2px solid #C7C1C5;
 }
 
-#batch_widget_list .element-list-div:hover .icon-check, 
-#batch_scene_list .element-list-div:hover .icon-check,
-#batch_theme_list .element-list-div:hover .icon-check {
+#batch_widget_list .element-list-div:hover .icon-check{
 	border: 2px solid #C7C1C5;
 }
 
-.batch-widget-select:hover .icon-check,
-.batch-scene-select:hover .icon-check,
-.batch-theme-select:hover .icon-check {
+.batch-widget-select:hover .icon-check{
 	border: 2px solid #67B1EA !important;
 }
 
 #widget_list .element-list-div:hover {
-	border: 2px solid #27A9E3;
+	border: 2px solid #C7C1C5;
 }
 
-.element-list-widget,
-.element-list-scene,
-.element-list-theme {
+.element-list-widget {
 	position: relative;
 }
 
-.js-mod-widget-top,
-.js-mod-scene-top,
-.js-mod-theme-top {
+.js-mod-widget-top {
 	position: absolute;
 	top: 1px;
 	right: 1px;
 }
 
-.js-mod-widget-ico,
-.js-mod-scene-ico,
-.js-mod-theme-ico {
+.js-mod-widget-ico {
 	position: relative;
 	z-index: 50;
 	display: none;
@@ -321,9 +277,7 @@ letter-spacing: 5px;
 	box-shadow: 0 0 2px rgba(0,0,0,.15);
 }
 
-.element-list-div:hover .js-mod-widget-ico ,
-.element-list-div:hover .js-mod-scene-ico,
-.element-list-div:hover .js-mod-theme-ico {
+.element-list-div:hover .js-mod-widget-ico {
 	display: block;
 }
 
@@ -343,8 +297,7 @@ letter-spacing: 5px;
 	background-position: -499px -170px;
 }
 
-.element-list-widget>a ,
-.element-list-wcene>a {
+.element-list-widget>a {
 	display: block;
 	width: 100%;
 	height: 100%;
@@ -352,9 +305,7 @@ letter-spacing: 5px;
 	background-color: #F5F5F5;
 }
 
-.js-mod-widget-con,
-.js-mod-scene-con,
-.js-mod-theme-con {
+.js-mod-widget-con {
 	display: none;
 	position: absolute;
 	top: 21px;
@@ -366,44 +317,35 @@ letter-spacing: 5px;
 	box-shadow: 0 0 2px rgba(0,0,0,.15);
 }
 
-.js-mod-widget-con ul,
-.js-mod-scene-con ul,
-.js-mod-theme-con ul {
+.js-mod-widget-con ul {
 	list-style: none;
 	min-width: 102px;
 	padding: 0;
 	margin: 0;
 }
 
-.js-mod-widget-con li,
-.js-mod-scene-con li,
-.js-mod-theme-con li {
+.js-mod-widget-con li {
 	padding: 2px 0;
 }
 
-.js-mod-widget-con li a,
-.js-mod-scene-con li a,
-.js-mod-theme-con li a {
+.js-mod-widget-con li a {
 	color: #262626;
 	display: block;
 	padding: 3px 0;
 	margin: 0;
 }
 
-.js-mod-widget-con li a:hover,
-.js-mod-scene-con li a:hover,
-.js-mod-theme-con li a:hover  {
+.js-mod-widget-con li a:hover {
 	text-decoration: none;
 	background: #5caae6;
 	color: #fff;
 }
 
-.js-mod-widget-con i,
-.js-mod-scene-con i,
-.js-mod-theme-con i {
+.js-mod-widget-con i {
 	margin: 0 8px;
 	vertical-align: -3px;
 }
+
 
 .icon-edit-m {
 	background-image: url(../img/list-background.png);
@@ -419,6 +361,8 @@ letter-spacing: 5px;
 	background-image: url(../img/list-background.png);
 	background-position: -499px -119px;
 }
+
+
 
 .element-list-div:hover {
 	border: 2px solid #C7C1C5;
@@ -448,9 +392,7 @@ letter-spacing: 5px;
 	vertical-align: middle;
 }
 
-.batch-widget-select .icon-check,
-.batch-scene-select .icon-check,
-.batch-theme-select .icon-check {
+.batch-widget-select .icon-check {
 	background-image: url(../img/photo.32-gag140424115042.png);
 	background-position: -661px -150px;
 	background-color: #67B1EA;
@@ -471,38 +413,46 @@ letter-spacing: 5px;
 	width: 160px;
 }
 
-#widget_count,
-#scene_count,
-#theme_count {
+#widget_count {
 	text-align: left;
 	padding: 10px;
+	border-bottom: 1px solid #ddd;
 }
 
-.content-menu{
-	padding: 15px;
-	background: #4b8df8;
-	color: white;
+.show-msg{
+	display: none;
+	position: absolute;
+	top: 76px;
+	text-align: center;
+	left: 43%;
+	line-height: 3;
+	width: 255px;
+	height: 37px;
+	letter-spacing: 10px;
+	font-size: 15px;
+	z-index: 9999999;
 }
 
-.toolbar{
-	background: #eee;
-padding: 5px 10px;
+.hover-toolbar {
+height: 50px;
+background: #eee;
+padding: 10px 32px;
 border: 1px solid #bbb;
+border-radius: 5px;
+-moz-border-radius: 5px;
+-webkit-border-radius: 5px;
+cursor: move;
 }
-.test{
-margin-bottom: 20px;
-width: 500px;
-float: left;
-margin-right: 70px;
-border: 2px solid #bbb;
-}
-.test1{
-background: #27A9E3;
-color: white;
-padding: 8px;
-}
-.test1 span{
-	font-size: 18px;
-padding-left: 10px;
-letter-spacing: 5px;
+
+.loading{
+	background: url(../img/loading.gif) no-repeat 13px 14px;
+	width: 27px;
+	height: 29px;
+	background-color: black;
+padding: 27px;
+opacity: .5;
+border-radius: 7px;
+-webkit-border-radius: 7px;
+-moz-border-radius: 7px;
+/*display: none;*/
 }
