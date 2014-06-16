@@ -63,8 +63,7 @@
 		  						<div style="height:100%" id="choosed_layout" class="panel panel-default">
 								    <div class="panel-heading">播放顺序</div>
 								    <ol id="play_order">
-								    	{% for theme.t2r_set.all %}
-								    	{% endfor %}
+								 
 								    </ol>
 								</div>
 		  					</td></tr>
@@ -72,10 +71,10 @@
 		  						<div style="height:100%" id="choosed_layout" class="panel panel-default">
 								    <div id="switch_effect" class="panel-heading">播放效果</div>
 								    	 <ul id="effect-list">
-								          <li><a href="#" class="effect " data-fx="scrollVert3d">Vertical 3D scroll</a></li>
-								          <li class="current"><a href="#" class="effect" data-id="1" data-fx="scrollHorz3d">Horizontal 3D scroll</a></li>
-								          <li><a href="#" class="effect" data-id="2" data-fx="scrollVert">Vertical scroll</a></li>
-								          <li><a href="#" class="effect" data-id="3" data-fx="scrollHorz">Horizontal scroll</a></li>
+								          <li id="scrollVert3d"><a href="#" class="effect "  data-fx="scrollVert3d">Vertical 3D scroll</a></li>
+								          <li id="scrollHorz3d" class="current"><a href="#" class="effect" data-id="1" data-fx="scrollHorz3d">Horizontal 3D scroll</a></li>
+								          <li id="scrollVert" ><a href="#" class="effect" data-id="2" data-fx="scrollVert">Vertical scroll</a></li>
+								          <li id="scrollHorz"><a href="#" class="effect" data-id="3" data-fx="scrollHorz">Horizontal scroll</a></li>
 								          <!-- <li><a href="#" class="effect" data-id="4" data-fx="blindLeft">Blind left</a></li>
 								          <li><a href="#" class="effect" data-id="6" data-fx="blindDown">Blind down</a></li> -->
 								          <li><a href="#" class="effect" data-id="7" data-fx="fade">Fade</a></li>
@@ -96,15 +95,15 @@
 		  		 </div>
 		  		 
 		  		<div id="scene_design_right" class="content-right col-md-10 col-lg-10">
-		  			<div class="alert theme-scence-count">
-		  				已添加<span data-count="0" id="scenceCount">0</span>个场景
-		  				,当前播放效果为<span id="playStyle">scrollVert3d</span>
+		  			<div class="alert theme-scence-count" data-id="{{theme.pk}}">
+		  				已添加<span data-count="{{theme.m_scenes.all|length}}" id="scenceCount">{{theme.m_scenes.all|length}}</span>个场景
+		  				,当前播放效果为<span id="playStyle">{% if theme%}{{theme.m_switch_effect}}{% else %}scrollVert3d{% endif%}</span>
 		  			</div>
 		  			<div class="show-msg alert-success" style="font-weight: bold;">保存成功</div>
 		  			<div class="toolbar">
-					    <button id="save_scene" disabled="disabled" type="button" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-floppy-save"></span>&nbsp;保存</button>
+					    <button id="save_scene" {% if not theme.m_scenes.all%}disabled="disabled"{% endif%} type="button" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-floppy-save"></span>&nbsp;保存</button>
 					    <button id="prev" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-chevron-left"></span>&nbsp;上一张</button>
-					    <button id="play" disabled="disabled" data-fx="scrollHorz3d" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-play"></span>&nbsp;播放</button>
+					    <button id="play" {% if not theme.m_scenes.all%}disabled="disabled"{% endif%} data-fx="scrollHorz3d" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-play"></span>&nbsp;播放</button>
 					    <button id="pause" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-pause"></span>&nbsp;暂停</button>
 				   		<button id="stop" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-stop"></span>&nbsp;停止</button>
 				   		<button id="next" disabled="disabled" class="btn btn-sm btn-default">下一张&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></button>
@@ -114,7 +113,10 @@
 				    <div class="slider-viewport">
 				    <div id="viewport">
 						<div id="draw_theme" class="">
-							
+							{% for ral in t2s_ral.all %}
+							<figure data-id="{{ral.m_scn.pk}}" data-src="{{ral.m_scn.m_snapshot}}" data-name="{{ral.m_scn.m_name}}" class='slide' id='s_{{ral.m_scn.pk}}'>
+							<h5 class='scence-title'> {{ral.m_scn.m_name}}</h5><img src='{{ral.m_scn.m_snapshot}}'></figure>
+							{% endfor %}
 						</div>
 					</div>
 					</div>
@@ -248,6 +250,12 @@ window.onload = function(){
 	        	$("#prev").attr("disabled","disabled");
 	        	$("#pause").attr("disabled","disabled");
 	        })
+
+	        if("{{theme.m_switch_effect}}"){
+	        	$(".current").removeClass("current");
+	        	$("#{{theme.m_switch_effect}}").addClass("current");
+	        }
+	        
 	        
 		},function(err){
 			alert("js加载出错了")
