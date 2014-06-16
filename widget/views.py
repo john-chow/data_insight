@@ -196,9 +196,6 @@ def widgetEdit(request, widget_id):
             return MyHttpJsonResponse({u'succ': True, u'msg': u'修改成功'})
 
     else:
-        if os.path.isfile('test2.py'):
-            execfile('test2.py')
-
         context = RequestContext(request)
 
         widget_model = get_object_or_404(WidgetModel, pk = widget_id)
