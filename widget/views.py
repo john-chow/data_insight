@@ -224,15 +224,17 @@ def widgetShow(request, widget_id):
     获得该widget的图像数据
     """
     try:
-        widget_model = WidgetModel.objects.select_related().get(pk = widget_id)
-        extent_data = widget_model.getExtentDict()
-        conn_arg = widget_model.m_external_db.getConnTuple()
+        widget_model    = WidgetModel.objects.select_related().get(pk = widget_id)
+        extent_data     = widget_model.getExtentDict()
     except WidgetModel.DoesNotExist:
         return HttpResponse({u'succ': False, u'msg': u'xxxxxxxxxxxx'})
     except ExternalDbModel.DoesNotExist:
         return HttpResponse({u'succ': False, u'msg': u'yyyyyyyyyyyy'})
     else:
-        image_data = genWidgetImageData(extent_data, conn_arg)
+        hk              = widget_model.m_external_db.m_hk
+        st              = stRestore(hk)
+        st.reflectTables(json.loads(widget_model.m_table))
+        image_data = genWidgetImageData(extent_data, hk)
         return MyHttpJsonResponse({u'succ': True, u'widget_id':widget_id, u'data': image_data})
 
 
