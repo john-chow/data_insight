@@ -49,6 +49,20 @@ def GetUniqueIntId():
     return Uid_gen.next()
 
 
+def isNum(v):
+    """
+    判断是否为数字
+    """
+    try:
+        v + 1
+    except TypeError:
+        return False
+    else:
+        return True
+
+
+
+
 
 
 

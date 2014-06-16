@@ -114,14 +114,14 @@ define([
         chooseColor: function(ev, ui) {
             $(".filter_tag_color").remove();
             var type=$(ui.draggable).attr("type");
+            var table = $(ui.draggable).attr("table");
             var title =$(ui.draggable).find(".attr").html();
             var button ="<b class='close'>×</b>";
-            var insert = "<li class='filter_tag_color' type='"+type+"'>颜色：<span data='color'>"+title+"</span>"+button+"</li>";
+            var insert = "<li class='filter_tag_color' table='"+table+"' type='"+type+"'>颜色：<span data='color'>"+title+"</span>"+button+"</li>";
             $("#filter_tag_choosed").append(insert);
             Backbone.Events.trigger(
-            //Backbone.Events.trigger(
                 "area:user_set_action"
-                , {"color":title}
+                , {"color":title, "table":table}
             )
         },
 
@@ -130,12 +130,11 @@ define([
             var type=$(ui.draggable).attr("type");
             var title =$(ui.draggable).find(".attr").html();
             var button ="<b class='close'>×</b>";
-            var insert = "<li class='filter_tag_size' type='"+type+"'>大小：<span data='size'>"+title+"</span>"+button+"</li>";
+            var insert = "<li class='filter_tag_size' table='"+table+"' type='"+type+"'>大小：<span data='size'>"+title+"</span>"+button+"</li>";
             $("#filter_tag_choosed").append(insert);
             Backbone.Events.trigger(
-            //Backbone.Events.trigger(
                 "area:user_set_action"
-                , {"size":title}
+                , {"size":title, "table":table}
             )
         },
 
@@ -144,12 +143,12 @@ define([
             var type=$(ui.draggable).attr("type");
             var title =$(ui.draggable).find(".attr").html();
             var button ="<b class='close'>×</b>";
-            var insert = "<li class='filter_tag_shape' type='"+type+"'>形状：<span data='size'>"+title+"</span>"+button+"</li>";
+            var insert = "<li class='filter_tag_shape' table='"+table+"' type='"+type+"'>形状：<span data='size'>"+title+"</span>"+button+"</li>";
             $("#filter_tag_choosed").append(insert);
             Backbone.Events.trigger(
             //Backbone.Events.trigger(
                 "area:user_set_action"
-                , {"shape":title}
+                , {"shape":title, "table":table}
             )
         },
 

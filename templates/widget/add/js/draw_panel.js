@@ -47,11 +47,11 @@ define([
                 self.save(null, {
                     success: function(m, resp, opt) {
                         if (resp.succ) {
-                            easy_dialog_close();
+                            //easy_dialog_close();
                             self.able_draw  = true;
                             Backbone.Events.trigger("panel:draw_data", resp.data)
                         } else {
-                            easy_dialog_error(resp.msg)						
+                            //easy_dialog_error(resp.msg)						
                             self.able_draw  = false;
                             if (self.autoHandle)        clearInterval(self.autoHandle)
                             Backbone.Events.trigger("panel:clear")
@@ -126,7 +126,7 @@ define([
 
 			var self = this;
 			Backbone.Events.on(
-				"area:change_table"
+				"center:tables_ok"
 				, function(data) {
 					self.drawModel.set(data)
 				}
