@@ -103,7 +103,7 @@
 		  			<div class="toolbar">
 					    <button id="save_scene" {% if not theme.m_scenes.all%}disabled="disabled"{% endif%} type="button" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-floppy-save"></span>&nbsp;保存</button>
 					    <button id="prev" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-chevron-left"></span>&nbsp;上一张</button>
-					    <button id="play" {% if not theme.m_scenes.all%}disabled="disabled"{% endif%} data-fx="scrollHorz3d" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-play"></span>&nbsp;播放</button>
+					    <button id="play" {% if not theme.m_scenes.all%}disabled="disabled"{% endif%} data-fx="{{theme.m_switch_effect}}" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-play"></span>&nbsp;播放</button>
 					    <button id="pause" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-pause"></span>&nbsp;暂停</button>
 				   		<button id="stop" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-stop"></span>&nbsp;停止</button>
 				   		<button id="next" disabled="disabled" class="btn btn-sm btn-default">下一张&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></button>
@@ -174,7 +174,7 @@ window.onload = function(){
 	        	$("#stop").removeAttr("disabled");
 	        	$("#next").removeAttr("disabled");
 	        	$("#prev").removeAttr("disabled");
-		    	var fx = $(this).data("fx");
+		    	var fx = $(this).data("fx") == ""? "scrollHorz3d" : $(this).data("fx");
 		    	if(!$box.data("fx")){
 		    		$box.boxSlider({
 			            speed: 1000
