@@ -6,8 +6,10 @@ define([
 , "echarts/chart/pie"
 , "echarts/chart/radar"
 , "common/tools"
-], function(echart, _b, _l, _s, _p, _r, _tools) {
+, "outter_interface"
+], function(echart, _b, _l, _s, _p, _r, _tools, _ot) {
 
+    window.drawer   = {};
 	var DrawManager = function(opt) {
 		this.now_drawer				= null;
 		this.axis_drawer			= null;
@@ -77,6 +79,9 @@ define([
 					self.now_drawer.work(data.data)
 				})
 			}
+
+            // 为给外部提供可直接操控图表的接口，把绘图对象保存到全局window中
+            window.drawer[place.id] = this.now_drawer;
 		};
 
         // 退出管理图型工作
@@ -168,6 +173,18 @@ define([
             }
             this.dyer.start(genDyUpdate())
         };
+
+        this.setBgColor =   function(color) {
+            this.optionCloned.backgroundColor   = color
+        };
+
+        this.setIsColors =  function(colorList) {
+            this.optionCloned.color = colorList
+        };
+
+        this.setSymbols =   function(symbolList) {
+            this.optionCloned.symbolList    = symbolList
+        }
 	};
 
 

@@ -1,0 +1,30 @@
+{% load static %}
+
+<head>
+    <meta charset='utf-8'>
+    <script src={% static 'js/jquery-2.1.0.js' %} type='text/javascript'></script>
+</head>
+<body>
+    <form action='/pretest/' method="POST" id='pretest' enctype='multipart/form-data'>
+        {% csrf_token %}
+        <input type='file' name='pretest' multiple>
+        <label><input type='text' id='fs'>分隔符</label>
+        <label><input type='text' id='cs'>编码格式</label>
+        <input type='submit'>
+    </form>
+<body>
+
+<script>
+    function xxx() {
+        console.log("xxxxxxxxxxx");
+        $.ajax({
+            url:            'pretest'
+            , type:         'POST'
+            , dataType:     'json'
+            , data:         $("#pretest")
+            , success:      function() {}
+            , error:        function() {}
+        })
+        return false
+    }
+</script>
