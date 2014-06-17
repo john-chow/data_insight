@@ -290,7 +290,7 @@ define("display", ["drawer"], function(DrawManager) {
     var display = {
         $el:                $("#scene_design_right"),
         $gridster:          $(".gridster ul"),
-        ecList:             [],             // 画图对象
+        drawerList:             [],             // 画图对象
 
         run:                    function() {
             this.init();
@@ -329,7 +329,7 @@ define("display", ["drawer"], function(DrawManager) {
            // alert(data.data.type)//////////////
             drawer.run($(".se_wi_div_"+data.widget_id)[len], data.data);
 
-            this.ecList.push({"stamp": timestamp, "ec": drawer.getEc()});
+            this.drawerList.push({"stamp": timestamp, "dr": drawer});
 
             this.afterWidgetShown(drawer, data.widget_id)
         },
@@ -388,7 +388,7 @@ define("display", ["drawer"], function(DrawManager) {
         },
 
         getSnapShot:           function(layoutArray)  {
-            var len     = this.ecList.length,
+            var len     = this.drawerList.length,
                 maxRow  = 0,
                 maxCol  = 0 ;
 
@@ -402,8 +402,8 @@ define("display", ["drawer"], function(DrawManager) {
 
                 // 为每个grid单元保存它的canvas快照
                 for(var j = 0; j < len; j++) {
-                    if (self.ecList[j].stamp == layout.data_time)  {
-                        var ec = self.ecList[j].ec;  
+                    if (self.drawerList[j].stamp == layout.data_time)  {
+                        var ec = self.drawerList[j].dr.getEc();  
                         layout["canvas"] = ec.getZrender().toDataCanvas("");
                         break
                     }
