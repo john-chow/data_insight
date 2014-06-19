@@ -1,5 +1,13 @@
+# -*-encoding: utf-8 =*-
+
 # Django settings for MyTableau project.
 from common.head import *
+
+# 设置系统默认为utf-8编码
+# 覆盖所有包默认用ascii进行编码的设置
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
