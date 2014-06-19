@@ -17,48 +17,49 @@ define([
 		this.polar_drawer			= null;
 
         // 对外提供的(重新)开始绘图接口
-		this.run	=				function(place, data, dynamicObj) {
-            var type    = data.type;
-            this.ec     = this.ec || echart.init(place);
+		this.run	=				function(place, resp, dynamicObj) {
+            var type    = resp.type;
+            this.ec     = echart.init(place);
+
 			switch(type) {
 				case "map":	 	
-					this.now_drawer = this.map_drawer || new MapDrawer;
+					this.now_drawer = new MapDrawer();
 					break;
 				case "bar":	
-					this.now_drawer = this.bar_drawer || new BarDrawer;
+					this.now_drawer = new BarDrawer();
                     this.now_drawer.setStacked(false);
 					break;
                 case "s_bar":
-					this.now_drawer = this.bar_drawer || new BarDrawer;
+					this.now_drawer = new BarDrawer();
                     this.now_drawer.setStacked(true);
                     type = "bar";
                     break;
 				case "line":	
-					this.now_drawer = this.line_drawer || new LineDrawer;
+					this.now_drawer =  new LineDrawer();
                     this.now_drawer.setStacked(false);
 					break;
                 case "s_line":
-					this.now_drawer = this.line_drawer || new LineDrawer;
+					this.now_drawer =  new LineDrawer();
                     this.now_drawer.setStacked(true);
                     type = "line";
 					break;
 				case "area":	
-					this.now_drawer = this.areaDrawer || new AreaDrawer;
+					this.now_drawer = new AreaDrawer();
                     this.now_drawer.setStacked(false);
 					break;
 				case "s_area":	
-					this.now_drawer = this.areaDrawer || new AreaDrawer;
+					this.now_drawer = new AreaDrawer();
                     this.now_drawer.setStacked(true);
                     type = "area";
 					break;
 				case "pie":
-					this.now_drawer = this.pieDrawer || new PieDrawer;
+					this.now_drawer = new PieDrawer();
 					break;
 				case "scatter":
-					this.now_drawer = this.scatterDrawer || new ScatterDrawer;
+					this.now_drawer = new ScatterDrawer();
 					break;
 				case "radar":	
-					this.now_drawer = this.polar_drawer || new RadarDrawer;
+					this.now_drawer = new RadarDrawer();
 					break;
 				default:
 					easy_dialog_error('xxxxxxxxxxxx');
@@ -71,21 +72,22 @@ define([
             if(dynamicObj && dynamicObj.yes)     this.now_drawer.setDynamic(dynamicObj)
 
 			if ("map" !== type) {
-				this.now_drawer.work(data.data)
+				this.now_drawer.start(resp)
 			} else {
 				var self = this;
 				require(["echarts/chart/map", "echarts/config", "common/city"]
 						, function(_m, ecConfig, _t) {
-					self.now_drawer.work(data.data)
+					self.now_drawer.work(resp.data)
 				})
 			}
+
 
             // 为给外部提供可直接操控图表的接口，把绘图对象保存到全局window中
             window.drawer[place.id] = this.now_drawer;
 		};
 
         // 退出管理图型工作
-        this.stop =                function() {
+        this.stop           =       function() {
             if(this.ec)         this.ec.clear()
         };
 
@@ -135,23 +137,54 @@ define([
 			]
 		};
 	
+        // 初始化drawer工作环境
         this.init =    function(ec, type) {
-            this.ec = ec;
-			this.type  = type;
-			this.optionCloned = cloneObject(this.option);
+            this.ec             = ec;
+			this.type           = type;
         };
 
-		this.work = 	function(data) {
-			this.fillSeries(data);
+        // 启动drawer工作
+        this.start   =   function(resp) {
+			this.optionCloned   = cloneObject(this.option);
+            this.work(resp)
+        };
+
+        // drawer工作中
+		this.work = 	function(resp) {
+			this.fillSeries(resp.data);
+
+            // 根据是否有样式，决定是否做style
+            if (resp.style)     this.styleChart(resp.style);
+
 			this.draw()
 		};
 
-		this.draw =		function() {
+		this.draw =		function(optionData) {
             this.ec.clear();
-			this.ec.setOption(this.optionCloned)
+            var data = optionData || this.optionCloned;
+            this.ec.setOption(data)
 		};
 
-        this.setDynamic =   function(dynamicObj) {
+        // 主要的控制样式部分
+        this.styleChart     =   function(style) {
+            this.optionCloned["backgroundColor"] = style["backgroundColor"];
+            $.extend(this.optionCloned["title"],    style["title"]);
+            $.extend(this.optionCloned["drg"],      style["drg"]);
+            $.extend(this.optionCloned["toolbox"],  style["tb"]);
+            $.extend(this.optionCloned["tooltip"],  style["tt"]);
+            $.extend(this.optionCloned["dataZoom"], style["dz"]);
+            $.extend(this.optionCloned["legend"],   style["legend"]);
+            $.extend(this.optionCloned["grid"],     style["grid"]);
+
+            $.each(this.optionCloned["series"], function(i, ss) {
+                $.extend(ss, style["se"])
+            })
+        };
+
+        this.styleLegend    =   function(lgStyle) {
+        };
+
+        this.setDynamic     =   function(dynamicObj) {
             // 开启自动更新机制
             this.dyer = new Dynamicer(
                 dynamicObj.url
@@ -184,6 +217,12 @@ define([
 
         this.setSymbols =   function(symbolList) {
             this.optionCloned.symbolList    = symbolList
+        };
+
+        this.transType  =   function(type) {
+            var newType = new toType();
+            newType.optionCloned = this.optionCloned;
+            return newType
         }
 	};
 
@@ -227,15 +266,17 @@ define([
             this.stacked    = stacked
         };
 
-		this.work = function(data) {
-			this.fillAxis(data);
-			AxisDrawer.prototype.work.call(this, data);
+		this.work = function(resp) {
+			this.fillAxis(resp.data);
+			AxisDrawer.prototype.work.call(this, resp);
 		};
 
-		this.fillAxis = function(data) {
-			// 调用子类去做轴的样式
-			this.styleAxis(data.x, data.y);
+        this.styleChart =   function(style) {
+            this.styleAxis(style["x"], style["y"]);
+            AxisDrawer.prototype.styleChart.call(this, style);
+        };
 
+		this.fillAxis = function(data) {
 			// 分别加上属性样式，和数值样式
 			this.optionCloned["xAxis"] = data.x;
 			this.optionCloned["yAxis"] = data.y;
@@ -254,6 +295,7 @@ define([
 						var legend_name = l_s["legend"];
 						self.optionCloned.legend.data.push(legend_name);
 						self.seriesOneCloned.name = legend_name;
+                        self.styleLegend(data.style.legend)
 					}
 
                     // 是否要画成聚合状
@@ -317,8 +359,8 @@ define([
 	};
 
 	var AreaDrawer = function() {
-        this.init          = function(ec, type) {
-            AreaDrawer.prototype.init.call(this, ec, "line")
+        this.init          = function(ec, type, stateOption) {
+            AreaDrawer.prototype.init.call(this, ec, "line" ,stateOption)
         };
 
 		this.catStyle = {
@@ -393,8 +435,8 @@ define([
             , "data":           []
         },
 
-        this.init      =       function(el, type) {
-            PieDrawer.prototype.init.call(this, el, "pie");
+        this.init      =       function(el, type, stateOption) {
+            PieDrawer.prototype.init.call(this, el, "pie", stateOption);
 
             $.extend(this.optionCloned, {
                 "tooltip": {
@@ -427,8 +469,8 @@ define([
             , data:         []
         };
 
-        this.init      =       function(el, type) {
-            RadarDrawer.prototype.init.call(this, el, "radar");
+        this.init      =       function(el, type, stateOption) {
+            RadarDrawer.prototype.init.call(this, el, "radar", stateOption);
 
             $.extend(this.optionCloned, {
                 "polar":            []

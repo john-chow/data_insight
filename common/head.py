@@ -1,3 +1,4 @@
+# -*-coding: utf-8 -*-
 import os
 
 FILE_PATH           	= os.path.dirname( os.path.abspath(__file__) )
@@ -8,6 +9,11 @@ REQUIREJS_MODULE_PATH	= os.path.join(PROJECT_ROOT_PATH, 'templates/widget/add')
 
 TEMP_DRAW_DATA_FILE		= os.path.join(PROJECT_ROOT_PATH, 'temp/111.json')
 LOG_PATH                = os.path.join(PROJECT_ROOT_PATH, 'log')
+
+#皮肤文件
+SCENE_SKIN_PATH         = os.path.join(PROJECT_ROOT_PATH, "static/skin/scene/")
+WIDGET_SKIN_PATH        = os.path.join(PROJECT_ROOT_PATH, "static/skin/widget/")
+SKIN_FILE_TYPE          = '.json'
 
 IS_RELEASE				= True
 

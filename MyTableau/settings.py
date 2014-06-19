@@ -129,6 +129,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 	'account',
+    'skin',
     'widget',
 	'scene',
     'theme',

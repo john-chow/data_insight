@@ -4,18 +4,21 @@ from django.db import models
 from django.utils import simplejson as json
 
 from MyTableau.models import ElementModel
+from common.head import WIDGET_SKIN_PATH, SKIN_FILE_TYPE
+from common.tool import readJsonFile
 # Create your models here.
 
 class WidgetModel(ElementModel):
     """
     场景类，继承ElementModel
     """
-    m_table         = models.CharField(max_length=50)               
-    m_x             = models.CharField(max_length=1024)               
-    m_y             = models.CharField(max_length=1024)               
-    m_size          = models.CharField(max_length=20)               
-    m_color         = models.CharField(max_length=20)               
+    m_table         = models.CharField(max_length=50, db_column='table')               
 
+    # 影响图形本身效果
+    m_x             = models.CharField(max_length=1024, db_column='x')               
+    m_y             = models.CharField(max_length=1024, db_column='y')               
+    m_size          = models.CharField(max_length=20, db_column='size')               
+    m_color         = models.CharField(max_length=20, db_column='color')               
     GRAPH_CHOICES   = (
         ('bar',         'bar')
         , ('s_bar',     'stack_bar')
@@ -27,9 +30,13 @@ class WidgetModel(ElementModel):
         , ('radar',     'radar')
         , ('map',       'map')
     )
-    m_graph         = models.CharField(max_length = 16, choices = GRAPH_CHOICES)               
-    m_pic           = models.TextField()
+    m_graph         = models.CharField(max_length = 16, choices = GRAPH_CHOICES, \
+                                        db_column='graph')               
+
+    m_pic           = models.TextField(db_column='snapshot')
     m_external_db   = models.ForeignKey('ExternalDbModel')
+
+
 
     def getExtentDict(self):
         return { 
@@ -42,8 +49,19 @@ class WidgetModel(ElementModel):
             , u'table':     self.m_table \
         }
 
+    def getSkinDict(self):
+        if (not self.m_skin) or (not self.m_skin.m_number):
+            return {}
+
+        skin_file   = WIDGET_SKIN_PATH + str(self.m_skin.m_number) + SKIN_FILE_TYPE
+        #skin_file   = WIDGET_SKIN_PATH + '1' + SKIN_FILE_TYPE
+        skin_dict   = readJsonFile(skin_file)
+        return skin_dict
+
+
     class Meta:
         db_table = 'widgets'
+
 
 
 class ExternalDbModel(models.Model):
@@ -78,11 +96,6 @@ class ExternalDbModel(models.Model):
 
     class Meta:
         db_table = 'externaldb'
-
-
-
-
-
 
 
 

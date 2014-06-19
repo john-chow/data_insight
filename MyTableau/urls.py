@@ -15,11 +15,11 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^$', 			views.index),
-    url(r'^test/$', 	views.test),
+    url(r'^pretest/$', 	views.pretest),
     url(r'^admin/', 	include(admin.site.urls)),
     url(r'^account/', 	include('account.url')),
     url(r'^widget/', 	include('widget.url', namespace="widget")),
     url(r'^scene/', 	include('scene.url', namespace="scene")),
     url(r'^theme/', 	include('theme.url', namespace="theme")),
-	
+    url(r'^skin/',      include('skin.url'))
 )

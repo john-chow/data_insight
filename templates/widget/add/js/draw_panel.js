@@ -98,6 +98,7 @@ define([
 	var DataCenter = Backbone.View.extend({
 		initialize: 		function() {
 			this.drawModel 	= new DrawModel();
+            this.styleModel = new VtronModel();
 			this.model 	    = new WholeModel();
 			this.run()
 		},
@@ -107,6 +108,7 @@ define([
         },
 
 		distribute: 	    function(data) {
+            // 绘图参数
             var basicArgs = ["table", "x", "y", "size", "color", "graph"];
             for(var k in data) {
                 if(basicArgs.indexOf(k) >= 0) 
@@ -115,7 +117,17 @@ define([
                     // 写回dom处
                     a = 1
             }
-            this.drawModel.assignDrawBasic()
+            this.drawModel.assignDrawBasic();
+
+            // 样式参数
+            var styleArgs = [
+                "bg", "grid", "title", "legend", "drg", "tb", "tt"
+                , "dz", "x", "y", "se"
+            ];
+            for (var k in data) {
+                if(styleArgs.indexOf(k) >= 0)
+                    this.styleModel.set(k, data[k])
+            }
 		},
 
 		run: 				function() {
@@ -212,6 +224,10 @@ define([
 		},
 
 		onGetDrawData:      function(data) {
+            // 合并样式数据
+            var styleData = this.dataCenter.styleModel.toJSON();
+            var data = $.merge(data, {"style": styleData});
+
 			this.drawer.run(this.el, data, {
                 "yes":          false
                 , "url":        "xxx"

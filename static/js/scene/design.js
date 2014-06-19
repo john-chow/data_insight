@@ -247,6 +247,8 @@ define("compontnents", ["display"], function(d) {
             $.ajax({
                 url:            "/widget/show/" + this.id + "/"
                 , type:         "GET"
+                , data:         {"scn_id":  window.scene_id}
+                , dataType:     "json"
                 , success:      self.onGetWidgetData 
                 , error:        function() {}
                 , context:      self
@@ -291,6 +293,7 @@ define("display", ["drawer"], function(DrawManager) {
         $el:                $("#scene_design_right"),
         $gridster:          $(".gridster ul"),
         drawerList:             [],             // 画图对象
+        scnSkinData:        {},                 // 场景皮肤
 
         run:                    function() {
             this.init();
@@ -299,12 +302,30 @@ define("display", ["drawer"], function(DrawManager) {
 
         init:                   function() {
             var layoutStr   = this.$el.find(".layout").html(); 
-            console.log(layoutStr)
-            this.layoutArr = layoutStr ? JSON.parse(layoutStr) : null
+            this.layoutArr = layoutStr ? JSON.parse(layoutStr) : null;
+
+            var skinStr = $("#scn_data").html();
+            this.scnSkinData    = skinStr ? JSON.parse(skinStr) : {}
         },
         
         startListener:          function() {
             $body.on("show_widget",     bindContext(this.showNewWidget, this));
+            $body.on("try_skin",        bindContext(this.dressSkin, this));
+            $body.on("change_skin",     bindContext(this.changeSkin, this));
+        },
+
+        dressSkin:             function(skinData) {
+            // 对本场景下的每个组件使用该样式
+            var self = this;
+            $.each(this.drawerList, function(i, obj) {
+                var dataDraw = self.mixSkin2WiData(skinData, obj["wi_data"]);
+                obj["dr"].start(dataDraw)
+            })
+        },
+
+        changeSkin:             function(skinData) {
+            this.scnSkinData    = skinData;
+            this.dressSkin(this.scnSkinData)
         },
 
         showNewWidget:              function(ev, data) {
@@ -325,13 +346,20 @@ define("display", ["drawer"], function(DrawManager) {
                 , parseInt(posObj.col),     parseInt(posObj.row)
             );
 
+            var wiData  =    data.data;
+            var dataDraw = this.mixSkin2WiData(this.scnSkinData, wiData);
             var drawer = new DrawManager();
-           // alert(data.data.type)//////////////
-            drawer.run($(".se_wi_div_"+data.widget_id)[len], data.data);
+            drawer.run($(".se_wi_div_"+data.widget_id)[len], dataDraw);
 
-            this.drawerList.push({"stamp": timestamp, "dr": drawer});
+            this.drawerList.push({"stamp": timestamp, "dr": drawer, "wi_data": wiData});
 
             this.afterWidgetShown(drawer, data.widget_id)
+        },
+
+        mixSkin2WiData:          function(skinData, data) {
+            data["style"]  = data["style"] || {};
+            $.extend(data["style"], skinData)
+            return data
         },
 
         sureShowPos:                function(timestamp) {

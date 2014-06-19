@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from scene.models import SceneModel, ScnToWiRelationModel
-from widget.models import WidgetModel
-from common.tool import cvtDateTimeToStr
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.utils import simplejson as json
 from django.db import IntegrityError
 from datetime import datetime
-from common.tool import MyHttpJsonResponse, GetUniqueIntId
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
 from django.template import RequestContext, Template
-from django.shortcuts import render_to_response
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404
+
+from scene.models import SceneModel, ScnToWiRelationModel
+from widget.models import WidgetModel
+from common.tool import MyHttpJsonResponse
+from common.head import SCENE_SKIN_PATH
+
 import pdb
 
 def sceneList(request, template_name):
@@ -116,10 +118,13 @@ def sceneEdit(request, scn_id):
 
         scene = get_object_or_404(SceneModel, pk = scn_id)
         scn_wi_rla_set = scene.s2r_set.all()
+        scn_skin_data   = json.dumps(scene.getSkinDict())
 
-        dict = {u'scene': scene, \
-                u'allowed_widgets': allow_use_widgets,  \
-                u'sw_rla_set': scn_wi_rla_set}
+        dict = {u'scene': scene
+                , u'allowed_widgets': allow_use_widgets
+                , u'sw_rla_set': scn_wi_rla_set
+                , u'scn_skin':  scn_skin_data
+            }
         return render_to_response('scene/add.html', dict, context)
 
 def sceneSave(request, scn_id):
@@ -197,5 +202,6 @@ def batachOp(request, op):
         return HttpResponseRedirect(u'/scene/batch?page='+page)
     else:
         raise Http404()
+
 
 

@@ -61,7 +61,13 @@ def isNum(v):
         return True
 
 
+def readJsonFile(file_name):
+    # 怎么检查文件是否存在
 
+    f = open(file_name, 'r')
+    data = json.load(f, 'utf-8')
+    f.close()
+    return data
 
 
 

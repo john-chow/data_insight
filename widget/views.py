@@ -109,6 +109,9 @@ def widgetCreate(request):
             logger.error(e[0])
             return MyHttpJsonResponse({u'succ': False   \
                                         , u'msg': u'无法保存到数据库'})
+        else:
+            saveStyleArgs(request, widget)
+
         return MyHttpJsonResponse({u'succ': True, u'wiId': widget.pk, \
                                     u'msg': u'保存成功'})
     else:
@@ -120,6 +123,11 @@ def widgetCreate(request):
         context = RequestContext(request)
         dict = {u'content': json.dumps({u'tables': tables})}
         return render_to_response(u'add.html', dict, context)
+
+
+def saveStyleArgs(request, widget_model = None):
+    pass
+
 
 
 @login_required
@@ -167,6 +175,8 @@ def batachOp(request, op):
         return HttpResponseRedirect(u'/widget/batch?page='+page)
     else:
         raise Http404()
+
+
 @login_required
 def widgetEdit(request, widget_id):
     """
@@ -203,6 +213,8 @@ def widgetEdit(request, widget_id):
 
         # 有没有直接把Model里面全部属性转换成dict的办法？ 
         extent_data = widget_model.getExtentDict()
+        style_data  = widget_model.getSkinDict()
+        image_data  = dict(extent_data, **style_data)
 
         # 删掉空值的属性
         to_del_key = []
@@ -214,7 +226,7 @@ def widgetEdit(request, widget_id):
             del extent_data[key]
 
         data = {u'id': widget_id
-                , u'content': json.dumps(extent_data)}
+                , u'content': json.dumps(image_data)}
         return render_to_response(u'add.html', data, context)
 
 
@@ -226,6 +238,7 @@ def widgetShow(request, widget_id):
     try:
         widget_model    = WidgetModel.objects.select_related().get(pk = widget_id)
         extent_data     = widget_model.getExtentDict()
+        skin_id         = request.GET.get(u'skin_id')
     except WidgetModel.DoesNotExist:
         return HttpResponse({u'succ': False, u'msg': u'xxxxxxxxxxxx'})
     except ExternalDbModel.DoesNotExist:
@@ -234,7 +247,9 @@ def widgetShow(request, widget_id):
         hk              = widget_model.m_external_db.m_hk
         st              = stRestore(hk)
         st.reflectTables(json.loads(widget_model.m_table))
-        image_data = genWidgetImageData(extent_data, hk)
+        image_data      = genWidgetImageData(extent_data, hk)
+        style_data      = widget_model.getSkinDict()
+        image_data['style'] = style_data
         return MyHttpJsonResponse({u'succ': True, u'widget_id':widget_id, u'data': image_data})
 
 
@@ -435,7 +450,6 @@ def makeupFilterSql(filter_list):
     return u'where ' + u' and '.join(sens)
 
 
-
 def genWidgetImageData(extent_data, hk):
     """
     生成返回前端数据
@@ -472,7 +486,6 @@ def getDrawData(extent_data, shape_in_use, hk):
 
     return echart_data
 
-    
 
 
 def calc_msu_msn_list(extent_data):

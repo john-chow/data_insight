@@ -16,6 +16,4 @@ urlpatterns = patterns('',
 	url(r'^batch/distri/$',		views.batachOp, {'op': 'dis'} ),
 	url(r'^batch/undistri/$',	views.batachOp, {'op': 'undis'} ),
 	url(r'^batch/delete/$',		views.batachOp, {'op': 'delete'} ),
-
-	
 )
