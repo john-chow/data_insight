@@ -6,7 +6,9 @@ from django.db import models
 from widget.models import WidgetModel
 from MyTableau.models import ElementModel
 from common.head import SCENE_SKIN_PATH, SKIN_FILE_TYPE
-from common.tool import readJsonFile
+from common.tool import readJsonFile, readFile
+
+import pdb
 
 # Create your models here.
 class SceneModel(ElementModel):

@@ -167,14 +167,16 @@ define([
 
         // 主要的控制样式部分
         this.styleChart     =   function(style) {
-            this.optionCloned["backgroundColor"] = style["backgroundColor"];
-            $.extend(this.optionCloned["title"],    style["title"]);
-            $.extend(this.optionCloned["drg"],      style["drg"]);
-            $.extend(this.optionCloned["toolbox"],  style["tb"]);
-            $.extend(this.optionCloned["tooltip"],  style["tt"]);
-            $.extend(this.optionCloned["dataZoom"], style["dz"]);
-            $.extend(this.optionCloned["legend"],   style["legend"]);
-            $.extend(this.optionCloned["grid"],     style["grid"]);
+            this.optionCloned["backgroundColor"] =      style["backgroundColor"];
+
+            $.extend(this.optionCloned["color"],        style["color"]);
+            $.extend(this.optionCloned["title"],        style["title"]);
+            $.extend(this.optionCloned["dataRange"],    style["dataRange"]);
+            $.extend(this.optionCloned["toolbox"],      style["toolbox"]);
+            $.extend(this.optionCloned["tooltip"],      style["tooltip"]);
+            $.extend(this.optionCloned["dataZoom"],     style["dataZoom"]);
+            $.extend(this.optionCloned["legend"],       style["legend"]);
+            $.extend(this.optionCloned["grid"],         style["grid"]);
 
             $.each(this.optionCloned["series"], function(i, ss) {
                 $.extend(ss, style["se"])
@@ -247,6 +249,7 @@ define([
 
 		this.seriesOne = {
 			type:			""
+            /*
 			, markPoint: {
                 data: [
                     {type : 'max', name: '最大值'},
@@ -258,6 +261,7 @@ define([
                     {type : 'average', name: '平均值'}
                 ]
             }
+            */
 			, temStyle: {normal: {label : {show: true, position: 'inside'}}}
 			, data: []
 		};

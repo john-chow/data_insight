@@ -165,11 +165,11 @@ class SqlTool():
             t_str, c_str    = s[0], s[1]
             table           = self.rf.get(t_str)
 
-            if not hasattr(table.c, c_str):  
+            if not table.c.has_key(c_str):
                 raise Exception(u'can''t recongnize column name of {0}' \
                                     .format(c_str))
 
-            sel_obj = getattr(table.c, c_str)
+            sel_obj = table.c.get(c_str)
 
             cmd    = s[3]
             if cmd and u'rgl' != cmd:
@@ -221,11 +221,11 @@ class SqlTool():
             t_str, c_str    = g[0], g[1]
             table   = self.rf.get(t_str)
 
-            if not hasattr(table.c, c_str):  
+            if not table.c.has_key(c_str):
                 raise Exception(u'can''t recongnize column name of {0}' \
                                     .format(c_str))
 
-            grp_obj = getattr(table.c, c_str)
+            grp_obj = table.c.get(c_str)
             group_list.append(grp_obj)
 
         if 0 < len(group_list):

@@ -70,6 +70,21 @@ def readJsonFile(file_name):
     return data
 
 
+def readFile(file_name):
+    with open(file_name, 'r') as f:
+        data = f.read()
+    return data
+
+
+def whichEncoding(s):
+    cl = ['utf8', 'gb2312']
+    for a in cl:
+        try:
+            s.decode(a)
+            return a
+        except UnicodeEncodeError:
+            pass
+    return 'unknown' 
 
 
 

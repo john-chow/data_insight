@@ -77,6 +77,7 @@ def widgetList(request, template_name):
     else:
         raise Http404()
 
+
 @login_required
 def widgetCreate(request):
     """
