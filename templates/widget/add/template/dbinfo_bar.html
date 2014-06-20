@@ -45,6 +45,31 @@
 </script>
 
 
+
+<script type="text/x-template" id="time_list_wrap">
+	<% _.each(tm, function(v, k) { %> 
+		<li class="timesion ui-state-highlight coordinate" type="timesion">
+		<m class="axes-math" data=""></m>
+		<span class='attr'><%= v %></span>
+		<b data-toggle='dropdown' class='glyphicon glyphicon-plus-sign dropdown-toggle'></b>
+		<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+			<li class="coordinate-edit"><a href="#">编辑</a></li>
+			<li class="coordinate-filter"><a href="#">筛选</a></li>
+			<li class="coordinate-measure">
+				<a href="#">具体<span class="glyphicon glyphicon-play"></span></a>
+				<ul class="dropdown-menu"> 
+					<li class="coordinate-year"><a href="#">年</a></li>
+					<li class="coordinate-month"><a href="#">月</a></li>
+					<li class="coordinate-day"><a href="#">日</a></li>
+				</ul>
+			</li>
+			<li class="coordinate-remove"><a href="#">移除</a></li>
+		</ul>
+		</li>
+	<% }); %>
+</script>
+
+
 <script type="text/x-template" id="measures_list_wrap">
 	<% _.each(me, function(v, k) { %> 
 		<li class="measure coordinate" draggable="true" type="measure">

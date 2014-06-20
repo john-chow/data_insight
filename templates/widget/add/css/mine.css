@@ -316,6 +316,12 @@ margin-left: 161px;
     border: 1px solid #C9DBF5;
 }
 
+#x_sortable>li[type='timesion'] ,
+#y_sortable>li[type='timesion'] { 
+    background-color: #C9DBF5;
+    border: 1px solid #C9DBF5;
+}
+
 #x_sortable>li[type='measure'] ,
 #y_sortable>li[type='measure'] { 
     background-color: #E0E7CB;
@@ -324,6 +330,12 @@ margin-left: 161px;
 
 #x_sortable>li:hover[type='mension'],
 #y_sortable>li:hover[type='mension'] { 
+    background-color: #CAE4FC;
+    border: 1px solid #AA9DEB;
+}
+
+#x_sortable>li:hover[type='timesion'],
+#y_sortable>li:hover[type='timesion'] { 
     background-color: #CAE4FC;
     border: 1px solid #AA9DEB;
 }

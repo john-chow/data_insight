@@ -42,6 +42,7 @@ define([
 		tablesTemplate:			_.template( $(dataAreaHtml).filter("#table_list_wrap").html() ),
 		mensionsTemplate: 		_.template( $(dataAreaHtml).filter("#mensions_list_wrap").html() ),
 		measuresTemplate:		_.template( $(dataAreaHtml).filter("#measures_list_wrap").html() ),
+        timetypeTemplate:       _.template( $(dataAreaHtml).filter("#time_list_wrap").html() ),
  
         events: {
         },
@@ -95,6 +96,7 @@ define([
 				var modelJson = model.toJSON();
 				this.$("#mensions_list").html( 
 					this.mensionsTemplate(modelJson)
+                    + this.timetypeTemplate(modelJson)
 				);
 				this.$("#measures_list").html( 
 					this.measuresTemplate(modelJson)
@@ -137,7 +139,7 @@ define([
 
 		setDragProperty: function() {
 			var self = this;
-			this.$(".measure").draggable({
+			this.$(".measure, .mension, .timesion").draggable({
 				connectToSortable: "#x_sortable, #y_sortable",
 				helper: "clone",
 				scroll: "false",
@@ -157,6 +159,8 @@ define([
 					$(".dragging-custom").removeClass("dragging-change-border");
 				}
 			});
+
+            /*
 			this.$(".mension").draggable({
 				connectToSortable: "#x_sortable, #y_sortable",
 				helper: "clone",
@@ -177,6 +181,7 @@ define([
 					$(".dragging-custom").removeClass("dragging-change-border");
 				}
 			});
+            */
 		},
 
         restoreCenter:                function(posAttrObj) {

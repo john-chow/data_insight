@@ -112,7 +112,7 @@ class SqlTool():
                 self.reflectTables([t])
 
             info = self.insp.get_columns(t)
-            dm_list, me_list    = [], []
+            dm_list, me_list, tm_list   = [], [], []
             for i in info:
                 i_type    = i[u'type']
 
@@ -120,13 +120,14 @@ class SqlTool():
                 if isinstance(i_type, (types.Numeric, types.Integer)):
                     me_list.append(i[u'name'])
                 elif isinstance(i_type, (types.Date, types.DateTime)):
-                    dm_list.append(i[u'name'])
+                    tm_list.append(i[u'name'])
                 else:
                     dm_list.append(i[u'name'])
 
             tables_info_list.append({
                 u'name':    t
                 , u'dm':    dm_list
+                , u'tm':    tm_list
                 , u'me':    me_list
             })
 
