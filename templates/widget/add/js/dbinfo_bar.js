@@ -114,7 +114,7 @@ define([
 			var model = ev.data.model;
 			this.render(model);
 			// 为所有属性增加id
-			$.each( this.$(".mension, .measure"), function(i, obj) {
+			$.each( this.$(".coordinate"), function(i, obj) {
 				$(obj).attr("id", "db_property_" + i);
 				$(obj).attr("db-data", "db_property_" + i);
 				$(obj).attr("table", model.get("name"))

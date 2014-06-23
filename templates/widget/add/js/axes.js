@@ -32,13 +32,7 @@ define([
 			"click .coordinate-remove"          :"coordinateRemove",
 			"mouseleave .coordinate-measure ul" :"coordinateMeasureUlHide",
 			"mouseenter .coordinate-measure ul" :"coordinateMeasureBackground",
-			"click .coordinate-max"             :"coordinateMax",
-			"click .coordinate-min"             :"coordinateMin",
-			"click .coordinate-count"           :"coordinateCount",
-			"click .coordinate-sum"             :"coordinateSum",
-			"click .coordinate-avg"             :"coordinateAvg",
-			"click .coordinate-edit"            :"coordinateEdit",
-
+            "click .sts[class*=coordinate-]"    :"coordinateChoose"
 		},
 		
 		initialize: function(opt) {
@@ -82,14 +76,6 @@ define([
         },
 
 
-		/*showMenuB: function(ev) {
-			$(ev.target).find("b").show();
-		},
-
-		hideMenuB: function(ev) {
-			$(ev.target).find("b").hide();
-		},*/
-
 		coordinateFilter: function(ev) {
 			var title = $(ev.target).parents(".coordinate").find(".attr").html();
 			var pro_id = $(ev.target).parents(".coordinate").attr("db-data");
@@ -98,7 +84,6 @@ define([
 				, "content": 	title
 			};
 			Backbone.Events.trigger("modal:show_filter",data)
-			//Backbone.Events.trigger("modal:show_filter",data);
 		},
 
 		coordinateMeasureShow: function(ev) {
@@ -132,7 +117,7 @@ define([
 		},
 
 		coordinateMathSet: function(self) {
-        	var list = self.$(self.sortObjId).find(".mension, .measure");
+        	var list = self.$(self.sortObjId).find(".coordinate");
         	var tm = [];
 			$.each(list, function(i, x) {
 				var attrDict = self.makeAttrData($(x));
@@ -141,67 +126,15 @@ define([
 			self.model.set(self.name, tm);
         },
 
-		coordinateMax: function(ev) {
-			$(ev.target).parents(".coordinate").find(".axes-math").html("(最大值)");
-			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","max");
-			this.coordinateMathSet(this);
+		coordinateChoose: function(ev) {
+            var $target = $(ev.target);
+            var word = "(" + $target.html() + ")";
+            var data = $target.attr("data");
+            $target.parents(".coordinate").find(".axes-math").html(word);
+            $target.parents(".coordinate").find(".axes-math").attr("data", data)
+            this.coordinateMathSet(this);
 		},
 
-		coordinateMin: function(ev) {
-			$(ev.target).parents(".coordinate").find(".axes-math").html("(最小值)");
-			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","min");
-			this.coordinateMathSet(this);
-		},
-
-		coordinateCount: function(ev) {
-			$(ev.target).parents(".coordinate").find(".axes-math").html("(计数)");
-			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","count");
-			this.coordinateMathSet(this);
-		},
-
-		coordinateSum: function(ev) {
-			$(ev.target).parents(".coordinate").find(".axes-math").html("(求和)");
-			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","sum");
-			this.coordinateMathSet(this);
-		},
-
-		coordinateAvg: function(ev) {
-			$(ev.target).parents(".coordinate").find(".axes-math").html("(平均)");
-			$(ev.target).parents(".coordinate").find(".axes-math").attr("data","avg");
-			this.coordinateMathSet(this);
-		},
-
-		coordinateEdit: function(ev) {
-
-		},
-
-
-      /*  showClose: function(ev) {
-            $(ev.target).append("<button type='button' class='plots_close'>&times;</button>");
-        },
-
-        hideClose: function(ev) {
-            $(ev.target).find("button").remove();
-        },
-
-        hideCloseByOut: function(ev) {
-            $(ev.target).remove();
-        },
-
-        rmAttr: function(ev) {
-
-			var attr = $(ev.target).siblings('.attr').html();
-            $(ev.target).parent().remove();
-			
-
-			var $attrObj = $(ev.target).parent();
-			var attrDict = this.makeAttrData($attrObj);
-			$attrObj.remove();
-			
-			var attrList = this.model.get(this.name);
-			var newAttrList = Delete_from_array(attrList, attrDict);
-			this.model.set(this.name, newAttrList);
-        },*/
 
 		afterSort: function(ev, ui) {
 			// 这里从html页面上找寻属性顺序，原则上不合理，有待修改
@@ -209,7 +142,15 @@ define([
 		},
 
 		makeAttrData: function($attrObj) {	
-			var kind = ( "measure" == $attrObj.attr("type") ? 0 : 1 );
+            switch($attrObj.attr("type"))   {
+                case "measure":     
+                    var kind    = 0;    break;
+                case "mension":     
+                    var kind    = 1;    break;
+                default:    
+                    var kind    = 2;    
+            }
+
 			var cmd = $attrObj.find(".axes-math").attr("data");
 			var cmd =(cmd=="")?"rgl":cmd;
             var table = $attrObj.attr("table");

@@ -49,7 +49,7 @@
 <script type="text/x-template" id="time_list_wrap">
 	<% _.each(tm, function(v, k) { %> 
 		<li class="timesion ui-state-highlight coordinate" type="timesion">
-		<m class="axes-math" data=""></m>
+		<m class="axes-math" data="year">(年)</m>
 		<span class='attr'><%= v %></span>
 		<b data-toggle='dropdown' class='glyphicon glyphicon-plus-sign dropdown-toggle'></b>
 		<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
@@ -58,9 +58,11 @@
 			<li class="coordinate-measure">
 				<a href="#">具体<span class="glyphicon glyphicon-play"></span></a>
 				<ul class="dropdown-menu"> 
-					<li class="coordinate-year"><a href="#">年</a></li>
-					<li class="coordinate-month"><a href="#">月</a></li>
-					<li class="coordinate-day"><a href="#">日</a></li>
+					<li class="coordinate-year sts"><a href="#" data="year">年</a></li>
+					<li class="coordinate-season sts"><a href="#" data="season">季度</a></li>
+					<li class="coordinate-month sts"><a href="#" data="month">月</a></li>
+					<li class="coordinate-day sts"><a href="#" data="day">日</a></li>
+					<li class="coordinate-hour sts"><a href="#" data="hour">小时</a></li>
 				</ul>
 			</li>
 			<li class="coordinate-remove"><a href="#">移除</a></li>
@@ -82,11 +84,11 @@
 			<li class="coordinate-measure">
 				<a href="#">度量<span class="glyphicon glyphicon-play"></span></a>
 				<ul class="dropdown-menu">
-					<li class="coordinate-sum"><a href="#">求和</a></li>
-					<li class="coordinate-avg"><a href="#">平均值</a></li>
-					<li class="coordinate-count"><a href="#">计数</a></li>
-					<li class="coordinate-max"><a href="#">最大值</a></li>
-					<li class="coordinate-min"><a href="#">最小值</a></li>
+					<li class="coordinate-sum sts"><a href="#" data="sum">求和</a></li>
+					<li class="coordinate-avg sts"><a href="#" data="avg">平均值</a></li>
+					<li class="coordinate-count sts"><a href="#" data="count">计数</a></li>
+					<li class="coordinate-max sts"><a href="#" data="max">最大值</a></li>
+					<li class="coordinate-min sts"><a href="#" data="min">最小值</a></li>
 				</ul>
 			</li>
 			<li class="coordinate-remove"><a href="#">移除</a></li>

@@ -1,6 +1,7 @@
 # --*-- coding: utf-8 --*--
 
-from sqlalchemy import create_engine, inspect, Table, MetaData, types, func, select
+import sys
+from sqlalchemy import create_engine, inspect, Table, MetaData, types, func, select, extract
 from sqlalchemy import *
 
 from widget.models import ExternalDbModel
@@ -172,8 +173,10 @@ class SqlTool():
 
             sel_obj = table.c.get(c_str)
 
-            cmd    = s[3]
-            if cmd and u'rgl' != cmd:
+            kind, cmd    = s[2], s[3]
+            if 2 == kind:
+                sel_obj = self.cvtTimeColumn(sel_obj, cmd)
+            elif 0 == kind and u'rgl' != cmd:
                 f       = self.cvtFunc(cmd)
                 sel_obj = f(sel_obj)
 
@@ -208,8 +211,6 @@ class SqlTool():
         return my_join
 
 
-
-
     def cvtGroup(self, groups):
         group_list  = []
         for g in groups:
@@ -226,7 +227,16 @@ class SqlTool():
                 raise Exception(u'can''t recongnize column name of {0}' \
                                     .format(c_str))
 
-            grp_obj = table.c.get(c_str)
+            col_obj = table.c.get(c_str)
+
+            kind_str, cmd_str   = g[2], g[3]    
+            if 2 == kind_str:
+                # 如果是时间列，那么需要额外处理
+                grp_obj = self.cvtTimeColumn(col_obj, cmd_str)
+            else:
+                grp_obj = col_obj
+
+
             group_list.append(grp_obj)
 
         if 0 < len(group_list):
@@ -234,6 +244,21 @@ class SqlTool():
         else:
             return None
 
+
+    def cvtTimeColumn(self, col_obj, time_str):
+        if 'year'       == time_str:
+            tc  =   extract('year', col_obj)
+        elif 'month'    == time_str:
+            tc  =   extract('month', col_obj)
+        elif 'day'      == time_str:
+            tc  =   extract('day', col_obj)
+        elif 'hour'     == time_str:
+            tc  =   extract('hour', col_obj)
+        else:
+            tb = sys.exc_info()[2]
+            raise Exception('unknown time type').with_traceback(tb)
+
+        return tc
 
 
     def cvtFunc(self, func_str):
@@ -244,6 +269,7 @@ class SqlTool():
         elif u'avg' == func_str:
             f   = func.avg
         else:
+            logger.err('unknow func str, {0}', func_str)
             return False
 
         return f

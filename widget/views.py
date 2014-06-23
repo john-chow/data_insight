@@ -513,7 +513,9 @@ def calc_msu_msn_list(extent_data):
                                         [u'table', u'attr', u'kind', u'cmd']))
 
         col_row_flag = u'col' if idx < len_col_attr_list else u'row'
-        tmp_attr_list = msn_list if u'rgl' == attr_kind_cmd_tuple[3] \
+        tmp_attr_list = msn_list \
+                            if u'rgl' == attr_kind_cmd_tuple[3] \
+                                or 2 == attr_kind_cmd_tuple[2] \
                                         else msu_list
         tmp_attr_list.append( attr_kind_cmd_tuple + (col_row_flag,) )
 
