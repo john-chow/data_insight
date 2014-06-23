@@ -12,6 +12,9 @@ dist
 build
 .idea
 log
+.project
+.pydevproject
+.settings
 
 # My configurations:
 db.ini

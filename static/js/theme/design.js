@@ -14,6 +14,12 @@
 	        	},
 	        	setOrder: function(order){
 	        		this.order = order;
+	        	},
+	        	setSerial: function(serial){
+	        		this.serial = serial;
+	        	},
+	        	getSerial: function(){
+	        		return this.serial;
 	        	}
         	}
         	
@@ -27,10 +33,24 @@
         		this.m_name = $("#theme_id").val();
         		this.m_switch_effect = $("#playStyle").text();
         		this.id = 0;
+        		if($(".theme-scence-count").data("id")){
+        			this.url = "/theme/edit/" + $(".theme-scence-count").data("id")
+        						+ "/";
+        		}
         	},
         	refresh: function(){
         		this.m_name = $("#theme_id").val();
         		this.m_switch_effect = $("#playStyle").text();
+        		var self = this;
+        		//保存前控制好播放顺序
+        		$("#play_order li").each(function(i){
+        			var serial = $(this).data("orderid");
+        			$.each(self.models, function(index){
+        				if(self.models[index].getSerial() == serial){
+        					self.models[index].setOrder(i);
+        				}
+        			})
+        		})
         	},
         	url: "/theme/create/",
         	add: function(model){
@@ -39,44 +59,36 @@
         	remove: function(model){
         		for(var i = 0; i < this.models.length; i++){
         			var m = this.models[i];
-        			if(m.getId() === model.getId()){
+        			if(m.getSerial() === model.getSerial()){
         				this.models.remove(m);
         			}
         		}	
         	},
         	save: function(options){
         		this.refresh();
-        		var self = this;
-        		//保存前控制好播放顺序
-        		$("#play_order li").each(function(i){
-        			var sId = $(this).data("orderid");
-        			$.each(self.models, function(index){
-        				if(self.models[index].getId() == sId){
-        					self.models[index].setOrder(i);
-        				}
-        			})
-        		})
-
         		//drawthemeViews.$el
-        		if(!this.id){
-        			$.ajax({
-	        			url: this.url,
-	        			type: "post",
-	        			data: {
-	        				name: this.m_name,
-	        				switch_effect: this.m_switch_effect,
-	        				scences: JSON.stringify(this.models)
-	        			},
-	        			success: function(data){
-	        				self.id = data.id;
-	        				options.success(data);
-	        			},
-	        			error: function(data){
-	        				options.error(data);
-	        			}
-	        		});
+        		var self = this;
+        		if(this.id){
+        			this.url = "/theme/edit/" + this.id + "/";
+        		}
+    			$.ajax({
+        			url: this.url,
+        			type: "post",
+        			data: {
+        				name: this.m_name,
+        				switch_effect: this.m_switch_effect,
+        				scences: JSON.stringify(this.models)
+        			},
+        			success: function(data){
+        				self.id = data.id;
+        				options.success(data);
+        			},
+        			error: function(data){
+        				options.error(data);
+        			}
+        		});
 	        		
-        	  }
+        	  
         		
         	}
         }
@@ -104,13 +116,17 @@
 		//播放顺序列表项视图
 		var playorderView = {
 			render: function(){
-				return $("<li data-orderId='" + this.scenceId + "'><img width= '30' height='30' src='"+ this.imgSrc +"'/>" + this.scenceName + "<a class='scene-remove'>"+ 
-				            	"&times;</a></li>").prependTo(this.parent.$el);
+				return $("<li id='" + this.scenceId + "' data-orderid='" + this.serial + 
+					"'><img width= '30' height='30' src='"+ this.imgSrc +"'/>"
+				 + this.scenceName + "<a class='scene-remove' data-id='" + this.scenceId + "'data-serial = '"
+				 + this.serial+"'>"
+				 + "&times;</a></li>").prependTo(this.parent.$el);
 			},
-			init: function(parent,scenceId, scenceName, imgSrc){
+			init: function(parent, scenceId, serial, scenceName, imgSrc){
 			  this.parent = parent;
 			  this.scenceName = scenceName;
 			  this.scenceId = scenceId;
+			  this.serial = serial;
 			  this.imgSrc = imgSrc;
 			  this.$el = this.render();
 			  //顺序播放列表现的各种事件监听，比如删除列表项之类的
@@ -122,12 +138,14 @@
 		       });
 		       var $self = this;
 		       this.$el.children("li .scene-remove").on("click", function(){
-		        	var sId = $self.scenceId;
+		        	var sId = $(this).data("id");
+		        	var serial = $(this).data("serial");
 		        	var sceneModel = new SceneModel();
 		        	sceneModel.setId(sId);
+		        	sceneModel.setSerial(serial);
 		        	scenceCollection.remove(sceneModel);//删除场景
-		        	$("#s_" + sId).remove();
-		       		$self.$el.remove();
+		        	$("#s_" + serial).remove();
+		       		$(this).parent().remove();
 		       		var count = $("#scenceCount").data("count") - 1;
 		            $("#scenceCount").html(count);
 		            $("#scenceCount").data("count", count);
@@ -151,8 +169,9 @@
 			    		fromIdex = ui.item.index();
 			    	},
 			    	stop : function( event, ui ) {
-						var sId = ui.item.data("orderid");
-					 	toIndex = ui.item.index();
+						var sId = ui.item.data("orderid"),
+					 		toIndex = ui.item.index(),
+					 		$selectObj = $("#s_" + sId);
 						if(toIndex == $("#draw_theme .slide").last().index()){
 							$selectObj.appendTo($("#draw_theme"));
 						}else if(toIndex == 0){
@@ -161,6 +180,19 @@
 							$selectObj.insertAfter("#draw_theme .slide:eq(" + (toIndex - 1) + ")");
 						}
 					}
+			    });
+			    //如果是编辑主题的时候，则根据该主题拥有的场景初始化播放吮吸
+			    $("#draw_theme .slide").each(function(i){
+			    	var $this = $(this);
+			    	var scenceId = $this.data("id"),
+			    		serial = new Date().getTime(),
+			    		scenceName = $this.data("name"),
+			    		imgSrc = $this.data("src");
+			    	var sceneModel = new SceneModel();
+					sceneModel.setId(scenceId);
+					sceneModel.setSerial(serial);
+					scenceCollection.add(sceneModel);//添加主题场景id
+			    	playorderView.init(playorderViews,scenceId,serial,scenceName,imgSrc);
 			    });
         	},
         	$el: $("#play_order"),
@@ -178,16 +210,18 @@
 						drop: function( event, ui ) {
 							var imgSrc = ui.helper.find("img").attr("src");
 							var scenceId = ui.helper.find("img").data("id");
+							var serial = new Date().getTime();
 							var sceneModel = new SceneModel();
 							sceneModel.setId(scenceId);
+							sceneModel.setSerial(serial);
 							scenceCollection.add(sceneModel);//添加主题场景id
 							var scenceName = ui.helper.find("img").data("name");
 							//初始化中心区域场景列表现,并渲染
-							drawthemeView.init($self, scenceId, scenceName, imgSrc);
+							drawthemeView.init($self, serial, scenceName, imgSrc);
 							drawthemeView.render();
 							//始化播放顺序列表项,初始化过程中会自动渲染
-							playorderViews.init();
-							playorderView.init(playorderViews,scenceId,scenceName,imgSrc);
+							//playorderViews.init();
+							playorderView.init(playorderViews,scenceId,serial,scenceName,imgSrc);
 							
 				            var count = $("#scenceCount").data("count") + 1;
 				            $("#scenceCount").html(count);
@@ -205,20 +239,21 @@
 
 		//中心区域场景列表项
         var drawthemeView = {
-        	init: function(parent, scenceId, scenceName,imgSrc){
+        	init: function(parent, serial, scenceName,imgSrc){
         		this.$parent = parent.$el;
-        		this.scenceId = scenceId;
+        		this.serial = serial;
         		this.scenceName = scenceName;
         		this.imgSrc = imgSrc;
         	},
         	render:function(){
-        		$("<figure class='slide' id='s_" + this.scenceId + "'><h5 class='scence-title'>" + this.scenceName +"</h5><img src='" + this.imgSrc + "'></figure>").prependTo(this.$parent);
+        		$("<figure class='slide' id='s_" + this.serial + "'><h5 class='scence-title'>" + this.scenceName +"</h5><img src='" + this.imgSrc + "'></figure>").prependTo(this.$parent);
         	}
         }
         
    		//初始化
    		scenceCollection.init();
         scenceViews.init();
+        playorderViews.init();
         drawthemeViews.init();
         //保存场景集合到服务器
         $("#save_scene").click(function(){

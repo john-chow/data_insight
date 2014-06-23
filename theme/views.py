@@ -130,15 +130,18 @@ def themeEdit(request, id):
         theme = get_object_or_404(ThemeModel, pk = id)
         sceneList = SceneModel.objects.filter(m_is_distributed = True)\
                                                 .values(u'pk', u'm_snapshot', u'm_name')
+        th_sc_ral_set = theme.t2r_set.all().order_by("m_order")
         data = {
-                'theme':                         theme,
-                'allowed_scenes':                sceneList
+                u'theme':                         theme,
+                u'allowed_scenes':                sceneList,
+                u't2s_ral' :                      th_sc_ral_set
         }
         return render_to_response('theme/add.html', data, context)
     else:
         name, switch_effect = map(lambda x: request.POST.get(x), \
                                         ('name', 'switch_effect'))
         scences = json.loads(request.POST.get('scences'))
+        theme = ThemeModel.objects.get(pk = id)
         ThemeModel.objects.filter(pk = id).update(\
                                                   m_name = name, m_switch_effect = switch_effect)
         rla_list = []
