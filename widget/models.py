@@ -49,15 +49,6 @@ class WidgetModel(ElementModel):
             , u'table':     self.m_table \
         }
 
-    def getSkinDict(self):
-        if (not self.m_skin) or (not self.m_skin.m_number):
-            return {}
-
-        skin_file   = WIDGET_SKIN_PATH + str(self.m_skin.m_number) + SKIN_FILE_TYPE
-        #skin_file   = WIDGET_SKIN_PATH + '1' + SKIN_FILE_TYPE
-        skin_dict   = readJsonFile(skin_file)
-        return skin_dict
-
 
     class Meta:
         db_table = 'widgets'

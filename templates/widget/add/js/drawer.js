@@ -94,6 +94,10 @@ define([
         // 对外提供的获取画图对象的接口
         this.getEc =                function() {
             return this.ec
+        };
+
+        this.getDrawer  =           function() {
+            return this.now_drawer
         }
 	};
 	

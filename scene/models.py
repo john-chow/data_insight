@@ -23,14 +23,6 @@ class SceneModel(ElementModel):
                             , through='ScnToWiRelationModel' \
                             , related_name = 's2w_set')
 
-    def getSkinDict(self):
-        if (not self.m_skin) or (not self.m_skin.m_number):
-            return {}
-
-        file_name = os.path.abspath(SCENE_SKIN_PATH + str(self.m_skin.m_number) + SKIN_FILE_TYPE)
-        data = readJsonFile(file_name)
-        return data
-
 
     class Meta:
         db_table = 'scenes'

@@ -269,16 +269,53 @@ define("compontnents", ["display"], function(d) {
             this.stamp  = stamp
         }
     };
+
+
+    var skinObj         =   {
+        $el:                    null,
+        skinNumber:             null,
+
+        init:               function() {
+            //this.$el.find("").on("click", bindContext(this.rqSkinDetail, this))
+            $body.on("test", bindContext(this.rqSkinDetail, this))
+        },
+
+        rqSkinDetail:         function(ev, data) {
+            var self        =   this;
+            var skinNumber  =   data;
+            //var skinNumber      = $(ev.target).attr("skin_number");
+            $.ajax({
+                url:            "/skin/detail/scene/" + skinNumber     
+                , type:         "GET"
+                , dataType:     "json"
+                , success:      function(resp) {
+                    if (resp.succ) {
+                        self.skinNumber = skinNumber;
+                        self.cmdToChangeSkin(resp.data)
+                    }
+                }
+                , error:        function() {}
+            })
+        },
+
+        cmdToChangeSkin:        function(skinData) {
+            $body.trigger("change_skin", skinData)            
+        }
+
+    };
+
     
     // 开始运行
     allWidgetsObj.init();
     scnWidgetsObj.init();
     myAttributesObj.init();
+    skinObj.init();
 
     return {
         "aw":       allWidgetsObj
         , "sw":     scnWidgetsObj
         , "at":     myAttributesObj
+        , "sn":     skinObj
     }
 })
 
@@ -305,7 +342,7 @@ define("display", ["drawer"], function(DrawManager) {
             this.layoutArr = layoutStr ? JSON.parse(layoutStr) : null;
 
             var skinStr = $("#scn_data").html();
-            this.scnSkinData    = skinStr ? JSON.parse(skinStr) : {}
+            this.scnSkinData    = (skinStr.trim().length > 0) ? JSON.parse(skinStr) : {}
         },
         
         startListener:          function() {
@@ -314,18 +351,18 @@ define("display", ["drawer"], function(DrawManager) {
             $body.on("change_skin",     bindContext(this.changeSkin, this));
         },
 
-        dressSkin:             function(skinData) {
+        dressSkin:             function(ev, skinData) {
             // 对本场景下的每个组件使用该样式
             var self = this;
             $.each(this.drawerList, function(i, obj) {
                 var dataDraw = self.mixSkin2WiData(skinData, obj["wi_data"]);
-                obj["dr"].start(dataDraw)
+                obj["dr"].getDrawer().start(dataDraw)
             })
         },
 
-        changeSkin:             function(skinData) {
+        changeSkin:             function(ev, skinData) {
             this.scnSkinData    = skinData;
-            this.dressSkin(this.scnSkinData)
+            this.dressSkin(ev, this.scnSkinData)
         },
 
         showNewWidget:              function(ev, data) {
@@ -472,6 +509,7 @@ define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
         init:               function() {
             this.myAttributesObj = C.at;
             this.scnWidgetsObj  = C.sw;
+            this.skinObj        = C.sn;
             this.display        = D;
             var self = this;
             $("#save_scene").on("click", function() {
@@ -499,6 +537,7 @@ define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
             var displayObj      = this.display.getDisplayDataForAjax();          
             var widgetsStr      = this.scnWidgetsObj.getWidgetsDataForAjax();
             var name            = this.myAttributesObj.getName();
+            var skinNumber      = this.skinObj.skinNumber;
 
             if (window.scene_id) 
                 var url = "/scene/edit/" + window.scene_id + "/"
@@ -514,6 +553,7 @@ define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
                     , "image":          displayObj.image 
                     , "widgets":        widgetsStr 
                     , "name":           name 
+                    , "skin":           skinNumber
                 }        
                 , success:      function(data) {
                     window.scene_id = data.scn_id;
@@ -536,5 +576,7 @@ define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
 
 require(["display", "compontnents", "whole"], function() {
 })
+
+
 
 

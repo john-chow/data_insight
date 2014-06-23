@@ -85,15 +85,22 @@ def sceneEdit(request, scn_id):
     编辑场景
     """
     if u'POST' == request.method:
-        name, snapshot, layout = map(lambda x: request.POST.get(x), \
-                                                ('name', 'image', 'layout'))
+        name, snapshot, layout, skin_id = map(lambda x: request.POST.get(x), \
+                                                ('name', 'image', 'layout', 'skin'))
         widgets = json.loads(request.POST.get(u'widgets'))
 
         # 没有组件拒绝保存，没有意义
         if not widgets:
             return MyHttpJsonResponse({u'succ': False, u'msg': 'no widgets'})
 
-        scene = SceneModel.objects.get(pk = scn_id)
+        try:
+            skin    = SkinModel.objects.get(m_skin = skin_id)
+            scene   = SceneModel.objects.get(pk = scn_id)
+        except SkinModel.DoesNotExist, e:
+            return MyHttpJsonResponse({'succ': False, 'msg': ''})
+        except SceneModel.DoesNotExist, e:
+            return MyHttpJsonResponse({'succ': False, 'msg': ''})
+
         rla_list = []
         for wi in widgets:
             widget = WidgetModel.objects.get(pk = wi.get(u'id'))
@@ -103,7 +110,8 @@ def sceneEdit(request, scn_id):
             rla_list.append(rla)
 
         SceneModel.objects.filter(pk = scn_id)  \
-                    .update(m_name = name, m_layout = layout, m_snapshot = snapshot)
+                    .update(m_name = name, m_layout = layout, \
+                            m_snapshot = snapshot, m_skin = skin)
 
         # 删掉以前所有关联，重新全部建立
         ScnToWiRelationModel.objects.filter(m_scn = scene).delete()
@@ -118,7 +126,8 @@ def sceneEdit(request, scn_id):
 
         scene = get_object_or_404(SceneModel, pk = scn_id)
         scn_wi_rla_set = scene.s2r_set.all()
-        scn_skin_data   = json.dumps(scene.getSkinDict())
+        pdb.set_trace()
+        scn_skin_data   = json.dumps(scene.m_skin.getSkinDict())
 
         dict = {u'scene': scene
                 , u'allowed_widgets': allow_use_widgets
