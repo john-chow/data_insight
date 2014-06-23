@@ -270,6 +270,24 @@ define("compontnents", ["display"], function(d) {
         }
     };
 
+    
+    // 开始运行
+    allWidgetsObj.init();
+    scnWidgetsObj.init();
+    myAttributesObj.init();
+
+    return {
+        "aw":       allWidgetsObj
+        , "sw":     scnWidgetsObj
+        , "at":     myAttributesObj
+    }
+})
+
+
+// *************************
+// 皮肤模块
+// ************************
+define("skin", [], function() {
 
     var skinObj         =   {
         $el:                    null,
@@ -298,34 +316,39 @@ define("compontnents", ["display"], function(d) {
             })
         },
 
+
         cmdToChangeSkin:        function(skinData) {
             $body.trigger("change_skin", skinData)            
+        },
+
+
+        // 自定义场景皮肤和组件皮肤的合并规则
+        mixSkin2WiData:          function(skinData, wiData) {
+            var wiStyle     = wiData["style"];                  
+            wiStyle         = wiStyle || {};
+
+            $.extend(wiStyle, skinData)
+            return wiData
+        },
+
+        getSkinNumber:              function() {
+            return this.skinNumber
         }
+    }
 
-    };
-
-    
-    // 开始运行
-    allWidgetsObj.init();
-    scnWidgetsObj.init();
-    myAttributesObj.init();
     skinObj.init();
 
     return {
-        "aw":       allWidgetsObj
-        , "sw":     scnWidgetsObj
-        , "at":     myAttributesObj
-        , "sn":     skinObj
+        "sn":       skinObj
     }
 })
-
 
 
 
 // *************************
 // 呈现区域模块
 // ************************
-define("display", ["drawer"], function(DrawManager) {
+define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
     var display = {
         $el:                $("#scene_design_right"),
         $gridster:          $(".gridster ul"),
@@ -333,6 +356,7 @@ define("display", ["drawer"], function(DrawManager) {
         scnSkinData:        {},                 // 场景皮肤
 
         run:                    function() {
+            this.skinObj       = Skin.sn;
             this.init();
             this.startListener()
         },
@@ -355,7 +379,7 @@ define("display", ["drawer"], function(DrawManager) {
             // 对本场景下的每个组件使用该样式
             var self = this;
             $.each(this.drawerList, function(i, obj) {
-                var dataDraw = self.mixSkin2WiData(skinData, obj["wi_data"]);
+                var dataDraw = self.skinObj.mixSkin2WiData(skinData, obj["wi_data"]);
                 obj["dr"].getDrawer().start(dataDraw)
             })
         },
@@ -384,19 +408,13 @@ define("display", ["drawer"], function(DrawManager) {
             );
 
             var wiData  =    data.data;
-            var dataDraw = this.mixSkin2WiData(this.scnSkinData, wiData);
+            var dataDraw = this.skinObj.mixSkin2WiData(this.scnSkinData, wiData);
             var drawer = new DrawManager();
             drawer.run($(".se_wi_div_"+data.widget_id)[len], dataDraw);
 
             this.drawerList.push({"stamp": timestamp, "dr": drawer, "wi_data": wiData});
 
             this.afterWidgetShown(drawer, data.widget_id)
-        },
-
-        mixSkin2WiData:          function(skinData, data) {
-            data["style"]  = data["style"] || {};
-            $.extend(data["style"], skinData)
-            return data
         },
 
         sureShowPos:                function(timestamp) {
@@ -490,6 +508,10 @@ define("display", ["drawer"], function(DrawManager) {
             })
 
             return newDom.toDataURL()
+        },
+
+        getSkinObj:                 function() {
+            return this.skinObj
         }
     };
 
@@ -509,7 +531,6 @@ define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
         init:               function() {
             this.myAttributesObj = C.at;
             this.scnWidgetsObj  = C.sw;
-            this.skinObj        = C.sn;
             this.display        = D;
             var self = this;
             $("#save_scene").on("click", function() {
@@ -537,7 +558,7 @@ define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
             var displayObj      = this.display.getDisplayDataForAjax();          
             var widgetsStr      = this.scnWidgetsObj.getWidgetsDataForAjax();
             var name            = this.myAttributesObj.getName();
-            var skinNumber      = this.skinObj.skinNumber;
+            var skinNumber      = this.displayObj.getSkinObj().getSkinNumber();
 
             if (window.scene_id) 
                 var url = "/scene/edit/" + window.scene_id + "/"

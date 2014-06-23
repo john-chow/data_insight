@@ -171,16 +171,15 @@ define([
 
         // 主要的控制样式部分
         this.styleChart     =   function(style) {
-            this.optionCloned["backgroundColor"] =      style["backgroundColor"];
+            var self = this;
+            self.optionCloned["backgroundColor"] =      style["backgroundColor"];
 
-            $.extend(this.optionCloned["color"],        style["color"]);
-            $.extend(this.optionCloned["title"],        style["title"]);
-            $.extend(this.optionCloned["dataRange"],    style["dataRange"]);
-            $.extend(this.optionCloned["toolbox"],      style["toolbox"]);
-            $.extend(this.optionCloned["tooltip"],      style["tooltip"]);
-            $.extend(this.optionCloned["dataZoom"],     style["dataZoom"]);
-            $.extend(this.optionCloned["legend"],       style["legend"]);
-            $.extend(this.optionCloned["grid"],         style["grid"]);
+            $.each(["color", "title", "dataRange", "toolbox"
+                    , "tooltip", "dataZoom", "legend", "grid"], function(i, c) {
+                // _hide是要求移除此项的标记
+                if(style[c] && style[c]["_hide"])   delete self.optionCloned[c]
+                $.extend(self.optionCloned[c], style[c])
+            })
 
             $.each(this.optionCloned["series"], function(i, ss) {
                 $.extend(ss, style["se"])
