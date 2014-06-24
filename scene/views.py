@@ -47,8 +47,8 @@ def sceneCreate(request):
     """
     if u'POST' == request.method:
         owner = request.user.username
-        name, snapshot, layout = map(lambda x: request.POST.get(x), \
-                                        ('name', 'image', 'layout'))
+        name, snapshot, layout, skin_id = map(lambda x: request.POST.get(x), \
+                                        ('name', 'image', 'layout', 'skin'))
         widgets = json.loads(request.POST.get('widgets'))
 
         # 没有组件拒绝保存，没有意义
@@ -59,11 +59,16 @@ def sceneCreate(request):
             m_name = name, m_owner = owner, m_layout = layout, m_snapshot = snapshot   \
         )
 
+        try:
+            skin    = SkinModel.objects.get(m_skin = skin_id)
+        except SkinModel.DoesNotExist, e:
+            return MyHttpJsonResponse({'succ': False, 'msg': ''})
+
         rla_list = []
         for wi in widgets:
             widget = WidgetModel.objects.get(pk = wi.get(u'id'))
             rla = ScnToWiRelationModel( \
-                m_scn = scene, m_wi = widget, m_stamp = wi.get(u'stamp') \
+                m_scn = scene, m_wi = widget, m_stamp = wi.get(u'stamp'), m_skin = skin \
             )
             rla_list.append(rla)
         ScnToWiRelationModel.objects.bulk_create(rla_list)
