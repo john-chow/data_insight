@@ -22,6 +22,8 @@ def pretest(request):
         f   = request.FILES['pretest']
         fs  = request.POST.get(u'fs')
 
+        pdb.set_trace()
+
         for chunk in f.chunks():
             aa = chunk.split(fs)
 

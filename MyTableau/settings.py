@@ -138,6 +138,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 	'account',
     'skin',
+    'connect',
     'widget',
 	'scene',
     'theme',

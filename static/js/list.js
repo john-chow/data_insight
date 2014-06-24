@@ -161,7 +161,7 @@ $(function(){
 	//选择数据库事件
 	$('#list_link_dbs .db').on('click', function(ev) {
 		$.ajax({
-			url:		"/widget/db"
+			url:		"/connect/db"
 			, type: 	"GET"
 			, dataType:	"json"
 			, success: 	onGetDbForm
@@ -190,13 +190,13 @@ $(function(){
 		$title = $("#db_link_modal").find(".modal-title")
 
 		if ("db" === from) {
-			$form.attr("action", "/widget/db/");
+			$form.attr("action", "/connect/db/");
 			$innerFrom.html(data)
 			$title.html("连接数据库");
 			$modal_submit_btn.attr("value", "db")
 		}
 		else {
-			$form.attr("action", "/widget/tables/");
+			$form.attr("action", "/connect/table/");
 			$obj = $("<div id=tables_list></div>");
 
 			$.each(data, function(idx, table) {
@@ -230,7 +230,7 @@ $(function(){
 		if("db" === value) {
 			var formdata = $form.serialize();
 			$.ajax({
-				url:		"/widget/db/"
+				url:		"/connect/db/"
 				, type: 	"POST"
 				, data:		formdata
 				, success:  onGetTables

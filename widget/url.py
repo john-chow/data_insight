@@ -18,9 +18,5 @@ urlpatterns = patterns('',
 	url(r'^batch/undistri/$',	views.batachOp, {'op': 'undis'} ),
 	url(r'^batch/delete/$',		views.batachOp, {'op': 'delete'} ),
 
-	url(r'^db/$', 				views.connectDb),
-	url(r'^tables/$', 			views.selectTables),
-
-	url(r'^content$', 			views.getTableInfo),
 	url(r'^draw/$', 			views.reqDrawData)
 )
