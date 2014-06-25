@@ -390,7 +390,7 @@ def calc_msu_msn_list(extent_data):
     color_attr = extent_data.get( u'color', u'' )
     color_attr_table = extent_data.get( u'table', u'' )
     if color_attr:
-        group_list.append((color_attr_table, color_attr, 2, u'', u'group'))
+        group_list.append((color_attr_table, color_attr, -1, u'', u'group'))
 
 
     return msn_list, msu_list, group_list

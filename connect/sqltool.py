@@ -1,6 +1,7 @@
 # --*-- coding: utf-8 --*--
 
 import sys
+import traceback
 from sqlalchemy import create_engine, inspect, Table, MetaData, types, func, select, extract
 from sqlalchemy import *
 
@@ -255,8 +256,8 @@ class SqlTool():
         elif 'hour'     == time_str:
             tc  =   extract('hour', col_obj)
         else:
-            tb = sys.exc_info()[2]
-            raise Exception('unknown time type').with_traceback(tb)
+            logger.error(sys.exc_info())
+            raise Exception('unknown time type')
 
         return tc
 

@@ -302,7 +302,7 @@ define([
 						var legend_name = l_s["legend"];
 						self.optionCloned.legend.data.push(legend_name);
 						self.seriesOneCloned.name = legend_name;
-                        self.styleLegend(data.style.legend)
+                        //self.styleLegend(data.style.legend)
 					}
 
                     // 是否要画成聚合状

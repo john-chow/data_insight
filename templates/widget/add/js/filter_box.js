@@ -128,6 +128,7 @@ define([
         chooseSize: function(ev, ui) {
             $(".filter_tag_size").remove();
             var type=$(ui.draggable).attr("type");
+            var table = $(ui.draggable).attr("table");
             var title =$(ui.draggable).find(".attr").html();
             var button ="<b class='close'>×</b>";
             var insert = "<li class='filter_tag_size' table='"+table+"' type='"+type+"'>大小：<span data='size'>"+title+"</span>"+button+"</li>";
