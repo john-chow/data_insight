@@ -291,7 +291,7 @@ define("skin", [], function() {
 
     var skinObj         =   {
         $el:                    null,
-        skinNumber:             null,
+        skinNumber:             1,
 
         init:               function() {
             //this.$el.find("").on("click", bindContext(this.rqSkinDetail, this))
@@ -558,7 +558,7 @@ define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
             var displayObj      = this.display.getDisplayDataForAjax();          
             var widgetsStr      = this.scnWidgetsObj.getWidgetsDataForAjax();
             var name            = this.myAttributesObj.getName();
-            var skinNumber      = this.displayObj.getSkinObj().getSkinNumber();
+            var skinNumber      = this.display.getSkinObj().getSkinNumber();
 
             if (window.scene_id) 
                 var url = "/scene/edit/" + window.scene_id + "/"

@@ -12,6 +12,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 
 from scene.models import SceneModel, ScnToWiRelationModel
 from widget.models import WidgetModel
+from skin.models import SkinModel
 from common.tool import MyHttpJsonResponse
 from common.head import SCENE_SKIN_PATH
 
@@ -55,20 +56,21 @@ def sceneCreate(request):
         if not widgets:
             return MyHttpJsonResponse({u'succ': False, u'msg': 'no widgets'})
 
-        scene = SceneModel.objects.create(  \
-            m_name = name, m_owner = owner, m_layout = layout, m_snapshot = snapshot   \
-        )
-
         try:
-            skin    = SkinModel.objects.get(m_skin = skin_id)
+            skin    = SkinModel.objects.get(m_number = skin_id)
         except SkinModel.DoesNotExist, e:
             return MyHttpJsonResponse({'succ': False, 'msg': ''})
+
+        scene = SceneModel.objects.create(  \
+            m_name = name, m_owner = owner, m_layout = layout   \
+            , m_snapshot = snapshot, m_skin = skin    \
+        )
 
         rla_list = []
         for wi in widgets:
             widget = WidgetModel.objects.get(pk = wi.get(u'id'))
             rla = ScnToWiRelationModel( \
-                m_scn = scene, m_wi = widget, m_stamp = wi.get(u'stamp'), m_skin = skin \
+                m_scn = scene, m_wi = widget, m_stamp = wi.get(u'stamp') \
             )
             rla_list.append(rla)
         ScnToWiRelationModel.objects.bulk_create(rla_list)
@@ -99,7 +101,7 @@ def sceneEdit(request, scn_id):
             return MyHttpJsonResponse({u'succ': False, u'msg': 'no widgets'})
 
         try:
-            skin    = SkinModel.objects.get(m_skin = skin_id)
+            skin    = SkinModel.objects.get(m_number = skin_id)
             scene   = SceneModel.objects.get(pk = scn_id)
         except SkinModel.DoesNotExist, e:
             return MyHttpJsonResponse({'succ': False, 'msg': ''})
@@ -131,7 +133,6 @@ def sceneEdit(request, scn_id):
 
         scene = get_object_or_404(SceneModel, pk = scn_id)
         scn_wi_rla_set = scene.s2r_set.all()
-        pdb.set_trace()
         scn_skin_data   = json.dumps(scene.m_skin.getSkinDict())
 
         dict = {u'scene': scene
