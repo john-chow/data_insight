@@ -121,7 +121,8 @@ define([
             $("#filter_tag_choosed").append(insert);
             Backbone.Events.trigger(
                 "area:user_set_action"
-                , {"color":title, "table":table}
+                , {"color": {"table": table, "column": title}}
+                //{"color":title, "table":table}
             )
         },
 
@@ -135,7 +136,8 @@ define([
             $("#filter_tag_choosed").append(insert);
             Backbone.Events.trigger(
                 "area:user_set_action"
-                , {"size":title, "table":table}
+                , {"size": {"table": table, "column": title}}
+                //, {"size":title, "table":table}
             )
         },
 
@@ -174,6 +176,10 @@ define([
         },
 
         restore:   function(data) {
+            if (!data["item"]) {
+                return 
+            }
+
             var ui = {"draggable":    data["item"]};
 
             if ("color" === data["kind"]) 

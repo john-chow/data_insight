@@ -204,9 +204,11 @@ define([
                     }
                 }
                 else if("color" === type || "size" === type) {
-                    var attr = posAttrObj[type];
+                    var attr_obj = posAttrObj[type];
+                    if (!attr_obj)      return
+
                     var restoreItem = itemListObj.filter( function(i) {
-                        return attr === $(itemListObj[i]).find(".attr").html() 
+                        return attr_obj["column"] === $(itemListObj[i]).find(".attr").html() 
                     }).clone()[0];
 
                     var restoreData = {"item": restoreItem, "kind": type};

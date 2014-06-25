@@ -169,8 +169,9 @@ class SqlTool():
             table           = self.rf.get(t_str)
 
             if not table.c.has_key(c_str):
-                raise Exception(u'can''t recongnize column name of {0}' \
-                                    .format(c_str))
+                msg = u'can''t recongnize column name of {0}'.format(c_str)
+                logger.error(msg)
+                raise Exception(msg)
 
             sel_obj = table.c.get(c_str)
 

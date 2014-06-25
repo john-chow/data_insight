@@ -6,6 +6,8 @@ from django.utils import simplejson as json
 from MyTableau.models import ElementModel
 from common.head import WIDGET_SKIN_PATH, SKIN_FILE_TYPE
 from common.tool import readJsonFile
+
+import pdb
 # Create your models here.
 
 class WidgetModel(ElementModel):
@@ -17,8 +19,8 @@ class WidgetModel(ElementModel):
     # 影响图形本身效果
     m_x             = models.CharField(max_length=1024, db_column='x')               
     m_y             = models.CharField(max_length=1024, db_column='y')               
-    m_size          = models.CharField(max_length=20, db_column='size')               
-    m_color         = models.CharField(max_length=20, db_column='color')               
+    m_size          = models.CharField(max_length=50, db_column='size')               
+    m_color         = models.CharField(max_length=50, db_column='color')               
     GRAPH_CHOICES   = (
         ('bar',         'bar')
         , ('s_bar',     'stack_bar')
@@ -43,7 +45,7 @@ class WidgetModel(ElementModel):
             u'x': eval(self.m_x) if self.m_x else self.m_x \
             , u'y': eval(self.m_y) if self.m_y else self.m_y \
             , u'tables':    json.loads(self.m_table) \
-            , u'color':     self.m_color \
+            , u'color':     eval(self.m_color) if self.m_color else self.m_color \
             , u'size':      self.m_size \
             , u'graph':     self.m_graph \
             , u'table':     self.m_table \
