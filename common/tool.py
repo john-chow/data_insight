@@ -87,4 +87,11 @@ def whichEncoding(s):
     return 'unknown' 
 
 
+def findBiggestInteger(l):
+    pass
+
+
+def findMaxLength(l):
+    pass
+
 

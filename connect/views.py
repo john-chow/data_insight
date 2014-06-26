@@ -1,17 +1,23 @@
 # -*- coding: utf-8 -*-
 # Create your views here.
 
+from __future__ import division
+import os, re
+
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import simplejson as json
+from django.template import RequestContext
+from django.shortcuts import render_to_response
 
 from widget.forms import ConnDbForm
 from widget.models import ExternalDbModel
-from connect.sqltool import SqlTool
+from connect.sqltool import SqlTool, SqlToolAdapter
 from common.tool import MyHttpJsonResponse
 from common.log import logger
+from common.head import DEFAULT_DB_INFO, REGEX_FOR_NUMBER, REGEX_FOR_DATE
 
 import pdb
 
@@ -142,6 +148,127 @@ def getTableInfo(request):
 
     res_dict = {u'succ': True, u'data': tables_info_list}
     return MyHttpJsonResponse(res_dict)
+
+
+@login_required
+def uploadFile(request):
+    if 'POST' == request.method:
+        f   = request.FILES['file']
+        spliter  = request.POST.get('spliter')
+        spliter  = ','
+        st  = stCreate()
+        st.connDb(**DEFAULT_DB_INFO)
+        t = createTableAccdFile(f, spliter, st)
+        copyFileContentsIntoTable(f, spliter, st, t)
+        return MyHttpJsonResponse({'succ': True})
+    else:
+        context = RequestContext(request)
+        return render_to_response('connect/upload.html', context)
+
+
+def createTableAccdFile(f, spliter, st):
+    """
+    根据文件中数据创建数据表
+    """
+    table_name = f.name.split('.')[0]
+
+    # 读取第一行，默认是表的字段名
+    column_heads    = readColumnHead(f, spliter)
+    column_types    = judgeColumnType(f, spliter)
+    if len(column_heads) != len(column_types):
+        raise Exception('xxxxxxxxxxxxx')
+
+    # 根据用户指定的类型
+    st_col_list = []
+    for col, type in zip(column_heads, column_types):
+        st_col = SqlToolAdapter().defColumn(col, type)
+        st_col_list.append(st_col)
+
+    t = st.createTable(table_name, *tuple(st_col_list))
+    return t
+
+
+def copyFileContentsIntoTable(f, spliter, st, t):
+    """
+    把文件中数据拷贝进入数据表
+    """
+    # 越过第一行列信息
+    f.seek(0)
+    f.readline()
+
+    line = f.readline()
+    while line:
+        line_data       = [w.strip() for w in line.split(spliter)]
+        ins = t.insert().values(tuple(line_data))
+        try:
+            st.conn.execute(ins)
+        except Exception, e:
+            pass
+        finally:
+            line = f.readline()
+
+
+def readColumnHead(f, spliter = ','):
+    pos = f.tell()
+    f.seek(0)
+    column_heads    = [w.strip() for w in f.readline().split(spliter)]
+    f.seek(pos)
+    return column_heads
+
+
+def judgeColumnType(f, spliter = ','):
+    """
+    取每列头10条记录
+    依次判断是否是时间型、数字型、字符串型
+    已超过90%的为标注
+    """
+
+    # 越过列头信息
+    f.seek(0)
+    column_num = len(f.readline().split(spliter))
+
+    test_data_mul_rows = []
+    i = 0
+    while(i < 10):
+        column_data_one_row = [w.strip() for w in f.readline().split(spliter)]
+        if (len(column_data_one_row)) < column_num:
+            continue
+        test_data_mul_rows.append(column_data_one_row)
+        i += 1
+
+    test_data_mul_cols = [[row[i] for row in test_data_mul_rows] \
+                                    for i in range(column_num)]
+
+    cols_types = []
+    for test_data_one_col in test_data_mul_cols:
+        col_type = judgeGroupType(test_data_one_col)
+        cols_types.append(col_type)
+
+    return cols_types
+
+
+def judgeGroupType(data_list):
+    total_num = len(data_list)
+    time_count, int_count = 0, 0
+
+    for data in data_list:
+        # 检查是否是时间
+        if re.match(REGEX_FOR_DATE, data):
+            time_count  += 1
+        # 检查是否是数值类型
+        elif re.match(REGEX_FOR_NUMBER, data):
+            int_count   += 1
+
+    # 阀值为80%
+    if time_count / total_num > 0.8:
+        type = 'datetime'
+    elif int_count / total_num > 0.8:
+        type = 'float'
+    else:
+        type = 'str'
+
+    return type
+    
 
 
 

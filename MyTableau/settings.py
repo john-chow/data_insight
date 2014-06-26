@@ -222,3 +222,5 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 #The number of items to the left and to the right of the current page to display 
 PAGINATION_DEFAULT_WINDOW = 3
+
+

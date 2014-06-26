@@ -1,8 +1,7 @@
 # --*-- coding: utf-8 --*--
 
 import sys
-import traceback
-from sqlalchemy import create_engine, inspect, Table, MetaData, types, func, select, extract
+from sqlalchemy import create_engine, inspect, Table, MetaData, types, func, select, extract, Column
 from sqlalchemy import *
 
 from widget.models import ExternalDbModel
@@ -179,7 +178,7 @@ class SqlTool():
             if 2 == kind:
                 sel_obj = self.cvtTimeColumn(sel_obj, cmd)
             elif 0 == kind and u'rgl' != cmd:
-                f       = self.cvtFunc(cmd)
+                f       = SqlToolAdapter().cvtFunc(cmd)
                 sel_obj = f(sel_obj)
 
             sel_list.append(sel_obj)
@@ -263,7 +262,63 @@ class SqlTool():
         return tc
 
 
-    def cvtFunc(self, func_str):
+    def createTable(self, name, *cols):
+        """
+        新建数据表
+        """
+        metadata = MetaData()
+        t = Table(name, metadata, *cols)
+        metadata.create_all(self.engine)
+        self.rf[name] = t
+        return t
+
+
+    def dropTable(cls, name):
+        """
+        删除数据表
+        """
+        pass
+
+
+
+class SqlToolAdapter():
+    """
+    适配常规类型与sqltool类型
+    """
+
+    @classmethod
+    def cvtType(cls, type):
+        if "int" == type:
+            return Integer
+        elif "big_int" == type:
+            return BigInteger
+        elif "float" == type:
+            return Float
+        elif "str" == type:
+            return VARCHAR(30)
+        elif "small_char" == type:
+            return VARCHAR(20)
+        elif "mid_char" == type:
+            return VARCHAR(100)
+        elif "huge_char" == type:
+            return TEXT()
+        elif "date" == type:
+            return Date()
+        elif "datetime" == type:
+            return DateTime()
+
+    @classmethod
+    def defColumn(cls, name, type, **kwargs):
+        """
+        定义数据表的列
+        """
+        st_type = cls().cvtType(type)
+        col     = Column(name, st_type)        
+        return col
+
+
+    @classmethod
+    def cvtFunc(cls, func_str):
         if u'sum'   == func_str:
             f   = func.sum
         elif u'count'   == func_str:
@@ -276,17 +331,5 @@ class SqlTool():
 
         return f
 
-
-    def createTable(self, name):
-        """
-        新建数据表
-        """
-        pass
-
-    def dropTable(self, name):
-        """
-        删除数据表
-        """
-        pass
 
 
