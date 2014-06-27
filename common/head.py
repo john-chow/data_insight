@@ -33,3 +33,5 @@ REGEX_FOR_NUMBER        = '^(-)?(?!(0[0-9]{0,}$))[0-9]{1,}[.]{0,}[0-9]{0,}$'
 
 	
 SUPPORTED_DBS = ['postgres', 'mysql']
+
+

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # Create your views here.
 
-from __future__ import division
-import os, re
 
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
@@ -14,10 +12,11 @@ from django.shortcuts import render_to_response
 
 from widget.forms import ConnDbForm
 from widget.models import ExternalDbModel
+from connect.file import Text, Excel
 from connect.sqltool import SqlTool, SqlToolAdapter
 from common.tool import MyHttpJsonResponse
 from common.log import logger
-from common.head import DEFAULT_DB_INFO, REGEX_FOR_NUMBER, REGEX_FOR_DATE
+from common.head import DEFAULT_DB_INFO
 
 import pdb
 
@@ -151,19 +150,59 @@ def getTableInfo(request):
 
 
 @login_required
+#这个接口需要前端配合，具体需要上传内容看本函数中代码即可
 def uploadFile(request):
     if 'POST' == request.method:
         f   = request.FILES['file']
-        spliter  = request.POST.get('spliter')
-        spliter  = ','
         st  = stCreate()
         st.connDb(**DEFAULT_DB_INFO)
-        t = createTableAccdFile(f, spliter, st)
-        copyFileContentsIntoTable(f, spliter, st, t)
+        file_name = f.name.split('.')[0]
+        if 'excel' != request.POST.get('type'):
+            sheets  = request.POST.getlist('sheets')
+            sheets  = ['Sheet1', 'Sheet2']
+            Excel(f, file_name).reflectToTables(st, sheets)
+        else:
+            spliter  = request.POST.get('spliter')
+            spliter  = ','
+            tx = Text(st, f, file_name)
+            tx.setSpliter(spliter)
+            tx.reflectToTable()
         return MyHttpJsonResponse({'succ': True})
     else:
         context = RequestContext(request)
         return render_to_response('connect/upload.html', context)
+
+
+def createTableAccdExcel(f, sheets):
+    """
+    根据excel文件创建数据表
+    """
+    table_name = f.name.split('.')[0]
+    workbook = xlrd.open_workbook(file_contents = f.read())
+    for sheet in sheets:
+        worksheet = workbook.sheet_by_name(sheet)
+
+        # 默认第一行是列头信息
+        column_heads = worksheet.row(0)        
+
+        # 读取N行数据去判断列数据类型
+        i, test_row_data = 1, []
+        while(i <= 10):
+            row_data = worksheet.row(i)
+            if len(row_data) != len(column_heads):
+                continue
+            i += 1
+            test_rows_data.append(row_data)
+        column_types = judgeColumnType(test_rows_data)
+
+        # 根据用户指定的类型
+        st_col_list = []
+        for col, type in zip(column_heads, column_types):
+            st_col = SqlToolAdapter().defColumn(col, type)
+            st_col_list.append(st_col)
+
+        t = st.createTable(sheet, *tuple(st_col_list))
+        copyFileContentsIntoTable(f, st, t)
 
 
 def createTableAccdFile(f, spliter, st):
@@ -216,6 +255,7 @@ def readColumnHead(f, spliter = ','):
     return column_heads
 
 
+
 def judgeColumnType(f, spliter = ','):
     """
     取每列头10条记录
@@ -235,40 +275,6 @@ def judgeColumnType(f, spliter = ','):
             continue
         test_data_mul_rows.append(column_data_one_row)
         i += 1
-
-    test_data_mul_cols = [[row[i] for row in test_data_mul_rows] \
-                                    for i in range(column_num)]
-
-    cols_types = []
-    for test_data_one_col in test_data_mul_cols:
-        col_type = judgeGroupType(test_data_one_col)
-        cols_types.append(col_type)
-
-    return cols_types
-
-
-def judgeGroupType(data_list):
-    total_num = len(data_list)
-    time_count, int_count = 0, 0
-
-    for data in data_list:
-        # 检查是否是时间
-        if re.match(REGEX_FOR_DATE, data):
-            time_count  += 1
-        # 检查是否是数值类型
-        elif re.match(REGEX_FOR_NUMBER, data):
-            int_count   += 1
-
-    # 阀值为80%
-    if time_count / total_num > 0.8:
-        type = 'datetime'
-    elif int_count / total_num > 0.8:
-        type = 'float'
-    else:
-        type = 'str'
-
-    return type
-    
 
 
 
