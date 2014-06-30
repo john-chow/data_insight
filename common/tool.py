@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+import psycopg2 as pysql
+import datetime, random, sys, os, traceback
 
 from django.http import HttpResponse
 from django.utils import simplejson as json
-import psycopg2 as pysql
-import datetime
-import random
+
+from common.log import logger
+
 import pdb
 
 def MyHttpJsonResponse(data):
@@ -85,6 +87,29 @@ def whichEncoding(s):
         except UnicodeEncodeError:
             pass
     return 'unknown' 
+
+
+def logExcInfo():
+    """
+    打印异常信息
+    """
+    traceback_template = '''
+    Traceback: File({file}), Line({line}), Name({name}), Type({type}),
+    Message: {msg}
+    '''
+
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    traceback_details = {
+        'file'      : exc_traceback.tb_frame.f_code.co_filename,
+        'line'      : exc_traceback.tb_lineno,
+        'name'      : exc_traceback.tb_frame.f_code.co_name,
+        'type'      : exc_type.__name__,
+        'msg'       : exc_value.message, 
+    }
+
+    traceback.print_exc()
+    logger.error(traceback_template.format(**traceback_details))
+    
 
 
 def findBiggestInteger(l):

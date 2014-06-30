@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from widget.models import WidgetModel, ExternalDbModel
 from widget.echart import EChartManager
 from connect.views import stRestore
-from common.tool import MyHttpJsonResponse
+from common.tool import MyHttpJsonResponse, logExcInfo
 from common.log import logger
 
 import pdb
@@ -241,6 +241,7 @@ def reqDrawData(request):
         data    = genWidgetImageData(extent_data, hk)
     except Exception, e:
         logger.debug("catch Exception: %s" % e)
+        logExcInfo()
         error_dict = {u'succ': False, u'msg': str(e)}
         return MyHttpJsonResponse(error_dict)
     else:
