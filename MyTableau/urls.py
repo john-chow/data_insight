@@ -1,3 +1,6 @@
+# -*-coding: utf-8 -*-
+# staticfiles_urlpatterns是指当部署到本地非django内置服务器时，
+# django要主动去检查STATICFILE的设定
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls import patterns, include, url
 from MyTableau import views
