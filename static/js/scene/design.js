@@ -599,5 +599,28 @@ require(["display", "compontnents", "whole"], function() {
 })
 
 
+$.ajax({
+    url:    "/connect/sse"
+    , type: "GET"
+    , success: function() {
+        console.log('xxxxxxxxx')
+    }
+    , error:    function() {
+        console.log('mmmmmmmm')
+        fff()
+    }
+})
+
+function fff() {
+    $.ajax({
+        url:    "/connect/test"
+        , type: "GET"
+        , success: function(data) {
+            console.log('yyyyyyyy')
+        }
+    })
+}
+
+
 
 

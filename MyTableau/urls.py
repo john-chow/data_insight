@@ -1,3 +1,4 @@
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls import patterns, include, url
 from MyTableau import views
 
@@ -24,3 +25,4 @@ urlpatterns = patterns('',
     url(r'^skin/',      include('skin.url')),
     url(r'^connect/',   include('connect.url'))
 )
+urlpatterns += staticfiles_urlpatterns()

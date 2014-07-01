@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import psycopg2 as pysql
-import datetime, random, sys, os, traceback
+import datetime, time, random, sys, os, traceback
 
 from django.http import HttpResponse
 from django.utils import simplejson as json
@@ -109,6 +109,12 @@ def logExcInfo():
 
     traceback.print_exc()
     logger.error(traceback_template.format(**traceback_details))
+
+
+def timely(f):
+    while(True):
+        #time.sleep(5)        
+        f()
     
 
 

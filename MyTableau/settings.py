@@ -136,6 +136,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'gunicorn',
 	'account',
     'skin',
     'connect',
@@ -222,5 +223,11 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 #The number of items to the left and to the right of the current page to display 
 PAGINATION_DEFAULT_WINDOW = 3
+
+# 为django-sse配置
+REDIS_SSEQUEUE_CONNECTION_SETTINGS = {
+    'location': 'localhost:6379',
+    'db': 0,
+}
 
 

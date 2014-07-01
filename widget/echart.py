@@ -171,9 +171,9 @@ class Radar(EChart):
 
         # 数据库查询最后一列的结果是种类的名称列表
         legend_series_data = [{
-            u"value": n[:-1]
-            , u"name": n[-1]
-        } for n in data_from_db]
+            u"value"    : row_data[:-1]
+            , u"name"   : row_data[-1]
+        } for row_data in data_from_db]
 
         # 找到每个列中最大值
         indicator = [{
