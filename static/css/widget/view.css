@@ -1,0 +1,82 @@
+/*!
+ * 浏览界面CSS
+ *
+ * Date: 2014-06-30
+ */
+
+
+body {
+	font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
+	background-color: #ddd!important;
+}
+
+.row {
+	margin:0;
+}
+
+#header {
+	padding: 20px 0;
+}
+
+#widgetView{
+background :white;
+box-shadow: 1px 1px 18px #292929;
+margin-top: 25px;
+position: relative;
+}
+.menu-home {
+	padding: 15px 25px 15px 0;
+	font-size: 2em;
+	color: #DD9C70;
+	font-weight: bold;
+}
+
+#content {
+	background-color: #f4f4f4;
+}
+
+.se_wi_div{
+    height: 100%;
+}
+
+.gridster ul {
+list-style: none;
+}
+
+.gridster ul li{
+border: 1px solid #ddd;
+}
+
+.toolbar {
+background: #eee;
+padding: 5px 10px;
+border: 1px solid #bbb;
+margin: 15px 0;
+}
+
+.list-widget-items{
+	border: 1px solid #bbb;
+margin-top: 40px;
+}
+
+.view-list-widget{
+	margin: 0 0 30px 0;
+-webkit-box-shadow: 0 0 5px 2px rgba(0,0,0,0.1);
+-khtml-box-shadow: 0 0 5px 2px rgba(0,0,0,0.1);
+-moz-box-shadow: 0 0 5px 2px rgba(0,0,0,0.1);
+-ms-box-shadow: 0 0 5px 2px rgba(0,0,0,0.1);
+-o-box-shadow: 0 0 5px 2px rgba(0,0,0,0.1);
+box-shadow: 0 0 5px 2px rgba(0,0,0,0.1);
+background-color: #fff;
+height: 300px;
+}
+
+.view-list-widget .heading {
+background: #27A9E3;
+color: white;
+padding: 7px;
+}
+.widget-item{
+	padding-bottom: 15px;
+}
+

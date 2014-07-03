@@ -11,11 +11,16 @@
 		        widget_margins: [1, 1],                       //margin大小
 		        widget_base_dimensions: [GRID_UNIT_WIDTH, GRID_UNIT_HEIGHT],           //面积大小
 		        helper:'clone',
-		        autogrow_cols: true,
+		       // autogrow_cols: true,
+		        draggable: {
+		        	start: function(event, ui){
+		        		$("#refresh").removeAttr("disabled");
+		        	}
+		        } ,
 		        resize: {
 		            enabled: true,
 		            start: function(e, ui, $widget) {
-		             
+		             	
 		            },
 
 		            resize: function(e, ui, $widget) {
@@ -67,6 +72,7 @@
 					},
 					init: function(){
 						this.id = options.id;
+						this.stamp = options.stamp;
 						this.fetchPicData();
 					}
 				}
@@ -102,6 +108,9 @@
 				setLayout: function(layout){
 					this.layout = eval(layout);
 				},
+				getLayout: function(){
+					return this.layout;
+				},
 				//初始化获取组件列表
 				init: function(){
 					this.id = options.id;
@@ -109,7 +118,8 @@
 					var self = this;
 					$("ul#scId_" + this.id +" li").each(function(i){
 						var id = $(this).data("id");
-						var widget = new WidgetItem({id: id});
+						var stamp = $(this).data("stamp");
+						var widget = new WidgetItem({id: id, stamp: stamp});
 						self.widgetList.push(widget);
 					});
 				},
@@ -135,13 +145,13 @@
 					$.each(widgetList, function(i){
 						var widget = widgetList[i];
 						var id = widget.getId();
-						var dateTime = new Date().getTime();
+						var dateTime = widget.stamp;
 						var liHtml = "<li class='se_wi_"+id+"_"+ dateTime +
-                        "' data-id='"+id+"' data-time='"+
+                        "' data-id='"+id+"' data-time='"+ dateTime +
                         "'><div class='se_wi_div se_wi_div_"+
                         id+"'></div></li>";
                         console.log(liHtml)
-                        var posObj = self.model.layout[i];
+                        var posObj = self.getPos(dateTime);
 			            gridster.add_widget(
 			                liHtml
 			                , parseInt(posObj.size_x),  parseInt(posObj.size_y)
@@ -152,6 +162,13 @@
 						//var widgetView = new WidgetView({el: $li, model : widget});
 					})
 				},
+				getPos: function(timestamp){
+					var pos = this.model.layout.filter(function(layout) {
+		                			if (layout.data_time == timestamp)   return true;
+		            			});
+					//转为js对象
+					return pos[0];
+				}
 
 			}
 			obj.init();
@@ -168,7 +185,6 @@
 				$("#theme_scences>ul>li").each(function(i){
 					var id = $(this).data("id");
 					var layout = $(this).data("layout");
-					console.log(layout);
 					var scence = new SenceItem({id: id,layout: layout});
 					self.scenceList.push(scence);
 				})
@@ -215,11 +231,11 @@
 		var wholeView = {
 			$el: $("#contianer"),
 			init: function(){
-				bindContext(this.startTimeIndicator, this);
 				themeView.init();
 				this.slideInterval = 5000;
 				this.$timeIndicator = $("#time-indicator");
 				this.$box = themeView.$el;
+				this.$currentPlay = $("figure:first");
 				this.events();
 			},
 			switchIndicator: function($c, $n, currIndex, nextIndex){
@@ -227,6 +243,7 @@
 			},
 			startTimeIndicator : function(){
 				var self = this;
+				var $box = this.$box;
 				var leftTime = this.slideInterval;
 	        	if(this.$timeIndicator.width() > 0){
 	        		leftTime = ($("#contianer").width() - 
@@ -234,9 +251,10 @@
 	        	}
 	          	this.$timeIndicator.animate({width: '100%'}, leftTime, function(){
 	          		if(self.$box.data("fx")){
-	          			$("#next").click();
+	          			//$("#next").click();
 	          		}
-	          });
+	          	});
+	          	//alert($box.boxSlider('showSlide'))
 			},
 			pauseTimeIndicator: function(){
 				this.$timeIndicator.stop();
@@ -267,7 +285,12 @@
 				          , onbefore: bindContext(self.switchIndicator, self)
 				          , onafter: bindContext(self.startTimeIndicator, self)
 				        });
-				         $(this).addClass("played")
+				         $(this).addClass("played");
+				         $box.boxSlider('option', 'onafter', function ($previousSlide, $currentSlide, currIndex, nextIndex) {
+  							// 'this' is effectively $('#content-box')
+  							self.startTimeIndicator();
+  							self.$currentPlay = $currentSlide;
+						 });
 		    		}
 			    	self.startTimeIndicator();
 		    	});
@@ -291,6 +314,40 @@
 		        	$("#next").attr("disabled","disabled");
 		        	$("#prev").attr("disabled","disabled");
 		        	$("#pause").attr("disabled","disabled");
+		        });
+
+		        $("#refresh").click(function(){
+		        	$(this).attr("disabled");
+		        	var gridster = self.$currentPlay.find(".gridster ul").gridster().data('gridster');
+		        	var widgets = gridster.$widgets;
+		        	$.each(widgets, function(index){
+		        		var id = $(widgets[index]).data("id");
+		        		var liHtml = "<li class='se_wi_"+id+"_"+ 
+                        "' data-id='"+id+"' data-time='"+
+                        "'><div class='se_wi_div se_wi_div_"+
+                        id+"'>" +  $(widgets[index]).html() + "</div></li>";
+                        var layoutObj = themeView.collection[self.$currentPlay.index()].getLayout();
+                        var timestamp = $(widgets[index]).data("time");
+                        var pos = layoutObj.filter(function(layout) {
+		                			if (layout.data_time == timestamp)   return true;
+		            			});
+						//转为js对象
+						var posObj = pos[0];
+		        		/*gridster.resize_widget(
+		        			$(widgets[index])
+		        			, parseInt(posObj.size_x),  parseInt(posObj.size_y)
+			                , true);*/
+		        		//恢复表格的位置和大小
+		        		$(widgets[index]).attr("data-row", posObj.row);
+		        		$(widgets[index]).attr("data-col", posObj.col);
+		        		$(widgets[index]).attr("data-sizex", posObj.size_x);
+		        		$(widgets[index]).attr("data-sizey", posObj.size_y);
+		        	})
+		        	/*gridster.add_widget(
+			                
+			                , parseInt(posObj.size_x),  parseInt(posObj.size_y)
+			                , parseInt(posObj.col),     parseInt(posObj.row)
+			            );*/
 		        })
 			},
 		}

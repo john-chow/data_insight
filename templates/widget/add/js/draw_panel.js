@@ -41,14 +41,14 @@ define([
 
 		setToSev: function(data) {
             var self = this;
-			self.set(data);
-
+			//self.set(data);
             var requestUpdate = function() {
                 self.save(null, {
                     success: function(m, resp, opt) {
                         if (resp.succ) {
                             //easy_dialog_close();
                             self.able_draw  = true;
+                            console.log(JSON.stringify(resp.data))
                             Backbone.Events.trigger("panel:draw_data", resp.data)
                         } else {
                             //easy_dialog_error(resp.msg)						
@@ -223,11 +223,12 @@ define([
             this.dataCenter = new DataCenter()
 		},
 
-		onGetDrawData:      function(data) {
-            // 合并样式数据
-            var styleData = this.dataCenter.styleModel.toJSON();
-            var data = $.merge(data, {"style": styleData});
-
+		onGetDrawData:      function(data) {//data是从url：/widget/draw/中获取的数据，即从数据库按横轴纵轴的操作执行的查询结果的数据
+            // 合并样式数据,x轴y轴
+            //var styleData = this.dataCenter.styleModel.toJSON();
+            //var data = $.merge(data, {"style": styleData});
+            //data = JSON.parse('{"data":{"y":[{"type":"value"}],"x":[{"data":["广州","北京"],"type":"category"}],"legend_series":[{"series":[1.95,1.92]}]},"type":"bar"} ')
+			console.log(data)
 			this.drawer.run(this.el, data, {
                 "yes":          false
                 , "url":        "xxx"

@@ -146,7 +146,7 @@ def batachOp(request, op):
 
 
 @login_required
-def widgetEdit(request, widget_id):
+def widgetEdit(request, widget_id, template_name):
     """
     组件编辑
     """
@@ -196,7 +196,7 @@ def widgetEdit(request, widget_id):
 
         data = {u'id': widget_id
                 , u'content': json.dumps(image_data)}
-        return render_to_response(u'add.html', data, context)
+        return render_to_response(template_name, data, context)
 
 
 @require_http_methods(['GET'])
@@ -221,6 +221,34 @@ def widgetShow(request, widget_id):
                                         if widget_model.m_skin else {}
         image_data['style'] = style_data
         return MyHttpJsonResponse({u'succ': True, u'widget_id':widget_id, u'data': image_data})
+
+# def view(request, widget_id):
+#     """
+#     查看组件
+#     """
+#     widget_model = get_object_or_404(WidgetModel, pk = widget_id)
+#     request.session[u'widget_id'] = widget_id
+# 
+#     # 有没有直接把Model里面全部属性转换成dict的办法？ 
+#     extent_data = widget_model.getExtentDict()
+#     style_data  = widget_model.m_skin.getSkinDict() \
+#                                 if widget_model.m_skin else {}
+#     image_data  = dict(extent_data, **style_data)
+# 
+#     # 删掉空值的属性
+#     to_del_key = []
+#     for key in extent_data:
+#         if not extent_data[key]:
+#             to_del_key.append(key)
+# 
+#     for key in to_del_key:
+#         del extent_data[key]
+# 
+#     data = {u'id': widget_id
+#             , u'content': json.dumps(image_data)}
+#     context = RequestContext(request)
+#     
+#     return render_to_response(u'widget/view.html', data, context)
 
 
 @require_http_methods(['POST'])

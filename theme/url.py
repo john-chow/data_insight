@@ -18,7 +18,7 @@ urlpatterns = patterns('',
 	url(r'^batch/delete/$',		views.batachOp, {'op': 'delete'} ),
 
 	url(r'^viewList/$', 		views.themeList ,{'template_name': 'theme/view_list.html'}),
-	url(r'^view/(\w+)/$', 		views.view),
+	url(r'^view/(\w+)/$', 		views.view, name="view"),
 
 	url(r'^add/$', 		        views.themeCreate),
 )

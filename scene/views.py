@@ -29,7 +29,6 @@ def sceneList(request, template_name):
         order = "m_create_time" if int(sort) == 1 else "-m_create_time"
         sceneList = SceneModel.objects.filter(m_name__contains=search,m_status=True).order_by(order)
         context = RequestContext(request)
-        print sceneList
         data = {
             "sceneList": sceneList,
             "search": search,
@@ -59,7 +58,7 @@ def sceneCreate(request):
         try:
             skin    = SkinModel.objects.get(m_number = skin_id)
         except SkinModel.DoesNotExist, e:
-            return MyHttpJsonResponse({'succ': False, 'msg': ''})
+            return MyHttpJsonResponse({'succ': False, 'msg': '没有皮肤'})
 
         scene = SceneModel.objects.create(  \
             m_name = name, m_owner = owner, m_layout = layout   \
@@ -217,6 +216,14 @@ def batachOp(request, op):
         return HttpResponseRedirect(u'/scene/batch?page='+page)
     else:
         raise Http404()
+    
+def sceneView(request, id):
+    scence = SceneModel.objects.get(pk = id)
+    dict = {
+        u'scence' : scence    
+    }
+    context = RequestContext(request)
+    return render_to_response('scene/view.html', dict, context)
 
 
 
