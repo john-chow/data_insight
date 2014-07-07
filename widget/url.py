@@ -8,7 +8,7 @@ urlpatterns = patterns('',
 	url(r'^batch/$',			views.widgetList ,{'template_name': 'widget/batch.html'}),
 
 	url(r'^create/$', 			views.widgetCreate),
-	url(r'^edit/(\w+)/$', 		views.widgetEdit, name='edit'),
+	url(r'^edit/(\w+)/$', 		views.widgetEdit,{'template_name': 'add.html'}, name='edit'),
 	url(r'^show/(\w+)/$', 		views.widgetShow),
 
 	url(r'^distr/$', 			views.widgetOp, {'op': 'dis'}),
@@ -18,5 +18,8 @@ urlpatterns = patterns('',
 	url(r'^batch/undistri/$',	views.batachOp, {'op': 'undis'} ),
 	url(r'^batch/delete/$',		views.batachOp, {'op': 'delete'} ),
 
-	url(r'^draw/$', 			views.reqDrawData)
+	url(r'^draw/$', 			views.reqDrawData),
+    
+    url(r'^viewList/$',         views.widgetList ,{'template_name': 'widget/view_list.html'}),
+    url(r'^view/(\d+)/$',       views.widgetEdit ,{'template_name': 'widget/view.html'}, name="view"),
 )

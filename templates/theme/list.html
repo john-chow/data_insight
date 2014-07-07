@@ -91,11 +91,11 @@
 	    		<div class="slider-viewport">
 				    <div id="viewport">
 						<div class="box" data-fx="{{theme.m_switch_effect}}">
-							{% for sc in theme.m_scenes.all %}
-							<figure class="slide" data-id="{{sc.pk}}">
-								<img src="{{sc.m_snapshot}}" width="480" height="240"  />
-							</figure>
-							{% endfor %}
+								{% for sc in theme.t2r_set.all|dictsort:"m_order" %}
+								<figure class="slide" data-id="{{sc.m_scn.pk}}">
+									<img src="{{sc.m_scn.m_snapshot}}" width="480" height="240"  />
+								</figure>
+								{% endfor %}
 						</div>
 					</div>
 				</div>

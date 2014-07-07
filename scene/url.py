@@ -16,4 +16,7 @@ urlpatterns = patterns('',
 	url(r'^batch/distri/$',		views.batachOp, {'op': 'dis'} ),
 	url(r'^batch/undistri/$',	views.batachOp, {'op': 'undis'} ),
 	url(r'^batch/delete/$',		views.batachOp, {'op': 'delete'} ),
+    
+    url(r'^view/(\d+)/$',       views.sceneView, name='view'),
+    url(r'^viewList/$',          views.sceneList, {'template_name': 'scene/view_list.html'}),
 )

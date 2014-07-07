@@ -28,13 +28,16 @@
      </div>
      <div class="btn-group btn-group-md" style="margin-left: 15px;">
      	<button id="prev" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-chevron-left"></span>&nbsp;上一张</button>
+     	<button id="refresh" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-refresh"></span>&nbsp;还原</button>
    		<button id="next" disabled="disabled" class="btn btn-sm btn-default">下一张&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></button>
      </div>
      </div>
     <div id="time-indicator"></div>
     <div class="slider-viewport">
     <div class="loading" style="left: 48%;top: 41%;position: absolute;"></div>
-    <div id="viewport">
+    <div class="row">
+		<div class="col-md-1"></div>
+		<div id="viewport" class="col-md-10 col-xs-12">
 		<div id="box" class="" data-fx="{{theme.m_switch_effect}}">
 		    <!--{% for ts_rla in theme_scene_rla %}
 		    	 一个figure对应一个场景 
@@ -52,6 +55,7 @@
 			{% endfor %}-->
 		</div>
 	</div>
+		<div class="col-md-1"></div>
 	</div>
 	<!-- 此处是为了让design.js能够获取查看的主题的所有场景信息和组件信息而设的隐藏dom -->
 	<div style="display:none" id="theme_scences">
@@ -60,8 +64,8 @@
 			<li data-id="{{rla.m_scn.pk}}" data-layout="{{rla.m_scn.m_layout}}">
 			<div class="scence_wigets">
 				<ul id="scId_{{rla.m_scn.id}}">
-					{% for wi in rla.m_scn.m_widgets.all %}
-						<li data-id="{{wi.pk}}"></li>
+					{% for sc_wi_ral in rla.m_scn.s2r_set.all %}
+						<li data-id="{{sc_wi_ral.m_wi.pk}}" data-stamp="{{sc_wi_ral.m_stamp}}"></li>
 					{% endfor %}
 				</ul>
 			</div>
@@ -81,7 +85,7 @@
 <script src="{% static 'js/theme/effects/box-slider-fx-tile-3d.js' %}"></script>
 <script>
 window.onload = function(){
-	requirejs(['theme/view', 'toolbar-flexible'], function(Jqueryui,design){
+	requirejs(['theme/view', 'toolbar-flexible'], function(xx,xxx){
 		$("#toolbar").toolbar({
 			bottom: "88px",
 			left: "37%"

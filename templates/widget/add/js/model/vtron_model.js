@@ -53,6 +53,8 @@ define([
 		},
 
 		sync: function(method, model, options) {
+		 	// Backbone.emulateJSON = true即将ajax提交的数据为object类型的数据转为字符串
+            Backbone.emulateJSON = true;
 			method = this.method_map[method];
 			return Backbone.Model.prototype.sync.call(this, method, model, options);
 		},

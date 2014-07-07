@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<head>
+	<meta charset='utf-8'>
+	<title>DataInsight</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.gridster.css' %}">
+    {% include 'head.html' %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/scene/view.css' %}">
+</head>
+<body>
+	<!--LOGO begin-->
+	<div id="header">DataInsight</div>
+	<!--LOGO end-->
+	<div class="row">
+		<div class="col-md-1"></div>
+		<div id="scenceView" class="col-md-10 col-xs-12" data-layout="{{scence.m_layout}}">
+		<div class="loading" style="left: 48%;top: 41%;position: absolute;"></div>
+		<div class="gridster">
+			<ul>
+			</ul>
+		</div>
+		</div>
+		<div class="col-md-1"></div>
+	</div>
+	<!--隐藏元素，以便view.js获取该场景下组件的信息-->
+	<ul style="display:none" id="scenceWidget">
+		{% for ral in scence.s2r_set.all %}
+			<li data-id="{{ral.m_wi.pk}}" data-stamp="{{ral.m_stamp}}"></li>
+		{% endfor %}
+	</ul>
+</body>
+
+<script src='{% static "js/lib/jquery.gridster.js" %}'></script>
+<script src='{% static "js/common/tools.js" %}'></script>
+<script>
+window.onload = function(){
+	requirejs(['scene/view'], function(X){
+		$(".loading").hide();
+	})
+}
+</script>

@@ -1,0 +1,115 @@
+{% load static %}
+{% load pagination_tags %}
+
+<!DOCTYPE html>
+<head>
+	<meta charset='utf-8'>
+	<title>DataInsight</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/widget/view.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-widget.css' %}">
+</head>
+<body>
+	<!--menu begin-->
+	<div id="header" class="row navbar navbar-default ">
+		<div class="col-md-10 col-xs-12 col-md-offset-1">
+			<div class="text-center">
+				<span class="menu-home">DataInsight</span>
+			</div>
+		</div>
+	</div>
+	<!--menu end-->
+	<!--section begin-->
+	{% autopaginate widgetList 10 %}
+	<div id="section">
+		<!--content begin-->
+		<div id="content">
+			<div class="row">
+		  		<div class="col-md-10 col-xs-12 col-md-offset-1 list-widget-items">
+				    <!--搜索栏 begin-->
+				    <div class="toolbar clearfix">
+					<div class="pull-left">
+						<div class="btn-group" data-toggle="buttons">
+							  <label class="btn btn-default active" id="widget_sort_drop">
+							    <input type="radio" name="widget_input_sort" >时间降序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-down"></span>
+							  </label>
+							  <label class="btn btn-default" id="widget_sort_rise">
+							    <input type="radio" name="widget_input_sort" >时间升序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>
+							  </label>
+							</div>
+						</div>
+						<div class="pull-right">
+						    <div class="" style="width: 365px;">
+						    <div class="input-group">
+						        <input type="text" id="widget_input_search" value="{{search}}" name="search" placeholder="请输入搜索内容" class="form-control"/>
+						        <div class="input-group-btn">
+						          <button id="widget_button_search" type="button" class="btn btn-primary">查找&nbsp;<span class="glyphicon glyphicon-search"></span></button>
+						        </div><!-- /btn-group -->
+						    </div>
+						    </div>
+						 </div>
+					</div>
+				    <!--搜索栏 end-->
+				    <!--内容 begin-->
+				    <div class="row">
+				    {% for widget in widgetList %}
+				    	<div class="col-md-6 col-xs-12">
+					    	<div class="view-list-widget">
+					    		<div class="heading">
+									<i class="glyphicon glyphicon-align-justify"></i>
+									<span>{{ widget.m_name }}</span>
+									<span class="pull-right glyphicon {% if widget.m_is_distributed %}glyphicon-folder-open{%else%}glyphicon-folder-close{% endif %}"></span>
+								</div>
+					    		<a href="{% url 'widget:view' widget.pk %}">
+					    		<!-- {{theme.m_scenes.all.0.m_snapshot}} -->
+					    		<div class="widget-item"> 
+									<img src="{{widget.m_pic}}" width="547" height="240"  />
+								</div>
+								</a>
+					    	</div>
+				    	</div>
+				    	<!-- <div class="col-md-1"></div> -->
+				    {% endfor %}
+				    {% paginate %}
+				    </div>
+				    <!--内容 end-->
+		  		</div>
+		  	</div>
+		</div>
+		<!--content end-->
+	</div>
+	<!--section end-->
+	<!-- 搜索表单 begin -->
+	<form id="view_list_get_form" action="/widget/viewList/">
+	    <input type="hidden" id="view_list_get_search" name="search" value="{{search}}" />
+	    <input type="hidden" id="view_list_get_sort" name="sort" value="{{sort}}" />
+	    <input type="hidden" id="view_list_get_page" name="page" value="{{page}}" />
+	</form> 
+	<!-- 搜索表单 end -->
+</body>
+<script src='{% static "js/jquery-2.1.0.js" %}'></script>
+<script>
+$(function(){
+	if({{sort}}==1){
+		$("#widget_sort_drop").removeClass('active');
+		$("#widget_sort_rise").addClass('active');
+	}
+	
+	$("#widget_sort_drop").click(function(){
+		$("#view_list_get_sort").val("-1");
+		$("#view_list_get_form").submit();
+	})
+
+	$("#widget_sort_rise").click(function(){
+		$("#view_list_get_sort").val("1");
+		$("#view_list_get_form").submit();
+	})
+
+	$("#widget_button_search").click(function(){
+		var kw = $("#widget_input_search").val();
+		$("#view_list_get_search").val(kw);
+		$("#view_list_get_form").submit();
+	})
+})
+
+</script>

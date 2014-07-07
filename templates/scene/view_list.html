@@ -6,7 +6,7 @@
 	<meta charset='utf-8'>
 	<title>DataInsight</title>
 	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'css/theme/view.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/scene/view.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.css' %}">
 </head>
 <body>
@@ -20,30 +20,30 @@
 	</div>
 	<!--menu end-->
 	<!--section begin-->
-	{% autopaginate themeList 10 %}
+	{% autopaginate sceneList 10 %}
 	<div id="section">
 		<!--content begin-->
 		<div id="content">
 			<div class="row">
-		  		<div class="col-md-10 col-xs-12 col-md-offset-1 list-theme-items">
+		  		<div class="col-md-10 col-xs-12 col-md-offset-1 list-scene-items">
 				    <!--搜索栏 begin-->
 				    <div class="toolbar clearfix">
 					<div class="pull-left">
 						<div class="btn-group" data-toggle="buttons">
-							  <label class="btn btn-default active" id="theme_sort_drop">
-							    <input type="radio" name="theme_input_sort" >时间降序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-down"></span>
+							  <label class="btn btn-default active" id="scene_sort_drop">
+							    <input type="radio" name="scene_input_sort" >时间降序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-down"></span>
 							  </label>
-							  <label class="btn btn-default" id="theme_sort_rise">
-							    <input type="radio" name="theme_input_sort" >时间升序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>
+							  <label class="btn btn-default" id="scene_sort_rise">
+							    <input type="radio" name="scene_input_sort" >时间升序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>
 							  </label>
 							</div>
 						</div>
 						<div class="pull-right">
 						    <div class="" style="width: 365px;">
 						    <div class="input-group">
-						        <input type="text" id="theme_input_search" value="{{search}}" name="search" placeholder="请输入搜索内容" class="form-control"/>
+						        <input type="text" id="scene_input_search" value="{{search}}" name="search" placeholder="请输入搜索内容" class="form-control"/>
 						        <div class="input-group-btn">
-						          <button id="theme_button_search" type="button" class="btn btn-primary">查找&nbsp;<span class="glyphicon glyphicon-search"></span></button>
+						          <button id="scene_button_search" type="button" class="btn btn-primary">查找&nbsp;<span class="glyphicon glyphicon-search"></span></button>
 						        </div><!-- /btn-group -->
 						    </div>
 						    </div>
@@ -52,26 +52,18 @@
 				    <!--搜索栏 end-->
 				    <!--内容 begin-->
 				    <div class="row">
-				    {% for theme in themeList %}
+				    {% for scence in sceneList %}
 				    	<div class="col-md-6 col-xs-12">
-					    	<div class="view-list-theme">
+					    	<div class="view-list-scene">
 					    		<div class="heading">
 									<i class="glyphicon glyphicon-align-justify"></i>
-									<span>{{ theme.m_name }}</span>
-									<span class="pull-right glyphicon {% if theme.m_is_distributed %}glyphicon-folder-open{%else%}glyphicon-folder-close{% endif %}"></span>
+									<span>{{ scence.m_name }}</span>
+									<span class="pull-right glyphicon {% if scene.m_is_distributed %}glyphicon-folder-open{%else%}glyphicon-folder-close{% endif %}"></span>
 								</div>
-					    		<a href="{% url 'theme:view' theme.pk %}">
+					    		<a href="{% url 'scene:view' scence.pk %}">
 					    		<!-- {{theme.m_scenes.all.0.m_snapshot}} -->
-					    		<div class="slider-viewport">
-								    <div id="viewport">
-										<div class="box" data-fx="{{theme.m_switch_effect}}">
-												{% for sc in theme.t2r_set.all|dictsort:"m_order" %}
-												<figure class="slide" data-id="{{sc.m_scn.pk}}">
-													<img src="{{sc.m_scn.m_snapshot}}" width="480" height="240"  />
-												</figure>
-												{% endfor %}
-										</div>
-									</div>
+					    		<div class="scene-item"> 
+									<img src="{{scence.m_snapshot}}" width="547" height="240"  />
 								</div>
 							</a>
 					    	</div>
@@ -88,33 +80,13 @@
 	</div>
 	<!--section end-->
 	<!-- 搜索表单 begin -->
-	<form id="view_list_get_form" action="/theme/viewList/">
+	<form id="view_list_get_form" action="/scene/viewList/">
 	    <input type="hidden" id="view_list_get_search" name="search" value="{{search}}" />
 	    <input type="hidden" id="view_list_get_sort" name="sort" value="{{sort}}" />
 	    <input type="hidden" id="view_list_get_page" name="page" value="{{page}}" />
 	</form> 
 	<!-- 搜索表单 end -->
 </body>
-<style>
-	.slider-viewport { 
-width: 544px;
-height: 278px;
-overflow: hidden; 
-position: relative;
-margin: auto;
-padding: 0 21px 140px;
-}
-#viewport, #draw_theme, .slide {
-  width: 544px;
-  height: 278px;
-  
-}
-
-#viewport {
-  overflow: hidden;
-  margin-top: 25px;
-}
-</style>
 <script src='{% static "js/jquery-2.1.0.js" %}'></script>
 <script src="{% static 'js/theme/box-slider.jquery.js' %}"></script>
 <script src="{% static 'js/theme/effects/box-slider-fx-scroll-3d.js' %}"></script>
@@ -125,34 +97,23 @@ padding: 0 21px 140px;
 <script src="{% static 'js/theme/effects/box-slider-fx-tile-3d.js' %}"></script>
 <script>
 $(function(){
-	$(".box").each(function(i){
-		var $box = $(this);
-		var fx = $box.data("fx");
-		$box.boxSlider({
-            speed: 1000
-          , autoScroll: true
-          , timeout: 1000
-          , effect: fx
-    	});
-	});
-
 	if({{sort}}==1){
-		$("#theme_sort_drop").removeClass('active');
-		$("#theme_sort_rise").addClass('active');
+		$("#scene_sort_drop").removeClass('active');
+		$("#scene_sort_rise").addClass('active');
 	}
 	
-	$("#theme_sort_drop").click(function(){
+	$("#scene_sort_drop").click(function(){
 		$("#view_list_get_sort").val("-1");
 		$("#view_list_get_form").submit();
 	})
 
-	$("#theme_sort_rise").click(function(){
+	$("#scene_sort_rise").click(function(){
 		$("#view_list_get_sort").val("1");
 		$("#view_list_get_form").submit();
 	})
 
-	$("#theme_button_search").click(function(){
-		var kw = $("#theme_input_search").val();
+	$("#scene_button_search").click(function(){
+		var kw = $("#scene_input_search").val();
 		$("#view_list_get_search").val(kw);
 		$("#view_list_get_form").submit();
 	})

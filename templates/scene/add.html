@@ -110,4 +110,4 @@
 <script src='{% static "js/scene/design.js" %}'></script>
 <script src='{% static "js/lib/jquery.gridster.js" %}'></script>
 <script src='{% static "js/common/tools.js" %}'></script>
-<script>window.scene_id = $("#scene_data").attr("scene-id")</script>
+<script>window.scene_id = {{ scene.id }}</script>
