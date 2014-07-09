@@ -191,3 +191,7 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
     padding: 5px 10px;
     border: 1px solid #bbb;
 }
+
+.modal-dialog {
+    width:850px;
+}

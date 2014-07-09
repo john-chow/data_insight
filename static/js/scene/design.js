@@ -83,6 +83,15 @@ function outtest() {
     });
 }
 
+//测试函数
+function openEditorModal() {
+    $('#editorModal').modal()
+}
+
+function editorModalOk(){
+    var a = CKEDITOR.instances.sceneEditor.getData();
+     alert(a);
+}
 
 
 // 传递全局事件对象
