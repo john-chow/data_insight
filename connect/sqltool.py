@@ -1,13 +1,34 @@
 # --*-- coding: utf-8 --*--
 
 import sys
-from sqlalchemy import create_engine, inspect, Table, MetaData, types, func, select, extract, Column
+from sqlalchemy import create_engine, inspect, Table, MetaData, types, \
+                        func, select, extract, Column
 from sqlalchemy import *
 
 from widget.models import ExternalDbModel
+from widget.factor import ElementFactor
 from common.log import logger
 
 import pdb
+
+
+# 登陆数据库信息的hash key到SqlTool对象之间的映射表
+HK_ST_MAP   = {}
+
+def stRestore(hk):
+    if not hk:
+        return False
+
+    st = HK_ST_MAP.get(hk)
+    if not st:
+        st = SqlTool().restore(hk)
+
+    return st
+
+def stStore(hk, st):
+    HK_ST_MAP[hk] = st
+
+
 
 class SqlTool():
     """
@@ -103,7 +124,7 @@ class SqlTool():
             except exc.NoSuchTableError:
                 raise Exception(u'No such table, name = {0}'.format(name))
             else:
-                self.rf[name] = obj
+                self.registerNewTable(name, obj)
 
 
     def getTablesInfo(self, tables):
@@ -136,7 +157,6 @@ class SqlTool():
 
 
     def exeSelect(self, selects, filter = [], groups = [], **kwargs):
-
         """
         执行查询语句
         """
@@ -155,18 +175,30 @@ class SqlTool():
         return results
 
 
+    def cvtToSqlSentence(self, selects, filter = [], groups = [], **kwargs):
+        """
+        转换到sql语句
+        """
+        if not selects or len(selects) <= 0:
+            raise Exception(u'no selected content')
+
+        select_obj  = self.cvtSelect(selects)
+        group_part  = self.cvtGroup(groups)
+
+        sql_obj     = select_obj
+        if group_part:
+            sql_obj = sql_obj.group_by(*group_part)
+
+        return str(sql_obj)
+
+
+
     def cvtSelect(self, selects):
         sel_list    = []
-        for s in selects:
-            """
-            if not (u'table' in s and u'col' in s):
-                raise Exception(u'please check column and table error')
+        for factor in selects:
+            t_str, c_str, kind, cmd = factor.extract()
 
-            t_str, c_str    = s[u'table'], s[u'column']
-            """
-            t_str, c_str    = s[0], s[1]
-            table           = self.rf.get(t_str)
-
+            table           = self.getTableObj(t_str)
             if not table.c.has_key(c_str):
                 msg = u'can''t recongnize column name of {0}'.format(c_str)
                 logger.error(msg)
@@ -174,10 +206,9 @@ class SqlTool():
 
             sel_obj = table.c.get(c_str)
 
-            kind, cmd    = s[2], s[3]
-            if 2 == kind:
+            if 2 == int(kind):
                 sel_obj = self.cvtTimeColumn(sel_obj, cmd)
-            elif 0 == kind and u'rgl' != cmd:
+            elif 0 == int(kind) and u'rgl' != cmd:
                 f       = SqlToolAdapter().cvtFunc(cmd)
                 sel_obj = f(sel_obj)
 
@@ -200,7 +231,7 @@ class SqlTool():
 
         for idx, j_unit in enumerate(joins[u'data']):
             t_str, c_str = j_unit.get(u'table'), j_unit.get(u'column')
-            table   = self.rf.get(t_str)
+            table   = self.getTableObj(t_str)
             column  = getattr(table.c, c_str)
 
             if 0 == idx:
@@ -214,23 +245,16 @@ class SqlTool():
 
     def cvtGroup(self, groups):
         group_list  = []
-        for g in groups:
-            """
-            if not (u'table' in g and u'column' in g):
-                raise Exception(u'please check column and table error')
+        for factor in groups:
+            t_str, c_str, kind_str, cmd_str = factor.extract()
 
-            t_str, c_str    = g[u'table'], g[u'col']
-            """
-            t_str, c_str    = g[0], g[1]
-            table   = self.rf.get(t_str)
-
+            table   = self.getTableObj(t_str)
             if not table.c.has_key(c_str):
                 raise Exception(u'can''t recongnize column name of {0}' \
                                     .format(c_str))
 
             col_obj = table.c.get(c_str)
 
-            kind_str, cmd_str   = g[2], g[3]    
             if 2 == kind_str:
                 # 如果是时间列，那么需要额外处理
                 grp_obj = self.cvtTimeColumn(col_obj, cmd_str)
@@ -261,6 +285,38 @@ class SqlTool():
 
         return tc
 
+    def getColumnObj(self, t_str, c_str):
+        """
+        根据数据表名和列名获取列对象
+        """
+        table = self.getTableObj(t_str)
+        if not t:
+            return None
+
+        if not table.c.has_key(c_str):
+            msg = u'can''t recongnize column name of {0}'.format(c_str)
+            logger.error(msg)
+            raise Exception(msg)
+
+        column = table.c.get(c_str)
+        return column
+
+
+    def getTableObj(self, t_str):
+        if t_str not in self.rf.keys():
+            self.reflectTables([t_str])
+
+        return self.rf.get(t_str)
+
+
+    def registerNewTable(self, name, table):
+        """
+        增加新表后，登记记录
+        """
+        #table_helper = new TableHelper()
+        #setattr(table, 'helper', table_helper)
+        self.rf[name] = table
+
 
     def createTable(self, name, *cols):
         """
@@ -269,7 +325,7 @@ class SqlTool():
         metadata = MetaData()
         t = Table(name, metadata, *cols)
         metadata.create_all(self.engine)
-        self.rf[name] = t
+        self.registerNewTable(name, t)
         return t
 
 
@@ -325,11 +381,11 @@ class SqlToolAdapter():
             f   = func.count
         elif u'avg' == func_str:
             f   = func.avg
+        elif u''    == func_str:
+            f   =   None
         else:
             logger.err('unknow func str, {0}', func_str)
             return False
 
         return f
-
-
 

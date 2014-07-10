@@ -111,11 +111,39 @@ def logExcInfo():
     logger.error(traceback_template.format(**traceback_details))
 
 
-def timely(f):
-    while(True):
-        #time.sleep(5)        
-        f()
-    
+def calcStrFormula(left, operator, right):
+    """
+    计算用字符串表示的计算式的结果
+    """
+    try:
+        left = str(left)
+    except ValueError, e:
+        return None
+
+    if operator in ['le', '<=']:
+        fomula = left + '<=' + right
+    elif operator in ['lt', '<']:
+        fomula = left + '<' + right
+    elif operator in ['ge', '>=']:
+        fomula = left + '>=' + right
+    elif operator in ['gt', '>']:
+        formula = left + '>' + right
+    elif operator in ['eq', '==']:
+        formula = left + '==' + right
+    elif operator in ['bw', '<>']:
+        formula = right[0] + '<' + left + '<' + right
+    else:
+        return None
+
+    return eval(formula)
+
+
+def isSublist(a, b):
+    for i in a:
+        if i not in b:
+            return False
+
+    return True
 
 
 def findBiggestInteger(l):

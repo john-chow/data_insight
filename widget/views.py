@@ -16,8 +16,10 @@ from django.views.decorators.csrf import csrf_exempt
 
 from widget.models import WidgetModel, ExternalDbModel
 from widget.echart import EChartManager
+from widget.factor import ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE
 from connect.views import stRestore
 from common.tool import MyHttpJsonResponse, logExcInfo
+import common.protocol as Protocol
 from common.log import logger
 
 import pdb
@@ -222,33 +224,6 @@ def widgetShow(request, widget_id):
         image_data['style'] = style_data
         return MyHttpJsonResponse({u'succ': True, u'widget_id':widget_id, u'data': image_data})
 
-# def view(request, widget_id):
-#     """
-#     查看组件
-#     """
-#     widget_model = get_object_or_404(WidgetModel, pk = widget_id)
-#     request.session[u'widget_id'] = widget_id
-# 
-#     # 有没有直接把Model里面全部属性转换成dict的办法？ 
-#     extent_data = widget_model.getExtentDict()
-#     style_data  = widget_model.m_skin.getSkinDict() \
-#                                 if widget_model.m_skin else {}
-#     image_data  = dict(extent_data, **style_data)
-# 
-#     # 删掉空值的属性
-#     to_del_key = []
-#     for key in extent_data:
-#         if not extent_data[key]:
-#             to_del_key.append(key)
-# 
-#     for key in to_del_key:
-#         del extent_data[key]
-# 
-#     data = {u'id': widget_id
-#             , u'content': json.dumps(image_data)}
-#     context = RequestContext(request)
-#     
-#     return render_to_response(u'widget/view.html', data, context)
 
 
 @require_http_methods(['POST'])
@@ -372,19 +347,59 @@ def getDrawData(extent_data, shape_in_use, hk):
     logger.debug("function getDrawData() is called")
 
     # 先看请求里面分别有多少个文字类和数字类的属性
-    msn_list, msu_list, group_list = calc_msu_msn_list(extent_data)
+    msn_factor_list, msu_factor_list, group_list = calc_msu_msn_factor_list(extent_data)
 
     # 从数据库中找出该图形要画得数据
-    data_from_db = searchDataFromDb(extent_data, hk, msu_list, msn_list, group_list)
+    factor_list = msn_factor_list + msu_factor_list
+    data_from_db = searchDataFromDb(extent_data, hk, factor_list, group_list) 
 
     # 为echart格式化数据
-    echart_data = formatData(data_from_db, msu_list, msn_list, group_list, shape_in_use)
+    echart_data = formatData(data_from_db, msu_factor_list, msn_factor_list, \
+                                group_list, shape_in_use)
 
     return echart_data
 
 
+def extractFactor(extent_data):
+    '''
+    解析获得各维度上的Factor对象
+    '''
+    [col_kind_attr_list, row_kind_attr_list] = \
+            map( lambda i: extent_data.get(i, []), \
+                    (u'x', u'y') \
+                ) 
 
-def calc_msu_msn_list(extent_data):
+
+    # 获取轴上属性Factor对象
+    axis_factor_list = []
+    for idx, col_element in enumerate(col_kind_attr_list + row_kind_attr_list):
+        element_dict = {key:col_element[key] for key in EXPRESS_FACTOR_KEYS_TUPLE}
+        factor = ElementFactor(**element_dict)
+        if idx < len(col_kind_attr_list):
+            factor.setBelongToAxis('col')
+        else:
+            factor.setBelongToAxis('row')
+
+        axis_factor_list.append(factor)
+
+
+    # 获取选择器上属性Factor对象
+    group_factor_list = []
+    color_dict = extent_data.get(Protocol.Color)
+    if color_dict:
+        color_attr_table = color_dict.get(u'table', u'')
+        color_attr_column = color_dict.get('column', u'')
+        color_dict = dict(zip((color_attr_table, color_attr_column, -1, u''), \
+                                EXPRESS_FACTOR_KEYS_TUPLE))
+        factor = ElementFactor(**color_dict)
+        factor.setBelongToAxis('group')
+        group_factor_list.append(factor)
+
+    return axis_factor_list, group_factor_list
+
+
+
+def calc_msu_msn_factor_list(extent_data):
     """ 
     计算出 measure_list, mension_list
     这里每个List里面单元的构造是 (name, kind, cmd, x_y)
@@ -393,41 +408,21 @@ def calc_msu_msn_list(extent_data):
     cmd:  表示运算符号，'sum','avg'等等
     x_y:  表示属于哪个轴，值有x、y，还有'group'
     """
-    logger.debug("function calc_msu_msn_list() is called")
+    logger.debug("function calc_msu_msn_factor_list() is called")
 
-    [col_kind_attr_list, row_kind_attr_list] = \
-            map( lambda i: extent_data.get(i, []), \
-                    (u'x', u'y') \
-                ) 
+    axis_factor_list, group_factor_list = extractFactor(extent_data)
+    msn_factor_list = [axis_factor for axis_factor in axis_factor_list \
+                                if 'rgl' == axis_factor.getProperty('cmd') \
+                                    or 2 == axis_factor.getProperty('kind')]
+    msu_factor_list = [axis_factor for axis_factor in axis_factor_list \
+                                if 'rgl' != axis_factor.getProperty('cmd') \
+                                    and 0 == axis_factor.getProperty('kind')]
 
-    msn_list, msu_list = [], []
-
-    len_col_attr_list = len(col_kind_attr_list)
-    for idx, attr_kind_cmd in enumerate(col_kind_attr_list + row_kind_attr_list):
-        attr_kind_cmd_tuple = tuple(map(lambda x: attr_kind_cmd[x], \
-                                        [u'table', u'attr', u'kind', u'cmd']))
-
-        col_row_flag = u'col' if idx < len_col_attr_list else u'row'
-        tmp_attr_list = msn_list \
-                            if u'rgl' == attr_kind_cmd_tuple[3] \
-                                or 2 == attr_kind_cmd_tuple[2] \
-                                        else msu_list
-        tmp_attr_list.append( attr_kind_cmd_tuple + (col_row_flag,) )
-
-    # xxx
-    group_list = []
-    color_dict = extent_data.get(u'color')
-    if color_dict:
-        color_attr_table = color_dict.get(u'table', u'')
-        color_attr_column = color_dict.get('column', u'')
-        group_list.append((color_attr_table, color_attr_column, -1, u'', u'group'))
-
-
-    return msn_list, msu_list, group_list
+    return msn_factor_list, msu_factor_list, group_factor_list
     
 
 
-def searchDataFromDb(extent_data, hk, msu_list, msn_list, group_list):
+def searchDataFromDb(extent_data, hk, factor_list, group_list):
     """
     要保证select的顺序是 measure、mension、group
     """
@@ -437,21 +432,21 @@ def searchDataFromDb(extent_data, hk, msu_list, msn_list, group_list):
     # 选择区别里面的数字列不存在sql语句中，它只是做值域范围设定用的
     # 选择区别里面的文字列存在sql语句中的select段和group段
 
-    selects, groups  = [], []
-    for axis_tuple in (msu_list + msn_list):
-        kind    = axis_tuple[2]
+    select_factors, group_factors  = [], []
+    for factor in factor_list:
+        kind    = factor.getProperty(Protocol.Kind)
         if 0 == kind:
-            selects.append(axis_tuple)
+            select_factors.append(factor)
         else:
-            selects.append(axis_tuple)
-            groups.append(axis_tuple)
+            select_factors.append(factor)
+            group_factors.append(factor)
 
-    for group_tuple in group_list:
-        selects.append(group_tuple)
-        groups.append(group_tuple)       
+    for factor in group_list:
+        select_factors.append(factor)
+        group_factors.append(factor)       
 
     st  = stRestore(hk)
-    resultes = st.exeSelect(selects = selects, groups = groups)
+    resultes = st.exeSelect(selects = select_factors, groups = group_factors)
     return resultes
 
 
@@ -466,14 +461,14 @@ def judgeWhichShapes(extent_data):
 
 
 
-def formatData(data_from_db, msu_list, msn_list, group_list, shape_in_use):
+def formatData(data_from_db, msu_factor_list, msn_factor_list, group_list, shape_in_use):
     """
     格式化数据
     """
     logger.debug("function formatData() is called")
 
     echart = EChartManager().get_echart(shape_in_use)
-    return echart.makeData(data_from_db, msu_list, msn_list, group_list)
+    return echart.makeData(data_from_db, msu_factor_list, msn_factor_list, group_list)
 
 
 

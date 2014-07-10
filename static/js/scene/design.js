@@ -522,6 +522,7 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
 })
 
 
+
 // *************************
 // 整体区域
 // ************************
@@ -597,5 +598,4 @@ define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
 
 require(["display", "compontnents", "whole"], function() {
 })
-
 

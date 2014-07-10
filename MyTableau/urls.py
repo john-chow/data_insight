@@ -26,6 +26,7 @@ urlpatterns = patterns('',
     url(r'^scene/', 	include('scene.url', namespace="scene")),
     url(r'^theme/', 	include('theme.url', namespace="theme")),
     url(r'^skin/',      include('skin.url')),
-    url(r'^connect/',   include('connect.url'))
+    url(r'^connect/',   include('connect.url')),
+    url(r'^monitor/',   include('monitor.url'))
 )
 urlpatterns += staticfiles_urlpatterns()

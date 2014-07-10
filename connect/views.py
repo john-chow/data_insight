@@ -14,30 +14,12 @@ from django_sse.redisqueue import send_event
 from widget.forms import ConnDbForm
 from widget.models import ExternalDbModel
 from connect.file import Text, Excel
-from connect.sqltool import SqlTool, SqlToolAdapter
-from common.tool import MyHttpJsonResponse, timely
+from connect.sqltool import SqlTool, SqlToolAdapter, stRestore, stStore
+from common.tool import MyHttpJsonResponse
 from common.log import logger
 from common.head import DEFAULT_DB_INFO
 
 import pdb
-
-
-# 登陆数据库信息的hash key到SqlTool对象之间的映射表
-HK_ST_MAP   = {}
-
-def stCreate():
-    return SqlTool()
-
-
-def stRestore(hk):
-    if not hk:
-        return False
-
-    st = HK_ST_MAP.get(hk)
-    if not st:
-        st = SqlTool().restore(hk)
-
-    return st
 
 
 def genConnHk(kind, ip, port, db, user, pwd):
@@ -60,7 +42,7 @@ def connectDb(request):
                 = map(lambda x: request.POST.get(x)  \
                         , [u'ip', u'port', u'db', u'user', u'pwd', u'kind'])
 
-        st = stCreate()
+        st = SqlTool()
         succ, msg = st.connDb( \
             kind = 'postgres', ip = ip, port = port, db = db, user = user, pwd = pwd \
         )
@@ -68,7 +50,7 @@ def connectDb(request):
         if succ:
             kind    = u'postgres'
             hk  = genConnHk(ip = ip, port = port, db = db, user = user, pwd = pwd, kind = kind)
-            HK_ST_MAP[hk] = st
+            stStore(hk, st)
             request.session[u'hk'] = hk
 
             ExternalDbModel.objects.get_or_create(pk = hk, \
@@ -155,7 +137,7 @@ def getTableInfo(request):
 def uploadFile(request):
     if 'POST' == request.method:
         f   = request.FILES['file']
-        st  = stCreate()
+        st  = SqlTool()
         st.connDb(**DEFAULT_DB_INFO)
         file_name = f.name.split('.')[0]
         if 'excel' != request.POST.get('type'):

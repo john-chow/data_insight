@@ -202,7 +202,7 @@ Array.prototype.remove = function(val) {
 
 
 // 监听服务器事件，接收服务器推送数据
-function ListenToServer(url, ev, openCallBack, failCallBack, succCallBack) {
+function ListenToServer(url, evName, openCallBack, failCallBack, succCallBack) {
     var source = new EventSource(url);
     source.onopen = function() {
         if (openCallBack)       openCallBack()
@@ -212,9 +212,9 @@ function ListenToServer(url, ev, openCallBack, failCallBack, succCallBack) {
         if (failCallBack)       failCallBack()
     }
 
-    source.addEventListener(ev, function(e) { 
-        if (succCallBack)       succCallBack()
-    })
+    source.addEventListener(evName, function(e) { 
+        if (succCallBack)       succCallBack(e)
+    }, false)
 }
 
 
