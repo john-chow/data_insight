@@ -145,11 +145,12 @@ define([
         this.init =    function(ec, type) {
             this.ec             = ec;
 			this.type           = type;
+			this.optionCloned   = cloneObject(this.option);
         };
 
         // 启动drawer工作
         this.start   =   function(resp) {
-			this.optionCloned   = cloneObject(this.option);
+			//this.optionCloned   = cloneObject(this.option);
             this.work(resp)
         };
 
@@ -478,11 +479,15 @@ define([
 
         this.init      =       function(el, type, stateOption) {
             RadarDrawer.prototype.init.call(this, el, "radar", stateOption);
+        };
 
+        this.start =            function(resp) {
             $.extend(this.optionCloned, {
                 "polar":            []
                 , "calculable":     true
             })
+
+            RadarDrawer.prototype.start.call(this, resp)
         };
 
         this.fillSeries     =       function(data) {
