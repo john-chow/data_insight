@@ -29,6 +29,7 @@ class TriggerBaseModel():
         self.ev = evModel
         self.st = stRestore(self.ev.m_conn_db.m_hk)
 
+
 '''
 条件控制表达式基类
 '''
@@ -241,7 +242,7 @@ class PsgCondition(Condition):
     def strPart(self, i):
         '''
         用来把条件表达式某部分转换成sql里的变量形式
-        i用来标记是哪部分
+        用来标记是哪部分
         '''
         part_factor = self.lf if 'left' == i else self.rf
         factor_var = part_factor.cvtToSqlVar()
