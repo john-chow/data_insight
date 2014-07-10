@@ -41,7 +41,7 @@ define([
 
 		setToSev: function(data) {
             var self = this;
-			//self.set(data);
+			self.set(data);
             var requestUpdate = function() {
                 self.save(null, {
                     success: function(m, resp, opt) {

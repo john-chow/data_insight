@@ -389,8 +389,8 @@ def extractFactor(extent_data):
     if color_dict:
         color_attr_table = color_dict.get(u'table', u'')
         color_attr_column = color_dict.get('column', u'')
-        color_dict = dict(zip((color_attr_table, color_attr_column, -1, u''), \
-                                EXPRESS_FACTOR_KEYS_TUPLE))
+        color_dict = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
+                                (color_attr_table, color_attr_column, -1, u'')))
         factor = ElementFactor(**color_dict)
         factor.setBelongToAxis('group')
         group_factor_list.append(factor)
