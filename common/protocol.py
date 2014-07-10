@@ -16,7 +16,12 @@ Color = 'color'
 Axis = 'axis'
 
 # 该元素的值类别字段的名称
+# 0表示是数字列，1表示是文字列，2表示是时间列
 Kind = 'kind'
+
+
+# 
+Attr = 'attr'
 
 
 

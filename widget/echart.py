@@ -124,8 +124,9 @@ class Area(Bar_Line_Base):
 class Scatter(EChart):
     def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
         # 条件是至少2个数字列
-        num_list = [ kind for (_, kind, _, _) in (msu_factor_list + msn_factor_list) if 1 == kind ] 
-        if num_list < 2:
+        numeric_factor_list = [f for f in (msu_factor_list + msn_factor_list) \
+                                    if 0 == f.getProperty(Protocol.Kind)]
+        if len(numeric_factor_list) < 2:
             raise Exception(u'cant draw scatter')
 
         x_info_list, y_info_list = [], []
@@ -176,15 +177,15 @@ class Radar(EChart):
 
         # 数据库查询最后一列的结果是种类的名称列表
         legend_series_data = [{
-            u"value"    : row_data[:-1]
-            , u"name"   : row_data[-1]
+            u"value"    : tuple(row_data)[:-1]
+            , u"name"   : tuple(row_data)[-1]
         } for row_data in data_from_db]
 
         # 找到每个列中最大值
         indicator = [{
-            u"text":                pro[0]                    
+            u"text":                factor.getProperty(Protocol.Attr)
             , u"max":               max([a[i] for a in data_from_db])        
-        } for i, pro in enumerate(msu_factor_list)]
+        } for i, factor in enumerate(msu_factor_list)]
 
         return {
             u'legend_series':       legend_series_data
