@@ -347,15 +347,15 @@ def getDrawData(extent_data, shape_in_use, hk):
     logger.debug("function getDrawData() is called")
 
     # 先看请求里面分别有多少个文字类和数字类的属性
-    msn_factor_list, msu_factor_list, group_list = calc_msu_msn_factor_list(extent_data)
+    msn_factor_list, msu_factor_list, group_factor_list = calc_msu_msn_factor_list(extent_data)
 
     # 从数据库中找出该图形要画得数据
-    factor_list = msn_factor_list + msu_factor_list
-    data_from_db = searchDataFromDb(extent_data, hk, factor_list, group_list) 
+    factor_list = msu_factor_list + msn_factor_list
+    data_from_db = searchDataFromDb(extent_data, hk, factor_list, group_factor_list) 
 
     # 为echart格式化数据
     echart_data = formatData(data_from_db, msu_factor_list, msn_factor_list, \
-                                group_list, shape_in_use)
+                                group_factor_list, shape_in_use)
 
     return echart_data
 

@@ -181,6 +181,4 @@ def pushToClient(event_name, user_name, result):
         'result': result
     }), channel = SSE_CHANNEL_TEMPLATE.format(user_name))
 
-    #return HttpResponse('')
-
 
