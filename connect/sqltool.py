@@ -1,4 +1,11 @@
 # --*-- coding: utf-8 --*--
+'''
+本文件是用SqlAlchemy实现用Factor对象到数据库操作的转换过程
+PysqlAgent实现用SqlAlchemy代理数据库操作的接口
+SqlRelation实现由数据库及数据表到SqlAlchemy对象的映射模型
+PysqlAgent和SqlRelation是聚合关系
+'''
+
 
 import sys
 from sqlalchemy import create_engine, inspect, Table, MetaData, types, \
@@ -12,7 +19,7 @@ from common.log import logger
 import pdb
 
 
-# 登陆数据库信息的hash key到SqlTool对象之间的映射表
+# 登陆数据库信息的hash key到PysqlAgent对象之间的映射表
 HK_ST_MAP   = {}
 
 def stRestore(hk):
@@ -21,7 +28,7 @@ def stRestore(hk):
 
     st = HK_ST_MAP.get(hk)
     if not st:
-        st = SqlTool().restore(hk)
+        st = PysqlAgent().restore(hk)
 
     return st
 
@@ -30,28 +37,21 @@ def stStore(hk, st):
 
 
 
-class SqlTool():
-    """
-    这是一个负责操作数据库的类
-    """
-
+'''
+实现由外部输入Factor对象转换为Sql过程
+'''
+class PysqlAgent():
     cnt             = ''
     engine          = None
     conn            = None
     insp            = None
-    rf              = {}
 
     def __init__(self, kwargs = None):
         if kwargs:
             self.connDb(**kwargs)
 
-
-    def __str__(self):
-        str = u'sqltool:        {0}'
-        if self.engine and self.engine.name:
-            return str.format('unconn')
-        else:
-            return str.format(self.engine.name)
+        # 聚合SqlRelation，用来存储和实现
+        self.sql_relation = SqlRelation()
 
 
     def active(self):
@@ -66,6 +66,9 @@ class SqlTool():
 
 
     def restore(self, hk):
+        '''
+        恢复连接
+        '''
         try:
             logger.info('restore hk = {0}'.format(hk))
             externdb = ExternalDbModel.objects.get(pk = hk)
@@ -116,7 +119,7 @@ class SqlTool():
         meta    = MetaData()
         for name in tables:
             # 建立过映射关系的不需要再建
-            if name in self.rf.keys():
+            if name in self.sql_relation.rf.keys():
                 continue
 
             try:
@@ -124,13 +127,16 @@ class SqlTool():
             except exc.NoSuchTableError:
                 raise Exception(u'No such table, name = {0}'.format(name))
             else:
-                self.registerNewTable(name, obj)
+                self.sql_relation.registerNewTable(name, obj)
 
 
     def getTablesInfo(self, tables):
+        '''
+        获取某数据表中全部列的分类情况
+        '''
         tables_info_list = []
         for t in tables:
-            if t not in self.rf.keys():
+            if t not in self.sql_relation.rf.keys():
                 self.reflectTables([t])
 
             info = self.insp.get_columns(t)
@@ -156,44 +162,53 @@ class SqlTool():
         return tables_info_list
 
 
-    def exeSelect(self, selects, filter = [], groups = [], **kwargs):
-        """
-        执行查询语句
-        """
+    def makeSelectSql(self, selects, filter = [], groups = [], **kwargs):
+        '''
+        制作select形式的sql语句
+        '''
         if not selects or len(selects) <= 0:
             raise Exception(u'no selected content')
 
-        select_obj  = self.cvtSelect(selects)
-        group_part  = self.cvtGroup(groups)
+        select_part  = self.sql_relation.cvtSelect(selects)
+        group_part  = self.sql_relation.cvtGroup(groups)
 
-        sql_obj     = select_obj
+        sql_obj = select(select_part)
         if group_part:
             sql_obj = sql_obj.group_by(*group_part)
 
         logger.info(u'{0}'.format(str(sql_obj)))
-        results = self.conn.execute(sql_obj).fetchall()
-        return results
+        return sql_obj
 
 
-    def cvtToSqlSentence(self, selects, filter = [], groups = [], **kwargs):
+    def createTable(self, name, *cols):
         """
-        转换到sql语句
+        新建数据表
         """
-        if not selects or len(selects) <= 0:
-            raise Exception(u'no selected content')
-
-        select_obj  = self.cvtSelect(selects)
-        group_part  = self.cvtGroup(groups)
-
-        sql_obj     = select_obj
-        if group_part:
-            sql_obj = sql_obj.group_by(*group_part)
-
-        return str(sql_obj)
+        metadata = MetaData()
+        t = Table(name, metadata, *cols)
+        metadata.create_all(self.engine)
+        self.sql_relation.registerNewTable(name, t)
+        return t
 
 
+    def dropTable(cls, name):
+        """
+        删除数据表
+        """
+        pass
+
+
+
+'''
+实现数据库对象到SqlAlchemy对象的映射
+'''
+class SqlRelation():
+    rf              = {}
 
     def cvtSelect(self, selects):
+        '''
+        转换sql语句中select后字段part
+        '''
         sel_list    = []
         for factor in selects:
             t_str, c_str, kind, cmd = factor.extract()
@@ -214,36 +229,13 @@ class SqlTool():
 
             sel_list.append(sel_obj)
 
-        return select(sel_list)
-
-
-
-    def cvtFilter(self):
-        pass
-
-
-    def cvtJoin(self, joins):
-        join_style  = joins[u'style']
-
-        # 连接至少需要2个表
-        if len(joins[u'data']) < 2:
-            return None
-
-        for idx, j_unit in enumerate(joins[u'data']):
-            t_str, c_str = j_unit.get(u'table'), j_unit.get(u'column')
-            table   = self.getTableObj(t_str)
-            column  = getattr(table.c, c_str)
-
-            if 0 == idx:
-                my_join       = table
-                prev_column     = getattr(table.c, c_str)
-            else:
-                my_join = my_join.join(table, prev_column == column)
-
-        return my_join
+        return sel_list
 
 
     def cvtGroup(self, groups):
+        '''
+        转换sql语句中group by后字段part
+        '''
         group_list  = []
         for factor in groups:
             t_str, c_str, kind_str, cmd_str = factor.extract()
@@ -269,6 +261,33 @@ class SqlTool():
         else:
             return None
 
+    
+    def cvtOrderByPart(self):
+        '''
+        转换sql语句中order by后字段part
+        '''
+        pass
+
+    def cvtJoin(self, joins):
+        join_style  = joins[u'style']
+
+        # 连接至少需要2个表
+        if len(joins[u'data']) < 2:
+            return None
+
+        for idx, j_unit in enumerate(joins[u'data']):
+            t_str, c_str = j_unit.get(u'table'), j_unit.get(u'column')
+            table   = self.getTableObj(t_str)
+            column  = getattr(table.c, c_str)
+
+            if 0 == idx:
+                my_join       = table
+                prev_column     = getattr(table.c, c_str)
+            else:
+                my_join = my_join.join(table, prev_column == column)
+
+        return my_join
+
 
     def cvtTimeColumn(self, col_obj, time_str):
         if 'year'       == time_str:
@@ -284,6 +303,7 @@ class SqlTool():
             raise Exception('unknown time type')
 
         return tc
+
 
     def getColumnObj(self, t_str, c_str):
         """
@@ -316,24 +336,6 @@ class SqlTool():
         #table_helper = new TableHelper()
         #setattr(table, 'helper', table_helper)
         self.rf[name] = table
-
-
-    def createTable(self, name, *cols):
-        """
-        新建数据表
-        """
-        metadata = MetaData()
-        t = Table(name, metadata, *cols)
-        metadata.create_all(self.engine)
-        self.registerNewTable(name, t)
-        return t
-
-
-    def dropTable(cls, name):
-        """
-        删除数据表
-        """
-        pass
 
 
 
@@ -388,4 +390,8 @@ class SqlToolAdapter():
             return False
 
         return f
+
+
+
+
 

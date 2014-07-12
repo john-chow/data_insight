@@ -14,7 +14,7 @@ from django_sse.redisqueue import send_event
 from widget.forms import ConnDbForm
 from widget.models import ExternalDbModel
 from connect.file import Text, Excel
-from connect.sqltool import SqlTool, SqlToolAdapter, stRestore, stStore
+from connect.sqltool import PysqlAgent, SqlToolAdapter, stRestore, stStore
 from common.tool import MyHttpJsonResponse
 from common.log import logger
 from common.head import DEFAULT_DB_INFO
@@ -42,7 +42,7 @@ def connectDb(request):
                 = map(lambda x: request.POST.get(x)  \
                         , [u'ip', u'port', u'db', u'user', u'pwd', u'kind'])
 
-        st = SqlTool()
+        st = PysqlAgent()
         succ, msg = st.connDb( \
             kind = 'postgres', ip = ip, port = port, db = db, user = user, pwd = pwd \
         )
@@ -137,7 +137,7 @@ def getTableInfo(request):
 def uploadFile(request):
     if 'POST' == request.method:
         f   = request.FILES['file']
-        st  = SqlTool()
+        st  = PysqlAgent()
         st.connDb(**DEFAULT_DB_INFO)
         file_name = f.name.split('.')[0]
         if 'excel' != request.POST.get('type'):

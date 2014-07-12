@@ -229,7 +229,7 @@ def widgetShow(request, widget_id):
 @require_http_methods(['POST'])
 def reqDrawData(request):
     """
-    生成chart的数据
+    获取能画出chart的数据
     """
     logger.debug("function reqDrawData() is called")
     extent_data = json.loads(request.POST.get(u'data', u'{}'), 
@@ -250,6 +250,36 @@ def reqDrawData(request):
     else:
         backData = {u'succ': True, u'data': data}
         return MyHttpJsonResponse(backData)
+
+
+@require_http_methods(['POST'])
+def reqUpdateData(request):
+    '''
+    获取在已画出chart之后的更新数据
+    '''
+    pass
+
+
+@require_http_methods(['POST'])
+def reqTimelyData(request):
+    '''
+    获取及时的新数据
+    '''
+    extent_data = json.loads(request.POST.get(u'data', u'{}'), 
+                                object_pairs_hook=OrderedDict)
+    rsu = checkExtentData(extent_data)
+    if not rsu[0]:
+        return MyHttpJsonResponse({u'succ': False, u'msg': rsu[1]})
+
+    # 确保至少有一个轴上面，指示了按及时时间进行更新
+    if not ifInstructTimely():
+        return MyHttpJsonResponse({u'succ': False})
+
+    hk      = request.session[u'hk']
+    msn_factor_list, msu_factor_list, group_factor_list \
+                                = calc_msu_msn_factor_list(extent_data)
+    data    = searchLatestData(msn_factor_list, msu_factor_list)
+
 
 
 def checkExtentData(extent_data):
@@ -347,7 +377,8 @@ def getDrawData(extent_data, shape_in_use, hk):
     logger.debug("function getDrawData() is called")
 
     # 先看请求里面分别有多少个文字类和数字类的属性
-    msn_factor_list, msu_factor_list, group_factor_list = calc_msu_msn_factor_list(extent_data)
+    msn_factor_list, msu_factor_list, group_factor_list \
+                                = calc_msu_msn_factor_list(extent_data)
 
     # 从数据库中找出该图形要画得数据
     factor_list = msu_factor_list + msn_factor_list
@@ -446,9 +477,39 @@ def searchDataFromDb(extent_data, hk, factor_list, group_list):
         group_factors.append(factor)       
 
     st  = stRestore(hk)
-    resultes = st.exeSelect(selects = select_factors, groups = group_factors)
+    sql_obj = st.makeSelectSql(selects = select_factors, groups = group_factors)
+    resultes = st.conn.execute(sql_obj).fetchall()
     return resultes
 
+
+def searchLatestData(hk, factor_list, group_list):
+    """
+    根据时间列，获取最新数据
+    """
+    select_factors, group_factors  = [], []
+    for factor in factor_list:
+        kind    = factor.getProperty(Protocol.Kind)
+        if 0 == kind:
+            select_factors.append(factor)
+        elif 1 == kind:
+            select_factors.append(factor)
+            group_factors.append(factor)
+        else:
+            select_factors.append(factor)
+            group_factors.append(factor)
+
+
+    for factor in group_list:
+        select_factors.append(factor)
+        group_factors.append(factor)       
+
+    st  = stRestore(hk)
+    resultes = st.exeSelect(selects = select_factors, groups = group_factors) \
+                    .fetchone()
+    return resultes
+
+    
+    
 
 
 def judgeWhichShapes(extent_data):

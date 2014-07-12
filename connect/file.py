@@ -5,7 +5,7 @@ from datetime import datetime
 import xlrd
 import os, re
 
-from connect.sqltool import SqlTool, SqlToolAdapter
+from connect.sqltool import SqlToolAdapter
 from common.head import REGEX_FOR_NUMBER, REGEX_FOR_DATE
 
 import pdb

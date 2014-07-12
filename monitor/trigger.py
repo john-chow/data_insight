@@ -6,7 +6,7 @@
 import time
 
 from widget.factor import Factor
-from connect.sqltool import stRestore, SqlTool
+from connect.sqltool import stRestore
 from monitor.models import EventModel
 from common.log import logger
 import pdb
@@ -190,12 +190,12 @@ class TriggerPsgModel(TriggerBaseModel):
         if_func_left, str_left = self.condition.strLeft()
         if_func_right, str_right = self.condition.strRight()
         if if_func_right:
-            sql = self.st.cvtToSqlSentence(selects = [self.condition.rf])
+            sql = str(self.st.makeSelectSql(selects = [self.condition.rf]))
             aggreate_sql = self.aggreate_template.format(sql = sql, func = str_right)
             self.st.conn.execute(aggreate_sql)
             self.right_func = str_right
         if if_func_left:
-            sql = self.st.cvtToSqlSentence(selects = [self.condition.lf])
+            sql = str(self.st.makeSelectSql(selects = [self.condition.lf]))
             aggreate_sql = self.aggreate_template.format(sql = sql, func = str_left)
             self.st.conn.execute(aggreate_sql)
             self.left_func = str_left

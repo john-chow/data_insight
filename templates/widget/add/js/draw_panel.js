@@ -223,7 +223,8 @@ define([
             this.dataCenter = new DataCenter()
 		},
 
-		onGetDrawData:      function(data) {//data是从url：/widget/draw/中获取的数据，即从数据库按横轴纵轴的操作执行的查询结果的数据
+		onGetDrawData:      function(data) {
+            //data是从url：/widget/draw/中获取的数据，即从数据库按横轴纵轴的操作执行的查询结果的数据
             // 合并样式数据,x轴y轴
             //var styleData = this.dataCenter.styleModel.toJSON();
             //var data = $.merge(data, {"style": styleData});
