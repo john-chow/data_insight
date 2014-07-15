@@ -9,12 +9,19 @@ define([
 , "outter_interface"
 ], function(echart, _b, _l, _s, _p, _r, _tools, _ot) {
 
+
+/////////////////////////////////////////////////////////////////////
+// 
+//  DrawManager: 管理图形类。它负责维护专业画图类和更新器类的状态
+//  BaseDrawer:  专业绘图类。它是无状态，每次要画图时，都初始化
+//  Updator:   更新器类。用来控制自动更新及停止自动更新
+//
+///////////////////////////////////////////////////////////////////
+
     window.drawer   = {};
 	var DrawManager = function(opt) {
 		this.now_drawer				= null;
-		this.axis_drawer			= null;
-		this.map_drawer				= null;
-		this.polar_drawer			= null;
+        this.updator                = new Updator();
 
         // 对外提供的(重新)开始绘图接口
 		this.run	=				function(place, resp, dynamicObj) {
@@ -68,9 +75,6 @@ define([
 
 			this.now_drawer.init(this.ec, type);
 
-            // 是否设置自动更新
-            if(dynamicObj && dynamicObj.yes)     this.now_drawer.setDynamic(dynamicObj)
-
 			if ("map" !== type) {
 				this.now_drawer.start(resp)
 			} else {
@@ -81,6 +85,8 @@ define([
 				})
 			}
 
+            // 重启更新器
+            if(this.updator.isEnable())      this.updator.restart()
 
             // 为给外部提供可直接操控图表的接口，把绘图对象保存到全局window中
             window.drawer[place.id] = this.now_drawer;
@@ -98,9 +104,36 @@ define([
 
         this.getDrawer  =           function() {
             return this.now_drawer
+        };
+
+        // 提供配置周期更新的接口
+        this.initUpdator =            function(periodJson) {
+            this.updator.setControl(periodJson);
+            this.updator.bindDrawer(this.now_drawer)
+
+            if(this.updator.isEnable())      this.updator.restart()
+
+            /*
+            var self = this;
+            var callback = function() {
+                var ec      =   self.ec;
+
+                return function() {
+                    data = {"cat": "测试", "val":  Math.round(Math.random() * 1000)};
+                    var newDataTem  = [
+                        0, data.val, true, false, data.cat
+                    ];
+
+                    ec.addData([newDataTem])
+                }
+            }
+
+            this.updator.setCallback(callback);
+            */
         }
 	};
 	
+
     /*
      * 虚基类，不直接实例化
      */
@@ -190,29 +223,6 @@ define([
         this.styleLegend    =   function(lgStyle) {
         };
 
-        this.setDynamic     =   function(dynamicObj) {
-            // 开启自动更新机制
-            this.dyer = new Dynamicer(
-                dynamicObj.url
-                , dynamicObj.period
-            );
-
-            var self        =  this;
-            var genDyUpdate = function() {
-                var ec      =   self.ec;
-
-                return function() {
-                    data = {"cat": "测试", "val":  Math.round(Math.random() * 1000)};
-                    var newDataTem  = [
-                        0, data.val, true, false, data.cat
-                    ];
-
-                    ec.addData([newDataTem])
-                }
-            }
-            this.dyer.start(genDyUpdate())
-        };
-
         this.setBgColor =   function(color) {
             this.optionCloned.backgroundColor   = color
         };
@@ -229,7 +239,10 @@ define([
             var newType = new toType();
             newType.optionCloned = this.optionCloned;
             return newType
-        }
+        };
+
+        this.drawNewAdded    =   function(cat, val) {
+        };
 	};
 
 
@@ -293,6 +306,9 @@ define([
 		this.fillSeries = function(data) {
 			if (data.legend_series.length > 0) {
 				var self = this;
+
+                // 先清空series部分
+                self.optionCloned.series = [];
 				$.each(data.legend_series, function(i, l_s) {
                     self.seriesOneCloned  = cloneObject(self.seriesOne);
 
@@ -594,35 +610,53 @@ define([
 
 
     // 动态更新器
-    var Dynamicer       =   function(url, period, form) {
-        this.destUrl        = url;
-        this.period         = period || 5000;
-        this.form           = "";
-        this.tick           = null;
+    var Updator       =   function() {
+        this.enable         = false;
+        this.period         = 0;
+        this.interval       = null;
 
-        this.start  =       function(callback) {
-            this.stop();
-            this.tick   = setInterval( function() {
+        this.restart  =       function() {
+            var self = this;
+            
+            if(!self.enable)     return
+
+            self.stop();
+            self.interval   = setInterval( function() {
                 $.ajax({
-                    url:            url
+                    url:            '/widget/draw/timely/'+self.wi_id
                     , type:         "POST"
                     , dataType:     "json"
                     , success:      function(resp) {
-                        if(resp.succ)       callback(resp.data)
-                        else                alert("xxxxxxxx")
+                        if('all' === resp.way) {
+                            self.drawer.start(resp.data)
+                        } else {
+                            self.drawer.drawNewAdded(resp.data)
+                        }
                     }
-                    , error:        callback
-                    /*
                     , error:        function() {
+                        self.stop();
                         alert("自动更新失败，请检查网络")
                     }
-                    */
                 })
-            }, period)
+            }, self.period)
         };
 
         this.stop    =       function() {
-            if(this.tick)   clearInterval(this.tick);
+            if(this.interval)   clearInterval(this.interval);
+        };
+
+        this.setControl     = function(periodJson) {
+            this.enable  = periodJson.enable || false;
+            this.period  = periodJson.period || 0;
+            this.wi_id  = periodJson.wi_id
+        };
+
+        this.bindDrawer     = function(drawer) {
+            this.drawer = drawer
+        };
+
+        this.isEnable       = function() {
+            return this.enable
         }
     };
 

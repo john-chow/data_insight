@@ -143,7 +143,7 @@ class PysqlAgent():
             info = self.insp.get_columns(t)
             dm_list, me_list, tm_list   = [], [], []
             for i in info:
-                i_type    = i[u'type']
+                i_type    = i['type']
 
                 # 增加字段标记数字列和非数字列
                 if isinstance(i_type, (types.Numeric, types.Integer)):
@@ -230,7 +230,7 @@ class SqlRelation():
             if 2 == int(kind):
                 sel_obj = self.cvtTimeColumn(sel_obj, cmd)
             elif 0 == int(kind) and u'rgl' != cmd:
-                f       = SqlToolAdapter().cvtFunc(cmd)
+                f       = self.cvtFunc(cmd)
                 sel_obj = f(sel_obj)
 
             sel_list.append(sel_obj)
@@ -311,13 +311,34 @@ class SqlRelation():
         return tc
 
 
+    def cvtFunc(self, func_str):
+        if u'sum'   == func_str:
+            f   = func.sum
+        elif u'count'   == func_str:
+            f   = func.count
+        elif u'avg' == func_str:
+            f   = func.avg
+        elif u''    == func_str:
+            f   =   None
+        else:
+            logger.err('unknow func str, {0}', func_str)
+            return False
+
+        return f
+
+
     def getColumnObj(self, factor):
         """
         根据数据表名和列名获取列对象
         """
         table = self.getTableObj(factor)
-        if not t:
+
+        '''
+        if not table:
             return None
+        '''
+
+        c_str = factor.getProperty(Protocol.Attr)
 
         if not table.c.has_key(c_str):
             msg = u'can''t recongnize column name of {0}'.format(c_str)
@@ -349,11 +370,10 @@ class SqlRelation():
 
 
 
-class SqlToolAdapter():
-    """
-    适配常规类型与sqltool类型
-    """
-
+"""
+支持外界拿sql_obj进行相应查询类
+"""
+class SqlObjReader():
     @classmethod
     def cvtType(cls, type):
         if "int" == type:
@@ -382,26 +402,14 @@ class SqlToolAdapter():
         """
         st_type = cls().cvtType(type)
         col     = Column(name, st_type)        
-        return col
+        return col 
 
 
     @classmethod
-    def cvtFunc(cls, func_str):
-        if u'sum'   == func_str:
-            f   = func.sum
-        elif u'count'   == func_str:
-            f   = func.count
-        elif u'avg' == func_str:
-            f   = func.avg
-        elif u''    == func_str:
-            f   =   None
-        else:
-            logger.err('unknow func str, {0}', func_str)
-            return False
-
-        return f
-
-
-
+    def isDateTime(cls, obj):
+        type = obj.type
+        if isinstance(type, types.DateTime):
+            return True
+        return False
 
 

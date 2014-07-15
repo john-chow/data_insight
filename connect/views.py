@@ -14,7 +14,7 @@ from django_sse.redisqueue import send_event
 from widget.forms import ConnDbForm
 from widget.models import ExternalDbModel
 from connect.file import Text, Excel
-from connect.sqltool import PysqlAgent, SqlToolAdapter, stRestore, stStore
+from connect.sqltool import PysqlAgent, stRestore, stStore
 from common.tool import MyHttpJsonResponse
 from common.log import logger
 from common.head import DEFAULT_DB_INFO

@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from widget.models import WidgetModel, ExternalDbModel
 from widget.echart import EChartManager
 from widget.factor import ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE
-from connect.views import stRestore
+from connect.sqltool import stRestore, SqlObjReader
 from common.tool import MyHttpJsonResponse, logExcInfo
 import common.protocol as Protocol
 from common.log import logger
@@ -183,7 +183,7 @@ def widgetEdit(request, widget_id, template_name):
         request.session[u'widget_id'] = widget_id
 
         # 有没有直接把Model里面全部属性转换成dict的办法？ 
-        req_data = widget_model.getExtentDict()
+        req_data = widget_model.restoreReqDataDict()
         style_data  = widget_model.m_skin.getSkinDict() \
                                     if widget_model.m_skin else {}
         image_data  = dict(req_data, **style_data)
@@ -209,7 +209,7 @@ def widgetShow(request, widget_id):
     """
     try:
         widget_model    = WidgetModel.objects.select_related().get(pk = widget_id)
-        req_data     = widget_model.getExtentDict()
+        req_data     = widget_model.restoreReqDataDict()
         skin_id         = request.GET.get(u'skin_id')
     except WidgetModel.DoesNotExist:
         return HttpResponse({u'succ': False, u'msg': u'xxxxxxxxxxxx'})
@@ -241,39 +241,12 @@ def saveDrawAuxInfo(request):
     if_update, update_period = True, update_info.period \
                                         if update_info else False, 0
 
-    startWatchUpdate(wi_id)
-    
     WidgetModel.objects.filter(pk = wi_id).update( \
         m_name = name, m_skin = skin_id, m_if_update = if_update, \
         m_update_period = update_period \
     )
 
     return MyHttpJsonResponse({'succ': True})
-
-
-def startWatchUpdate(wi_id):
-    """
-    开始针对性进行监视更新情况
-    """
-    hk = request.session.get(u'hk')
-    st = stRestore(hk)
-
-    widget_model = WidgetModel.objects.get(pk = wi_id)
-    req_data = widget_model.getExtentDict()
-    origin_sql_obj = transReqDataToSqlObj(req_data, st)
-
-    if 0:
-        # 如果不是随时间更新，那么相当于重画，推送消息给前端让其去取新内容
-        pass
-    else:
-        # 如果是随时间更新，那么既有可能取sum、avg之类，又有可能直接取新值
-        if 0:
-            pass
-        else: 
-            pass
-
-    
-
 
 
 @require_http_methods(['POST'])
@@ -322,25 +295,30 @@ def reqTimelyData(request, wi_id):
     if not widget_model.m_if_update:
         return MyHttpJsonResponse({'succ': False})
 
-    req_data = widget_model.getExtentDict()
-    # 找出时间对应列对象
-    time_column_factor = findTimeColumnFromAxis(req_data)
-    time_column_obj = st.sql_relation.getColumnObj(time_column_factor)
-    origin_sql_obj = transReqDataToSqlObj(req_data, st)
+    req_data = widget_model.restoreReqDataDict()
+    axis_factor_list, _g = extractFactor(req_data)
 
-    # 分查询条件里面，有没有聚合运算
-    if widget_model.hasAggreate():
-        sql_obj = select([]).over(f()).order_by()
-        origin_sql_obj.over(f()).order_by(time_column_obj)
+    # 看看用户选择的轴上面的项，有没有涉及到DateTime类型
+    # 如果没有，那么就是整体刷新; 如果有，那么来逐步更新
+    time_factor = filterTimeColumn(axis_factor_list, st)
+    if time_factor:
+        update_way = 'add'
+        origin_sql_obj = transReqDataToSqlObj(req_data, st)
+        time_column_obj = st.sql_relation.getColumnObj(time_factor)
+
+        # 分查询条件里面，有没有聚合运算
+        if widget_model.hasAggreate():
+            sql_obj = select([]).over(f()).order_by()
+            origin_sql_obj.over(f()).order_by(time_column_obj)
+        else:
+            sql_obj = origin_sql_obj.order_by(time_column_obj)
+
+        data = st.execute(sql_obj).fetchone()
     else:
-        sql_obj = origin_sql_obj.order_by(time_column_obj)
+        update_way = 'all'
+        data = genWidgetImageData(req_data, hk)
 
-    results = st.execute(sql_obj).fetchone()
-    return MyHttpJsonResponse({'succ': True, 'data': results})
-
-
-def findTimeColumnFromAxis(req_data):
-    pass
+    return MyHttpJsonResponse({'succ': True, 'way': update_way, 'data': data})
 
 
 def checkExtentData(req_data):
@@ -350,8 +328,7 @@ def checkExtentData(req_data):
     [x, y, color, size, graph] = \
             map(lambda i: req_data.get(i, []), \
                     ['x', 'y', 'color', 'size', 'graph'] \
-                )
-
+                ) 
     # 必须选择画某种图形
     if not graph:
         return (False, u'Please choose graph')
@@ -429,11 +406,12 @@ def genWidgetImageData(req_data, hk):
     shape_in_use                = req_data.get(u'graph', u'bar')
 
     # 获取画出图形所必须相关数据
-    msu_factor_list, msn_factor_list, group_factor_list = classifyFactors(req_data)
+    factors_lists_dict = classifyFactors(req_data)
     sql_obj         = transReqDataToSqlObj(req_data, st)
     data_from_db    = st.conn.execute(sql_obj).fetchall()
-    echart_data     = formatData(data_from_db, msu_factor_list, msn_factor_list, \
-                                                    group_factor_list, shape_in_use)
+    echart_data     = formatData(data_from_db, factors_lists_dict['msu'], \
+                                    factors_lists_dict['msn'], factors_lists_dict['group'], \
+                                    shape_in_use)
 
     return {u'type': shape_in_use, u'data': echart_data}
 
@@ -445,13 +423,13 @@ def transReqDataToSqlObj(req_data, st):
     logger.debug("function transReqDataToSqlObj() is called")
 
     # 先看请求里面分别有多少个文字类和数字类的属性
-    msn_factor_list, msu_factor_list, group_factor_list \
-                                = classifyFactors(req_data)
+    factors_lists_dict = classifyFactors(req_data)
 
     # 从数据库中找出该图形要画得数据
-    factor_list = msu_factor_list + msn_factor_list
+    axis_factor_list = factors_lists_dict['msu'] + factors_lists_dict['msn'] 
+    group_factor_list = factors_lists_dict['group']
 
-    sql_obj = st.makeSelectSql(**mapFactorToSqlPart(factor_list, group_factor_list))
+    sql_obj = st.makeSelectSql(**mapFactorToSqlPart(axis_factor_list, group_factor_list))
 
     return sql_obj
 
@@ -517,11 +495,15 @@ def classifyFactors(req_data):
                                 if 'rgl' != axis_factor.getProperty('cmd') \
                                     and 0 == axis_factor.getProperty('kind')]
 
-    return msn_factor_list, msu_factor_list, group_factor_list
+    return {
+        'msn':      msn_factor_list
+        , 'msu':    msu_factor_list
+        , 'group':  group_factor_list
+    }
     
 
 
-def mapFactorToSqlPart(factor_list, group_list):
+def mapFactorToSqlPart(axis_factor_list, group_factor_list):
     """
     按照对所处select语句中的位置部分
     对所有x、y、group等部分的变量做分类
@@ -533,7 +515,7 @@ def mapFactorToSqlPart(factor_list, group_list):
     # 选择区别里面的文字列存在sql语句中的select段和group段
 
     select_factors, group_factors  = [], []
-    for factor in factor_list:
+    for factor in axis_factor_list:
         kind    = factor.getProperty(Protocol.Kind)
         if 0 == kind:
             select_factors.append(factor)
@@ -541,7 +523,7 @@ def mapFactorToSqlPart(factor_list, group_list):
             select_factors.append(factor)
             group_factors.append(factor)
 
-    for factor in group_list:
+    for factor in group_factor_list:
         select_factors.append(factor)
         group_factors.append(factor)       
 
@@ -556,6 +538,17 @@ def mapFactorToSqlPart(factor_list, group_list):
     resultes = st.conn.execute(sql_obj).fetchall()
     return resultes
     '''
+
+
+def filterTimeColumn(factor_list, st):
+    """
+    过滤出属于DateTime类型的factor对象
+    """
+    for factor in factor_list:
+        obj = st.sql_relation.getColumnObj(factor)
+        if SqlObjReader().isDateTime(obj):
+            return factor
+    return None
 
 
 def searchLatestData(hk, factor_list, group_list):
