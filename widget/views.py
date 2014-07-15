@@ -35,7 +35,8 @@ def widgetList(request, template_name):
     sort = request.GET.get('sort' , '-1')
     page = request.GET.get('page' , '1') 
     order = "m_create_time" if int(sort) == 1 else "-m_create_time"
-    widgetList = WidgetModel.objects.filter(m_name__contains=search,m_status=True).order_by(order)
+    widgetList = WidgetModel.objects.filter(m_name__contains=search,m_status=True) \
+                                                                    .order_by(order)
     context = RequestContext(request)
     data = {
         "widgetList": widgetList,
@@ -55,10 +56,10 @@ def widgetCreate(request):
     logger.debug("function widgetList() is called")
 
     if u'POST' == request.method:
-        extent_data = json.loads(request.POST.get('data', '{}'))
+        req_data = json.loads(request.POST.get('data', '{}'))
 
         [tables, x, y, color, size, graph, image, name] \
-            = map(lambda arg: extent_data.get(arg, u''), \
+            = map(lambda arg: req_data.get(arg, u''), \
                     ['tables', 'x', 'y', 'color', 'size', 'graph', 'image', 'name'])
 
         try:
@@ -155,10 +156,10 @@ def widgetEdit(request, widget_id, template_name):
     logger.debug("function widgetEdit() is called")
 
     if u'POST' == request.method:
-        extent_data = json.loads(request.POST.get('data', '{}'))
+        req_data = json.loads(request.POST.get('data', '{}'))
         
         [x, y, color, size, graph, tables, image] \
-            = map(lambda arg: extent_data.get(arg, u''), \
+            = map(lambda arg: req_data.get(arg, u''), \
                     ['x', 'y', 'color', 'size', 'graph', 'tables', 'image'])
 
         try:
@@ -182,19 +183,19 @@ def widgetEdit(request, widget_id, template_name):
         request.session[u'widget_id'] = widget_id
 
         # 有没有直接把Model里面全部属性转换成dict的办法？ 
-        extent_data = widget_model.getExtentDict()
+        req_data = widget_model.getExtentDict()
         style_data  = widget_model.m_skin.getSkinDict() \
                                     if widget_model.m_skin else {}
-        image_data  = dict(extent_data, **style_data)
+        image_data  = dict(req_data, **style_data)
 
         # 删掉空值的属性
         to_del_key = []
-        for key in extent_data:
-            if not extent_data[key]:
+        for key in req_data:
+            if not req_data[key]:
                 to_del_key.append(key)
 
         for key in to_del_key:
-            del extent_data[key]
+            del req_data[key]
 
         data = {u'id': widget_id
                 , u'content': json.dumps(image_data)}
@@ -208,7 +209,7 @@ def widgetShow(request, widget_id):
     """
     try:
         widget_model    = WidgetModel.objects.select_related().get(pk = widget_id)
-        extent_data     = widget_model.getExtentDict()
+        req_data     = widget_model.getExtentDict()
         skin_id         = request.GET.get(u'skin_id')
     except WidgetModel.DoesNotExist:
         return HttpResponse({u'succ': False, u'msg': u'xxxxxxxxxxxx'})
@@ -218,11 +219,60 @@ def widgetShow(request, widget_id):
         hk              = widget_model.m_external_db.m_hk
         st              = stRestore(hk)
         st.reflectTables(json.loads(widget_model.m_table))
-        image_data      = genWidgetImageData(extent_data, hk)
+        image_data      = genWidgetImageData(req_data, hk)
         style_data      = widget_model.m_skin.getSkinDict() \
                                         if widget_model.m_skin else {}
         image_data['style'] = style_data
         return MyHttpJsonResponse({u'succ': True, u'widget_id':widget_id, u'data': image_data})
+
+
+
+@require_http_methods(['POST'])
+def saveDrawAuxInfo(request):
+    """
+    保存组件图形的辅助信息，如名字，是否更新，皮肤
+    """
+    info_data = json.loads(request.POST.get('data'))
+    wi_id, name, skin_id, update_info = map(lambda x: info_data.get(x), \
+                                        ['id', 'name', 'skin_id', 'update_info'])
+    if not wi_id:
+        return MyHttpJsonResponse({'succ': False})
+
+    if_update, update_period = True, update_info.period \
+                                        if update_info else False, 0
+
+    startWatchUpdate(wi_id)
+    
+    WidgetModel.objects.filter(pk = wi_id).update( \
+        m_name = name, m_skin = skin_id, m_if_update = if_update, \
+        m_update_period = update_period \
+    )
+
+    return MyHttpJsonResponse({'succ': True})
+
+
+def startWatchUpdate(wi_id):
+    """
+    开始针对性进行监视更新情况
+    """
+    hk = request.session.get(u'hk')
+    st = stRestore(hk)
+
+    widget_model = WidgetModel.objects.get(pk = wi_id)
+    req_data = widget_model.getExtentDict()
+    origin_sql_obj = transReqDataToSqlObj(req_data, st)
+
+    if 0:
+        # 如果不是随时间更新，那么相当于重画，推送消息给前端让其去取新内容
+        pass
+    else:
+        # 如果是随时间更新，那么既有可能取sum、avg之类，又有可能直接取新值
+        if 0:
+            pass
+        else: 
+            pass
+
+    
 
 
 
@@ -232,16 +282,16 @@ def reqDrawData(request):
     获取能画出chart的数据
     """
     logger.debug("function reqDrawData() is called")
-    extent_data = json.loads(request.POST.get(u'data', u'{}'), 
+    req_data = json.loads(request.POST.get(u'data', u'{}'), 
                                 object_pairs_hook=OrderedDict)
 
-    rsu = checkExtentData(extent_data)
+    rsu = checkExtentData(req_data)
     if not rsu[0]:
         return MyHttpJsonResponse({u'succ': False, u'msg': rsu[1]})
 
     try:
         hk      = request.session[u'hk']
-        data    = genWidgetImageData(extent_data, hk)
+        data    = genWidgetImageData(req_data, hk)
     except Exception, e:
         logger.debug("catch Exception: %s" % e)
         logExcInfo()
@@ -261,33 +311,44 @@ def reqUpdateData(request):
 
 
 @require_http_methods(['POST'])
-def reqTimelyData(request):
+def reqTimelyData(request, wi_id):
     '''
     获取及时的新数据
     '''
-    extent_data = json.loads(request.POST.get(u'data', u'{}'), 
-                                object_pairs_hook=OrderedDict)
-    rsu = checkExtentData(extent_data)
-    if not rsu[0]:
-        return MyHttpJsonResponse({u'succ': False, u'msg': rsu[1]})
+    hk = request.session.get(u'hk')
+    st = stRestore(hk)
 
-    # 确保至少有一个轴上面，指示了按及时时间进行更新
-    if not ifInstructTimely():
-        return MyHttpJsonResponse({u'succ': False})
+    widget_model = WidgetModel.objects.get(pk = wi_id)
+    if not widget_model.m_if_update:
+        return MyHttpJsonResponse({'succ': False})
 
-    hk      = request.session[u'hk']
-    msn_factor_list, msu_factor_list, group_factor_list \
-                                = calc_msu_msn_factor_list(extent_data)
-    data    = searchLatestData(msn_factor_list, msu_factor_list)
+    req_data = widget_model.getExtentDict()
+    # 找出时间对应列对象
+    time_column_factor = findTimeColumnFromAxis(req_data)
+    time_column_obj = st.sql_relation.getColumnObj(time_column_factor)
+    origin_sql_obj = transReqDataToSqlObj(req_data, st)
+
+    # 分查询条件里面，有没有聚合运算
+    if widget_model.hasAggreate():
+        sql_obj = select([]).over(f()).order_by()
+        origin_sql_obj.over(f()).order_by(time_column_obj)
+    else:
+        sql_obj = origin_sql_obj.order_by(time_column_obj)
+
+    results = st.execute(sql_obj).fetchone()
+    return MyHttpJsonResponse({'succ': True, 'data': results})
 
 
+def findTimeColumnFromAxis(req_data):
+    pass
 
-def checkExtentData(extent_data):
+
+def checkExtentData(req_data):
     """
     检查各维度数据是否符合画图的标准
     """
     [x, y, color, size, graph] = \
-            map(lambda i: extent_data.get(i, []), \
+            map(lambda i: req_data.get(i, []), \
                     ['x', 'y', 'color', 'size', 'graph'] \
                 )
 
@@ -351,52 +412,56 @@ def makeupFilterSql(filter_list):
     return u'where ' + u' and '.join(sens)
 
 
-def genWidgetImageData(extent_data, hk):
+def genWidgetImageData(req_data, hk):
     """
     生成返回前端数据
     """
     logger.debug("function genWidgetImageData() is called")
+    st = stRestore(hk)
 
     # 地图先特殊对待
-    if 'china_map' == extent_data.get(u'graph') or \
-            'world_map' == extent_data.get(u'graph'):
-        data = formatData('', '', '', '', extent_data.get(u'graph'))
+    if 'china_map' == req_data.get(u'graph') or \
+            'world_map' == req_data.get(u'graph'):
+        data = formatData('', '', '', '', req_data.get(u'graph'))
         return {u'type': 'map', u'data': data}
 
-    shape_list, shape_in_use    = judgeWhichShapes(extent_data)
-    shape_in_use                = extent_data.get(u'graph', u'bar')
-    chart_data                  = getDrawData(extent_data, shape_in_use, hk)
+    shape_list, shape_in_use    = judgeWhichShapes(req_data)
+    shape_in_use                = req_data.get(u'graph', u'bar')
 
-    return {u'type': shape_in_use, u'data': chart_data}
+    # 获取画出图形所必须相关数据
+    msu_factor_list, msn_factor_list, group_factor_list = classifyFactors(req_data)
+    sql_obj         = transReqDataToSqlObj(req_data, st)
+    data_from_db    = st.conn.execute(sql_obj).fetchall()
+    echart_data     = formatData(data_from_db, msu_factor_list, msn_factor_list, \
+                                                    group_factor_list, shape_in_use)
+
+    return {u'type': shape_in_use, u'data': echart_data}
 
 
-def getDrawData(extent_data, shape_in_use, hk):
+def transReqDataToSqlObj(req_data, st):
     """
     获取画图参数
     """
-    logger.debug("function getDrawData() is called")
+    logger.debug("function transReqDataToSqlObj() is called")
 
     # 先看请求里面分别有多少个文字类和数字类的属性
     msn_factor_list, msu_factor_list, group_factor_list \
-                                = calc_msu_msn_factor_list(extent_data)
+                                = classifyFactors(req_data)
 
     # 从数据库中找出该图形要画得数据
     factor_list = msu_factor_list + msn_factor_list
-    data_from_db = searchDataFromDb(extent_data, hk, factor_list, group_factor_list) 
 
-    # 为echart格式化数据
-    echart_data = formatData(data_from_db, msu_factor_list, msn_factor_list, \
-                                group_factor_list, shape_in_use)
+    sql_obj = st.makeSelectSql(**mapFactorToSqlPart(factor_list, group_factor_list))
 
-    return echart_data
+    return sql_obj
 
 
-def extractFactor(extent_data):
+def extractFactor(req_data):
     '''
     解析获得各维度上的Factor对象
     '''
     [col_kind_attr_list, row_kind_attr_list] = \
-            map( lambda i: extent_data.get(i, []), \
+            map( lambda i: req_data.get(i, []), \
                     (u'x', u'y') \
                 ) 
 
@@ -416,7 +481,7 @@ def extractFactor(extent_data):
 
     # 获取选择器上属性Factor对象
     group_factor_list = []
-    color_dict = extent_data.get(Protocol.Color)
+    color_dict = req_data.get(Protocol.Color)
     if color_dict:
         color_attr_table = color_dict.get(u'table', u'')
         color_attr_column = color_dict.get('column', u'')
@@ -430,7 +495,7 @@ def extractFactor(extent_data):
 
 
 
-def calc_msu_msn_factor_list(extent_data):
+def classifyFactors(req_data):
     """ 
     计算出 measure_list, mension_list
     这里每个List里面单元的构造是 (name, kind, cmd, x_y)
@@ -439,9 +504,12 @@ def calc_msu_msn_factor_list(extent_data):
     cmd:  表示运算符号，'sum','avg'等等
     x_y:  表示属于哪个轴，值有x、y，还有'group'
     """
-    logger.debug("function calc_msu_msn_factor_list() is called")
+    logger.debug("function classifyFactors() is called")
 
-    axis_factor_list, group_factor_list = extractFactor(extent_data)
+    axis_factor_list, group_factor_list = extractFactor(req_data)
+
+    # 找到轴上文字列和时间列，其并集就是msn_factor_list
+
     msn_factor_list = [axis_factor for axis_factor in axis_factor_list \
                                 if 'rgl' == axis_factor.getProperty('cmd') \
                                     or 2 == axis_factor.getProperty('kind')]
@@ -453,9 +521,10 @@ def calc_msu_msn_factor_list(extent_data):
     
 
 
-def searchDataFromDb(extent_data, hk, factor_list, group_list):
+def mapFactorToSqlPart(factor_list, group_list):
     """
-    要保证select的顺序是 measure、mension、group
+    按照对所处select语句中的位置部分
+    对所有x、y、group等部分的变量做分类
     """
 
     # 轴上面的数字列一定存在sql语句中select段
@@ -476,10 +545,17 @@ def searchDataFromDb(extent_data, hk, factor_list, group_list):
         select_factors.append(factor)
         group_factors.append(factor)       
 
+    return {
+        'selects':          select_factors
+        , 'groups':         group_factors
+    }
+
+    '''
     st  = stRestore(hk)
     sql_obj = st.makeSelectSql(selects = select_factors, groups = group_factors)
     resultes = st.conn.execute(sql_obj).fetchall()
     return resultes
+    '''
 
 
 def searchLatestData(hk, factor_list, group_list):
@@ -512,7 +588,7 @@ def searchLatestData(hk, factor_list, group_list):
     
 
 
-def judgeWhichShapes(extent_data):
+def judgeWhichShapes(req_data):
     """
     判断生成图形的类型
     """

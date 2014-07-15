@@ -15,6 +15,7 @@ from sqlalchemy import *
 from widget.models import ExternalDbModel
 from widget.factor import ElementFactor
 from common.log import logger
+import common.protocol as Protocol
 
 import pdb
 
@@ -197,6 +198,12 @@ class PysqlAgent():
         """
         pass
 
+    def execute(self, sql_obj):
+        """
+        执行sql对象
+        """
+        return self.conn.execute(sql_obj)
+
 
 
 '''
@@ -211,9 +218,8 @@ class SqlRelation():
         '''
         sel_list    = []
         for factor in selects:
-            t_str, c_str, kind, cmd = factor.extract()
-
-            table           = self.getTableObj(t_str)
+            table           = self.getTableObj(factor)
+            _t, c_str, kind, cmd = factor.extract()
             if not table.c.has_key(c_str):
                 msg = u'can''t recongnize column name of {0}'.format(c_str)
                 logger.error(msg)
@@ -238,9 +244,9 @@ class SqlRelation():
         '''
         group_list  = []
         for factor in groups:
-            t_str, c_str, kind_str, cmd_str = factor.extract()
-
-            table   = self.getTableObj(t_str)
+            table   = self.getTableObj(factor)
+            c_str, kind_str  = map(lambda x: factor.getProperty(x), \
+                                            [Protocol.Attr, Protocol.Kind])
             if not table.c.has_key(c_str):
                 raise Exception(u'can''t recongnize column name of {0}' \
                                     .format(c_str))
@@ -305,11 +311,11 @@ class SqlRelation():
         return tc
 
 
-    def getColumnObj(self, t_str, c_str):
+    def getColumnObj(self, factor):
         """
         根据数据表名和列名获取列对象
         """
-        table = self.getTableObj(t_str)
+        table = self.getTableObj(factor)
         if not t:
             return None
 
@@ -322,9 +328,13 @@ class SqlRelation():
         return column
 
 
-    def getTableObj(self, t_str):
+    def getTableObj(self, factor):
+        t_str = factor.extract()[0]
+
+        '''
         if t_str not in self.rf.keys():
             self.reflectTables([t_str])
+        '''
 
         return self.rf.get(t_str)
 

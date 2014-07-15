@@ -34,11 +34,10 @@ class WidgetModel(ElementModel):
     )
     m_graph         = models.CharField(max_length = 16, choices = GRAPH_CHOICES, \
                                         db_column='graph')               
-    #m_if_update     = models.BooleanField(db_column = 'ifupdate')
-    #m_update_period = models.IntegerField(db_column = 'period')
+    m_if_update     = models.BooleanField(db_column = 'ifupdate')
+    m_update_period = models.IntegerField(db_column = 'period')
     m_pic           = models.TextField(db_column='snapshot')
     m_external_db   = models.ForeignKey('ExternalDbModel')
-
 
 
     def getExtentDict(self):
@@ -51,6 +50,20 @@ class WidgetModel(ElementModel):
             , u'graph':     self.m_graph \
             , u'table':     self.m_table \
         }
+
+    def hasAggreate(self):
+        '''
+        判断本组件是否存在存在聚合运算
+        '''
+        x_list = eval(self.m_x) if self.m_x else self.m_x 
+        y_list = eval(self.m_y) if self.m_y else self.m_y 
+
+        for item in (x_list + y_list):
+            if 0 != item.get('kind') and 'rgl' != item.get('cmd'):
+                return True
+
+        return False
+
 
 
     class Meta:
