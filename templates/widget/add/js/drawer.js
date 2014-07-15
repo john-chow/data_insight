@@ -86,6 +86,7 @@ define([
 			}
 
             // 重启更新器
+            this.updator.bindDrawer(this.now_drawer);
             if(this.updator.isEnable())      this.updator.restart()
 
             // 为给外部提供可直接操控图表的接口，把绘图对象保存到全局window中
@@ -107,11 +108,8 @@ define([
         };
 
         // 提供配置周期更新的接口
-        this.initUpdator =            function(periodJson) {
+        this.setUpdating =            function(periodJson) {
             this.updator.setControl(periodJson);
-            this.updator.bindDrawer(this.now_drawer)
-
-            if(this.updator.isEnable())      this.updator.restart()
 
             /*
             var self = this;
@@ -638,7 +636,7 @@ define([
                         alert("自动更新失败，请检查网络")
                     }
                 })
-            }, self.period)
+            }, self.period * 1000)
         };
 
         this.stop    =       function() {
@@ -646,7 +644,7 @@ define([
         };
 
         this.setControl     = function(periodJson) {
-            this.enable  = periodJson.enable || false;
+            this.enable  = periodJson.ifupdate || false;
             this.period  = periodJson.period || 0;
             this.wi_id  = periodJson.wi_id
         };

@@ -204,6 +204,12 @@ define([
         },
 
         startRestore:           function() {
+            aid_data = JSON.parse($("#aid_data").html());
+            Backbone.Events.trigger("panel:update_data", {
+                "ifupdate":     aid_data.ifupdate
+                , "period":     aid_data.period
+            })
+
             // 拿到需要用去恢复现场的数据
             data = JSON.parse($("#page_data").html());
             this.model.set(data);
@@ -223,6 +229,7 @@ define([
             this.dataCenter = new DataCenter()
 
             // test
+            Backbone.Events.on("panel:update_data", _.bind(this.setAboutUpdating, this));
             $("body").on("period", $.proxy(this.test, this))
 		},
 
@@ -245,9 +252,9 @@ define([
             this.drawer.stop()
         },
 
-        test:       function(e, data) {
+        setAboutUpdating:     function(data) {
             data = $.extend(data, {"wi_id": 1});
-            this.drawer.initUpdator(data)
+            this.drawer.setUpdating(data)
         }
 	});
 

@@ -51,6 +51,14 @@ class WidgetModel(ElementModel):
             , u'table':     self.m_table \
         }
 
+    def restoreAidData(self):
+        return {
+            'name':         self.m_name
+            , 'ifupdate':   self.m_if_update
+            , 'period':     self.m_update_period
+        }
+
+
     def hasAggreate(self):
         '''
         判断本组件是否存在存在聚合运算

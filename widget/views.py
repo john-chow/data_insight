@@ -187,6 +187,7 @@ def widgetEdit(request, widget_id, template_name):
         style_data  = widget_model.m_skin.getSkinDict() \
                                     if widget_model.m_skin else {}
         image_data  = dict(req_data, **style_data)
+        aid_data    = widget_model.restoreAidData()
 
         # 删掉空值的属性
         to_del_key = []
@@ -197,8 +198,11 @@ def widgetEdit(request, widget_id, template_name):
         for key in to_del_key:
             del req_data[key]
 
-        data = {u'id': widget_id
-                , u'content': json.dumps(image_data)}
+        data = {
+            'id':           widget_id
+            , 'content':    json.dumps(image_data)
+            , 'aid':        json.dumps(aid_data)
+        }
         return render_to_response(template_name, data, context)
 
 
