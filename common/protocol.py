@@ -23,6 +23,8 @@ Kind = 'kind'
 # 
 Attr = 'attr'
 
+Cmd = 'cmd'
+
 
 
 

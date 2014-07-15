@@ -245,8 +245,8 @@ class SqlRelation():
         group_list  = []
         for factor in groups:
             table   = self.getTableObj(factor)
-            c_str, kind_str  = map(lambda x: factor.getProperty(x), \
-                                            [Protocol.Attr, Protocol.Kind])
+            c_str, kind_str, cmd_str  = map(lambda x: factor.getProperty(x), \
+                                            [Protocol.Attr, Protocol.Kind, Protocol.Cmd])
             if not table.c.has_key(c_str):
                 raise Exception(u'can''t recongnize column name of {0}' \
                                     .format(c_str))
