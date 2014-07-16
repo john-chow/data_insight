@@ -216,11 +216,12 @@ define([
         };
 
         this.findSeriesIdxByName    =   function(name) {
-            $.each(this.optionCloned.series, function(idx, series) {
+            var idx = -1;
+            $.each(this.optionCloned.series, function(i, series) {
                 if(series['name'] === name) 
-                    return idx
+                    return idx = i
             })
-            return -1
+            return idx
         };
 
         this.transType  =   function(type) {
@@ -327,13 +328,25 @@ define([
         this.drawNewAdded    =   function(data) {
             var self = this;
             var dataList = [];
+            var idxAdded = [];
             $.each(data['le_val'], function(i, v) {
                 var newAddData = cloneObject(self.seriesNewAdd);
-                newAddData[0] = (v['le'] === '') ? 0 : self.findSeriesIdxByName(v['le']);
+                idx = (v['le'] === '') ? 0 : self.findSeriesIdxByName(v['le']);
+                newAddData[0] = idx;
                 newAddData[1] = v['val'];
                 newAddData[4] = data['cat'] && data['cat'].length >= i ? data['cat'][i] : null;
-                dataList.push(newAddData)
+                dataList.push(newAddData);
+                idxAdded.push(idx)
             })
+
+            // 对于新增部分中，没有的类别，把数据设为0
+            for(var i = 0; i < self.optionCloned.series.length; i++) {
+                if ($.inArray(i, idxAdded) < 0) {
+                    var newAddData = cloneObject(self.seriesNewAdd);
+                    newAddData[0] = i
+                    dataList.push(newAddData)
+                }
+            }
 
             self.ec.addData(dataList)
         };
