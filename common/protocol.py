@@ -19,6 +19,8 @@ Axis = 'axis'
 # 0表示是数字列，1表示是文字列，2表示是时间列
 Kind = 'kind'
 
+Table = 'table'
+
 
 # 
 Attr = 'attr'
@@ -41,3 +43,6 @@ Cmd = 'cmd'
 # 保存组件辅助信息命令
 #
 
+
+# 统一的日期时间格式
+DatetimeFormat = '%Y-%m-%d %H:%M:%S'

@@ -215,14 +215,19 @@ define([
             this.optionCloned.symbolList    = symbolList
         };
 
+        this.findSeriesIdxByName    =   function(name) {
+            $.each(this.optionCloned.series, function(idx, series) {
+                if(series['name'] === name) 
+                    return idx
+            })
+            return -1
+        };
+
         this.transType  =   function(type) {
             var newType = new toType();
             newType.optionCloned = this.optionCloned;
             return newType
-        };
-
-        this.drawNewAdded    =   function(cat, val) {
-        };
+        }
 	};
 
 
@@ -243,6 +248,10 @@ define([
             }
 			, splitArea : {show : true}
 		};
+
+        this.seriesNewAdd = [
+            0, 0, true, false, null   // 参数意义见echart官网
+        ];
 
 		this.seriesOne = {
 			type:			""
@@ -315,14 +324,20 @@ define([
 			}
 		};
 
-        this.dyUpdate   =   function(data) {
-            data = {"cat": "测试", "val":  Math.round(Math.random() * 1000)};
-            var newDataTem  = [
-                0, data.val, true, false, data.cat
-            ];
+        this.drawNewAdded    =   function(data) {
+            var self = this;
+            var dataList = [];
+            $.each(data['le_val'], function(i, v) {
+                var newAddData = cloneObject(self.seriesNewAdd);
+                newAddData[0] = (v['le'] === '') ? 0 : self.findSeriesIdxByName(v['le']);
+                newAddData[1] = v['val'];
+                newAddData[4] = data['cat'] && data['cat'].length >= i ? data['cat'][i] : null;
+                dataList.push(newAddData)
+            })
 
-            this.ec.addData([newDataTem])
-        }
+            self.ec.addData(dataList)
+        };
+
 	};
 
 

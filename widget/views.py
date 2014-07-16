@@ -18,7 +18,7 @@ from widget.models import WidgetModel, ExternalDbModel
 from widget.echart import EChartManager
 from widget.factor import ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE
 from connect.sqltool import stRestore, SqlObjReader
-from common.tool import MyHttpJsonResponse, logExcInfo
+from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb
 import common.protocol as Protocol
 from common.log import logger
 
@@ -300,11 +300,11 @@ def reqTimelyData(request, wi_id):
         return MyHttpJsonResponse({'succ': False})
 
     req_data = widget_model.restoreReqDataDict()
-    axis_factor_list, _g = extractFactor(req_data)
+    factors_lists_dict = classifyFactors(req_data)
 
     # 看看用户选择的轴上面的项，有没有涉及到DateTime类型
     # 如果没有，那么就是整体刷新; 如果有，那么来逐步更新
-    time_factor = filterTimeColumn(axis_factor_list, st)
+    time_factor = filterDateTimeColumn(factors_lists_dict['msn'], st)
     if time_factor:
         update_way = 'add'
         origin_sql_obj = transReqDataToSqlObj(req_data, st)
@@ -318,7 +318,24 @@ def reqTimelyData(request, wi_id):
         else:
             sql_obj = origin_sql_obj.order_by(time_column_obj)
 
-        data = st.execute(sql_obj).fetchone()
+            factor_dict = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, ( \
+                time_factor.getProperty(Protocol.Table) 
+                , time_factor.getProperty(Protocol.Attr)
+                , time_factor.getProperty(Protocol.Kind)
+                , 'max'
+            )))
+            latest_time_obj = st.makeSelectSql([ElementFactor(**factor_dict)])
+            sql_obj = origin_sql_obj.where(time_column_obj == latest_time_obj)
+
+        data_from_db = st.execute(sql_obj).fetchall()
+        str_data = strfDataAfterFetchDb(data_from_db)
+        data = EChartManager().get_echart(widget_model.m_graph) \
+                                .makeAddData( \
+                                    str_data \
+                                    , len(factors_lists_dict['msu']) \
+                                    , len(factors_lists_dict['msn']) \
+                                    , len(factors_lists_dict['group']) \
+                                )
     else:
         update_way = 'all'
         data = genWidgetImageData(req_data, hk)
@@ -414,7 +431,7 @@ def genWidgetImageData(req_data, hk):
     factors_lists_dict = classifyFactors(req_data)
     sql_obj         = transReqDataToSqlObj(req_data, st)
     data_from_db    = st.conn.execute(sql_obj).fetchall()
-    strf_data_from_db = strfDataFromDb(data_from_db)
+    strf_data_from_db = strfDataAfterFetchDb(data_from_db)
     echart_data     = formatData(strf_data_from_db, factors_lists_dict['msu'], \
                                     factors_lists_dict['msn'], factors_lists_dict['group'], \
                                     shape_in_use)
@@ -538,22 +555,16 @@ def mapFactorToSqlPart(axis_factor_list, group_factor_list):
         , 'groups':         group_factors
     }
 
-    '''
-    st  = stRestore(hk)
-    sql_obj = st.makeSelectSql(selects = select_factors, groups = group_factors)
-    resultes = st.conn.execute(sql_obj).fetchall()
-    return resultes
-    '''
 
 
-def filterTimeColumn(factor_list, st):
+def filterDateTimeColumn(factor_list, st):
     """
     过滤出要以DateTime做轴的factor对象
     """
     for factor in factor_list:
         obj = st.sql_relation.getColumnObj(factor)
         if SqlObjReader().isDateTime(obj) and \
-            'raw' == factor.getProperty(Protocol.Attr):
+            'raw' == factor.getProperty(Protocol.Cmd):
             return factor
     return None
 
@@ -563,23 +574,6 @@ def hasAggreate(factor_list):
     查看查询条件里面有没有需要进行聚合运算
     """
     pass
-
-
-def strfDataFromDb(data_from_db):
-    """
-    对查询数据库结果进行字符串化，方便进行Http传输
-    """
-    zip_data_list = zip(*data_from_db) 
-    for idx, data_tuple in enumerate(zip_data_list):
-        try:
-            json.dumps(data_tuple)
-        except Exception, e:
-            str_data_tuple = map( \
-                lambda x: x.strftime('%Y-%m-%d %H:%M:%S'), data_tuple \
-            )
-            zip_data_list.pop(idx)
-            zip_data_list.insert(idx, str_data_tuple)
-    return zip(*zip_data_list)
 
 
 def searchLatestData(hk, factor_list, group_list):
@@ -610,8 +604,6 @@ def searchLatestData(hk, factor_list, group_list):
 
     
     
-
-
 def judgeWhichShapes(req_data):
     """
     判断生成图形的类型

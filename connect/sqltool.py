@@ -306,6 +306,9 @@ class SqlRelation():
             tc  =   extract('hour', col_obj)
         elif 'raw'      == time_str:
             tc  =   col_obj    
+        elif 'max' == time_str or 'min' == time_str:
+            f  =   self.cvtFunc(time_str)
+            tc  = f(col_obj)
         else:
             logger.error(sys.exc_info())
             raise Exception('unknown time type')
@@ -320,8 +323,10 @@ class SqlRelation():
             f   = func.count
         elif u'avg' == func_str:
             f   = func.avg
-        elif u''    == func_str:
-            f   =   None
+        elif u'max'    == func_str:
+            f   =   func.max
+        elif u'min'    == func_str:
+            f   =   func.min
         else:
             logger.err('unknow func str, {0}', func_str)
             return False

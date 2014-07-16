@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.utils import simplejson as json
 
 from common.log import logger
+import common.protocol as Protocol
 
 import pdb
 
@@ -109,6 +110,38 @@ def logExcInfo():
 
     traceback.print_exc()
     logger.error(traceback_template.format(**traceback_details))
+
+
+def strfDataAfterFetchDb(data_from_db):
+    """
+    对查询数据库结果进行字符串化，方便进行Http传输
+    """
+
+    # fetchone后的结果
+    if isinstance(data_from_db, tuple):
+        data = [x.strftime(Protocol.DatetimeFormat) \
+                            if isinstance(x, datetime.datetime) \
+                            else x \
+                            for x in data_from_db]
+        return data
+    
+    # fetchall或者fetchmany后的结果
+    elif isinstance(data_from_db, list):
+        zip_data_list = zip(*data_from_db) 
+        for idx, data_tuple in enumerate(zip_data_list):
+            try:
+                json.dumps(data_tuple)
+            except Exception, e:
+                str_data_tuple = map( \
+                    lambda x: x.strftime(Protocol.DatetimeFormat) \
+                    , data_tuple \
+                )
+                zip_data_list.pop(idx)
+                zip_data_list.insert(idx, str_data_tuple)
+        return zip(*zip_data_list)
+    
+    else:
+        return None
 
 
 def strfDataList(data_list):

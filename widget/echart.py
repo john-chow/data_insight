@@ -106,6 +106,28 @@ class Bar_Line_Base(EChart):
         }
 
 
+    def makeAddData(self, data_tuple_list, msu_len, msn_len, group_len):
+        """
+        组成补充的数据
+        """
+        cat_list, val_list = [], []
+        for data_tuple in data_tuple_list:
+            msu_list    = list(data_tuple[:msu_len])
+            [cat]       = list(data_tuple[msu_len:msu_len + msn_len])
+            group_list  = list(data_tuple[msu_len + msn_len:])
+
+            group_name = group_list[0] if len(group_list) > 0 else ''
+            msu_val    = msu_list[0]
+            le_val = {'le': group_name, 'val': msu_val}
+            val_list.append(le_val)
+            cat_list.append(cat)
+
+        return {
+            'cat':          list(set(cat_list))
+            , 'le_val':     val_list
+        }
+
+
 
 class Bar(Bar_Line_Base):
     def __init__(self):
