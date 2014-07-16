@@ -110,24 +110,6 @@ define([
         // 提供配置周期更新的接口
         this.setUpdating =            function(periodJson) {
             this.updator.setControl(periodJson);
-
-            /*
-            var self = this;
-            var callback = function() {
-                var ec      =   self.ec;
-
-                return function() {
-                    data = {"cat": "测试", "val":  Math.round(Math.random() * 1000)};
-                    var newDataTem  = [
-                        0, data.val, true, false, data.cat
-                    ];
-
-                    ec.addData([newDataTem])
-                }
-            }
-
-            this.updator.setCallback(callback);
-            */
         }
 	};
 	

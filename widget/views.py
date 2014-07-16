@@ -311,7 +311,8 @@ def reqTimelyData(request, wi_id):
         time_column_obj = st.sql_relation.getColumnObj(time_factor)
 
         # 分查询条件里面，有没有聚合运算
-        if widget_model.hasAggreate():
+        #if hasAggreate():
+        if False:
             sql_obj = select([]).over(f()).order_by()
             origin_sql_obj.over(f()).order_by(time_column_obj)
         else:
@@ -413,7 +414,8 @@ def genWidgetImageData(req_data, hk):
     factors_lists_dict = classifyFactors(req_data)
     sql_obj         = transReqDataToSqlObj(req_data, st)
     data_from_db    = st.conn.execute(sql_obj).fetchall()
-    echart_data     = formatData(data_from_db, factors_lists_dict['msu'], \
+    strf_data_from_db = strfDataFromDb(data_from_db)
+    echart_data     = formatData(strf_data_from_db, factors_lists_dict['msu'], \
                                     factors_lists_dict['msn'], factors_lists_dict['group'], \
                                     shape_in_use)
 
@@ -546,13 +548,38 @@ def mapFactorToSqlPart(axis_factor_list, group_factor_list):
 
 def filterTimeColumn(factor_list, st):
     """
-    过滤出属于DateTime类型的factor对象
+    过滤出要以DateTime做轴的factor对象
     """
     for factor in factor_list:
         obj = st.sql_relation.getColumnObj(factor)
-        if SqlObjReader().isDateTime(obj):
+        if SqlObjReader().isDateTime(obj) and \
+            'raw' == factor.getProperty(Protocol.Attr):
             return factor
     return None
+
+
+def hasAggreate(factor_list):
+    """
+    查看查询条件里面有没有需要进行聚合运算
+    """
+    pass
+
+
+def strfDataFromDb(data_from_db):
+    """
+    对查询数据库结果进行字符串化，方便进行Http传输
+    """
+    zip_data_list = zip(*data_from_db) 
+    for idx, data_tuple in enumerate(zip_data_list):
+        try:
+            json.dumps(data_tuple)
+        except Exception, e:
+            str_data_tuple = map( \
+                lambda x: x.strftime('%Y-%m-%d %H:%M:%S'), data_tuple \
+            )
+            zip_data_list.pop(idx)
+            zip_data_list.insert(idx, str_data_tuple)
+    return zip(*zip_data_list)
 
 
 def searchLatestData(hk, factor_list, group_list):

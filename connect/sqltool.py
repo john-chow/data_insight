@@ -304,6 +304,8 @@ class SqlRelation():
             tc  =   extract('day', col_obj)
         elif 'hour'     == time_str:
             tc  =   extract('hour', col_obj)
+        elif 'raw'      == time_str:
+            tc  =   col_obj    
         else:
             logger.error(sys.exc_info())
             raise Exception('unknown time type')

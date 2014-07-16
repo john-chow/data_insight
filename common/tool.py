@@ -111,6 +111,10 @@ def logExcInfo():
     logger.error(traceback_template.format(**traceback_details))
 
 
+def strfDataList(data_list):
+    pass
+
+
 def calcStrFormula(left, operator, right):
     """
     计算用字符串表示的计算式的结果
