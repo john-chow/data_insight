@@ -5,7 +5,7 @@ from datetime import datetime
 import xlrd
 import os, re
 
-from connect.sqltool import SqlTool, SqlToolAdapter
+from connect.sqltool import SqlObjReader
 from common.head import REGEX_FOR_NUMBER, REGEX_FOR_DATE
 
 import pdb
@@ -98,7 +98,7 @@ class BaseFile():
         # 根据用户指定的类型
         st_col_list = []
         for col, type in zip(column_heads, column_types):
-            st_col = SqlToolAdapter().defColumn(col, type)
+            st_col = SqlObjReader().defColumn(col, type)
             st_col_list.append(st_col)
         return st_col_list
 

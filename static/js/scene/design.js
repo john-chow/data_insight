@@ -199,7 +199,7 @@ define("compontnents", ["display"], function(d) {
 
             //删除场景内某个组件
             $toAddedObj.find("span.glyphicon")
-                        .on("click", bindContext(this.rmWidget, this));
+                        .on("click", $.proxy(this.rmWidget, this));
 
             this.widgetsList.push(widgetObj)
         },
@@ -295,7 +295,7 @@ define("skin", [], function() {
 
         init:               function() {
             //this.$el.find("").on("click", bindContext(this.rqSkinDetail, this))
-            $body.on("test", bindContext(this.rqSkinDetail, this))
+            $body.on("test", $.proxy(this.rqSkinDetail, this))
         },
 
         rqSkinDetail:         function(ev, data) {
@@ -370,9 +370,9 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
         },
         
         startListener:          function() {
-            $body.on("show_widget",     bindContext(this.showNewWidget, this));
-            $body.on("try_skin",        bindContext(this.dressSkin, this));
-            $body.on("change_skin",     bindContext(this.changeSkin, this));
+            $body.on("show_widget",     $.proxy(this.showNewWidget, this));
+            $body.on("try_skin",        $.proxy(this.dressSkin, this));
+            $body.on("change_skin",     $.proxy(this.changeSkin, this));
         },
 
         dressSkin:             function(ev, skinData) {
@@ -414,7 +414,7 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
 
             this.drawerList.push({"stamp": timestamp, "dr": drawer, "wi_data": wiData});
 
-            this.afterWidgetShown(drawer, data.widget_id)
+            this.afterWidgetShown(drawer, data.widget_id);
         },
 
         sureShowPos:                function(timestamp) {
@@ -522,6 +522,7 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
 })
 
 
+
 // *************************
 // 整体区域
 // ************************
@@ -597,7 +598,4 @@ define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
 
 require(["display", "compontnents", "whole"], function() {
 })
-
-
-
 

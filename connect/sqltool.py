@@ -1,36 +1,58 @@
 # --*-- coding: utf-8 --*--
+'''
+本文件是用SqlAlchemy实现用Factor对象到数据库操作的转换过程
+PysqlAgent实现用SqlAlchemy代理数据库操作的接口
+SqlRelation实现由数据库及数据表到SqlAlchemy对象的映射模型
+PysqlAgent和SqlRelation是聚合关系
+'''
+
 
 import sys
-from sqlalchemy import create_engine, inspect, Table, MetaData, types, func, select, extract, Column
+from sqlalchemy import create_engine, inspect, Table, MetaData, types, \
+                        func, select, extract, Column
 from sqlalchemy import *
 
 from widget.models import ExternalDbModel
+from widget.factor import ElementFactor
 from common.log import logger
+import common.protocol as Protocol
 
 import pdb
 
-class SqlTool():
-    """
-    这是一个负责操作数据库的类
-    """
 
+# 登陆数据库信息的hash key到PysqlAgent对象之间的映射表
+HK_ST_MAP   = {}
+
+def stRestore(hk):
+    if not hk:
+        return False
+
+    st = HK_ST_MAP.get(hk)
+    if not st:
+        st = PysqlAgent().restore(hk)
+
+    return st
+
+def stStore(hk, st):
+    HK_ST_MAP[hk] = st
+
+
+
+'''
+实现由外部输入Factor对象转换为Sql过程
+'''
+class PysqlAgent():
     cnt             = ''
     engine          = None
     conn            = None
     insp            = None
-    rf              = {}
 
     def __init__(self, kwargs = None):
         if kwargs:
             self.connDb(**kwargs)
 
-
-    def __str__(self):
-        str = u'sqltool:        {0}'
-        if self.engine and self.engine.name:
-            return str.format('unconn')
-        else:
-            return str.format(self.engine.name)
+        # 聚合SqlRelation，用来存储和实现
+        self.sql_relation = SqlRelation()
 
 
     def active(self):
@@ -45,6 +67,9 @@ class SqlTool():
 
 
     def restore(self, hk):
+        '''
+        恢复连接
+        '''
         try:
             logger.info('restore hk = {0}'.format(hk))
             externdb = ExternalDbModel.objects.get(pk = hk)
@@ -95,7 +120,7 @@ class SqlTool():
         meta    = MetaData()
         for name in tables:
             # 建立过映射关系的不需要再建
-            if name in self.rf.keys():
+            if name in self.sql_relation.rf.keys():
                 continue
 
             try:
@@ -103,19 +128,22 @@ class SqlTool():
             except exc.NoSuchTableError:
                 raise Exception(u'No such table, name = {0}'.format(name))
             else:
-                self.rf[name] = obj
+                self.sql_relation.registerNewTable(name, obj)
 
 
     def getTablesInfo(self, tables):
+        '''
+        获取某数据表中全部列的分类情况
+        '''
         tables_info_list = []
         for t in tables:
-            if t not in self.rf.keys():
+            if t not in self.sql_relation.rf.keys():
                 self.reflectTables([t])
 
             info = self.insp.get_columns(t)
             dm_list, me_list, tm_list   = [], [], []
             for i in info:
-                i_type    = i[u'type']
+                i_type    = i['type']
 
                 # 增加字段标记数字列和非数字列
                 if isinstance(i_type, (types.Numeric, types.Integer)):
@@ -135,38 +163,63 @@ class SqlTool():
         return tables_info_list
 
 
-    def exeSelect(self, selects, filter = [], groups = [], **kwargs):
-
-        """
-        执行查询语句
-        """
+    def makeSelectSql(self, selects, filter = [], groups = [], **kwargs):
+        '''
+        制作select形式的sql语句
+        '''
         if not selects or len(selects) <= 0:
             raise Exception(u'no selected content')
 
-        select_obj  = self.cvtSelect(selects)
-        group_part  = self.cvtGroup(groups)
+        select_part  = self.sql_relation.cvtSelect(selects)
+        group_part  = self.sql_relation.cvtGroup(groups)
 
-        sql_obj     = select_obj
+        sql_obj = select(select_part)
         if group_part:
             sql_obj = sql_obj.group_by(*group_part)
 
         logger.info(u'{0}'.format(str(sql_obj)))
-        results = self.conn.execute(sql_obj).fetchall()
-        return results
+        return sql_obj
 
+
+    def createTable(self, name, *cols):
+        """
+        新建数据表
+        """
+        metadata = MetaData()
+        t = Table(name, metadata, *cols)
+        metadata.create_all(self.engine)
+        self.sql_relation.registerNewTable(name, t)
+        return t
+
+
+    def dropTable(cls, name):
+        """
+        删除数据表
+        """
+        pass
+
+    def execute(self, sql_obj):
+        """
+        执行sql对象
+        """
+        return self.conn.execute(sql_obj)
+
+
+
+'''
+实现数据库对象到SqlAlchemy对象的映射
+'''
+class SqlRelation():
+    rf              = {}
 
     def cvtSelect(self, selects):
+        '''
+        转换sql语句中select后字段part
+        '''
         sel_list    = []
-        for s in selects:
-            """
-            if not (u'table' in s and u'col' in s):
-                raise Exception(u'please check column and table error')
-
-            t_str, c_str    = s[u'table'], s[u'column']
-            """
-            t_str, c_str    = s[0], s[1]
-            table           = self.rf.get(t_str)
-
+        for factor in selects:
+            table           = self.getTableObj(factor)
+            _t, c_str, kind, cmd = factor.extract()
             if not table.c.has_key(c_str):
                 msg = u'can''t recongnize column name of {0}'.format(c_str)
                 logger.error(msg)
@@ -174,63 +227,32 @@ class SqlTool():
 
             sel_obj = table.c.get(c_str)
 
-            kind, cmd    = s[2], s[3]
-            if 2 == kind:
+            if 2 == int(kind):
                 sel_obj = self.cvtTimeColumn(sel_obj, cmd)
-            elif 0 == kind and u'rgl' != cmd:
-                f       = SqlToolAdapter().cvtFunc(cmd)
+            elif 0 == int(kind) and u'rgl' != cmd:
+                f       = self.cvtFunc(cmd)
                 sel_obj = f(sel_obj)
 
             sel_list.append(sel_obj)
 
-        return select(sel_list)
-
-
-
-    def cvtFilter(self):
-        pass
-
-
-    def cvtJoin(self, joins):
-        join_style  = joins[u'style']
-
-        # 连接至少需要2个表
-        if len(joins[u'data']) < 2:
-            return None
-
-        for idx, j_unit in enumerate(joins[u'data']):
-            t_str, c_str = j_unit.get(u'table'), j_unit.get(u'column')
-            table   = self.rf.get(t_str)
-            column  = getattr(table.c, c_str)
-
-            if 0 == idx:
-                my_join       = table
-                prev_column     = getattr(table.c, c_str)
-            else:
-                my_join = my_join.join(table, prev_column == column)
-
-        return my_join
+        return sel_list
 
 
     def cvtGroup(self, groups):
+        '''
+        转换sql语句中group by后字段part
+        '''
         group_list  = []
-        for g in groups:
-            """
-            if not (u'table' in g and u'column' in g):
-                raise Exception(u'please check column and table error')
-
-            t_str, c_str    = g[u'table'], g[u'col']
-            """
-            t_str, c_str    = g[0], g[1]
-            table   = self.rf.get(t_str)
-
+        for factor in groups:
+            table   = self.getTableObj(factor)
+            c_str, kind_str, cmd_str  = map(lambda x: factor.getProperty(x), \
+                                            [Protocol.Attr, Protocol.Kind, Protocol.Cmd])
             if not table.c.has_key(c_str):
                 raise Exception(u'can''t recongnize column name of {0}' \
                                     .format(c_str))
 
             col_obj = table.c.get(c_str)
 
-            kind_str, cmd_str   = g[2], g[3]    
             if 2 == kind_str:
                 # 如果是时间列，那么需要额外处理
                 grp_obj = self.cvtTimeColumn(col_obj, cmd_str)
@@ -245,6 +267,33 @@ class SqlTool():
         else:
             return None
 
+    
+    def cvtOrderByPart(self):
+        '''
+        转换sql语句中order by后字段part
+        '''
+        pass
+
+    def cvtJoin(self, joins):
+        join_style  = joins[u'style']
+
+        # 连接至少需要2个表
+        if len(joins[u'data']) < 2:
+            return None
+
+        for idx, j_unit in enumerate(joins[u'data']):
+            t_str, c_str = j_unit.get(u'table'), j_unit.get(u'column')
+            table   = self.getTableObj(t_str)
+            column  = getattr(table.c, c_str)
+
+            if 0 == idx:
+                my_join       = table
+                prev_column     = getattr(table.c, c_str)
+            else:
+                my_join = my_join.join(table, prev_column == column)
+
+        return my_join
+
 
     def cvtTimeColumn(self, col_obj, time_str):
         if 'year'       == time_str:
@@ -255,6 +304,11 @@ class SqlTool():
             tc  =   extract('day', col_obj)
         elif 'hour'     == time_str:
             tc  =   extract('hour', col_obj)
+        elif 'raw'      == time_str:
+            tc  =   col_obj    
+        elif 'max' == time_str or 'min' == time_str:
+            f  =   self.cvtFunc(time_str)
+            tc  = f(col_obj)
         else:
             logger.error(sys.exc_info())
             raise Exception('unknown time type')
@@ -262,30 +316,71 @@ class SqlTool():
         return tc
 
 
-    def createTable(self, name, *cols):
+    def cvtFunc(self, func_str):
+        if u'sum'   == func_str:
+            f   = func.sum
+        elif u'count'   == func_str:
+            f   = func.count
+        elif u'avg' == func_str:
+            f   = func.avg
+        elif u'max'    == func_str:
+            f   =   func.max
+        elif u'min'    == func_str:
+            f   =   func.min
+        else:
+            logger.err('unknow func str, {0}', func_str)
+            return False
+
+        return f
+
+
+    def getColumnObj(self, factor):
         """
-        新建数据表
+        根据数据表名和列名获取列对象
         """
-        metadata = MetaData()
-        t = Table(name, metadata, *cols)
-        metadata.create_all(self.engine)
-        self.rf[name] = t
-        return t
+        table = self.getTableObj(factor)
+
+        '''
+        if not table:
+            return None
+        '''
+
+        c_str = factor.getProperty(Protocol.Attr)
+
+        if not table.c.has_key(c_str):
+            msg = u'can''t recongnize column name of {0}'.format(c_str)
+            logger.error(msg)
+            raise Exception(msg)
+
+        column = table.c.get(c_str)
+        return column
 
 
-    def dropTable(cls, name):
+    def getTableObj(self, factor):
+        t_str = factor.extract()[0]
+
+        '''
+        if t_str not in self.rf.keys():
+            self.reflectTables([t_str])
+        '''
+
+        return self.rf.get(t_str)
+
+
+    def registerNewTable(self, name, table):
         """
-        删除数据表
+        增加新表后，登记记录
         """
-        pass
+        #table_helper = new TableHelper()
+        #setattr(table, 'helper', table_helper)
+        self.rf[name] = table
 
 
 
-class SqlToolAdapter():
-    """
-    适配常规类型与sqltool类型
-    """
-
+"""
+支持外界拿sql_obj进行相应查询类
+"""
+class SqlObjReader():
     @classmethod
     def cvtType(cls, type):
         if "int" == type:
@@ -314,22 +409,14 @@ class SqlToolAdapter():
         """
         st_type = cls().cvtType(type)
         col     = Column(name, st_type)        
-        return col
+        return col 
 
 
     @classmethod
-    def cvtFunc(cls, func_str):
-        if u'sum'   == func_str:
-            f   = func.sum
-        elif u'count'   == func_str:
-            f   = func.count
-        elif u'avg' == func_str:
-            f   = func.avg
-        else:
-            logger.err('unknow func str, {0}', func_str)
-            return False
-
-        return f
-
+    def isDateTime(cls, obj):
+        type = obj.type
+        if isinstance(type, types.DateTime):
+            return True
+        return False
 
 

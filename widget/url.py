@@ -19,7 +19,10 @@ urlpatterns = patterns('',
 	url(r'^batch/delete/$',		views.batachOp, {'op': 'delete'} ),
 
 	url(r'^draw/$', 			views.reqDrawData),
+    url(r'^draw/update/(\d+)$',      views.reqUpdateData),
+    url(r'^draw/timely/(\d+)$',      views.reqTimelyData),
     
     url(r'^viewList/$',         views.widgetList ,{'template_name': 'widget/view_list.html'}),
-    url(r'^view/(\d+)/$',       views.widgetEdit ,{'template_name': 'widget/view.html'}, name="view"),
+    url(r'^view/(\d+)/$',       views.widgetEdit ,{'template_name': 'widget/view.html'}, \
+                                                                                name="view"),
 )

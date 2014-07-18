@@ -204,6 +204,12 @@ define([
         },
 
         startRestore:           function() {
+            aid_data = JSON.parse($("#aid_data").html());
+            Backbone.Events.trigger("panel:update_data", {
+                "ifupdate":     aid_data.ifupdate
+                , "period":     aid_data.period
+            })
+
             // 拿到需要用去恢复现场的数据
             data = JSON.parse($("#page_data").html());
             this.model.set(data);
@@ -221,30 +227,49 @@ define([
 			Backbone.Events.on("panel:clear",       _.bind(this.clear, this));
 			this.drawer = new Drawer();
             this.dataCenter = new DataCenter()
+
+            // test
+            Backbone.Events.on("panel:update_data", _.bind(this.setAboutUpdating, this));
+            $("body").on("period", $.proxy(this.test, this))
 		},
 
-		onGetDrawData:      function(data) {//data是从url：/widget/draw/中获取的数据，即从数据库按横轴纵轴的操作执行的查询结果的数据
+		onGetDrawData:      function(data) {
+            //data是从url：/widget/draw/中获取的数据，即从数据库按横轴纵轴的操作执行的查询结果的数据
             // 合并样式数据,x轴y轴
             //var styleData = this.dataCenter.styleModel.toJSON();
             //var data = $.merge(data, {"style": styleData});
             //data = JSON.parse('{"data":{"y":[{"type":"value"}],"x":[{"data":["广州","北京"],"type":"category"}],"legend_series":[{"series":[1.95,1.92]}]},"type":"bar"} ')
-			console.log(data)
+			console.log(data);
 			this.drawer.run(this.el, data, {
                 "yes":          false
-                , "url":        "xxx"
-                , "period":     2000
+                , "wi_id":      0
+                , "period":     10000
             });
-            this.dataCenter.setZr(this.drawer.getEc().getZrender());
+            this.dataCenter.setZr(this.drawer.getEc().getZrender())
 		},
 
         clear:              function() {
             this.drawer.stop()
-        }
+        },
 
+        setAboutUpdating:     function(data) {
+            data = $.extend(data, {"wi_id": 1});
+            this.drawer.setUpdating(data)
+        }
 	});
 
 	return DrawPanelView
 })
 
+
+// 模拟保存设置周期性
+function hasPeriod() {
+    $("body").trigger("period", {"enable": true, "period": 5000})
+}
+
+// 取消设置周期性
+function cancelPeriod() {
+    $("body").trigger("period", {"enable": false})
+}
 
 

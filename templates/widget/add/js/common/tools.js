@@ -227,3 +227,20 @@ function stopPropagation(e){
     }  
 }
 
+// 监听服务器事件，接收服务器推送数据
+function ListenToServer(url, evName, openCallBack, failCallBack, succCallBack) {
+    var source = new EventSource(url);
+    source.onopen = function() {
+        if (openCallBack)       openCallBack()
+    }
+
+    source.onerror = function() {
+        if (failCallBack)       failCallBack()
+    }
+
+    source.addEventListener(evName, function(e) { 
+        if (succCallBack)       succCallBack(e)
+    }, false)
+}
+
+
