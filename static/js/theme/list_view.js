@@ -1,7 +1,7 @@
 
 	define(['drawer','gridster'], function(DrawManager, Gridster){
 		var GRID_UNIT_WIDTH     = 50,
-    		GRID_UNIT_HEIGHT    = 50,
+    		GRID_UNIT_HEIGHT    = 55,
     		$body				= $("body");
 		//初始化gridster
 		function initGridster($el){
@@ -18,7 +18,7 @@
 		        	}
 		        } ,
 		        resize: {
-		            enabled: false,
+		            enabled: true,
 		            start: function(e, ui, $widget) {
 		             	
 		            },
@@ -85,27 +85,6 @@
 				return obj;
 		}
 			
-		//组件视图
-		/*var WidgetView = function(options){
-			var obj = {
-				//$el: $("div"),
-				showNewWidget : function(){
-					var len = $(".se_wi_div_"+this.model.getId()).length;
-					//alert(data.widget_id)
-					var drawer = new DrawManager();
-	            	drawer.run($(".se_wi_div_"+this.model.data.widget_id)[len], this.model.data);
-				},
-				init : function(){
-					this.$el = options.el;
-					this.model = options.model;
-					console.log(this.model)
-					this.showNewWidget();
-				}
-			}
-			
-			obj.init();
-			return obj;
-		}*/
 		
 		//场景类,包含多个WidgetItem
 		var SenceItem = function(options){
@@ -120,6 +99,7 @@
 				init: function(){
 					this.id = options.id;
 					this.layout = options.layout;
+					this.src = options.src;
 					var self = this;
 					$("ul#scId_" + this.id +" li").each(function(i){
 						var id = $(this).data("id");
@@ -141,14 +121,11 @@
 					this.$el = options.el;
 					//场景类
 					this.model = options.model;
-					this.$box = $("#box");
-					//this.render();
+					this.render();
 				},
 				render: function(){
 					var self = this;
 					var gridster = this.$el.find(".gridster ul").gridster().data('gridster');
-					//禁止gridster拖拽
-					gridster.disable();
 					var widgetList = this.model.widgetList;
 					$.each(widgetList, function(i){
 						var widget = widgetList[i];
@@ -159,12 +136,12 @@
                         "'><div class='se_wi_div se_wi_div_"+
                         id+"'></div></li>";
                         var posObj   = self.getPos(dateTime),
-                        	width    = self.$box.width(),
-                        	height   = self.$box.height(),
+                        	width    = self.$el.width(),
+                        	height   = self.$el.height(),
                         	sceneId  = self.model.id,
                         	rate = 1;
                         var image = new Image();
-                        image.src = $("#" + sceneId + " img").attr("src");
+                        image.src = self.model.src;
                         var sceneWidth = image.width,
                     		sceneHeight = image.height;
                         
@@ -186,8 +163,7 @@
 			                , parseInt(posObj.col),     parseInt(posObj.row)
 			            );
                         var $li = $(".se_wi_" + id + "_" + dateTime);
-                        widget.setEl($li.children(".se_wi_div_" + id + ":first"));
-                        $li.children(".se_wi_div").wrap("<a class='widget-warp' href='/widget/view/" + id + "'></a>");
+                        widget.setEl($li.children(":first"));
                         $.when(widget.fetchPicData()).done(function(data){
                         	widget.onGetWidgetData(data);
                         })
@@ -217,7 +193,8 @@
 				$("#theme_scences>ul>li").each(function(i){
 					var id = $(this).data("id");
 					var layout = $(this).data("layout");
-					var scence = new SenceItem({id: id,layout: layout});
+					var src = $(this).data("src");
+					var scence = new SenceItem({id: id,layout: layout, src: src});
 					self.scenceList.push(scence);
 				})
 				
@@ -237,32 +214,12 @@
 			render: function(){
 				var self = this;
 				$.each(self.collection, function(i){
-					var $figure = $('<figure><div class="gridster"><ul> ' +
-						'</ul></div></figure>').appendTo(self.$el);
-					initGridster($figure.children(":first").children("ul"));
+					var $scene = $('<div class="col-md-10 col-md-offset-1 slide"><div class="gridster"><ul> ' +
+						'</ul></div></div>').appendTo(self.$el);
+					initGridster($scene.children(":first").children("ul"));
 					var scenceItem = self.collection[i];
-					var scenceView = new ScenceView({model: scenceItem,el: $figure});
-					if(i == 0){
-						//默认选中第一个素略图，现实第一个场景
-						scenceView.render();
-						scenceView.isRendered = true;
-						//监听第一个缩略图单击事件
-						$(".scene-list-thumbnail li:nth-child(1)").on("click", function(){
-							$("figure").hide();
-							$("#box figure:nth-child(1)").show();
-						})
-					}else{
-						i++;
-						//监听缩略图的单击事件，触发画场景函数
-						$(".scene-list-thumbnail li:nth-child(" + i + ")").on("click", function(){
-							$("figure").hide();
-							$("#box figure:nth-child(" + i + ")").show();
-							if(!scenceView.isRendered || scenceView.isRendered == undefined){
-								scenceView.render();
-							}
-							scenceView.isRendered = true;
-						})
-					}
+					var scenceView = new ScenceView({model: scenceItem,el: $scene});
+					
 				});
 				
 
@@ -271,11 +228,12 @@
 
 		//整体视图类
 		var wholeView = {
-			$el: $("#contianer"),
-			init: function(){
-				themeView.init();
+				$el: $("#contianer"),
+				init: function(){
+					themeView.init();
+					this.$box = themeView.$el;
+				},
 			}
-		}
 		//启动所有
 		wholeView.init();
 

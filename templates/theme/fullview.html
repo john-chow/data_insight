@@ -1,0 +1,59 @@
+{% load static %}
+
+<!DOCTYPE html>
+<head>
+	<meta charset='utf-8'>
+	<title>DataInsight</title>
+	 {% include 'head.html' %}
+	<link rel="stylesheet" type="text/css" href="{% static 'css/view.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/theme/view.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.gridster.css' %}">
+</head>
+<body>
+	<!--menu end-->
+	<div>
+	<a id="fullsreen" class="btn" style="display: block;text-align:center" onclick="fullScreen()">全屏显示</a>
+    <div class="row">
+    <div id="container" class="col-md-12">
+    <div id="ipresenter">
+    	
+	</div>
+	<div class="loading" style="left: 48%;top: 41%;position: absolute;"></div>
+	</div>
+	</div>
+	<!-- 此处是为了让design.js能够获取查看的主题的所有场景信息和组件信息而设的隐藏dom -->
+	<div style="display:none" id="theme_scences">
+		<ul>
+		{% for rla in theme_scene_rla.all|dictsort:"m_order" %}
+			<li data-id="{{rla.m_scn.pk}}" data-layout="{{rla.m_scn.m_layout}}" data-src="{{rla.m_scn.m_snapshot}}">
+			<div class="scence_wigets">
+				<ul id="scId_{{rla.m_scn.id}}">
+					{% for sc_wi_ral in rla.m_scn.s2r_set.all %}
+						<li data-id="{{sc_wi_ral.m_wi.pk}}" data-stamp="{{sc_wi_ral.m_stamp}}"></li>
+					{% endfor %}
+				</ul>
+			</div>
+			</li>
+		{% endfor %}
+		</ul>
+	</div>
+	</div>
+</body>
+<script src="{% static 'js/theme/ipresenter.js' %}"></script>
+<script>
+window.onload = function(){
+	requirejs(['theme/full_view'], function(xx,xxx){
+		$(".loading").hide();
+		$('#ipresenter').iPresenter({
+			timerPadding: -1,
+			controlNav: false,
+			autoPlay: false,
+			controlNavThumbs: true,
+			controlNavNextPrev: false,
+		});
+		//下面两个语句等同于手动打开iPresenter,必须的
+		$(".ipresenter_stepsNav").show();
+		$(".step").show();
+	})
+}
+</script>

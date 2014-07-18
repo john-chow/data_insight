@@ -1,34 +1,15 @@
-/*!
- * 浏览界面CSS
- *
- * Date: 2014-06-30
- */
-
-
-body {
-	font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
-	background-color: #ddd!important;
-}
-
-.row {
-	margin:0;
-}
-
-#header {
-	padding: 20px 0;
-}
 
 #scenceView{
-background :white;
-box-shadow: 1px 1px 18px #292929;
-margin-top: 25px;
 position: relative;
-}
-.menu-home {
-	padding: 15px 25px 15px 0;
-	font-size: 2em;
-	color: #DD9C70;
-	font-weight: bold;
+background: white;
+height: auto;
+overflow: hidden;
+box-shadow: inset 0px 0px 15px rgba(200,200,200,1);
+margin: auto;
+margin-top: 10px;
+border: #DDD 1px solid;
+border-radius: 5px;
+padding: 0 21px 140px;
 }
 
 #content {
@@ -55,7 +36,6 @@ margin: 15px 0;
 }
 
 .list-scene-items{
-	border: 1px solid #bbb;
 margin-top: 40px;
 }
 

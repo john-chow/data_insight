@@ -5,29 +5,7 @@
  */
 
 
-body {
-	font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
-	background-color: #ddd!important;
-}
 
-.row {
-	margin:0;
-}
-
-#header {
-	padding: 20px 0;
-}
-
-.menu-home {
-	padding: 15px 25px 15px 0;
-	font-size: 2em;
-	color: #DD9C70;
-	font-weight: bold;
-}
-
-#content {
-	background-color: #f4f4f4;
-}
 
 .view-list-search {
 	padding:10px;
@@ -66,7 +44,9 @@ body {
 	-o-box-shadow: 0 0 5px 2px rgba(0,0,0,0.1);
 	box-shadow: 0 0 5px 2px rgba(0,0,0,0.1);
 	background-color: #fff;
-	height: 300px;
+	padding: 15px;
+	height: 265px;
+	border: 2px solid #ddd;
 }
 
 .view-list-search>div {
@@ -90,57 +70,167 @@ body {
 
 .se_wi_div{
     height: 100%;
+    cursor: pointer!important;
 }
 
-.slider-viewport { 
-/*width: 1055px;*/
-height: 530px;
-overflow: hidden; 
-position: relative;
-margin: auto;
-padding: 0 21px 140px;
-box-shadow: 1px 1px 18px #292929;
-background: white;
-margin-top: 15px;
-}
-#viewport, #box, .slide {
- /* width: 1055px;*/
+#box {
   height: 530px;
   background-color: white;
-  
+  box-shadow: 1px 1px 18px #292929;
 }
-#time-indicator {
-  width: 0px;
-  height: 3px;
-  background-color: #4b8df8;
-  margin-top: -19px;
+#slider-viewport{
+	height: 650px; 
+	overflow: hidden
 }
-#viewport {
-  overflow: hidden;
+.slide{
+	background: white;/* 防止透明 */
 }
 figure{
-	background: white;
+	display: none;
 }
-
+#box figure:first-child{
+	display: block;
+}
+ 
 .gridster ul {
 list-style: none;
 }
 
-.view-list-theme .heading{
-background: #27A9E3;
-color: white;
-padding: 7px;
+.view-list-theme .heading h4{
+text-align: center;
+padding-top: 5px;
+}
+.view-list-theme .description{
+	padding: 15px;
+	height: 100px;
+	display: table-cell;
+	vertical-align: middle;
+}
+.view-list-theme .scene-list{
+	list-style: none;
+}
+.view-list-theme .link-to-theme{
+	color: black;
+	text-decoration: none;
 }
 
-.toolbar {
-background: #eee;
-padding: 5px 10px;
-border: 1px solid #bbb;
-margin: 15px 0;
+.view-list-theme .scene-list .scene-item{
+	width: 133px;
+	height: 84px;
+	float: left;
+	margin-left: 5px;
+	border: 1px solid #ddd;
 }
 
 .list-theme-items{
-border: 1px solid #bbb;
 margin-top: 40px;
+padding: 0;
+}
+.scene-list-thumbnail{
+	border: 1px solid #E8EFEF;
+	padding: 13px;
+	background: white;
+	overflow: auto;
+	height: 535px;
+	box-shadow: 1px 1px 18px #292929;
+}
+.scene-list-thumbnail li{
+	margin-top: 25px;
 }
 
+/* iPresenter插件css支持 */
+div#container {
+	position: relative;
+	background: white;
+	height: 750px;
+	overflow: hidden;
+	box-shadow: inset 0px 0px 15px rgba(200,200,200,1);
+	margin: auto;
+	margin-top: 10px;
+	border: #DDD 1px solid;
+	border-radius: 5px;
+	padding: 0 21px 140px;
+}
+
+div#ipresenter div#preloader div {
+	display: block;
+	width: 0%;
+	height: 5px;
+	background: #CCC;
+	border-radius: 3px;
+}
+
+div#ipresenter div.step {
+	min-width: 600px;
+	text-align: center;
+	z-index: 10;
+}
+
+div#ipresenter div.step h2, div.step p {
+	text-align: left;
+}
+
+div#ipresenter div#intro {
+	width: 1000px;
+}
+
+div#ipresenter div#intro img {
+	float: left;
+}
+
+div#ipresenter div#capture h2 {
+	text-align: center
+}
+
+a.ipresenter_stepsNav {
+	display: block;
+	cursor: pointer;
+	position: absolute;
+	width: 40px;
+	height: 100px;
+	background-image: url(../../img/theme/nav_paddles.png);
+	top: 43%;
+	-webkit-transition: opacity 150ms ease-out;
+	-moz-transition: opacity 150ms ease-out;
+	-o-transition: opacity 150ms ease-out;
+	transition: opacity 150ms ease-out;
+}
+
+a.ipresenter_stepsNav:active {
+	background-image: url(../../img/theme/nav_paddles_down.png);
+}
+
+a#ipresenter_nextStep {
+	right: 20px;
+	background-position: 56px 0px;
+}
+
+a#ipresenter_prevStep {
+	left: 20px;
+	background-position: -16px 0px
+}
+
+div.container div.ipresenter-controlNav {
+	display: inline-block;
+	position: absolute;
+	left: 499px;
+	bottom: 20px;
+}
+
+div.container div.ipresenter-controlNav a {
+	float: left;
+	box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.6);
+	margin-left: 20px;
+	overflow: hidden;
+	border-radius: 3px;
+	height: 40px;
+	width: 64px;
+}
+
+div.container div.ipresenter-controlNav div.ipresenter-items ul {
+	list-style: none;
+}
+
+div.container div.ipresenter-controlNav div.ipresenter-items ul li {
+	float: left;
+}

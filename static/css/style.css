@@ -126,7 +126,7 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 }
 
 #header span {
-	float: right;
+	/* float: right; */
 }
 
 
@@ -426,10 +426,12 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 	text-align: center;
 	left: 43%;
 	line-height: 3;
-	width: 255px;
+	width: auto;
 	height: 37px;
 	letter-spacing: 10px;
 	font-size: 15px;
+	border-radius: 4px;
+	padding: 0 15px;
 	z-index: 9999999;
 }
 
@@ -456,4 +458,11 @@ border-radius: 7px;
 -moz-border-radius: 7px;
 z-index: 10;
 /*display: none;*/
+}
+
+.btn-mine{
+	border: 1px solid #ddd;
+color: #333;
+height: 38px;
+border-radius: 0;
 }

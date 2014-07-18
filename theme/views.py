@@ -54,13 +54,13 @@ def themeCreate(request):
         return render_to_response('theme/add.html', data, context)
     else:
         owner = request.user.username
-        name, switch_effect = map(lambda x: request.POST.get(x), \
-                                        ('name', 'switch_effect'))
+        name, switch_effect, description = map(lambda x: request.POST.get(x), \
+                                        ('name', 'switch_effect', 'description'))
         scences = json.loads(request.POST.get('scences'))
         print(name)
         theme = ThemeModel.objects.create(
             m_name=name, m_switch_effect=switch_effect, \
-            m_owner=owner
+            m_owner=owner, description=description
         )
 
         rla_list = []
@@ -138,12 +138,13 @@ def themeEdit(request, id):
         }
         return render_to_response('theme/add.html', data, context)
     else:
-        name, switch_effect = map(lambda x: request.POST.get(x), \
-                                        ('name', 'switch_effect'))
+        name, switch_effect,description = map(lambda x: request.POST.get(x), \
+                                        ('name', 'switch_effect', 'description'))
         scences = json.loads(request.POST.get('scences'))
         theme = ThemeModel.objects.get(pk = id)
         ThemeModel.objects.filter(pk = id).update(\
-                                                  m_name = name, m_switch_effect = switch_effect)
+                                                  m_name = name, m_switch_effect = switch_effect,\
+                                                  description = description)
         rla_list = []
         for sc in scences:
             scence = SceneModel.objects.get(pk = sc.get(u'id'))
@@ -160,6 +161,16 @@ def view(request, id):
     """
     某个主题浏览界面
     """
+    pattern = request.GET.get('pattern', '1')
+    #普通浏览模式
+    template_name = 'theme/view.html'
+    #全屏浏览模式
+    if pattern == '3':
+        template_name = 'theme/fullview.html'
+    #列表浏览模式
+    elif pattern == '2':
+        template_name = 'theme/listview.html'
+    
     if u'GET' == request.method:
         logger.info("xxxxxxxxxxxxx")
         context = RequestContext(request)
@@ -169,6 +180,6 @@ def view(request, id):
             u"theme" : theme,
             u"theme_scene_rla" : theme_scene_rla_set
         }
-        return render_to_response("theme/view.html", data, context)
+        return render_to_response(template_name, data, context)
     else:
         raise Http404()

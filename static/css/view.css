@@ -1,0 +1,47 @@
+body {
+	font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
+	background-color: #ddd!important;
+}
+ ul{
+ 	list-style: none;
+ }
+.row {
+	margin:0;
+}
+
+#header {
+	padding: 20px 0;
+	background: #E8EFEF;
+	height: auto;
+}
+
+#contianer{
+	margin-top: 40px;
+}
+
+.menu-home {
+	padding: 15px 25px 15px 0;
+	font-size: 2em;
+	color: #999933;
+	font-weight: bold;
+}
+
+#content {
+	background-color: #f4f4f4;
+}
+
+#necker{
+	background: white;
+	border: 1px solid #BDC4C4;
+	height: 80px;
+}
+#necker .row{
+	margin-top: 20px;
+}
+.sort-group .btn,.show-pattern .btn,.play-pattern .btn{
+	border: 1px solid #ddd;
+	color: #333;
+	height: 38px;
+	border-radius: 0;	
+}
+
