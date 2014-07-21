@@ -48,11 +48,11 @@
 		  			<div id="choosed_chart" class="panel panel-default">
 					    <div class="panel-heading">组件</div>
 					    <ul id="all_widgets">
+					    	<li id="scene_list_widget_text" onclick="openEditorModal()" title="插入富文本"><i class="glyphicon glyphicon-text-width"></i>&nbsp;富文本</li>
 					    	{% for widget in allowed_widgets %}
 				            <li class="scene_list_widget" id="wi_{{ widget.pk }}" data-id={{ widget.pk }} title="{{ widget.m_name }}"><i class="glyphicon glyphicon-stats"></i>&nbsp;{{ widget.m_name }}</li>
 				            {% endfor %}
 					    </ul>
-					    <div class="choosed_chart_extra"><span>文字</span><span>图片</span></div>
 					</div>
 
 					<div id="choosed_layout" class="panel panel-default">
@@ -75,6 +75,12 @@
                             {% else %}
 					    	<li>名称：<input id="scene_name" type="text" value="场景" /></li>
                             {% endif %}
+                            <li>边框：
+	                            <div id="scene-widget-border-con" class="btn-group" data-toggle="buttons">
+		                            <label onclick="showBorder()" class="btn btn-info active btn-xs"><input type="radio" name="options" checked>显示</label>
+		                            <label onclick="hideBorder()" class="btn btn-info btn-xs"><input type="radio" name="options">不显示</label>
+	                            </div>
+                            </li>
 					    </ul>
 					</div>
 					
@@ -93,7 +99,7 @@
 					    <input type="button" class="btn btn-sm btn-default" onclick="openEditorModal()" value="插入富文本" />
 				    </div>
 					<div class="gridster">
-					    <ul>
+					    <ul class="gridster-border">
 					    </ul>
                         <!-- 存layout数据，不显示 -->
                         <p class="layout" style="display:none">{{ scene.m_layout }}</p>
@@ -107,19 +113,19 @@
             {{ scn_skin }}
         </div>
 
-        <!--模态框-->
+        <!--模态框新建-->
         <div class="modal fade" id="editorModal" role="dialog" aria-hidden="true">
 		  <div class="modal-dialog">
 		    <div class="modal-content">
 		      <div class="modal-header">
 		        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-		        <h4 class="modal-title">富文本编辑框</h4>
+		        <h4 class="modal-title">富文本</h4>
 		      </div>
 		      <div class="modal-body">
 		       		<textarea cols="80" id="sceneEditor" name="sceneEditor" rows="10"></textarea>
 		      </div>
 		      <div class="modal-footer">
-		      	<button type="button" onclick="editorModalOk()" class="btn btn-primary">确定</button>
+		      	<button type="button" id="scene_text_button_ok" onclick="editorModalOk()" class="btn btn-primary">确定</button>
 		        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 		      </div>
 		    </div><!-- /.modal-content -->
