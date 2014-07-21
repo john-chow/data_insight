@@ -2,6 +2,8 @@
 #Filename:  echart.py
 import pdb
 from common.head import *
+import common.protocol as Protocol
+from widget.factor import ElementFactor
 from widget.map import getCityPM2dot5, getRailLine
 
 
@@ -52,9 +54,9 @@ class EChart():
                 
 
 class Bar_Line_Base(EChart):
-    def makeData(self, data_from_db, msu_list, msn_list, group_list):
+    def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
         msu_len, msn_len, group_len = \
-                map(lambda x: len(x), (msu_list, msn_list, group_list))
+                map(lambda x: len(x), (msu_factor_list, msn_factor_list, group_factor_list))
 
         all_data = map( list, zip(*data_from_db) )
 
@@ -65,14 +67,17 @@ class Bar_Line_Base(EChart):
             raise Exception(u'cant draw {0}'.format(self.type))
 
         # 先看度量列表，确定所在轴
-        _table, attr_name, attr_kind, attr_cmd, attr_axis = msu_list[0]
+        _table, attr_name, attr_kind, attr_cmd = msu_factor_list[0].extract()
+        attr_axis = msu_factor_list[0].getProperty(Protocol.Axis)
+
         msu_info_list = x_info_list if u'col' == attr_axis else y_info_list
         msu_info_list.append({u'type': u'value'})
 
         # 再看维度列表
         if 1 == msn_len:
             msn_idx = msu_len
-            _table, attr_name, attr_kind, attr_cmd, attr_axis = msn_list[0]
+            _table, attr_name, attr_kind, attr_cmd = msn_factor_list[0].extract()
+            attr_axis = msn_factor_list[0].getProperty(Protocol.Axis)
             msn_info_list = x_info_list if u'col' == attr_axis else y_info_list
             msn_info_list.append({u'type': u'category', u'data': list(set(all_data[msn_idx]))})
         elif 0 == msn_len:
@@ -101,6 +106,28 @@ class Bar_Line_Base(EChart):
         }
 
 
+    def makeAddData(self, data_tuple_list, msu_len, msn_len, group_len):
+        """
+        组成补充的数据
+        """
+        cat_list, val_list = [], []
+        for data_tuple in data_tuple_list:
+            msu_list    = list(data_tuple[:msu_len])
+            [cat]       = list(data_tuple[msu_len:msu_len + msn_len])
+            group_list  = list(data_tuple[msu_len + msn_len:])
+
+            group_name = group_list[0] if len(group_list) > 0 else ''
+            msu_val    = msu_list[0]
+            le_val = {'le': group_name, 'val': msu_val}
+            val_list.append(le_val)
+            cat_list.append(cat)
+
+        return {
+            'cat':          list(set(cat_list))
+            , 'le_val':     val_list
+        }
+
+
 
 class Bar(Bar_Line_Base):
     def __init__(self):
@@ -117,10 +144,11 @@ class Area(Bar_Line_Base):
 
 
 class Scatter(EChart):
-    def makeData(self, data_from_db, msu_list, msn_list, group_list):
+    def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
         # 条件是至少2个数字列
-        num_list = [ kind for (_, kind, _, _) in (msu_list + msn_list) if 1 == kind ] 
-        if num_list < 2:
+        numeric_factor_list = [f for f in (msu_factor_list + msn_factor_list) \
+                                    if 0 == f.getProperty(Protocol.Kind)]
+        if len(numeric_factor_list) < 2:
             raise Exception(u'cant draw scatter')
 
         x_info_list, y_info_list = [], []
@@ -129,10 +157,10 @@ class Scatter(EChart):
         }), (x_info_list, y_info_list))
 
         legend_series_data = []
-        if 0 < len(group_list):
+        if 0 < len(group_factor_list):
             all_data = map( list, zip(*data_from_db) )
             # 一定不会有度量列，全部是维度且数值的列
-            legend_list = list(set(all_data[len(msn_list)]))
+            legend_list = list(set(all_data[len(msn_factor_list)]))
             for le in legend_list:
                 legend_series_data.append({
                     u'legend':          le
@@ -151,11 +179,11 @@ class Scatter(EChart):
 
 
 class Pie(EChart):
-    def makeData(self, data_from_db, msu_list, msn_list, group_list):
-        if len(msu_list) < 1 or len(msn_list) < 1:
+    def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
+        if len(msu_factor_list) < 1 or len(msn_factor_list) < 1:
             raise Exception(u'cant draw pie')
 
-        if 0 < len(group_list):
+        if 0 < len(group_factor_list):
             raise Exception(u'cant have color mark')
 
         legend_series_data = [{u"name": a[1], u"value": a[0]} for a in data_from_db]
@@ -164,22 +192,22 @@ class Pie(EChart):
 
 
 class Radar(EChart):
-    def makeData(self, data_from_db, msu_list, msn_list, group_list):
+    def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
         # 画图的条件应该是1个mension列，至少3个measure列，且不能有group列
-        if len(msn_list) != 1 or len(msu_list) < 3 or len(group_list) > 0:
+        if len(msn_factor_list) != 1 or len(msu_factor_list) < 3 or len(group_factor_list) > 0:
             raise Exception(u'cant draw radar')
 
         # 数据库查询最后一列的结果是种类的名称列表
         legend_series_data = [{
-            u"value": n[:-1]
-            , u"name": n[-1]
-        } for n in data_from_db]
+            u"value"    : tuple(row_data)[:-1]
+            , u"name"   : tuple(row_data)[-1]
+        } for row_data in data_from_db]
 
         # 找到每个列中最大值
         indicator = [{
-            u"text":                pro[0]                    
+            u"text":                factor.getProperty(Protocol.Attr)
             , u"max":               max([a[i] for a in data_from_db])        
-        } for i, pro in enumerate(msu_list)]
+        } for i, factor in enumerate(msu_factor_list)]
 
         return {
             u'legend_series':       legend_series_data
@@ -213,7 +241,7 @@ class Map():
             ]
         }
 
-    def makeData(self, data_from_db, msu_list, msn_list, group_list):
+    def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
         pass
         """
         self.option[u'series'].append( \

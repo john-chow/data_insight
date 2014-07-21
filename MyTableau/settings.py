@@ -23,11 +23,11 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',#'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'dataInsight',                      # Or path to database file if using sqlite3.
+        'NAME': 'mytableau',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': 'postgres',
         'PASSWORD': '123456',
-        'HOST': 'localhost',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'HOST': '10.1.50.125',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '5432',                      # Set to empty string for default.
     }
 }
@@ -136,12 +136,14 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'gunicorn',
 	'account',
     'skin',
     'connect',
     'widget',
 	'scene',
     'theme',
+    'monitor',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -222,5 +224,11 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 #The number of items to the left and to the right of the current page to display 
 PAGINATION_DEFAULT_WINDOW = 3
+
+# 为django-sse配置
+REDIS_SSEQUEUE_CONNECTION_SETTINGS = {
+    'location': 'localhost:6379',
+    'db': 0,
+}
 
 

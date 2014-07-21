@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     
     url(r'^view/(\d+)/$',       views.sceneView, name='view'),
     url(r'^viewList/$',          views.sceneList, {'template_name': 'scene/view_list.html'}),
+    url(r'^viewbiglist/$',       views.sceneList, {'template_name': 'scene/view_list.html'}),
 
     url(r'^imgUpload/$',       views.sceneImgUpload),
 )

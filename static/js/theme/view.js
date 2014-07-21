@@ -18,7 +18,7 @@
 		        	}
 		        } ,
 		        resize: {
-		            enabled: true,
+		            enabled: false,
 		            start: function(e, ui, $widget) {
 		             	
 		            },
@@ -42,14 +42,19 @@
 			var obj = {
 					urlRoot: "/widget/show/" + options.id + "/",
 					fetchPicData: function(){
+						var defer = $.Deferred();
 						var self = this;
 			            $.ajax({
 			                url:            self.urlRoot
 			                , type:         "GET"
-			                , success:      self.onGetWidgetData 
-			                , error:        function() {}
+			                , success:      function(data){
+			                	defer.resolve(data);
+			                }
+			                , error:        function() {console.log("服务器出错了")}
 			                , context:      self
-			            })
+			            });
+			            var promise = defer.promise();
+			            return promise;
 					},
 					onGetWidgetData :  function(data) {
 			            // 如果成功，则传递数据到面板进行画图
@@ -73,7 +78,7 @@
 					init: function(){
 						this.id = options.id;
 						this.stamp = options.stamp;
-						this.fetchPicData();
+						//this.fetchPicData();
 					}
 				}
 				obj.init();
@@ -136,11 +141,14 @@
 					this.$el = options.el;
 					//场景类
 					this.model = options.model;
-					this.render();
+					this.$box = $("#box");
+					//this.render();
 				},
 				render: function(){
 					var self = this;
 					var gridster = this.$el.find(".gridster ul").gridster().data('gridster');
+					//禁止gridster拖拽
+					gridster.disable();
 					var widgetList = this.model.widgetList;
 					$.each(widgetList, function(i){
 						var widget = widgetList[i];
@@ -150,15 +158,39 @@
                         "' data-id='"+id+"' data-time='"+ dateTime +
                         "'><div class='se_wi_div se_wi_div_"+
                         id+"'></div></li>";
-                        console.log(liHtml)
-                        var posObj = self.getPos(dateTime);
+                        var posObj   = self.getPos(dateTime),
+                        	width    = self.$box.width(),
+                        	height   = self.$box.height(),
+                        	sceneId  = self.model.id,
+                        	rate = 1;
+                        var image = new Image();
+                        image.src = $("#" + sceneId + " img").attr("src");
+                        var sceneWidth = image.width,
+                    		sceneHeight = image.height;
+                        
+                        if(sceneWidth > width || sceneHeight > height){
+                        	 //等比例压缩图片
+                            if(sceneWidth/width > sceneHeight/height){
+                            	rate = width/sceneWidth;
+                            }else{
+                            	rate = height/sceneHeight;
+                            }
+                            posObj.size_x = posObj.size_x * rate;
+                            posObj.size_y = posObj.size_y * rate;
+                            posObj.col    = Math.ceil(posObj.col * rate);
+                            posObj.row    = Math.ceil(posObj.row * rate);
+                        }
 			            gridster.add_widget(
 			                liHtml
 			                , parseInt(posObj.size_x),  parseInt(posObj.size_y)
 			                , parseInt(posObj.col),     parseInt(posObj.row)
 			            );
                         var $li = $(".se_wi_" + id + "_" + dateTime);
-                        widget.setEl($li.children(":first"));
+                        widget.setEl($li.children(".se_wi_div_" + id + ":first"));
+                        $li.children(".se_wi_div").wrap("<a class='widget-warp' href='/widget/view/" + id + "'></a>");
+                        $.when(widget.fetchPicData()).done(function(data){
+                        	widget.onGetWidgetData(data);
+                        })
 						//var widgetView = new WidgetView({el: $li, model : widget});
 					})
 				},
@@ -210,21 +242,31 @@
 					initGridster($figure.children(":first").children("ul"));
 					var scenceItem = self.collection[i];
 					var scenceView = new ScenceView({model: scenceItem,el: $figure});
-
-				})
+					if(i == 0){
+						//默认选中第一个素略图，现实第一个场景
+						scenceView.render();
+						scenceView.isRendered = true;
+						//监听第一个缩略图单击事件
+						$(".scene-list-thumbnail li:nth-child(1)").on("click", function(){
+							$("figure").hide();
+							$("#box figure:nth-child(1)").show();
+						})
+					}else{
+						i++;
+						//监听缩略图的单击事件，触发画场景函数
+						$(".scene-list-thumbnail li:nth-child(" + i + ")").on("click", function(){
+							$("figure").hide();
+							$("#box figure:nth-child(" + i + ")").show();
+							if(!scenceView.isRendered || scenceView.isRendered == undefined){
+								scenceView.render();
+							}
+							scenceView.isRendered = true;
+						})
+					}
+				});
+				
 
 			},
-			//播放
-			play: function(){
-				var $box = this.$el;
-				var fx = $box.data("fx");
-				$box.boxSlider({
-			        speed: 1000
-			      , autoScroll: true
-			      , timeout: 1000
-			      , effect: fx
-				});
-					},
 		}
 
 		//整体视图类
@@ -232,124 +274,7 @@
 			$el: $("#contianer"),
 			init: function(){
 				themeView.init();
-				this.slideInterval = 5000;
-				this.$timeIndicator = $("#time-indicator");
-				this.$box = themeView.$el;
-				this.$currentPlay = $("figure:first");
-				this.events();
-			},
-			switchIndicator: function($c, $n, currIndex, nextIndex){
-				this.$timeIndicator.stop().css('width', 0);
-			},
-			startTimeIndicator : function(){
-				var self = this;
-				var $box = this.$box;
-				var leftTime = this.slideInterval;
-	        	if(this.$timeIndicator.width() > 0){
-	        		leftTime = ($("#contianer").width() - 
-	        			this.$timeIndicator.width()) / $("#contianer").width() * this.slideInterval;
-	        	}
-	          	this.$timeIndicator.animate({width: '100%'}, leftTime, function(){
-	          		if(self.$box.data("fx")){
-	          			//$("#next").click();
-	          		}
-	          	});
-	          	//alert($box.boxSlider('showSlide'))
-			},
-			pauseTimeIndicator: function(){
-				this.$timeIndicator.stop();
-			},
-			stopTimeIndicator : function(){
-				$timeIndicator.stop().css('width', 0);
-			},
-			events: function(){
-				var self = this;
-				var $box = this.$box;
-				$("#play").click(function(){
-		        	$(this).attr("disabled", "disabled");
-		        	$("#pause").removeAttr("disabled");
-		        	$("#stop").removeAttr("disabled");
-		        	$("#next").removeAttr("disabled");
-		        	$("#prev").removeAttr("disabled");
-			    	var fx = $box.data("fx");
-		    		if(!$(this).hasClass("played")){
-		    			self.$box.boxSlider({
-				            speed: 1000
-				          , autoScroll: true
-				          , timeout: self.slideInterval
-				          , next: '#next'
-				          , prev: '#prev'
-				          //, pause: '#pause'
-				          , effect: fx
-				          , blindCount: 15
-				          , onbefore: bindContext(self.switchIndicator, self)
-				          , onafter: bindContext(self.startTimeIndicator, self)
-				        });
-				         $(this).addClass("played");
-				         $box.boxSlider('option', 'onafter', function ($previousSlide, $currentSlide, currIndex, nextIndex) {
-  							// 'this' is effectively $('#content-box')
-  							self.startTimeIndicator();
-  							self.$currentPlay = $currentSlide;
-						 });
-		    		}
-			    	self.startTimeIndicator();
-		    	});
-		    	$("#pause").on("click", function(){
-		        	$("#play").removeAttr("disabled");
-		        	$("#pause").attr("disabled", "disabled");
-		        	self.pauseTimeIndicator();
-		        	self.$box.boxSlider('playPause');
-	        	});
-	        	$("#prev,#next").on("click", function(){
-		        	$("#pause").removeAttr("disabled");
-		        	$("#play").attr("disabled", "disabled");
-	        	});
-	        
-		        $("#stop").click(function(){
-		        	$box.boxSlider('destroy');
-		        	$box.data("fx", "");
-		        	stopTimeIndicator();
-		        	$("#play").removeAttr("disabled");
-		        	$(this).attr("disabled","disabled");
-		        	$("#next").attr("disabled","disabled");
-		        	$("#prev").attr("disabled","disabled");
-		        	$("#pause").attr("disabled","disabled");
-		        });
-
-		        $("#refresh").click(function(){
-		        	$(this).attr("disabled");
-		        	var gridster = self.$currentPlay.find(".gridster ul").gridster().data('gridster');
-		        	var widgets = gridster.$widgets;
-		        	$.each(widgets, function(index){
-		        		var id = $(widgets[index]).data("id");
-		        		var liHtml = "<li class='se_wi_"+id+"_"+ 
-                        "' data-id='"+id+"' data-time='"+
-                        "'><div class='se_wi_div se_wi_div_"+
-                        id+"'>" +  $(widgets[index]).html() + "</div></li>";
-                        var layoutObj = themeView.collection[self.$currentPlay.index()].getLayout();
-                        var timestamp = $(widgets[index]).data("time");
-                        var pos = layoutObj.filter(function(layout) {
-		                			if (layout.data_time == timestamp)   return true;
-		            			});
-						//转为js对象
-						var posObj = pos[0];
-		        		/*gridster.resize_widget(
-		        			$(widgets[index])
-		        			, parseInt(posObj.size_x),  parseInt(posObj.size_y)
-			                , true);*/
-		        		//恢复表格的位置和大小
-		        		$(widgets[index]).attr("data-row", posObj.row);
-		        		$(widgets[index]).attr("data-col", posObj.col);
-		        		$(widgets[index]).attr("data-sizex", posObj.size_x);
-		        		$(widgets[index]).attr("data-sizey", posObj.size_y);
-		        	})
-		        	/*gridster.add_widget(
-			                
-			                , parseInt(posObj.size_x),  parseInt(posObj.size_y)
-			                , parseInt(posObj.col),     parseInt(posObj.row)
-			            );*/
-		        })
-			},
+			}
 		}
 		//启动所有
 		wholeView.init();

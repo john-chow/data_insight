@@ -3,7 +3,8 @@ requirejs([
  "jqueryUi",
  "bootstrap",
  "easydialog",
-], function(MainView ,ui ,b, e) {
+ "common/tools",
+], function(MainView ,ui ,b, e, t) {
 	new MainView;
 
     var MainRouter = Backbone.Router.extend({
@@ -137,7 +138,42 @@ requirejs([
     $(window).resize(function() {
           change_auto();
     });
+
+
+    ListenToServer('/monitor/sse/', 'myevent1', 
+        function() {console.log('1111111')},
+        function() {console.log('222222')},
+        function(e) {
+            data = JSON.parse(e.data);
+            console.log(data)
+        }
+    )
+
 });
+
+function xxx() {
+    $.ajax('/monitor/event/create/', {
+        type:               'POST'
+        , dataType:         'json'
+        , data:             {
+            'name':         'myevent1'
+            , 'table':      'test'
+            , 'col':        'sale'
+            , 'kind':       0
+            , 'cmd':        'sum'
+            , 'oper':       '>'
+            , 'num':      '10'
+        }
+    })
+}
+
+function yyy() {
+    $.ajax('/monitor/event/delete/74/', {
+        type:               'POST'
+        , dataType:         'json'
+    })
+}
+
 
 function change_auto(){
     change_dbinfo_bar();
@@ -202,3 +238,7 @@ function change_draw_panel_height(){
     var infoWorkplaceHegiht = $("#info_workplace").height();
     return  change_design_panel_height()-drawplotsHeight-infoWorkplaceHegiht-25;//margin: 3px 0 3px 3px;margin-bottom: 12px;
 }
+
+
+
+

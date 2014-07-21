@@ -10,6 +10,7 @@ class ThemeModel(ElementModel):
 	场景类，继承ElementModel
 	"""
 	m_switch_effect = models.CharField(max_length=255)
+	description = models.TextField(max_length=255)
 	m_scenes = models.ManyToManyField(SceneModel\
 						, through='TheToScnRelationModel'\
 						)

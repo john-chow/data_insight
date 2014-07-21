@@ -9,34 +9,17 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import simplejson as json
 from django.template import RequestContext
 from django.shortcuts import render_to_response
+from django_sse.redisqueue import send_event
 
 from widget.forms import ConnDbForm
 from widget.models import ExternalDbModel
 from connect.file import Text, Excel
-from connect.sqltool import SqlTool, SqlToolAdapter
+from connect.sqltool import PysqlAgent, stRestore, stStore
 from common.tool import MyHttpJsonResponse
 from common.log import logger
 from common.head import DEFAULT_DB_INFO
 
 import pdb
-
-
-# 登陆数据库信息的hash key到SqlTool对象之间的映射表
-HK_ST_MAP   = {}
-
-def stCreate():
-    return SqlTool()
-
-
-def stRestore(hk):
-    if not hk:
-        return False
-
-    st = HK_ST_MAP.get(hk)
-    if not st:
-        st = SqlTool().restore(hk)
-
-    return st
 
 
 def genConnHk(kind, ip, port, db, user, pwd):
@@ -59,7 +42,7 @@ def connectDb(request):
                 = map(lambda x: request.POST.get(x)  \
                         , [u'ip', u'port', u'db', u'user', u'pwd', u'kind'])
 
-        st = stCreate()
+        st = PysqlAgent()
         succ, msg = st.connDb( \
             kind = 'postgres', ip = ip, port = port, db = db, user = user, pwd = pwd \
         )
@@ -67,7 +50,7 @@ def connectDb(request):
         if succ:
             kind    = u'postgres'
             hk  = genConnHk(ip = ip, port = port, db = db, user = user, pwd = pwd, kind = kind)
-            HK_ST_MAP[hk] = st
+            stStore(hk, st)
             request.session[u'hk'] = hk
 
             ExternalDbModel.objects.get_or_create(pk = hk, \
@@ -154,7 +137,7 @@ def getTableInfo(request):
 def uploadFile(request):
     if 'POST' == request.method:
         f   = request.FILES['file']
-        st  = stCreate()
+        st  = PysqlAgent()
         st.connDb(**DEFAULT_DB_INFO)
         file_name = f.name.split('.')[0]
         if 'excel' != request.POST.get('type'):
@@ -173,108 +156,14 @@ def uploadFile(request):
         return render_to_response('connect/upload.html', context)
 
 
-def createTableAccdExcel(f, sheets):
+def pushToClient(request):
     """
-    根据excel文件创建数据表
+    主动推送信息到前端
     """
-    table_name = f.name.split('.')[0]
-    workbook = xlrd.open_workbook(file_contents = f.read())
-    for sheet in sheets:
-        worksheet = workbook.sheet_by_name(sheet)
+    logger.warning('123414')
+    send_event('myevent', 'xxxxxxx', channel = 'foo')
+    return HttpResponse('zzzzz')
 
-        # 默认第一行是列头信息
-        column_heads = worksheet.row(0)        
-
-        # 读取N行数据去判断列数据类型
-        i, test_row_data = 1, []
-        while(i <= 10):
-            row_data = worksheet.row(i)
-            if len(row_data) != len(column_heads):
-                continue
-            i += 1
-            test_rows_data.append(row_data)
-        column_types = judgeColumnType(test_rows_data)
-
-        # 根据用户指定的类型
-        st_col_list = []
-        for col, type in zip(column_heads, column_types):
-            st_col = SqlToolAdapter().defColumn(col, type)
-            st_col_list.append(st_col)
-
-        t = st.createTable(sheet, *tuple(st_col_list))
-        copyFileContentsIntoTable(f, st, t)
-
-
-def createTableAccdFile(f, spliter, st):
-    """
-    根据文件中数据创建数据表
-    """
-    table_name = f.name.split('.')[0]
-
-    # 读取第一行，默认是表的字段名
-    column_heads    = readColumnHead(f, spliter)
-    column_types    = judgeColumnType(f, spliter)
-    if len(column_heads) != len(column_types):
-        raise Exception('xxxxxxxxxxxxx')
-
-    # 根据用户指定的类型
-    st_col_list = []
-    for col, type in zip(column_heads, column_types):
-        st_col = SqlToolAdapter().defColumn(col, type)
-        st_col_list.append(st_col)
-
-    t = st.createTable(table_name, *tuple(st_col_list))
-    return t
-
-
-def copyFileContentsIntoTable(f, spliter, st, t):
-    """
-    把文件中数据拷贝进入数据表
-    """
-    # 越过第一行列信息
-    f.seek(0)
-    f.readline()
-
-    line = f.readline()
-    while line:
-        line_data       = [w.strip() for w in line.split(spliter)]
-        ins = t.insert().values(tuple(line_data))
-        try:
-            st.conn.execute(ins)
-        except Exception, e:
-            pass
-        finally:
-            line = f.readline()
-
-
-def readColumnHead(f, spliter = ','):
-    pos = f.tell()
-    f.seek(0)
-    column_heads    = [w.strip() for w in f.readline().split(spliter)]
-    f.seek(pos)
-    return column_heads
-
-
-
-def judgeColumnType(f, spliter = ','):
-    """
-    取每列头10条记录
-    依次判断是否是时间型、数字型、字符串型
-    已超过90%的为标注
-    """
-
-    # 越过列头信息
-    f.seek(0)
-    column_num = len(f.readline().split(spliter))
-
-    test_data_mul_rows = []
-    i = 0
-    while(i < 10):
-        column_data_one_row = [w.strip() for w in f.readline().split(spliter)]
-        if (len(column_data_one_row)) < column_num:
-            continue
-        test_data_mul_rows.append(column_data_one_row)
-        i += 1
 
 
 

@@ -1,0 +1,103 @@
+{% load static %}
+
+<!DOCTYPE html>
+<head>
+	<meta charset='utf-8'>
+	<title>DataInsight</title>
+	 {% include 'head.html' %}
+	<link rel="stylesheet" type="text/css" href="{% static 'css/view.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/theme/view.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.gridster.css' %}">
+</head>
+<body>
+	<!--menu begin-->
+	<div id="header" class="row navbar navbar-default ">
+		<div class="col-md-12 col-xs-12">
+			<div class="text-center">
+				<span class="menu-home">{{theme.m_name}}主题</span>
+				<a href="/theme/viewList" class="btn btn-mine pull-right">返回列表</a>
+			</div>
+			
+		</div>
+	</div>
+	<div id="necker" class="clearfix">
+		<div class="row">
+		<div class="col-md-12 col-xs-12" style="padding-left:37px">
+		<div class="show-pattern btn-group">
+			 <a href="/theme/view/{{theme.pk}}?pattern=1" class="btn btn-md"><i class="glyphicon glyphicon-th"></i>&nbsp;&nbsp;普通模式</a>
+			 <a href="/theme/view/{{theme.pk}}?pattern=2" class="btn btn-md active"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;&nbsp;列表模式</a>
+		</div>
+		
+		<div class="pull-right play-pattern">
+			<a href="/theme/view/{{theme.pk}}?pattern=3" target="_blanck" class="btn">全屏模式</a>
+		</div>
+		</div>
+		</div>
+	</div>
+	<!--menu end-->
+	<div id="contianer">
+    <!-- <div class="row">
+    <div class="col-md-12">
+    <div class="loading" style="left: 48%;top: 41%;position: absolute;"></div>
+		<div id="box" class="row">
+			 场景展示区
+		</div>
+	</div>
+	</div> -->
+	<div class="row">
+	<div class="col-md-10 col-md-offset-1">
+	<div class="row">
+	{% for rla in theme_scene_rla.all|dictsort:"m_order" %}
+		
+			<div class="col-md-5 scene-item">
+			<h4 style="text-align:center">{{rla.m_scn.m_name}}</h4>
+			<a href="/scene/view/{{rla.m_scn.pk}}">
+				<img width="480" height="240" src="{{rla.m_scn.m_snapshot}}"/>
+			</a>
+			</div>
+	{% endfor %}
+	</div>
+	</div>
+	</div>
+	<!-- 此处是为了让design.js能够获取查看的主题的所有场景信息和组件信息而设的隐藏dom -->
+	<div style="display:none" id="theme_scences">
+		<ul>
+		{% for rla in theme_scene_rla.all|dictsort:"m_order" %}
+			<li data-id="{{rla.m_scn.pk}}" data-layout="{{rla.m_scn.m_layout}}" data-src="{{rla.m_scn.m_snapshot}}">
+			<div class="scence_wigets">
+				<ul id="scId_{{rla.m_scn.id}}">
+					{% for sc_wi_ral in rla.m_scn.s2r_set.all %}
+						<li data-id="{{sc_wi_ral.m_wi.pk}}" data-snapshot="{{sc_wi_ral.m_wi.m_snapshot}}" data-stamp="{{sc_wi_ral.m_stamp}}"></li>
+					{% endfor %}
+				</ul>
+			</div>
+			</li>
+		{% endfor %}
+		</ul>
+	</div>
+	</div>
+</body>
+<style>
+.scene-item{
+	margin: 0px 35px 25px 0;
+	background: white;
+	box-shadow: 1px 1px 18px #292929;
+	border: 1px solid #ddd;
+	overflow: hidden;
+	margin-left: 40px;
+}
+.slide {
+background: white;
+height: 640px;
+}
+#box{
+height: auto;
+}
+</style>
+<script>
+window.onload = function(){
+	/* requirejs(['theme/list_view'], function(xx,xxx){
+		$(".loading").hide();
+	}) */
+}
+</script>

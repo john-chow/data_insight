@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+import psycopg2 as pysql
+import datetime, time, random, sys, os, traceback
 
 from django.http import HttpResponse
 from django.utils import simplejson as json
-import psycopg2 as pysql
-import datetime
-import random
+
+from common.log import logger
+import common.protocol as Protocol
+
 import pdb
 
 def MyHttpJsonResponse(data):
@@ -85,6 +88,99 @@ def whichEncoding(s):
         except UnicodeEncodeError:
             pass
     return 'unknown' 
+
+
+def logExcInfo():
+    """
+    打印异常信息
+    """
+    traceback_template = '''
+    Traceback: File({file}), Line({line}), Name({name}), Type({type}),
+    Message: {msg}
+    '''
+
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    traceback_details = {
+        'file'      : exc_traceback.tb_frame.f_code.co_filename,
+        'line'      : exc_traceback.tb_lineno,
+        'name'      : exc_traceback.tb_frame.f_code.co_name,
+        'type'      : exc_type.__name__,
+        'msg'       : exc_value.message, 
+    }
+
+    traceback.print_exc()
+    logger.error(traceback_template.format(**traceback_details))
+
+
+def strfDataAfterFetchDb(data_from_db):
+    """
+    对查询数据库结果进行字符串化，方便进行Http传输
+    """
+
+    # fetchone后的结果
+    if isinstance(data_from_db, tuple):
+        data = [x.strftime(Protocol.DatetimeFormat) \
+                            if isinstance(x, datetime.datetime) \
+                            else x \
+                            for x in data_from_db]
+        return data
+    
+    # fetchall或者fetchmany后的结果
+    elif isinstance(data_from_db, list):
+        zip_data_list = zip(*data_from_db) 
+        for idx, data_tuple in enumerate(zip_data_list):
+            try:
+                json.dumps(data_tuple)
+            except Exception, e:
+                str_data_tuple = map( \
+                    lambda x: x.strftime(Protocol.DatetimeFormat) \
+                    , data_tuple \
+                )
+                zip_data_list.pop(idx)
+                zip_data_list.insert(idx, str_data_tuple)
+        return zip(*zip_data_list)
+    
+    else:
+        return None
+
+
+def strfDataList(data_list):
+    pass
+
+
+def calcStrFormula(left, operator, right):
+    """
+    计算用字符串表示的计算式的结果
+    """
+    try:
+        left = str(left)
+    except ValueError, e:
+        return None
+
+    if operator in ['le', '<=']:
+        fomula = left + '<=' + right
+    elif operator in ['lt', '<']:
+        fomula = left + '<' + right
+    elif operator in ['ge', '>=']:
+        fomula = left + '>=' + right
+    elif operator in ['gt', '>']:
+        formula = left + '>' + right
+    elif operator in ['eq', '==']:
+        formula = left + '==' + right
+    elif operator in ['bw', '<>']:
+        formula = right[0] + '<' + left + '<' + right
+    else:
+        return None
+
+    return eval(formula)
+
+
+def isSublist(a, b):
+    for i in a:
+        if i not in b:
+            return False
+
+    return True
 
 
 def findBiggestInteger(l):
