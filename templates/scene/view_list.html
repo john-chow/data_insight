@@ -6,6 +6,7 @@
 	<meta charset='utf-8'>
 	<title>DataInsight</title>
 	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/view.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/scene/view.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.css' %}">
 </head>
@@ -14,8 +15,36 @@
 	<div id="header" class="row navbar navbar-default ">
 		<div class="col-md-10 col-xs-12 col-md-offset-1">
 			<div class="text-center">
-				<span class="menu-home">DataInsight</span>
+				<span class="menu-home">场景列表</span>
 			</div>
+		</div>
+	</div>
+	<div id="necker" class="clearfix">
+		<div class="row">
+		<div class="col-md-10 col-xs-12 col-md-offset-1 ">
+			<div class="show-pattern btn-group">
+				<div class="btn-group" data-toggle="buttons">
+					  <label class="btn active" id="scene_sort_drop">
+					    <input type="radio" name="scene_input_sort" >时间降序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-down"></span>
+					  </label>
+					  <label class="btn" id="scene_sort_rise">
+					    <input type="radio" name="scene_input_sort" >时间升序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>
+					  </label>
+				</div>
+			 	<!-- <a href="/viewList?pattern=1" class="btn btn-md active"><i class="glyphicon glyphicon-th"></i>&nbsp;&nbsp;普通模式</a>
+			 	<a href="/viewList?pattern=1" class="btn btn-md"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;&nbsp;列表模式</a> -->
+			</div>
+			<div class="pull-right search-form">
+			    <div class="" style="width: 365px;">
+			    <div class="input-group">
+			        <input type="text" id="scene_input_search" value="{{search}}" name="search" placeholder="请输入搜索内容" class="form-control"/>
+			        <div class="input-group-btn">
+			          <button id="scene_button_search" type="button" class="btn btn-primary">查找&nbsp;<span class="glyphicon glyphicon-search"></span></button>
+			        </div><!-- /btn-group -->
+			    </div>
+			    </div>
+			 </div>
+		</div>
 		</div>
 	</div>
 	<!--menu end-->
@@ -26,30 +55,6 @@
 		<div id="content">
 			<div class="row">
 		  		<div class="col-md-10 col-xs-12 col-md-offset-1 list-scene-items">
-				    <!--搜索栏 begin-->
-				    <div class="toolbar clearfix">
-					<div class="pull-left">
-						<div class="btn-group" data-toggle="buttons">
-							  <label class="btn btn-default active" id="scene_sort_drop">
-							    <input type="radio" name="scene_input_sort" >时间降序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-down"></span>
-							  </label>
-							  <label class="btn btn-default" id="scene_sort_rise">
-							    <input type="radio" name="scene_input_sort" >时间升序&nbsp;&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>
-							  </label>
-							</div>
-						</div>
-						<div class="pull-right">
-						    <div class="" style="width: 365px;">
-						    <div class="input-group">
-						        <input type="text" id="scene_input_search" value="{{search}}" name="search" placeholder="请输入搜索内容" class="form-control"/>
-						        <div class="input-group-btn">
-						          <button id="scene_button_search" type="button" class="btn btn-primary">查找&nbsp;<span class="glyphicon glyphicon-search"></span></button>
-						        </div><!-- /btn-group -->
-						    </div>
-						    </div>
-						 </div>
-					</div>
-				    <!--搜索栏 end-->
 				    <!--内容 begin-->
 				    <div class="row">
 				    {% for scence in sceneList %}
@@ -80,7 +85,7 @@
 	</div>
 	<!--section end-->
 	<!-- 搜索表单 begin -->
-	<form id="view_list_get_form" action="/scene/viewList/">
+	<form id="view_list_get_form" action="/scene/viewlist/">
 	    <input type="hidden" id="view_list_get_search" name="search" value="{{search}}" />
 	    <input type="hidden" id="view_list_get_sort" name="sort" value="{{sort}}" />
 	    <input type="hidden" id="view_list_get_page" name="page" value="{{page}}" />

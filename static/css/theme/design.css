@@ -183,8 +183,8 @@ overflow: auto;
 background: #eee;
 padding: 5px 10px;
 border: 1px solid #bbb;
+z-index: 9999;
 }
-
 /*这里开始*/
 .content-left table tr{
     vertical-align: top;

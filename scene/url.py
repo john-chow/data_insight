@@ -18,5 +18,6 @@ urlpatterns = patterns('',
 	url(r'^batch/delete/$',		views.batachOp, {'op': 'delete'} ),
     
     url(r'^view/(\d+)/$',       views.sceneView, name='view'),
-    url(r'^viewList/$',          views.sceneList, {'template_name': 'scene/view_list.html'}),
+    url(r'^viewlist/$',          views.sceneList, {'template_name': 'scene/view_list.html'}),
+    url(r'^viewbiglist/$',          views.sceneList, {'template_name': 'scene/view_list.html'}),
 )

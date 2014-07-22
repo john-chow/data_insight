@@ -220,7 +220,7 @@ def batachOp(request, op):
 def sceneView(request, id):
     scence = SceneModel.objects.get(pk = id)
     dict = {
-        u'scence' : scence    
+        u'scene' : scence    
     }
     context = RequestContext(request)
     return render_to_response('scene/view.html', dict, context)

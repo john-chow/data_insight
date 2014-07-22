@@ -231,17 +231,17 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 
 .element-list-div{
 	margin-bottom: 20px;
-width: 503px;
-float: left;
+/* width: 503px;
+float: left; */
 margin-right: 70px;
 border: 2px solid #bbb;
 }
 
-.element-list-div .heading{
+/* .element-list-div .heading{
 background: #27A9E3;
 color: white;
 padding: 4px;
-}
+} */
 .element-list-div .heading span{
 font-size: 15px;
 padding-left: 4px;
@@ -302,7 +302,7 @@ letter-spacing: 5px;
 .js-mod-scene-top,
 .js-mod-theme-top {
 	position: absolute;
-	top: 1px;
+	top: 2px;
 	right: 1px;
 }
 

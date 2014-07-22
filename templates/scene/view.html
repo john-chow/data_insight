@@ -3,18 +3,25 @@
 <!DOCTYPE html>
 <head>
 	<meta charset='utf-8'>
-	<title>DataInsight</title>
+	<title>场景</title>
+	{% include 'head.html' %}
 	<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.gridster.css' %}">
-    {% include 'head.html' %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/scene/view.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/view.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/scene/view.css' %}">
 </head>
 <body>
-	<!--LOGO begin-->
-	<div id="header">DataInsight</div>
-	<!--LOGO end-->
+	<!-- <div id="header" class="row navbar navbar-default ">
+		<div class="col-md-10 col-xs-12 col-md-offset-1">
+			<div class="text-center">
+				<span class="menu-home">{{scene.m_name}}场景</span>
+			</div>
+			
+		</div>
+	</div> -->
 	<div class="row">
+		<h1 style="text-align:center">{{scene.m_name}}</h1>
 		<div class="col-md-1"></div>
-		<div id="scenceView" class="col-md-10 col-xs-12" data-layout="{{scence.m_layout}}">
+		<div id="scenceView" class="col-md-10 col-xs-12" data-layout="{{scene.m_layout}}">
 		<div class="loading" style="left: 48%;top: 41%;position: absolute;"></div>
 		<div class="gridster">
 			<ul>
@@ -25,7 +32,7 @@
 	</div>
 	<!--隐藏元素，以便view.js获取该场景下组件的信息-->
 	<ul style="display:none" id="scenceWidget">
-		{% for ral in scence.s2r_set.all %}
+		{% for ral in scene.s2r_set.all %}
 			<li data-id="{{ral.m_wi.pk}}" data-stamp="{{ral.m_stamp}}"></li>
 		{% endfor %}
 	</ul>

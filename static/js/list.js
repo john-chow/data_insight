@@ -564,7 +564,9 @@ $(function(){
 
 	//主题List中主题右上角按钮单击事件
 	$(".js-mod-theme-ico").on('click', function(ev) {
-	    $(ev.target).parent().siblings(".js-mod-theme-con").slideToggle('fast');
+		stopPropagation(ev);
+	    $(ev.target).parent().next(".js-mod-theme-con").slideToggle('fast');
+	    console.log("show")
 	}); 
 
 	//主题List中，鼠标移开时隐藏

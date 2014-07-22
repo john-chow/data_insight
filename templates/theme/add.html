@@ -1,4 +1,5 @@
 {% load static %}
+{% load myfilter %}
 
 <!DOCTYPE html>
 <head>
@@ -54,7 +55,7 @@
 								    <div class="panel-heading">场景</div>
 								    <ul id="theme_list">
 								    	{% for scene in allowed_scenes %}
-							            <li class="theme-item"  title="{{ scene.m_name }}"><img data-id='{{ scene.pk }}' data-name="{{ scene.m_name }}" width="30" height="30" src="{{scene.m_snapshot}}"/>{{ scene.m_name }}</li>
+							            <li class="theme-item" id="sceneId_{{scene.pk}}"  title="{{ scene.m_name }}"><img data-id='{{ scene.pk }}' data-name="{{ scene.m_name }}" width="30" height="30" src="{{scene.m_snapshot}}"/>{{ scene.m_name }}</li>
 							            {% endfor %}
 								    </ul>
 								</div>
@@ -67,7 +68,7 @@
 								    </ol>
 								</div>
 		  					</td></tr>
-		  					<tr height="25%"><td>
+		  					<!-- <tr height="25%"><td>
 		  						<div style="height:100%" id="choosed_layout" class="panel panel-default">
 								    <div id="switch_effect" class="panel-heading">播放效果</div>
 								    	 <ul id="effect-list">
@@ -75,18 +76,43 @@
 								          <li id="scrollHorz3d" class="current"><a href="#" class="effect" data-id="1" data-fx="scrollHorz3d">Horizontal 3D scroll</a></li>
 								          <li id="scrollVert" ><a href="#" class="effect" data-id="2" data-fx="scrollVert">Vertical scroll</a></li>
 								          <li id="scrollHorz"><a href="#" class="effect" data-id="3" data-fx="scrollHorz">Horizontal scroll</a></li>
-								          <!-- <li><a href="#" class="effect" data-id="4" data-fx="blindLeft">Blind left</a></li>
-								          <li><a href="#" class="effect" data-id="6" data-fx="blindDown">Blind down</a></li> -->
+								          <li><a href="#" class="effect" data-id="4" data-fx="blindLeft">Blind left</a></li>
+								          <li><a href="#" class="effect" data-id="6" data-fx="blindDown">Blind down</a></li>
 								          <li><a href="#" class="effect" data-id="7" data-fx="fade">Fade</a></li>
 			       					 </ul>
 								</div>
-		  					</td></tr>
+		  					</td></tr> -->
 		  					<tr><td>
 		  						<div class="panel panel-default">	
 		  							<div class="panel-heading">主题属性</div>
-		  							<div style="margin-top:5px;margin-left: 20px">名字:<input name="m_name" id="theme_id" type="text" value="主题"/></div>
+		  							<div style="margin-top:5px;margin-left: 20px;padding-right: 5px;">
+		  								<p><label>名字:</label><span id="name">{{theme.m_name}}</span></p>
+		  								<p><label>描述:</label><span id="description">{{theme.description|truncatehanzi:"60"}}</span></p>
+		  								<button type="button" data-toggle="modal" data-target="#settingModal"  class="btn btn-default pull-right">编辑</button>
+		  							</div>
 		  						</div>
 		  					</td></tr>
+		  					<tr>
+								<!-- 编辑主题属性的Modal -->
+								<div class="modal fade" id="settingModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+								  <div class="modal-dialog modal-md">
+								    <div class="modal-content">
+								      <div class="modal-header">
+								        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+								        <h4 class="modal-title" id="myModalLabel">主题设置</h4>
+								      </div>
+								      <div class="modal-body">
+									  	<p>名字:<input style="width: 372px" name="m_name" id="theme_name" type="text" value="{{theme.m_name}}"/></p>
+		  								<p>描述:<textarea id="theme_description" name="description" cols="50" rows="6" >{{theme.description}}</textarea></p>
+									  </div>
+								      <div class="modal-footer">
+								        <button type="button" onclick="commitSetting()" class="btn btn-md btn-primary" data-dismiss="modal">确&nbsp;&nbsp;定</button>
+								        <button type="button" class="btn btn-md btn-default" data-dismiss="modal">取&nbsp;&nbsp;消</button>
+								      </div>
+								    </div>
+								  </div>
+								</div>
+		  					</tr>
 		  				</tbody>
 		  			</table>
 		  			
@@ -97,25 +123,29 @@
 		  		<div id="scene_design_right" class="content-right col-md-10 col-lg-10">
 		  			<div class="alert theme-scence-count" data-id="{{theme.pk}}">
 		  				已添加<span data-count="{{theme.m_scenes.all|length}}" id="scenceCount">{{theme.m_scenes.all|length}}</span>个场景
-		  				,当前播放效果为<span id="playStyle">{% if theme%}{{theme.m_switch_effect}}{% else %}scrollVert3d{% endif%}</span>
 		  			</div>
 		  			<div class="show-msg alert-success" style="font-weight: bold;">保存成功</div>
 		  			<div class="toolbar">
-					    <button id="save_scene" {% if not theme.m_scenes.all%}disabled="disabled"{% endif%} type="button" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-floppy-save"></span>&nbsp;保存</button>
-					    <button id="prev" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-chevron-left"></span>&nbsp;上一张</button>
-					    <button id="play" {% if not theme.m_scenes.all%}disabled="disabled"{% endif%} data-fx="{{theme.m_switch_effect}}" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-play"></span>&nbsp;播放</button>
-					    <button id="pause" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-pause"></span>&nbsp;暂停</button>
-				   		<button id="stop" disabled="disabled" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-stop"></span>&nbsp;停止</button>
-				   		<button id="next" disabled="disabled" class="btn btn-sm btn-default">下一张&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></button>
+				    <div class="btn-group btn-group-md">
+				    	<button id="prev" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-chevron-left"></span>&nbsp;上一张</button>
+				    	<button id="next" class="btn btn-sm btn-default">下一张&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></button>
+				    </div>
+				    <div class="btn-group btn-group-md">
+				    	 <button id="save_scene" {% if not theme.m_scenes.all%}disabled="disabled"{% endif%} type="button" class="btn btn-sm btn-default">
+					    	<span class="glyphicon glyphicon-floppy-save"></span>&nbsp;保&nbsp;存
+					    </button>
+					    <button id="refresh" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-refresh"></span>&nbsp;重置</button>
+				    </div>
 				    </div>
 				     <!-- 进度条 -->
-					<div id="time-indicator"></div>
 				    <div class="slider-viewport">
 				    <div id="viewport">
 						<div id="draw_theme" class="">
 							{% for ral in t2s_ral.all %}
 							<figure data-id="{{ral.m_scn.pk}}" data-src="{{ral.m_scn.m_snapshot}}" data-name="{{ral.m_scn.m_name}}" class='slide' id='s_{{ral.m_scn.pk}}'>
-							<h5 class='scence-title'> {{ral.m_scn.m_name}}</h5><img src='{{ral.m_scn.m_snapshot}}'></figure>
+							<!-- <h5 class='scence-title'> {{ral.m_scn.m_name}}</h5> -->
+								<img width="1000" height="600" src='{{ral.m_scn.m_snapshot}}'>
+							</figure>
 							{% endfor %}
 						</div>
 					</div>
@@ -138,119 +168,51 @@
 <script src="{% static 'js/showmsg.js' %}"></script>
 
 <script>
-
+function commitSetting(){
+	$("#name").text($("#theme_name").val());
+	$("#description").text($("#theme_description").val());
+}
 window.onload = function(){
-	requirejs(['jqueryUi','themeDesign'], function(Jqueryui,design){
-   			 var $box = $('#draw_theme')
+	requirejs(['jqueryUi','themeDesign', 'toolbar-flexible'], function(Jqueryui,design){
+		$(".toolbar").toolbar({
+			bottom: "5%",
+			right: "10%",
+			position: "fixed"
+		});
+		
+		var $box = $('#draw_theme')
 	          , $effects = $('.effect')
-	          , $timeIndicator = $('#time-indicator')
 	          , slideInterval = 5000;
-	          var switchIndicator = function ($c, $n, currIndex, nextIndex) {
-		          $timeIndicator.stop().css('width', 0);
-		       };
-
-		        var startTimeIndicator = function () {
-		        	var leftTime = slideInterval;
-		        	if($timeIndicator.width() > 0){
-		        		leftTime = ($("#scene_design_right").width() - $timeIndicator.width()) / $("#scene_design_right").width() * slideInterval;
-		        	}
-		          	$timeIndicator.animate({width: '100%'}, leftTime, function(){
-		          		if($box.data("fx"))
-		          			$("#next").click();
-		          });
-		        };
 		        
-		        var pauseTimeIndicator = function(){
-		        	$timeIndicator.stop();
-		        }
-		        
-		        var stopTimeIndicator = function(){
-		        	$timeIndicator.stop().css('width', 0);
-		        }
-		        
-	        $("#play").click(function(){
-	        	$(this).attr("disabled", "disabled");
-	        	$("#pause").removeAttr("disabled");
-	        	$("#stop").removeAttr("disabled");
-	        	$("#next").removeAttr("disabled");
-	        	$("#prev").removeAttr("disabled");
-		    	var fx = $(this).data("fx") == ""? "scrollHorz3d" : $(this).data("fx");
-		    	if(!$box.data("fx")){
-		    		$box.boxSlider({
-			            speed: 1000
-			          , autoScroll: true
-			          , timeout: slideInterval
-			          , next: '#next'
-			          , prev: '#prev'
-			          //, pause: '#pause'
-			          , effect: fx
-			          , blindCount: 15
-			          , onbefore: switchIndicator
-			          , onafter: startTimeIndicator
-			        });
-			        $box.data("fx", fx);
-		    	}else{
-		    		//$box.boxSlider('playPause');
-		    	}
-		    	 startTimeIndicator();
-		    });
+		        $box.boxSlider({
+		            speed: 1000
+		          , autoScroll: false
+		          , timeout: slideInterval
+		          , next: '#next'
+		          , prev: '#prev'
+		          //, pause: '#pause'
+		          , effect: "scrollVert"
+		          , blindCount: 15
+		        });
 		    
-		     $('#effect-list').on('click', '.effect', function (ev) {
-		     	$("#play").attr("disabled", "disabled");
-	        	$("#pause").removeAttr("disabled");
-	        	$("#stop").removeAttr("disabled");
-	        	$("#next").removeAttr("disabled");
-	        	$("#prev").removeAttr("disabled");
-		          var $effect = $(this);
-		          var fx = $(this).data("fx");
-		          if(!$box.data("fx")){
-		    		$box.boxSlider({
-			            speed: 1000
-			          , autoScroll: true
-			          , timeout: slideInterval
-			          , next: '#next'
-			          , prev: '#prev'
-			          //, pause: '#pause'
-			          , effect: fx
-			          , blindCount: 15
-			          , onbefore: switchIndicator
-			          , onafter: startTimeIndicator
-			        });
-			        $box.data("fx", fx);
-		    	}else{
-		    		$box.boxSlider('option', 'effect', fx);
-		    	}
-		          $("#playStyle").html($effect.data('fx'));
-		          $("#effect-list li.current").removeClass("current");
-		          $effect.parent().addClass("current");
-		          switchIndicator(null, null, 0, 0);
-		          startTimeIndicator();
-		          //ev.preventDefault();
-	        });
-	        
-	        $("#pause").on("click", function(){
-	        	$("#play").removeAttr("disabled");
-	        	$("#pause").attr("disabled", "disabled");
-	        	pauseTimeIndicator();
-	        	$box.boxSlider('playPause');
-	        });
-	        
+		    $("#refresh").click(function(){
+		    	$box.boxSlider({
+		            speed: 1000
+		          , autoScroll: false
+		          , timeout: slideInterval
+		          , next: '#next'
+		          , prev: '#prev'
+		          //, pause: '#pause'
+		          , effect: "scrollVert"
+		          , blindCount: 15
+		        });
+		    })
+		    
 	        $("#prev,#next").on("click", function(){
 	        	$("#pause").removeAttr("disabled");
 	        	$("#play").attr("disabled", "disabled");
 	        });
 	        
-	        $("#stop").click(function(){
-	        	$box.boxSlider('destroy');
-	        	$box.data("fx", "");
-	        	stopTimeIndicator();
-	        	$("#play").removeAttr("disabled");
-	        	$(this).attr("disabled","disabled");
-	        	$("#next").attr("disabled","disabled");
-	        	$("#prev").attr("disabled","disabled");
-	        	$("#pause").attr("disabled","disabled");
-	        })
-
 	        if("{{theme.m_switch_effect}}"){
 	        	$(".current").removeClass("current");
 	        	$("#{{theme.m_switch_effect}}").addClass("current");

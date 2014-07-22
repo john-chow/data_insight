@@ -1,5 +1,7 @@
 {% extends "base/list.html" %}
 {% load pagination_tags %}
+{% load myfilter %}
+{% load static %}
 
 {# 导航栏 #}
 {% block menu %}
@@ -35,11 +37,11 @@
 
 {# 右栏目 #}
 {% block contentRight %}
-{% autopaginate themeList 10 %}
+{% autopaginate themeList 9 %}
 <div class="content-menu clearfix">
 	<div class="content-menu-title">批量操作</div>
 	<div class="content-menu-count">已选择&nbsp;<span>0</span>&nbsp;个主题</div>
-    <div id="widget_count">共&nbsp;<span>{{allCount}}</span>&nbsp;个主题，本页有&nbsp;<span>{{widgetList|length}}</span>&nbsp;个</div>
+    <div id="widget_count">共&nbsp;<span>{{allCount}}</span>&nbsp;个主题，本页有&nbsp;<span>{{themeList|length}}</span>&nbsp;个</div>
 </div>
 <div class="toolbar">
 		<input type="checkbox" id="batch_theme_all"/>全选
@@ -54,7 +56,7 @@
 	    </button>
 		</div>
 		
-	    <button type="button" id="batch_theme_back" class="btn pull-right">
+	    <button type="button" id="batch_theme_back" class="btn btn-default btn-sm pull-right">
 	    	返回&nbsp;<span class="glyphicon glyphicon-log-out"></span>
 	    </button>
 </div>
@@ -78,30 +80,37 @@
 
 </div> -->
 <div class="tab-pane fade active in element-list clearfix" id="batch_theme_list">
-	{% for theme in themeList %}
-	  <!--   <div class="element-list-div" data-id="{{theme.pk}}" style="{% if theme.m_is_distributed %}background-color: #F3B9B9;{% endif %}">
-	    	<div class="element-list-theme" style="cursor:default;">
-	    		<label class="batch-list-check"><i class="icon-check"></i></label>
-	    		<a href="#" style="cursor:default;">
-	    			<img src="{{theme.m_pic}}" width="130px" height="130px" />
-	    		</a>
-	    	</div>
-	    	<span>{{ theme.m_name }}</span>
-	    </div> -->
-	    <div class="element-list-div" data-id="{{theme.id}}">
-			<div class="heading">
-			<i class="icon-check"></i>
-			<span>{{ theme.m_name }}</span>
-			<span class="pull-right glyphicon {% if theme.m_is_distributed %}glyphicon-folder-open{%else%}glyphicon-folder-close{% endif %}"></span>
+	<div class="row">
+	    {% for theme in themeList %}
+    	<div class="col-md-4 col-xs-12">
+	    	<div class="view-list-theme element-list-div element-list-theme" style="padding:0" data-id="{{theme.pk}}">
+	    	<i class="icon-check pull-left"></i>
+	    		<div class="heading">
+					<h4>{{ theme.m_name}}</h4>
+				</div>
+				<div class="description" data-toggle="tooltip" title="{{theme.description}}">
+					&nbsp;&nbsp;{{theme.description| truncatehanzi:"60"}}
+				</div>
+	    		<!-- {{theme.m_scenes.all.0.m_snapshot}} -->
+				<ul class="scene-list clearfix">
+						{% for sc in theme.t2r_set.all|slice:":2" %}
+						<li class="scene-item" data-id="{{sc.m_scn.pk}}">
+							<img width="130px" height="80px" src="{{sc.m_scn.m_snapshot}}" />
+						</li>
+						{% endfor %}
+				</ul>
 			</div>
-		<div><img width="480" height="227" src="{{theme.m_scenes.all.0.m_snapshot}}"/></div>
 		</div>
-	{% endfor %}
+		{% empty %}
+		没有符合条件的主题
+		{% endfor %}
+	    </div>
 </div>
 {% paginate %}
 {% endblock %}
 
 {% block extraContent %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/theme/view.css' %}">
 <!-- 提交表单 begin -->
 <form id="theme_batch_form" method="post">
 	{% csrf_token %}
