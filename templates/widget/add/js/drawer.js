@@ -69,6 +69,9 @@ define([
 				case "radar":	
 					this.now_drawer = new RadarDrawer();
 					break;
+                case "table":
+                    this.now_drawer = new TableDrawer();
+                    break;
 				default:
 					easy_dialog_error('xxxxxxxxxxxx');
 					return
@@ -367,8 +370,7 @@ define([
             }
 
             self.ec.addData(dataList)
-        };
-
+        }
 	};
 
 
@@ -548,6 +550,109 @@ define([
 	};
 
 
+    var TableDrawer     =   function() {
+        this.rowList = [];
+        this.columnList = [];
+        this.rowNum = 0;
+        this.columnNum = 0;
+
+		this.work = function(resp) {
+			this.fillRowColumn(resp.data);
+			TableDrawer.prototype.work.call(this, resp);
+		};
+
+        this.fillSeries     =       function(data) {
+            var self = this;
+
+            var rowPosList = $.map(data["belong_row"], function(i) {
+                return self.estRowPos(i)
+            });
+            var columnPosList = $.map(data["belong_column"], function(i) {
+                return self.estColumnPos(i)
+            });
+
+            for(var k in data) {
+                if(k !== "row" && k !== "belong_row" 
+                                && k != "column" && k != "belong_column") {
+
+                    var unitData = [];
+                    for (var i = 0; i < self.columnNum * self.rowNum; i++) {    
+                        unitData.push('')
+                    }
+
+                    $.each(data[k], function(i, val) {
+                        var rowPos      = rowPosList[i];
+                        var columnPos   = columnPosList[i];
+                        var pos = rowPos * self.columnNum + columnPos;
+                        unitData[pos] = val
+                    })
+
+                    var unitSeries = {
+                        "name":             k        
+                        , "type":           "table"
+                        , "data":           unitData 
+                    };
+                    self.optionCloned.series.push(unitSeries)
+                }
+            }
+        };
+
+        this.fillRowColumn  =       function(data) {
+            this.optionCloned["row"] = data["row"];
+            this.optionCloned["column"] = data["column"]
+
+            this.calcRowNum(data["row"]);
+            this.calcColumnNum(data["column"]);
+        };
+
+        this.calcRowNum     =       function(obj) {
+            for (var k in obj) {
+                this.rowList.push(obj[k]);
+                if (0 == this.rowNum)   
+                    this.rowNum = obj[k].length
+                else            
+                    this.rowNum *= obj[k].length            
+            }
+        };
+
+        this.calcColumnNum  =       function(obj) {
+            for (var k in obj) {
+                this.columnList.push(obj[k]);
+                if (0 == this.columnNum)   
+                    this.columnNum = obj[k].length
+                else            
+                    this.columnNum *= obj[k].length            
+            }
+        };
+
+        this.estRowPos      =       function(rowClasses) {
+            var len = rowClasses.length;
+            var nextLoopLen = 1;
+            var pos = 0;
+            for (var i = len - 1; i >= 0; i--) {
+                var theRowKindsList = this.rowList[i];
+                var idx = theRowKindsList.indexOf(rowClasses[i]);
+                pos = idx * nextLoopLen + pos;
+                nextLoopLen = theRowKindsList.length
+            }
+            return pos
+        };
+
+        this.estColumnPos   =       function(colClasses) {
+            var len = colClasses.length;
+            var nextLoopLen = 1;
+            var pos = 0;
+            for (var i = len - 1; i >= 0; i--) {
+                var theColumnKindsList = this.columnList[i];
+                var idx = theColumnKindsList.indexOf(colClasses[i]);
+                pos = idx * nextLoopLen + pos;
+                nextLoopLen = theColumnKindsList.length
+            }
+            return pos
+        }          
+    };
+
+
 	var MapDrawer = function() {
 		this.seriesOne = {
             name: '全国'
@@ -628,6 +733,7 @@ define([
 	RadarDrawer.prototype 	= baseDrawer;
 	MapDrawer.prototype 	= baseDrawer;
 	ScatterDrawer.prototype = baseDrawer;
+    TableDrawer.prototype   = baseDrawer;
 	var axisDrawer = new AxisDrawer();
 	BarDrawer.prototype		= axisDrawer;
 	LineDrawer.prototype	= axisDrawer;

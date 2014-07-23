@@ -142,6 +142,44 @@ class Area(Bar_Line_Base):
         self.type = u'area'
 
 
+class Table(EChart):
+    def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
+        if len(group_factor_list) > 0:
+            raise Exception(u'xxxxxxxxxxxx')
+        if len(msu_factor_list) != 1:
+            raise Exception(u'xxxxxxxxxxx')
+
+        row_dict, column_dict = {}, {}
+        msu_len = len(msu_factor_list)
+        msn_row_len = len([f for f in msn_factor_list if 'row' == f.getProperty('axis')])
+        msn_column_len = len(msn_factor_list) - msn_row_len
+
+        for i, factor in enumerate(msn_factor_list):
+            classes_list = list(set([d[msu_len + i] for d in data_from_db]))
+            tmp_dict = row_dict if 'row' == factor.getProperty('axis') \
+                                else column_dict
+            tmp_dict[factor.getProperty(Protocol.Attr)] = classes_list
+
+        val_list_list, belong_row_list, belong_column_list = [], [], []
+        for one in data_from_db:
+            val_list, belong_row, belong_column = \
+                    one[:msu_len], one[msu_len:msu_len+msn_row_len], \
+                    one[msu_len+msn_row_len:]
+            belong_row_list.append(belong_row)
+            belong_column_list.append(belong_column)
+            val_list_list.append(list(val_list))
+
+        data_list = zip(*val_list_list)
+        msu_attr_list = map(lambda factor: factor.getProperty(Protocol.Attr), \
+                                                                msu_factor_list)
+        data_dict = dict(zip(msu_attr_list, data_list))
+        data_dict['belong_row']  = belong_row_list
+        data_dict['belong_column']  = belong_column_list
+        data_dict['row']    = row_dict
+        data_dict['column'] = column_dict
+
+        return data_dict
+            
 
 class Scatter(EChart):
     def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
@@ -320,7 +358,10 @@ class EChartManager():
         pass
 
     def get_echart(self, shape=u'bar'):
-        if u'bar' == shape: 
+        if u'table' == shape: 
+            return Table()
+
+        elif u'bar' == shape: 
             return Bar()
 
         elif u's_bar' == shape:

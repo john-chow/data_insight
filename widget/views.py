@@ -518,6 +518,9 @@ def classifyFactors(req_data):
                                 if 'rgl' != axis_factor.getProperty('cmd') \
                                     and 0 == axis_factor.getProperty('kind')]
 
+    # msn_factor按照先行再列，且依照轴上的顺序进行排序
+    msn_factor_list.sort(key = lambda x: x.getProperty('axis'), reverse = True)
+
     return {
         'msn':      msn_factor_list
         , 'msu':    msu_factor_list
