@@ -469,13 +469,13 @@ def extractFactor(req_data):
 
     # 获取轴上属性Factor对象
     axis_factor_list = []
-    for idx, col_element in enumerate(col_kind_attr_list + row_kind_attr_list):
+    for idx, col_element in enumerate(row_kind_attr_list + col_kind_attr_list):
         element_dict = {key:col_element[key] for key in EXPRESS_FACTOR_KEYS_TUPLE}
         factor = ElementFactor(**element_dict)
-        if idx < len(col_kind_attr_list):
-            factor.setBelongToAxis('col')
-        else:
+        if idx < len(row_kind_attr_list):
             factor.setBelongToAxis('row')
+        else:
+            factor.setBelongToAxis('col')
 
         axis_factor_list.append(factor)
 
@@ -517,9 +517,6 @@ def classifyFactors(req_data):
     msu_factor_list = [axis_factor for axis_factor in axis_factor_list \
                                 if 'rgl' != axis_factor.getProperty('cmd') \
                                     and 0 == axis_factor.getProperty('kind')]
-
-    # msn_factor按照先行再列，且依照轴上的顺序进行排序
-    msn_factor_list.sort(key = lambda x: x.getProperty('axis'), reverse = True)
 
     return {
         'msn':      msn_factor_list
