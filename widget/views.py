@@ -18,7 +18,7 @@ from widget.models import WidgetModel, ExternalDbModel
 from widget.echart import EChartManager
 from widget.factor import ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE
 from connect.sqltool import stRestore, SqlObjReader
-from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb
+from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb, cleanDataFromDb
 import common.protocol as Protocol
 from common.log import logger
 
@@ -430,7 +430,8 @@ def genWidgetImageData(req_data, hk):
     # 获取画出图形所必须相关数据
     factors_lists_dict = classifyFactors(req_data)
     sql_obj         = transReqDataToSqlObj(req_data, st)
-    data_from_db    = st.conn.execute(sql_obj).fetchall()
+    result          = st.conn.execute(sql_obj).fetchall()
+    data_from_db    = cleanDataFromDb(result)
     strf_data_from_db = strfDataAfterFetchDb(data_from_db)
     echart_data     = formatData(strf_data_from_db, factors_lists_dict['msu'], \
                                     factors_lists_dict['msn'], factors_lists_dict['group'], \
