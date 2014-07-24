@@ -22909,10 +22909,6 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
                 magicOption.dataZoom = magicOption.dataZoom || {};
             }
 
-            if (magicOption.row || magicOption.column) {
-                magicOption.grid = magicOption.grid || {};
-            }
-            
             var componentList = [
                 'title', 'legend', 'tooltip', 'dataRange',
                 'grid', 'dataZoom', 'xAxis', 'yAxis', 'polar'
@@ -22991,9 +22987,7 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
                 }
             }
             
-            //this.component.grid && this.component.grid.refixAxisShape(this.component);
-            (this.component.xAixs || this.component.yAxis) 
-                        && this.component.grid.refixAxisShape(this.component);
+            this.component.grid && this.component.grid.refixAxisShape(this.component);
 
             this._island.refresh(magicOption);
             this._toolbox.refresh(magicOption);
@@ -37388,6 +37382,7 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
     var ecData = require('../util/ecData');
     var zrUtil = require('zrender/tool/util');
     var zrColor = require('zrender/tool/color');
+    var zrArea = require('zrender/tool/area');
 
 
     function HorVfactory(kind, ctx) {
@@ -37436,7 +37431,10 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
         this.buildHeadClassName  =      function(area, layer, i) {
             var classname = this.findHeadClassName(layer, i);
             var center = this.ctx._findCenterInGrid(area);
-            this.ctx._buildText(center.x, center.y, classname)
+            var option = {
+                "textAlign":    "center"
+            };
+            this.ctx._buildText(center.x, center.y, classname, option)
         }
 
     }
@@ -37609,6 +37607,18 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
                 }
             }
 
+            var myLine = new LineShape({
+                style:  {
+                    xStart:         100
+                    , yStart:       100
+                    , xEnd:         200
+                    , yEnd:         200
+                },
+                draggable:      true
+            });
+            this.shapeList.push(myLine)
+
+
             this.addShapeList();
         },
 
@@ -37696,7 +37706,10 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
                             , "yEnd":       startY + (idxRow + 1) * this.unitSize.dataGridHeight
                         };
                         var center = this._findCenterInGrid(area);
-                        this._buildText(center.x, center.y, dataList[count++]) 
+                        var option = {
+                            "textAlign":     "center"
+                        };
+                        this._buildText(center.x, center.y, dataList[count++], option) 
                     }
                 }
             }
@@ -37732,19 +37745,27 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
                 return n
             }
 
+            var padding     =   {
+                "left":           80
+                , "right":        80
+                , "top":          0
+                , "bottom":       60
+            };
+
             this.headRowNum  = Object.keys(this.option.row).length;
             this.headColNum  = Object.keys(this.option.column).length;
             this.dataRowNum  = f(this.option.row);
             this.dataColNum  = f(this.option.column);
             
-
             // 假设默认，行头宽度：数据格子宽度， 列头高度:数据格子高度
             var RowHeadDataRatio = 1;
             var ColHeadDataRatio = 1;
             var allRowUnitNum = this.headRowNum * RowHeadDataRatio + this.dataColNum * 1;
             var allColUnitNum = this.headColNum * ColHeadDataRatio + this.dataRowNum * 1;
-            var unitWidth   = this.component.grid.getWidth() / allRowUnitNum;
-            var unitHeight  = this.component.grid.getHeight() / allColUnitNum;
+            var unitWidth   = (this.zr.getWidth() - padding.left - padding.right) 
+                                                                    / allRowUnitNum;
+            var unitHeight  = (this.zr.getHeight() - padding.top - padding.bottom) 
+                                                                    / allColUnitNum;
 
             // 固定数据格子的长宽比
             var WidthHeightRatio = 2.5;
@@ -37762,10 +37783,10 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
             };
 
             this.border = {
-                x:          this.component.grid.getX()
-                , xEnd:     this.component.grid.getX() + allRowUnitNum * unitWidth
-                , y:        this.component.grid.getY()
-                , yEnd:     this.component.grid.getY() + allColUnitNum * unitHeight
+                x:          padding.left
+                , xEnd:     padding.left + allRowUnitNum * unitWidth
+                , y:        padding.bottom
+                , yEnd:     padding.bottom + allColUnitNum * unitHeight
             }
         },
 

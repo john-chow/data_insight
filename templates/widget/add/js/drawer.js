@@ -145,15 +145,6 @@ define([
 					'saveAsImage' : 	{'show': true}
 				}
 			}
-			, 'dataRange':				{
-				'min': 			0,
-				'max' : 		100,
-				'calculable' : 	true,
-				'color': 		['red','orange','yellow','lightgreen'],
-				'textStyle':{
-					'color':	'#fff'
-				}
-			}
 			, 'series':		[
 			]
 		};
