@@ -7708,6 +7708,7 @@ define(
             // 实体
             for (var i = 0; i <= this._maxZlevel; i++) {
                 canvasElem = createDom(i, 'canvas', this);
+                canvasElem.setAttribute("name", "xxx");            // zhouzhengran
                 domRoot.appendChild(canvasElem);
                 this._domList[i] = canvasElem;
                 vmlCanvasManager && vmlCanvasManager.initElement(canvasElem);
@@ -22959,6 +22960,11 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
                     chartMap[chartType] = true;
                     ChartClass = chartLibrary.get(chartType);
                     if (ChartClass) {
+                        chart = new ChartClass(
+                            this._themeConfig, this._messageCenter, this._zr,
+                            magicOption, this
+                        );
+                        /*
                         if (this.chart[chartType]) {
                             chart = this.chart[chartType];
                             chart.refresh(magicOption);
@@ -22969,6 +22975,7 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
                                 magicOption, this
                             );
                         }
+                        */
                         this._chartList.push(chart);
                         this.chart[chartType] = chart;
                     }
@@ -37585,6 +37592,12 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
     
     Table.prototype = {
         type:   ecConfig.CHART_TYPE_TABLE,
+        padding:        {
+            "left":           80
+            , "right":        80
+            , "top":          60
+            , "bottom":       60
+        },
 
         refresh : function (newOption) {
             if (newOption) {
@@ -37617,7 +37630,6 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
                 draggable:      true
             });
             this.shapeList.push(myLine)
-
 
             this.addShapeList();
         },
@@ -37728,8 +37740,7 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
 
             this.shapeList.push(
                 new TextShape({
-                    "zlevel":       this._zlevelBase + 1
-                    , "hoverable":  false
+                    "hoverable":  false
                     , "style":      textStyle
                 })
             )
@@ -37745,11 +37756,9 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
                 return n
             }
 
-            var padding     =   {
-                "left":           80
-                , "right":        80
-                , "top":          0
-                , "bottom":       60
+            var Grid        =   {
+                "width":            75
+                , "height":         30
             };
 
             this.headRowNum  = Object.keys(this.option.row).length;
@@ -37758,13 +37767,15 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
             this.dataColNum  = f(this.option.column);
             
             // 假设默认，行头宽度：数据格子宽度， 列头高度:数据格子高度
-            var RowHeadDataRatio = 1;
-            var ColHeadDataRatio = 1;
+            var RowHeadDataRatio = 1.5;
+            var ColHeadDataRatio = 1.5;
             var allRowUnitNum = this.headRowNum * RowHeadDataRatio + this.dataColNum * 1;
             var allColUnitNum = this.headColNum * ColHeadDataRatio + this.dataRowNum * 1;
-            var unitWidth   = (this.zr.getWidth() - padding.left - padding.right) 
+
+            /*
+            var unitWidth   = (this.zr.getWidth() - Padding.left - Padding.right) 
                                                                     / allRowUnitNum;
-            var unitHeight  = (this.zr.getHeight() - padding.top - padding.bottom) 
+            var unitHeight  = (this.zr.getHeight() - Padding.top - Padding.bottom) 
                                                                     / allColUnitNum;
 
             // 固定数据格子的长宽比
@@ -37774,6 +37785,12 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
             } else {
                 unitHeight = unitWidth / WidthHeightRatio
             }
+            */
+            var unitWidth = 50;
+            var unitHeight = 30;
+
+            var width = unitWidth * allRowUnitNum;
+            var height = unitHeight * allColUnitNum;
 
             this.unitSize = {
                 "rowHeadUnitWidth":         RowHeadDataRatio * unitWidth
@@ -37783,11 +37800,23 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
             };
 
             this.border = {
-                x:          padding.left
-                , xEnd:     padding.left + allRowUnitNum * unitWidth
-                , y:        padding.bottom
-                , yEnd:     padding.bottom + allColUnitNum * unitHeight
-            }
+                x:          this.padding.left
+                , xEnd:     this.padding.left + width
+                , y:        this.padding.bottom
+                , yEnd:     this.padding.bottom + height
+            };
+
+            this._resize(width, height);
+        },
+
+        _resize:                function(width, height) {
+            var canvasWidth = this.padding.left + width + this.padding.right + "px";
+            var canvasHeight = this.padding.top + height + this.padding.bottom + "px";
+            this.zr.painter.root.style.width = canvasWidth;
+            this.zr.painter.root.style.height = canvasHeight;
+            this.zr.painter.root.width = canvasWidth + "px";
+            this.zr.painter.root.height = canvasHeight + "px";
+            this.zr.resize();
         },
 
         _findCenterInGrid:      function(area)  {
