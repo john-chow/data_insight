@@ -623,5 +623,16 @@ def formatData(data_from_db, msu_factor_list, msn_factor_list, group_list, shape
     echart = EChartManager().get_echart(shape_in_use)
     return echart.makeData(data_from_db, msu_factor_list, msn_factor_list, group_list)
 
+@login_required
+def widgetAdd(request):
+    """
+    添加组件（marionette）
+    """
+    if request.method == 'GET':
+        context = RequestContext(request)
+        return render_to_response('widget/widget_add/add.html', {}, context)
+    else:
+        raise Http404()
+
 
 

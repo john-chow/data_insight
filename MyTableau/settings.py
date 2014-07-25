@@ -23,11 +23,11 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',#'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'mytableau',                      # Or path to database file if using sqlite3.
+        'NAME': 'dataInsight',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': 'postgres',
         'PASSWORD': '123456',
-        'HOST': '10.1.50.125',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'HOST': '127.0.0.1',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '5432',                      # Set to empty string for default.
     }
 }
@@ -85,6 +85,7 @@ STATICFILES_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 	STATIC_PATH,
 	REQUIREJS_MODULE_PATH,
+    MARIONETTE_PATH,
 )
 
 # List of finder classes that know how to find static files in
@@ -127,6 +128,7 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 	TEMPLATE_PATH,
 	REQUIREJS_MODULE_PATH,
+    MARIONETTE_PATH,
 )
 
 INSTALLED_APPS = (

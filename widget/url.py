@@ -3,6 +3,8 @@ from widget import views
 
 urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
+    url(r'^add/$', 				views.widgetAdd),
+
     url(r'^$', 					views.widgetList ,{'template_name': 'widget/list.html'}),
 	url(r'^list/$', 			views.widgetList ,{'template_name': 'widget/list.html'}),
 	url(r'^batch/$',			views.widgetList ,{'template_name': 'widget/batch.html'}),
