@@ -37420,19 +37420,12 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
         },
 
         this.findHeadClassName   = function(layer, idx) {
-            var layerCount = 0;
-            for (var k in this.headOption) {
-                if(layerCount++ == layer)     
-                    return this.headOption[k][idx]
-            }
+            var classes = this.headOption[layer].classes;
+            return classes[idx]
         },
 
         this.findHeadName  =    function(layer) {
-            var layerCount = 0;
-            for (var k in this.headOption) {
-                if(layerCount++ == layer)     
-                    return k
-            }
+            return this.headOption[layer].name
         },
 
         this.buildHeadClassName  =      function(area, layer, i) {
@@ -37635,6 +37628,7 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
         },
 
         _getCatsNum:            function(kind, layer) {
+            /*
             var obj = ('horizontal' === kind) ? this.option.row : this.option.column;
     
             var i = 0;
@@ -37642,6 +37636,10 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
                 if (i++ === layer)     
                     return obj[k].length
             }
+            */
+
+            var list = ('horizontal' === kind) ? this.option.row : this.option.column;
+            return list[layer].classes.length
         },
 
         _buildHeadDataSplit:     function() {
@@ -37747,6 +37745,7 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
         },
 
         _mapSize:       function()      {
+            /*
             f = function(obj) {
                 var n = 0;
                 for (var k in obj) {
@@ -37755,16 +37754,36 @@ define('echarts/chart/table',['require','../component/base','./base','zrender/sh
                 }
                 return n
             }
+            */
+
+            f = function(list) {
+                var len = 0;
+                for(var i = 0; i < list.length; i++) {
+                    if (0 == i)     
+                        len = list[i].classes.length
+                    else 
+                        len *= list[i].classes.length
+                }
+                return len
+            }
 
             var Grid        =   {
                 "width":            75
                 , "height":         30
             };
 
+            /*
             this.headRowNum  = Object.keys(this.option.row).length;
             this.headColNum  = Object.keys(this.option.column).length;
             this.dataRowNum  = f(this.option.row);
             this.dataColNum  = f(this.option.column);
+            */
+
+            this.headRowNum  = this.option.row.length;
+            this.headColNum  = this.option.column.length;
+            this.dataRowNum  = f(this.option.row);
+            this.dataColNum  = f(this.option.column);
+            
             
             // 假设默认，行头宽度：数据格子宽度， 列头高度:数据格子高度
             var RowHeadDataRatio = 1.5;

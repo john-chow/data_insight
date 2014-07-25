@@ -149,16 +149,18 @@ class Table(EChart):
         if len(msu_factor_list) != 1:
             raise Exception(u'xxxxxxxxxxx')
 
-        row_dict, column_dict = {}, {}
+        row_list, column_list = [], []
         msu_len = len(msu_factor_list)
         msn_row_len = len([f for f in msn_factor_list if 'row' == f.getProperty('axis')])
         msn_column_len = len(msn_factor_list) - msn_row_len
 
         for i, factor in enumerate(msn_factor_list):
             classes_list = list(set([d[msu_len + i] for d in data_from_db]))
-            tmp_dict = row_dict if 'row' == factor.getProperty('axis') \
-                                else column_dict
-            tmp_dict[factor.getProperty(Protocol.Attr)] = classes_list
+
+            tmp_list = row_list if 'row' == factor.getProperty('axis') \
+                                else column_list
+            tmp_list.append({'name': factor.getProperty(Protocol.Attr), \
+                                'classes': classes_list})
 
         val_list_list, belong_row_list, belong_column_list = [], [], []
         for one in data_from_db:
@@ -175,8 +177,8 @@ class Table(EChart):
         data_dict = dict(zip(msu_attr_list, data_list))
         data_dict['belong_row']  = belong_row_list
         data_dict['belong_column']  = belong_column_list
-        data_dict['row']    = row_dict
-        data_dict['column'] = column_dict
+        data_dict['row']    = row_list
+        data_dict['column'] = column_list
 
         return data_dict
             

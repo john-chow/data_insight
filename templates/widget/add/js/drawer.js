@@ -596,24 +596,26 @@ define([
             this.calcColumnNum(data["column"]);
         };
 
-        this.calcRowNum     =       function(obj) {
-            for (var k in obj) {
-                this.rowList.push(obj[k]);
-                if (0 == this.rowNum)   
-                    this.rowNum = obj[k].length
-                else            
-                    this.rowNum *= obj[k].length            
-            }
+        this.calcRowNum     =       function(list) {
+            var self = this;
+            $.each(list, function(i, obj) {
+                self.rowList.push(obj.classes);
+                if (0 == i) 
+                    self.rowNum = obj.classes.length
+                else
+                    self.rowNum *= obj.classes.length
+            })
         };
 
-        this.calcColumnNum  =       function(obj) {
-            for (var k in obj) {
-                this.columnList.push(obj[k]);
-                if (0 == this.columnNum)   
-                    this.columnNum = obj[k].length
-                else            
-                    this.columnNum *= obj[k].length            
-            }
+        this.calcColumnNum  =       function(list) {
+            var self = this;
+            $.each(list, function(i, obj) {
+                self.columnList.push(obj.classes);
+                if (0 == i) 
+                    self.columnNum = obj.classes.length
+                else
+                    self.columnNum *= obj.classes.length
+            })
         };
 
         this.estRowPos      =       function(rowClasses) {
