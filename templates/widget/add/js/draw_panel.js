@@ -228,7 +228,7 @@ define([
 			this.drawer = new Drawer();
             this.dataCenter = new DataCenter()
         
-            this.$el.append("<div id='draw_container'></div>");
+            this.$el.append("<div id='draw_container' style='height: 100%'></div>");
 
             // test
             Backbone.Events.on("panel:update_data", _.bind(this.setAboutUpdating, this));
