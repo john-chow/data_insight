@@ -18,7 +18,7 @@ from widget.models import WidgetModel, ExternalDbModel
 from widget.echart import EChartManager
 from widget.factor import ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE
 from connect.sqltool import stRestore, SqlObjReader
-from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb
+from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb, cleanDataFromDb
 import common.protocol as Protocol
 from common.log import logger
 
@@ -430,7 +430,8 @@ def genWidgetImageData(req_data, hk):
     # 获取画出图形所必须相关数据
     factors_lists_dict = classifyFactors(req_data)
     sql_obj         = transReqDataToSqlObj(req_data, st)
-    data_from_db    = st.conn.execute(sql_obj).fetchall()
+    result          = st.conn.execute(sql_obj).fetchall()
+    data_from_db    = cleanDataFromDb(result)
     strf_data_from_db = strfDataAfterFetchDb(data_from_db)
     echart_data     = formatData(strf_data_from_db, factors_lists_dict['msu'], \
                                     factors_lists_dict['msn'], factors_lists_dict['group'], \
@@ -469,13 +470,13 @@ def extractFactor(req_data):
 
     # 获取轴上属性Factor对象
     axis_factor_list = []
-    for idx, col_element in enumerate(col_kind_attr_list + row_kind_attr_list):
+    for idx, col_element in enumerate(row_kind_attr_list + col_kind_attr_list):
         element_dict = {key:col_element[key] for key in EXPRESS_FACTOR_KEYS_TUPLE}
         factor = ElementFactor(**element_dict)
-        if idx < len(col_kind_attr_list):
-            factor.setBelongToAxis('col')
-        else:
+        if idx < len(row_kind_attr_list):
             factor.setBelongToAxis('row')
+        else:
+            factor.setBelongToAxis('col')
 
         axis_factor_list.append(factor)
 

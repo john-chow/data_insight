@@ -144,6 +144,16 @@ def strfDataAfterFetchDb(data_from_db):
         return None
 
 
+def cleanDataFromDb(data):
+    """
+    对数据库查询结果进行清洗
+    """
+    def f(record):
+        return [round(i, 2) if isinstance(i, float) else i  for i in record]
+
+    return [f(r) for r in data]
+
+
 def strfDataList(data_list):
     pass
 
@@ -189,5 +199,7 @@ def findBiggestInteger(l):
 
 def findMaxLength(l):
     pass
+
+
 
 
