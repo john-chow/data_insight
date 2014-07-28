@@ -5,9 +5,10 @@ define([
 , "echarts/chart/scatter"
 , "echarts/chart/pie"
 , "echarts/chart/radar"
+, "echarts/chart/table"
 , "common/tools"
 , "outter_interface"
-], function(echart, _b, _l, _s, _p, _r, _tools, _ot) {
+], function(echart, _b, _l, _s, _p, _t,  _r, _tools, _ot) {
 
 
 /////////////////////////////////////////////////////////////////////
@@ -180,6 +181,23 @@ define([
 		this.draw =		function(optionData) {
             this.ec.clear();
             var data = optionData || this.optionCloned;
+
+            /*
+            var data = {
+                "row":          {
+                    "style":        ["english", "usa"]
+                }
+                , "column":     {
+                    "size":         ["small", "big"]
+                    , "color":      ["red", "yellow", "blue"]
+                }
+                , "series":     [{
+                    "name":         "price"
+                    , "type":       "table"
+                    , "data":       [1,2,3,5,6,7,8,9,10,11,12,13]
+                }]
+            };
+            */
             this.ec.setOption(data)
 		};
 
