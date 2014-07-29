@@ -4,30 +4,16 @@
  */
 define([
   'marionette',
-  'jquery-ui'
-], function (Marionette, ui) {
+  'bootstrap',
+], function (Marionette, b) {
 
   Marionette.Region.Dialog = Marionette.Region.extend({
-    //监听show Region事件
-    onShow: function(view){
-      this.listenTo(view, "dialog:close", this.closeDialog);
 
+    onShow: function(view){
       var self = this;
-      this.$el.dialog({
-        modal: true,
-        title: "模态框",
-        width: "auto",
-        close: function(e, ui){
-          self.closeDialog();
-        }
-      });
+      this.$el.modal('show');
     },
 
-    closeDialog: function(){
-      this.stopListening();
-      this.empty();
-      this.$el.dialog("destroy");
-    }
   });
 
   return Marionette.Region.Dialog;

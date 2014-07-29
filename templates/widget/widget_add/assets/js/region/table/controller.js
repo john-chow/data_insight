@@ -7,31 +7,49 @@ define([
 	'region/table/view'
 ], function (t, v) {
 
-	var data = DataInsightManager.module("TableApp", function(TableApp, DataInsightManager,
+	var data = DataInsightManager.module("TableRegion", function(TableRegion, DataInsightManager,
 	Backbone, Marionette, $, _){
-		TableApp.Controller = {
+		TableRegion.Controller = {
 			ListTables: function(){
 
 			/////////////////////////////获取数据
 			var tables = DataInsightManager.request("table:entities");
 
 			/////////////////////////////新建View
-			var tablesListView = new TableApp.Tables({
+			var tablesListView = new TableRegion.Tables({
 				collection: tables
 			});
 
 			/////////////////////////////注册事件
-			tablesListView.on("table:test", function(childView, args){
-		          DataInsightManager.trigger("table:test", args);
+			tablesListView.on("table:init", function(collection){
+	          	DataInsightManager.execute("showField", collection.at(0).get("id"));
+	        });
+
+		    tablesListView.on("childview:change:table", function(childView, model){
+	          	DataInsightManager.execute("showField", model.get("id"));
+	        });
+
+	        tablesListView.on("show:dialog-new-table", function(){
+	        	var newTableView = new TableRegion.newTableDialog();
+				DataInsightManager.dialogRegion.show(newTableView);
+
+	        });
+
+	        DataInsightManager.dialogRegion.on("show:dialog-choosed-db", function(){
+		        var choosedDbView = new TableRegion.choosedDbDialog();
+				DataInsightManager.dialogRegion.show(choosedDbView);
+					
 		    });
 
+		    DataInsightManager.dialogRegion.on("show:dialog-import-file", function(){
+		        var importFileView = new TableRegion.importFileDialog();
+				DataInsightManager.dialogRegion.show(importFileView);
+		    });
+
+	        
 			/////////////////////////////显示View
 			DataInsightManager.tableRegion.show(tablesListView);
 
-
-			///dialog test
-			//var dialogView = new TableApp.Dialog();
-			//DataInsightManager.dialogRegion.show(dialogView);
 			}
 		}
 	});

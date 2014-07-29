@@ -9,8 +9,9 @@ define([
 	'backbone',
 	'marionette',
 	'common/dialog',
-	'region/table/route'
-], function ($, json, _, backbone, Marionette, dialog, tableRoute) {
+	'region/table/route',
+	'region/field/route'
+], function ($, json, _, backbone, Marionette, dialog, tableRoute, fieldRoute) {
 
 	DataInsightManager.addRegions({
 	      operateRegion: 			"#operate_region",	//操作栏区域

@@ -63,16 +63,13 @@ body {
 
 #table_region {
 	min-height:80px;
-	background: #9298E4;
 }
 
 #field_region {
 	min-height:135px;
-	background: #E4F0A4;
 }
 
 #area {
-	padding: 5px 5px 0 5px;
 }
 
 #design_region {
@@ -97,4 +94,84 @@ body {
 #info {
 	height: 15px;
 	background: #FC8F8F;
+}
+
+.panel {
+	margin-bottom: 0;
+	border:none;
+}
+
+#table_template_content {
+	min-height: 40px;
+	margin: 0;
+	list-style: none;
+	overflow: auto;
+	padding: 0px;
+}
+
+.table-item {
+	padding:2px 0 2px 20px;
+	cursor:default;
+}
+
+.table-item:hover {
+	background: #F7F7F7;
+	border-radius: 3px;
+	box-shadow: 0px 0px 1px 0px #A7A4A4 inset;
+}
+
+.table-item-select {
+	background: #F7F7F7;
+	border-radius: 3px;
+	box-shadow: 0px 0px 1px 0px #A7A4A4 inset;
+}
+
+
+
+#field_template_content {
+	min-height: 60px;
+	margin: 0;
+	list-style: none;
+	overflow: auto;
+	padding: 0px;
+}
+
+.field-item {
+	padding:2px 0 2px 20px;
+	cursor:default;
+}
+
+.field-item:hover {
+	background: #E4EFFF;
+	border-radius: 3px;
+	box-shadow: 0px 0px 1px 0px #A7A4A4 inset;
+}
+
+#table_template_header {
+	position: relative;
+}
+
+#table_template_header span {
+	position: absolute;
+	right: 8px;
+	top: 12px;
+	cursor: pointer;
+}
+
+.dialog-new-table-content>div {
+	float: left;
+	border: 1px solid #CFC4C4;
+	border-radius: 5px;
+	margin: 60px 45px;
+	color: #464343;
+	padding: 20px;
+	cursor: pointer;
+}
+
+.dialog-new-table-content>div:hover {
+	box-shadow: 0 0 3px 1px #666666;
+}
+
+.dialog-new-table-contentt p {
+	text-align: center;
 }

@@ -6,12 +6,12 @@ define([
 	'region/table/controller'
 ], function (c) {
 
-	var data = DataInsightManager.module("TableApp", function(TableApp, DataInsightManager, Backbone, Marionette, $, _){
+	var data = DataInsightManager.module("TableRegion", function(TableRegion, DataInsightManager, Backbone, Marionette, $, _){
 
 	  //////////////////////////////////////////////////////////定义接口
 	  var API = {
 	    listTables: function(){
-	      TableApp.Controller.ListTables();
+	      TableRegion.Controller.ListTables();
 	    }
 	  };
 

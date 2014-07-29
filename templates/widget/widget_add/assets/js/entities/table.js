@@ -10,11 +10,6 @@ var data = DataInsightManager.module("Entities",
     //////////////////////////////////////////////////////////定义Table模型
     Entities.Table = Backbone.Model.extend({
       urlRoot: "table",
-      defaults: {
-        id:"",
-        tableZindex:"",
-        tableItem:"" //表顺序
-      },
     });
 
     //////////////////////////////////////////////////////////定义Table集合
@@ -25,11 +20,25 @@ var data = DataInsightManager.module("Entities",
 
     //////////////////////////////////////////////////////////假设测试数据
     var tables;
-    var initializeTables = function(){
-      tables = new Entities.TableCollection([
-        { id: 1,tableZindex:'1',tableItem:'数据1'},
-        { id: 2,tableZindex:'2',tableItem:'数据2'}
+    var initializeTables = function(options){
+      if(options==undefined){
+        tables = new Entities.TableCollection([]);
+      }
+      else{
+        tables = new Entities.TableCollection([
+        { id: 1, tableName:'测试数据1'},
+        { id: 2, tableName:'测试数据2'},
+        { id: 3, tableName:'测试数据3'},
+        { id: 4, tableName:'测试数据4'},
+        { id: 5, tableName:'测试数据5'},
+        { id: 6, tableName:'测试数据6'},
+        { id: 7, tableName:'测试数据7'},
+        { id: 8, tableName:'测试数据8'},
+        { id: 9, tableName:'测试数据9'},
+        { id: 10, tableName:'测试数据10'}
       ]);
+      }
+      
       return tables;
     };
 
