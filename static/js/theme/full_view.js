@@ -1,42 +1,5 @@
 
-	define(['drawer','gridster'], function(DrawManager, Gridster){
-		var GRID_UNIT_WIDTH     = 50,
-    		GRID_UNIT_HEIGHT    = 55,
-    		$body				= $("body");
-		//初始化gridster
-		function initGridster($el){
-			
-				$el.gridster({
-	        	//widget_selector: "li",                        //确定哪个元素是widget
-		        widget_margins: [1, 1],                       //margin大小
-		        widget_base_dimensions: [GRID_UNIT_WIDTH, GRID_UNIT_HEIGHT],           //面积大小
-		        helper:'clone',
-		       // autogrow_cols: true,
-		        draggable: {
-		        	start: function(event, ui){
-		        		$("#refresh").removeAttr("disabled");
-		        	}
-		        } ,
-		        resize: {
-		            enabled: true,
-		            start: function(e, ui, $widget) {
-		             	
-		            },
-
-		            resize: function(e, ui, $widget) {
-		                //innerHTML = 'RESIZE offset: ' + ui.pointer.diff_top +' '+ ui.pointer.diff_left + "<br >";
-		                //console.log(innerHTML);
-		            },
-
-		            stop: function(e, ui, $widget) {
-		                innerHTML = '停止事件：' + ui.position.top +' '+ ui.position.left;
-		                console.log(innerHTML);
-		                $body.trigger("widget_resize_" + $widget.attr("data-id"))
-		            }
-		          }
-		        });
-		}
-
+	define(['drawer','gridster', 'underscore'], function(DrawManager, Gridster, Underscore){
 		//组件类
 		var WidgetItem = function(options){
 			var obj = {
@@ -73,11 +36,21 @@
 			        },
 			        showNewWidget : function(){
 						var drawer = new DrawManager();
-		            	drawer.run(this.$el[0], this.data);
+		            	drawer.run(this.$el.children(".se_wi_div_" + this.id + ":first")[0], this.data);
 					},
 					init: function(){
 						this.id = options.id;
-						this.stamp = options.stamp;
+						this.timestamp = options.timestamp;
+						this.$el = $(".se_wi_" + this.id + "_" + this.timestamp);
+						this.col = options.col;
+						this.row = options.row;
+						this.sizex = options.sizex;
+						this.sizey = options.sizey;
+						//gridster布局参数
+						this.$el.attr({
+							"data-row": this.row, "data-col": this.col,
+							"data-sizex": this.sizex, "data-sizey": this.sizey
+						});
 						//this.fetchPicData();
 					}
 				}
@@ -87,28 +60,53 @@
 			
 		
 		//场景类,包含多个WidgetItem
-		var SenceItem = function(options){
+		var SceneItem = function(options){
 			var obj = {
-				setLayout: function(layout){
-					this.layout = eval(layout);
-				},
-				getLayout: function(){
-					return this.layout;
-				},
+				widgetList: [],
 				//初始化获取组件列表
 				init: function(){
 					this.id = options.id;
 					this.layout = options.layout;
 					this.src = options.src;
 					var self = this;
-					$("ul#scId_" + this.id +" li").each(function(i){
+					var arrya = new Array();
+					$("ul#scId_" + this.id + " li").each(function(i){
 						var id = $(this).data("id");
 						var stamp = $(this).data("stamp");
-						var widget = new WidgetItem({id: id, stamp: stamp});
-						self.widgetList.push(widget);
-					});
+						var posObj = self.getPos(stamp);
+						var widgetObj = {
+							id: id, stamp: stamp,
+							col: posObj.col, row: posObj.row,
+							sizex: posObj.size_x, sizey: posObj.size_y
+						};
+						self.widgetList.push(widgetObj);
+					})
 				},
-				widgetList: [],
+				sortByRow: function(){
+					//获取每个组件在gridster的位置和大小
+					var self = this;
+					var widgetList = this.widgetList;
+					$.each(widgetList, function(i){
+						var widget = widgetList[i];
+						var timestamp = widget.stamp;
+						var posObj   = self.getPos(timestamp);
+						 widget.size_x = posObj.size_x;
+						 widget.size_y = posObj.size_y;
+						 widget.col = posObj.col;
+						 widget.row = posObj.row;
+					})
+					//按组件在gridster的行进行排序
+					this.widgetList.sort(function(w1, w2){
+						return w1.row > w2.row;
+					})
+				},
+				getPos: function(timestamp){
+					var pos = this.layout.filter(function(layout) {
+		                			if (layout.data_time == timestamp)   return true;
+		            			});
+					//转为js对象
+					return pos[0];
+				},
 			}
 			obj.init();
 			return obj;
@@ -118,49 +116,64 @@
 		var ScenceView = function(options){
 			var obj = {
 				init: function(){
-					this.$el = options.el;
 					//场景类
 					this.model = options.model;
+					this.$el = $("#scene_" + this.model.id);
 					this.$ipresenter = $("#ipresenter");
-					this.render();
+					//this.render();
 				},
 				render: function(){
 					var self = this;
-					var gridster = this.$el.find(".gridster ul").gridster().data('gridster');
-					//禁止gridster拖拽
-					gridster.disable();
 					var widgetList = this.model.widgetList;
-					$.each(widgetList, function(i){
-						var widget = widgetList[i];
-						var id = widget.getId();
-						var dateTime = widget.stamp;
-						var liHtml = "<li class='se_wi_"+id+"_"+ dateTime +
-                        "' data-id='"+id+"' data-time='"+ dateTime +
-                        "'><div class='se_wi_div se_wi_div_"+
-                        id+"'></div></li>";
-                        var posObj   = self.getPos(dateTime);
-			            gridster.add_widget(
-			                liHtml
-			                , parseInt(posObj.size_x),  parseInt(posObj.size_y)
-			                , parseInt(posObj.col),     parseInt(posObj.row)
-			            );
-                        var $li = $(".se_wi_" + id + "_" + dateTime);
-                        widget.setEl($li.children(".se_wi_div:first"));
-                        $li.children(".se_wi_div").wrap("<a class='widget-warp' href='/widget/view/" + id + "'></a>");
-                        $.when(widget.fetchPicData()).done(function(data){
+					
+					$.each(widgetList, function(index, widgetObj){
+						var id = widgetObj.id,
+							timestamp = widgetObj.stamp,
+							col = widgetObj.col,
+							row = widgetObj.row,
+							sizex = widgetObj.sizex,
+							sizey = widgetObj.sizey;
+                        //用a标签包裹每个组件，让用户点击每个组件可以查看每个组件的情况
+                        //$li.children(".se_wi_div").wrap("<a class='widget-warp' href='/widget/view/" + id + "'></a>");
+                        var widget = new WidgetItem({
+                        	id : id, timestamp : timestamp,
+                        	col: col, row: row,
+                        	sizex: sizex, sizey: sizey
+                        });
+						$.when(widget.fetchPicData()).done(function(data){
                         	widget.onGetWidgetData(data);
                         })
-						//var widgetView = new WidgetView({el: $li, model : widget});
-					})
-				},
-				getPos: function(timestamp){
-					var pos = this.model.layout.filter(function(layout) {
-		                			if (layout.data_time == timestamp)   return true;
-		            			});
-					//转为js对象
-					return pos[0];
-				}
+					});
+					////////////////等比例缩放,gridster////////////////////
+					var rate = 1, 
+						width = document.body.clientWidth - 100,
+						height = document.body.clientHeight - 100;
+					var image = new Image();
+					image.src = this.model.src;
+					var sceneWidth = image.width,
+            			sceneHeight = image.height;
+                   	 //等比例放大图片
+					if(sceneWidth < width && sceneHeight < height){
+						rate = width/sceneWidth > height/sceneHeight ? height/sceneHeight : width/sceneWidth;
+					}else{//等比例缩小图片
+						rate = sceneWidth/width > sceneHeight/height ? width/sceneWidth : height/sceneHeight ;
+					}
 
+
+					var $gridsterEl = this.$el.find(".gridster #scId_" + this.model.id),
+						unitWidth = Math.floor(rate * 50),
+						unitHeight = Math.floor(rate * 55);
+					var namespace = "#scene_" + this.model.id;
+					console.log(namespace);
+					var $gridster = $gridsterEl.gridster({
+						namespace: namespace,
+				        widget_base_dimensions: [unitWidth, unitHeight],           //[57,51]面积大小
+				        widget_margins: [1, 1],                       //margin大小
+				    }).data('gridster');
+					//禁止gridster拖拽
+					$gridster.disable();
+					////////////////等比例缩放,gridster////////////////////
+				},
 			}
 			obj.init();
 			return obj;
@@ -173,12 +186,14 @@
 			//初始化获取场景列表
 			init: function(){
 				var self = this;
-				$("#theme_scences>ul>li").each(function(i){
+				$("#container ul.scene-to-widget").each(function(i){
 					var id = $(this).data("id");
 					var layout = $(this).data("layout");
 					var src = $(this).data("src");
-					var scence = new SenceItem({id: id,layout: layout,src: src});
-					self.scenceList.push(scence);
+					var scenceObj = {
+						id: id,layout: layout,src: src
+					}
+					self.scenceList.push(scenceObj);
 				})
 				
 			},
@@ -196,13 +211,19 @@
 			},
 			render: function(){
 				var self = this;
-				$.each(self.collection, function(i){
-					var $scene = $('<div class="step" data-x="0" data-y="' + 1500*i +'"><div class="gridster"><ul> ' +
-						'</ul></div></div>').appendTo(self.$el);
-					initGridster($scene.children(":first").children("ul"));
-					var scenceItem = self.collection[i];
-					var scenceView = new ScenceView({model: scenceItem,el: $scene});
-					
+				$.each(self.collection, function(i, sceneObj){
+					//ipresenter插件所需数据data-y赋值
+					$("#scene_" + sceneObj.id).data("y", i * window.screen.height);
+					var id = sceneObj.id,
+						layout = sceneObj.layout,
+						src = sceneObj.src;
+					var sceneItem = new SceneItem({
+							id: id, layout: layout,
+							src: src
+						})
+					var scenceView = new ScenceView({model: sceneItem});
+				    scenceView.render();
+				    
 				});
 				
 
@@ -214,7 +235,6 @@
 				$el: $("#contianer"),
 				init: function(){
 					themeView.init();
-					//this.fullScreen();
 				},
 			}
 		//启动所有

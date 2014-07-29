@@ -257,7 +257,7 @@
         	render:function(){
         		$("<figure class='slide' id='s_" + this.sceneModel.id + "'><img src='"
         				/*<h5 class='scence-title'>" + this.sceneModel.name +"</h5>*/ 
-        				+ this.sceneModel.imgSrc + "' width='1000' height='600'></figure>").prependTo(this.$parent);
+        				+ this.sceneModel.imgSrc + "' width='1000'  height='600'></figure>").prependTo(this.$parent);
         	}
         }
         

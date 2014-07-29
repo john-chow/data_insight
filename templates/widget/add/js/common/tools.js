@@ -204,7 +204,6 @@ Array.prototype.remove = function(val) {
 function fullScreen() {
     var el = document.documentElement;
     var rfs = el.requestFullScreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullScreen;
-
     if (typeof rfs != "undefined" && rfs) {
         rfs.call(el);
     } else if (typeof window.ActiveXObject != "undefined") {
@@ -214,8 +213,32 @@ function fullScreen() {
             wscript.SendKeys("{F11}");
         }
     }
-
 }
+
+//让某个dom元素全屏
+function launchFullscreen(element) {
+  if(element.requestFullscreen) {
+    element.requestFullscreen();
+  } else if(element.mozRequestFullScreen) {
+    element.mozRequestFullScreen();
+  } else if(element.webkitRequestFullscreen) {
+    element.webkitRequestFullscreen();
+  } else if(element.msRequestFullscreen) {
+    element.msRequestFullscreen();
+  }
+}
+
+//推出全屏
+function exitFullscreen() {
+  if(document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if(document.mozCancelFullScreen) {
+    document.mozCancelFullScreen();
+  } else if(document.webkitExitFullscreen) {
+    document.webkitExitFullscreen();
+  }
+}
+
 
 //防止冒泡
 function stopPropagation(e){

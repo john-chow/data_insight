@@ -47,6 +47,6 @@ requirejs.config({
 	  		},
 	  		'boxslider': {
 	  			deps: ['theme/Modernizr']
-	  		}
+	  		},
 	  	}
 });
