@@ -92,9 +92,6 @@ define([
             // 重启更新器
             this.updator.bindDrawer(this.now_drawer);
             if(this.updator.isEnable())      this.updator.restart()
-
-            // 为给外部提供可直接操控图表的接口，把绘图对象保存到全局window中
-            window.drawer[place.id] = this.now_drawer;
 		};
 
         // 退出管理图型工作
@@ -167,7 +164,7 @@ define([
 			this.fillSeries(resp.data);
 
             // 根据是否有样式，决定是否做style
-            if (resp.style)     this.styleChart(resp.style);
+            //if (resp.style)     this.styleChart(resp.style);
 
 			this.draw()
 		};
@@ -175,23 +172,6 @@ define([
 		this.draw =		function(optionData) {
             this.ec.clear();
             var data = optionData || this.optionCloned;
-
-            /*
-            var data = {
-                "row":          {
-                    "style":        ["english", "usa"]
-                }
-                , "column":     {
-                    "size":         ["small", "big"]
-                    , "color":      ["red", "yellow", "blue"]
-                }
-                , "series":     [{
-                    "name":         "price"
-                    , "type":       "table"
-                    , "data":       [1,2,3,5,6,7,8,9,10,11,12,13]
-                }]
-            };
-            */
             this.ec.setOption(data)
 		};
 
@@ -215,18 +195,6 @@ define([
         this.styleLegend    =   function(lgStyle) {
         };
 
-        this.setBgColor =   function(color) {
-            this.optionCloned.backgroundColor   = color
-        };
-
-        this.setIsColors =  function(colorList) {
-            this.optionCloned.color = colorList
-        };
-
-        this.setSymbols =   function(symbolList) {
-            this.optionCloned.symbolList    = symbolList
-        };
-
         this.findSeriesIdxByName    =   function(name) {
             var idx = -1;
             $.each(this.optionCloned.series, function(i, series) {
@@ -234,12 +202,6 @@ define([
                     return idx = i
             })
             return idx
-        };
-
-        this.transType  =   function(type) {
-            var newType = new toType();
-            newType.optionCloned = this.optionCloned;
-            return newType
         }
 	};
 
