@@ -40,18 +40,24 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
     margin:0;
 }
 
-#choosed_chart li:hover {
+#choosed_chart li:hover,
+#scene_list_widget_text:hover {
     background-color: #E5F1FB;
     border-radius: 5px;
     border: 1px solid #CCC5EC;
 }
 
-#choosed_chart li {
+#choosed_chart li,
+#scene_list_widget_text {
     border: 1px solid white;
     padding: 0px 10px 1px 20px;
     cursor: pointer;
     overflow: hidden;
     font-size: 15px;
+}
+
+#scene-widget-border-con label {
+    padding:1px 25px;
 }
 
 #choosed_chart ,
@@ -110,14 +116,20 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
     list-style: none;
 }
 
-.gridster li {
+.gridster li{
+     overflow: hidden;
+}
+
+.gridster li:hover{
     border: 1px solid #C0BDD1;
-    cursor: pointer;
+    box-shadow: 1px 1px 3px #888888;
+   /*border: 1px solid #C0BDD1;
+   cursor: pointer;
     color:#fff;
     font-size: 1em;
     font-weight: bold;
     text-align: center;
-    line-height: 100%;
+    line-height: 100%;*/
 }
 
 .gridster {
@@ -128,6 +140,14 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
     -o-transition: opacity .6s;
     -ms-transition: opacity .6s;
     transition: opacity .6s;
+}
+
+.gridster-border>li {
+    border: 1px solid #C0BDD1;
+}
+
+.gridster-border2>li {
+    border: 1px solid #ffffff;
 }
 
 #scene_design_right {
@@ -190,4 +210,24 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
     background: #eee;
     padding: 5px 10px;
     border: 1px solid #bbb;
+}
+
+.modal-dialog {
+    width:850px;
+}
+
+.scene-text-edit {
+    opacity: 0;
+    width: 18px;
+    height: 18px;
+    top: 4px;
+    right: 0px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    z-index: 20;
+    position: absolute;
+}
+
+.gs-w:hover .scene-text-edit {
+    opacity: 1;
 }

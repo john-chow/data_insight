@@ -17,6 +17,7 @@ requirejs.config({
 	        , "echarts/chart/scatter": 	"lib/src/echarts-original"
 	        , "echarts/chart/pie": 		"lib/src/echarts-original"
 	        , "echarts/chart/radar": 	"lib/src/echarts-original"
+	        , "echarts/chart/table": 	"lib/src/echarts-original"
 	        , "echarts/chart/map": 		"lib/src/echarts-original-map"
 	        , "validform":              "Validform_v5.3.2_min"
 	        //, "csrf": 					"csrf"

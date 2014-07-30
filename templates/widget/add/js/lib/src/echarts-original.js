@@ -22,6 +22,7 @@ define('echarts/config',[],function() {
         CHART_TYPE_CHORD : 'chord',
         CHART_TYPE_GAUGE : 'gauge',
         CHART_TYPE_FUNNEL : 'funnel',
+        CHART_TYPE_TABLE : 'table',
 
         // 组件类型
         COMPONENT_TYPE_TITLE: 'title',
@@ -39,6 +40,8 @@ define('echarts/config',[],function() {
         COMPONENT_TYPE_AXIS_CATEGORY: 'categoryAxis',
         COMPONENT_TYPE_AXIS_VALUE: 'valueAxis',
         COMPONENT_TYPE_TIMELINE: 'timeline',
+        COMPONENT_TYPE_ROW: 'row',
+        COMPONENT_TYPE_COLUMN: 'column',
 
         // 全图默认背景
         backgroundColor: 'rgba(0,0,0,0)',
@@ -7705,6 +7708,7 @@ define(
             // 实体
             for (var i = 0; i <= this._maxZlevel; i++) {
                 canvasElem = createDom(i, 'canvas', this);
+                canvasElem.setAttribute("name", "xxx");            // zhouzhengran
                 domRoot.appendChild(canvasElem);
                 this._domList[i] = canvasElem;
                 vmlCanvasManager && vmlCanvasManager.initElement(canvasElem);
@@ -22966,7 +22970,7 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
                 magicOption.grid = magicOption.grid || {};
                 magicOption.dataZoom = magicOption.dataZoom || {};
             }
-            
+
             var componentList = [
                 'title', 'legend', 'tooltip', 'dataRange',
                 'grid', 'dataZoom', 'xAxis', 'yAxis', 'polar'
@@ -23017,6 +23021,11 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
                     chartMap[chartType] = true;
                     ChartClass = chartLibrary.get(chartType);
                     if (ChartClass) {
+                        chart = new ChartClass(
+                            this._themeConfig, this._messageCenter, this._zr,
+                            magicOption, this
+                        );
+                        /*
                         if (this.chart[chartType]) {
                             chart = this.chart[chartType];
                             chart.refresh(magicOption);
@@ -23027,6 +23036,7 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
                                 magicOption, this
                             );
                         }
+                        */
                         this._chartList.push(chart);
                         this.chart[chartType] = chart;
                     }
@@ -37414,6 +37424,501 @@ define('echarts/chart/line',['require','../component/base','./base','zrender/sha
     
     return Line;
 });
+
+
+/**
+ * echarts图表类：表图
+ *
+ * @desc echarts基于Canvas，纯Javascript图表库，提供直观，生动，可交互，可个性化定制的数据统计图表。
+ * @author Kener (@Kener-林峰, linzhifeng@baidu.com)
+ *
+ */
+define('echarts/chart/table',['require','../component/base','./base','zrender/shape/Rectangle','zrender/shape/Line','zrender/shape/Text','../component/grid','../component/dataZoom','../config','../util/ecData','zrender/tool/util','zrender/tool/color','../chart'],function (require) {
+    var ComponentBase = require('../component/base');
+    var ChartBase = require('./base');
+    
+    // 图形依赖
+    var TextShape = require('zrender/shape/Text');
+    var LineShape = require('zrender/shape/Line');
+
+    // 组件依赖
+    require('../component/axis');
+    require('../component/grid');
+    require('../component/dataZoom');
+    
+    var ecConfig = require('../config');
+    var ecData = require('../util/ecData');
+    var zrUtil = require('zrender/tool/util');
+    var zrColor = require('zrender/tool/color');
+    var zrArea = require('zrender/tool/area');
+
+
+    function HorVfactory(kind, ctx) {
+        switch(kind) {
+            case "horizontal":
+                return new HorizontalBuilder(ctx)
+            case "vertical":
+                return new VerticalBuilder(ctx)
+            default:
+                return 
+        }
+    }
+
+    function Base() {
+        this.drawLine = function(layer, area) {
+            if (layer >= this.headNum) {
+                return
+            }
+            var num  = this.ctx._getCatsNum(this.kind, layer);
+            for(var i = 0; i < num; i++) {
+                var idxPartArea = this.getIdxPartArea(area, layer, i);
+                this.drawLine(layer + 1, this.mapToNextLayer(idxPartArea));
+                this.buildSplitLine(idxPartArea);
+                this.buildHeadClassName(idxPartArea, layer, i);
+            }
+
+            this.buildHead(layer)
+        },
+
+        this.findHeadClassName   = function(layer, idx) {
+            var classes = this.headOption[layer].classes;
+            return classes[idx]
+        },
+
+        this.findHeadName  =    function(layer) {
+            return this.headOption[layer].name
+        },
+
+        this.buildHeadClassName  =      function(area, layer, i) {
+            var classname = this.findHeadClassName(layer, i);
+            var center = this.ctx._findCenterInGrid(area);
+            var option = {
+                "textAlign":    "center"
+            };
+            this.ctx._buildText(center.x, center.y, classname, option)
+        }
+
+    }
+
+    function HorizontalBuilder(ctx) {
+        this.kind = "horizontal";
+        this.ctx  = ctx;
+        this.headOption = this.ctx.option.row;
+        this.headNum = this.ctx.headRowNum;
+
+        this.getIdxPartArea = function(area, layer, i) {
+            var innerUnitHeigt = (area.yEnd - area.y) 
+                                            / this.ctx._getCatsNum(this.kind, layer);
+
+            return {
+                x:              area.x
+                , xEnd:         area.xEnd
+                , y:            area.y + i * innerUnitHeigt
+                , yEnd:         area.y + (i + 1) * innerUnitHeigt
+            }
+        },
+
+        this.mapToNextLayer = function(area) {
+            return {
+                x:          area.xEnd
+                , xEnd:     area.xEnd + (area.xEnd - area.x)
+                , y:        area.y
+                , yEnd:     area.yEnd
+            }
+        },
+
+        this.buildSplitLine = function(area) {
+            var bottomLineStyle = {
+                xStart:     area.x
+                , xEnd:     this.ctx.border.xEnd
+                , yStart:   area.yEnd
+                , yEnd:     area.yEnd
+                , lineWidth:    1
+            };
+            var leftLineStyle = {
+                xStart:     area.x
+                , xEnd:     area.x
+                , yStart:   area.y
+                , yEnd:     this.ctx.border.yEnd
+                , lineWidth:    1
+            };
+
+            var bottomLine = new LineShape({
+                style:      bottomLineStyle
+            });
+            var leftLine = new LineShape({
+                style:      leftLineStyle
+            });
+
+            this.ctx.shapeList.push(bottomLine, leftLine)
+        },
+
+        this.buildHead      =   function(layer) {    
+            var headname = this.findHeadName(layer);
+            var xStart = this.ctx.border.x + this.ctx.unitSize.rowHeadUnitWidth * layer;
+            var xEnd = this.ctx.border.x + this.ctx.unitSize.rowHeadUnitWidth * (layer + 1);
+            var x = xStart + (xEnd - xStart) / 2;
+            var y = this.ctx.crossY;
+            var option = {
+                "textBaseline":    "bottom"
+            };
+            this.ctx._buildText(x, y, headname, option)
+        }
+    }
+
+    function VerticalBuilder(ctx) {
+        this.kind = "vertical";
+        this.ctx  = ctx;
+        this.headOption = this.ctx.option.column;
+        this.headNum = this.ctx.headColNum;
+    
+        this.getIdxPartArea = function(area, layer, i) {
+            var innerUnitWidth = (area.xEnd - area.x) 
+                                            / this.ctx._getCatsNum(this.kind, layer);
+            return {
+                x:          area.x + i * innerUnitWidth
+                , xEnd:     area.x + (i + 1) * innerUnitWidth
+                , y:        area.y
+                , yEnd:     area.yEnd
+            }
+        },
+
+        this.mapToNextLayer = function(area) {
+            return {
+                x:          area.x
+                , xEnd:     area.xEnd
+                , y:        area.yEnd
+                , yEnd:     area.yEnd + (area.yEnd - area.y)
+            }
+        },
+
+        this.buildSplitLine = function(area) {
+            var rightLineStyle = {
+                xStart:     area.xEnd
+                , xEnd:     area.xEnd
+                , yStart:   area.y
+                , yEnd:     this.ctx.border.yEnd
+                , lineWidth:    1
+            };
+            var topLineStyle = {
+                xStart:     area.x
+                , xEnd:     this.ctx.border.xEnd
+                , yStart:   area.y
+                , yEnd:     area.y
+                , lineWidth:    1
+            };
+
+            var rightLine = new LineShape({
+                style:      rightLineStyle
+            });
+            var topLine = new LineShape({
+                style:      topLineStyle
+            });
+
+            this.ctx.shapeList.push(rightLine, topLine)
+        },
+
+        this.buildHead      =   function(layer) {    
+            var headname = this.findHeadName(layer);
+            var yStart = this.ctx.border.y + this.ctx.unitSize.colHeadUnitHeight * layer;
+            var yEnd = this.ctx.border.y + this.ctx.unitSize.colHeadUnitHeight * (layer + 1);
+            var y = yStart + (yEnd - yStart) / 2;
+            var x = this.ctx.crossX;
+            var option = {
+                "textAlign":     "right"
+            };
+            this.ctx._buildText(x, y, headname, option)
+        }
+    }
+
+    HorizontalBuilder.prototype = new Base();
+    VerticalBuilder.prototype = new Base();
+
+
+    function Table(ecTheme, messageCenter, zr, option, myChart){
+        // 基类
+        ComponentBase.call(this, ecTheme, messageCenter, zr, option, myChart);
+        // 图表基类
+        ChartBase.call(this);
+        
+        this.refresh(option);
+    }
+    
+    Table.prototype = {
+        type:   ecConfig.CHART_TYPE_TABLE,
+        padding:        {
+            "left":           80
+            , "right":        80
+            , "top":          60
+            , "bottom":       60
+        },
+
+        refresh : function (newOption) {
+            if (newOption) {
+                this.option = newOption;
+                this.series = newOption.series;
+            }
+            
+            this._buildShape();
+        },
+
+        _buildShape:    function() {
+            this._mapSize();
+            this._buildHeadDataSplit();
+            this._buildGridLineAndHeadText();
+
+            var series =  this.series;
+            for (var i = 0; i < series.length; i++) {
+                if (series[i].type == ecConfig.CHART_TYPE_TABLE) {
+                    this._buildDataText()
+                }
+            }
+
+            var myLine = new LineShape({
+                style:  {
+                    xStart:         100
+                    , yStart:       100
+                    , xEnd:         200
+                    , yEnd:         200
+                },
+                draggable:      true
+            });
+            this.shapeList.push(myLine)
+
+            this.addShapeList();
+        },
+
+        _getCatsNum:            function(kind, layer) {
+            /*
+            var obj = ('horizontal' === kind) ? this.option.row : this.option.column;
+    
+            var i = 0;
+            for (var k in obj) {
+                if (i++ === layer)     
+                    return obj[k].length
+            }
+            */
+
+            var list = ('horizontal' === kind) ? this.option.row : this.option.column;
+            return list[layer].classes.length
+        },
+
+        _buildHeadDataSplit:     function() {
+            var rowHeadBottomStartX = this.border.x;
+            var rowHeadBottomEndX = this.border.xEnd;
+            var rowHeadBottomY = this.border.y
+                                    + this.headColNum * this.unitSize.colHeadUnitHeight;
+            var rowHeadBottomLine = new LineShape({
+                "style":    {
+                    "xStart":       rowHeadBottomStartX
+                    , "xEnd":       rowHeadBottomEndX
+                    , "yStart":     rowHeadBottomY
+                    , "yEnd":       rowHeadBottomY
+                    , "lineWidth":  1
+                }
+            });
+
+            var colHeadRightSideStartY = this.border.y;
+            var colHeadRightSideEndY = this.border.yEnd;
+            var colHeadRigthSideX = this.border.x
+                                    + this.headRowNum * this.unitSize.rowHeadUnitWidth;
+            var colHeadRightLine = new LineShape({
+                "style":    {
+                    "xStart":       colHeadRigthSideX 
+                    , "xEnd":       colHeadRigthSideX
+                    , "yStart":     colHeadRightSideStartY
+                    , "yEnd":       colHeadRightSideEndY
+                    , "lineWidth":  1
+                }
+            });
+
+            this.shapeList.push(rowHeadBottomLine, colHeadRightLine)
+
+            // 栏目头域和数字域交叉点的x、y坐标
+            this.crossX = colHeadRigthSideX;
+            this.crossY = rowHeadBottomY;
+        },
+
+        _buildGridLineAndHeadText:         function() {
+            var horizontalArea = {
+                "x":                this.border.x
+                , "xEnd":           this.border.x + (this.crossX - this.border.x) 
+                                                            / this.headRowNum
+                , "y":              this.crossY
+                , "yEnd":           this.border.yEnd
+            };
+            var verticalArea = {
+                "x":                this.crossX
+                , "xEnd":           this.border.xEnd
+                , "y":              this.border.y
+                , "yEnd":           this.border.y + (this.crossY - this.border.y) 
+                                                            / this.headColNum
+            };
+
+            HorVfactory("horizontal", this).drawLine(0, horizontalArea);
+            HorVfactory("vertical", this).drawLine(0, verticalArea);
+        },
+
+
+        _buildDataText:         function() {
+            var startX = this.crossX; 
+            var startY = this.crossY;
+
+            for (var i = 0; i < this.option.series.length; i++) {
+                var count = 0;
+                var dataList = this.option.series[i].data;
+
+                for (var idxRow = 0; idxRow < this.dataRowNum; idxRow++) {
+                    for (var idxCol = 0; idxCol < this.dataColNum; idxCol++) {
+                        var area = {
+                            "x":            startX + idxCol * this.unitSize.dataGridWidth
+                            , "xEnd":       startX + (idxCol + 1) * this.unitSize.dataGridWidth
+                            , "y":          startY + idxRow * this.unitSize.dataGridHeight
+                            , "yEnd":       startY + (idxRow + 1) * this.unitSize.dataGridHeight
+                        };
+                        var center = this._findCenterInGrid(area);
+                        var option = {
+                            "textAlign":     "center"
+                        };
+                        this._buildText(center.x, center.y, dataList[count++], option) 
+                    }
+                }
+            }
+        },
+
+        _buildText:                 function(x, y, word, option) {
+            var textStyle = {
+                "x":                x
+                , "y":              y
+                , "text":           word
+            };
+
+            for (var k in option) {
+                textStyle[k] = option[k]
+            }
+
+            this.shapeList.push(
+                new TextShape({
+                    "hoverable":  false
+                    , "style":      textStyle
+                })
+            )
+        },
+
+        _mapSize:       function()      {
+            /*
+            f = function(obj) {
+                var n = 0;
+                for (var k in obj) {
+                    len = obj[k].length;
+                    n = (0 !== n) ? (n * len) : len;
+                }
+                return n
+            }
+            */
+
+            f = function(list) {
+                var len = 0;
+                for(var i = 0; i < list.length; i++) {
+                    if (0 == i)     
+                        len = list[i].classes.length
+                    else 
+                        len *= list[i].classes.length
+                }
+                return len
+            }
+
+            var Grid        =   {
+                "width":            75
+                , "height":         30
+            };
+
+            /*
+            this.headRowNum  = Object.keys(this.option.row).length;
+            this.headColNum  = Object.keys(this.option.column).length;
+            this.dataRowNum  = f(this.option.row);
+            this.dataColNum  = f(this.option.column);
+            */
+
+            this.headRowNum  = this.option.row.length;
+            this.headColNum  = this.option.column.length;
+            this.dataRowNum  = f(this.option.row);
+            this.dataColNum  = f(this.option.column);
+            
+            
+            // 假设默认，行头宽度：数据格子宽度， 列头高度:数据格子高度
+            var RowHeadDataRatio = 1.5;
+            var ColHeadDataRatio = 1.5;
+            var allRowUnitNum = this.headRowNum * RowHeadDataRatio + this.dataColNum * 1;
+            var allColUnitNum = this.headColNum * ColHeadDataRatio + this.dataRowNum * 1;
+
+            /*
+            var unitWidth   = (this.zr.getWidth() - Padding.left - Padding.right) 
+                                                                    / allRowUnitNum;
+            var unitHeight  = (this.zr.getHeight() - Padding.top - Padding.bottom) 
+                                                                    / allColUnitNum;
+
+            // 固定数据格子的长宽比
+            var WidthHeightRatio = 2.5;
+            if(unitWidth / unitHeight > WidthHeightRatio) {
+                unitWidth = unitHeight * WidthHeightRatio;
+            } else {
+                unitHeight = unitWidth / WidthHeightRatio
+            }
+            */
+            var unitWidth = 50;
+            var unitHeight = 30;
+
+            var width = unitWidth * allRowUnitNum;
+            var height = unitHeight * allColUnitNum;
+
+            this.unitSize = {
+                "rowHeadUnitWidth":         RowHeadDataRatio * unitWidth
+                , "colHeadUnitHeight":      ColHeadDataRatio * unitHeight
+                , "dataGridWidth":          unitWidth
+                , "dataGridHeight":         unitHeight
+            };
+
+            this.border = {
+                x:          this.padding.left
+                , xEnd:     this.padding.left + width
+                , y:        this.padding.bottom
+                , yEnd:     this.padding.bottom + height
+            };
+
+            this._resize(width, height);
+        },
+
+        _resize:                function(width, height) {
+            var canvasWidth = this.padding.left + width + this.padding.right + "px";
+            var canvasHeight = this.padding.top + height + this.padding.bottom + "px";
+            this.zr.painter.root.style.width = canvasWidth;
+            this.zr.painter.root.style.height = canvasHeight;
+            this.zr.painter.root.width = canvasWidth + "px";
+            this.zr.painter.root.height = canvasHeight + "px";
+            this.zr.resize();
+        },
+
+        _findCenterInGrid:      function(area)  {
+            var width   = area.xEnd - area.x;
+            var height  = area.yEnd - area.y;
+            return {
+                "x":        area.x + width / 2
+                , "y":      area.y + height / 2
+            }
+        }
+    };
+
+    zrUtil.inherits(Table, ChartBase);
+    zrUtil.inherits(Table, ComponentBase);
+
+    // 图表注册
+    require('../chart').define('table', Table);
+
+    return Table
+})
+
+
 /**
  * echarts图表类：柱形图
  *
@@ -37455,6 +37960,7 @@ define('echarts/chart/bar',['require','../component/base','./base','zrender/shap
     
     Bar.prototype = {
         type : ecConfig.CHART_TYPE_BAR,
+
         /**
          * 绘制图形
          */
@@ -39403,7 +39909,7 @@ define('echarts/chart/pie',['require','../component/base','./base','zrender/shap
     
     return Pie;
 });
-define('_chart',['require','echarts/chart/gauge','echarts/chart/funnel','echarts/chart/scatter','echarts/chart/k','echarts/chart/radar','echarts/chart/chord','echarts/chart/force','echarts/chart/line','echarts/chart/bar','echarts/chart/pie'],function (require) {
+define('_chart',['require','echarts/chart/gauge','echarts/chart/funnel','echarts/chart/scatter','echarts/chart/k','echarts/chart/radar','echarts/chart/chord','echarts/chart/force','echarts/chart/line','echarts/chart/bar','echarts/chart/pie', 'echarts/chart/table'],function (require) {
     require("echarts/chart/gauge");
     require("echarts/chart/funnel");
     require("echarts/chart/scatter");
@@ -39414,4 +39920,5 @@ define('_chart',['require','echarts/chart/gauge','echarts/chart/funnel','echarts
     require("echarts/chart/line");
     require("echarts/chart/bar");
     require("echarts/chart/pie");
+    require("echarts/chart/table");
 });

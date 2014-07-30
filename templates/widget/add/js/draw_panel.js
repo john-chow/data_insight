@@ -227,6 +227,8 @@ define([
 			Backbone.Events.on("panel:clear",       _.bind(this.clear, this));
 			this.drawer = new Drawer();
             this.dataCenter = new DataCenter()
+        
+            this.$el.append("<div id='draw_container' style='height: 100%'></div>");
 
             // test
             Backbone.Events.on("panel:update_data", _.bind(this.setAboutUpdating, this));
@@ -240,7 +242,7 @@ define([
             //var data = $.merge(data, {"style": styleData});
             //data = JSON.parse('{"data":{"y":[{"type":"value"}],"x":[{"data":["广州","北京"],"type":"category"}],"legend_series":[{"series":[1.95,1.92]}]},"type":"bar"} ')
 			console.log(data);
-			this.drawer.run(this.el, data, {
+			this.drawer.run(this.$("#draw_container")[0], data, {
                 "yes":          false
                 , "wi_id":      0
                 , "period":     10000

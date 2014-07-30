@@ -85,6 +85,7 @@ STATICFILES_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 	STATIC_PATH,
 	REQUIREJS_MODULE_PATH,
+    MARIONETTE_PATH,
 )
 
 # List of finder classes that know how to find static files in
@@ -127,6 +128,7 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 	TEMPLATE_PATH,
 	REQUIREJS_MODULE_PATH,
+    MARIONETTE_PATH,
 )
 
 INSTALLED_APPS = (
@@ -143,7 +145,7 @@ INSTALLED_APPS = (
     'widget',
 	'scene',
     'theme',
-    'monitor',
+    #'monitor',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:

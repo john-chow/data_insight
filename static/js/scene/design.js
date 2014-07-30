@@ -34,7 +34,13 @@ $(function(){ //DOM Ready
             }
           }
         });
-
+        $(".gridster").on("click", ".scene-text-edit", function(event){
+            text = $(this).siblings("div").html();
+            id = $(this).parent().attr("id");
+            $('#editorModal').modal();
+            CKEDITOR.instances.sceneEditor.setData(text);
+            $("#scene_text_button_ok").attr("onclick","editorModalEditOk('"+id+"')");
+        }); 
 });
 
 //初始化页面
@@ -83,6 +89,40 @@ function outtest() {
     });
 }
 
+//打开ckeditor模态框
+function openEditorModal() {
+    CKEDITOR.instances.sceneEditor.setData("");
+    $('#editorModal').modal();
+    $("#scene_text_button_ok").attr("onclick","editorModalOk()");
+}
+
+//点击ckeditor确定键事件
+function editorModalOk(){
+    var gData = CKEDITOR.instances.sceneEditor.getData();
+    var timestamp = Date.now(); 
+    var gridster = $(".gridster ul").gridster().data('gridster');//获取对象
+    var st= "<li class='gs-w' id='text-"+timestamp+"'><div>"+gData+"</div></li>";
+    gridster.add_widget(st, 10, 5);//增加一个
+    $("#text-"+timestamp).append("<span class='scene-text-edit glyphicon glyphicon-cog'></span>");
+    $('#editorModal').modal('hide');
+}
+
+function editorModalEditOk(text_id){
+    var gData = CKEDITOR.instances.sceneEditor.getData();
+    $("#"+text_id+">div").html(gData)
+    $('#editorModal').modal('hide');
+    CKEDITOR.instances.sceneEditor.setData("");
+}
+
+
+//切换显示边框
+function hideBorder() {
+    $('.gridster>ul').removeClass('gridster-border').addClass('gridster-border2');
+}
+
+function showBorder() {
+   $('.gridster>ul').removeClass('gridster-border2').addClass('gridster-border');
+}
 
 
 // 传递全局事件对象

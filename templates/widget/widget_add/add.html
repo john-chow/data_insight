@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html data-framework="marionettejs">
+  <head>
+    <meta charset="utf-8">
+    <title>DataInsight Design</title>
+    <link href="{% static 'assets/css/bootstrap.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/bootstrap-theme.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/widget-add.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/jquery-ui.css' %}" rel="stylesheet">
+  </head>
+
+  <body>
+    <!-- logo begin -->
+    <div id="logo">DataInsight Design</div>
+
+    <!-- menu begin -->
+    <div id="menu">
+      <nav class="navbar navbar-default lr-header" role="navigation">
+            <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+              <span class="sr-only">DataInsight</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="menu-home navbar-brand" href="#">DataInsight</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav menu-ul" >
+              <li class="active"><a href="/widget">组件</a></li>
+              <li><a href="/scene">场景</a></li>
+              <li><a href="/theme">主题</a></li>
+              <li><a href="#">数据管理</a></li>
+              <li><a href="#">浏览模式</a></li>
+            </ul>
+        </div>
+      </nav>
+    </div>
+
+    <!-- operate begin-->
+    <div id="operate_region"></div>
+
+    <!-- section begin-->
+    <section class="row">
+      <div id="data" class="col-sm-2 col-xs-12">
+        <!-- table begin -->
+        <div id="table_region"></div>
+        <!-- field begin -->
+        <div id="field_region"></div>
+      </div>
+
+      <div id="area" class="col-sm-10 col-xs-12">
+        <!-- design begin -->
+        <div id="design_region"></div>
+        <!-- show begin -->
+        <div id="show_region"></div>
+        <!-- switch begin -->
+        <div id="switch_region"></div>
+      </div>
+    </section>
+
+    <!-- dialog begin -->
+    <div id="dialog_region" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog_region" aria-hidden="true"></div>
+
+    <!-- info begin -->
+    <div id="info"></div>
+
+    <!-- requirejs定义 -->
+    <script data-main="{% static 'assets/js/main.js' %}" src="{% static 'assets/js/lib/require.js' %}"></script>
+    <script>window.id = '{{widget.pk}}'</script>
+  </body>
+</html>

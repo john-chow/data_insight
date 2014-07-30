@@ -65,21 +65,6 @@ overflow: auto;
     color: #AFAFAF;
 }
 
-.choosed_chart_extra {
-    padding:0 10px;
-    background-color: #E5E2F1;
-}
-
-.choosed_chart_extra span {
-    padding: 0 10px;
-    cursor: default;
-}
-
-.choosed_chart_extra span:hover {
-    background-color: #F6E8F5;
-    border-radius: 5px;
-}
-
 #choosed_chart .panel-heading , 
 #choosed_layout .panel-heading ,
 #choosed_dashboard .panel-heading {

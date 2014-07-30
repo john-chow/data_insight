@@ -5,9 +5,10 @@ define([
 , "echarts/chart/scatter"
 , "echarts/chart/pie"
 , "echarts/chart/radar"
+, "echarts/chart/table"
 , "common/tools"
 , "outter_interface"
-], function(echart, _b, _l, _s, _p, _r, _tools, _ot) {
+], function(echart, _b, _l, _s, _p, _t,  _r, _tools, _ot) {
 
 
 /////////////////////////////////////////////////////////////////////
@@ -68,6 +69,9 @@ define([
 				case "radar":	
 					this.now_drawer = new RadarDrawer();
 					break;
+                case "table":
+                    this.now_drawer = new TableDrawer();
+                    break;
 				default:
 					easy_dialog_error('xxxxxxxxxxxx');
 					return
@@ -141,15 +145,6 @@ define([
 					'saveAsImage' : 	{'show': true}
 				}
 			}
-			, 'dataRange':				{
-				'min': 			0,
-				'max' : 		100,
-				'calculable' : 	true,
-				'color': 		['red','orange','yellow','lightgreen'],
-				'textStyle':{
-					'color':	'#fff'
-				}
-			}
 			, 'series':		[
 			]
 		};
@@ -180,6 +175,23 @@ define([
 		this.draw =		function(optionData) {
             this.ec.clear();
             var data = optionData || this.optionCloned;
+
+            /*
+            var data = {
+                "row":          {
+                    "style":        ["english", "usa"]
+                }
+                , "column":     {
+                    "size":         ["small", "big"]
+                    , "color":      ["red", "yellow", "blue"]
+                }
+                , "series":     [{
+                    "name":         "price"
+                    , "type":       "table"
+                    , "data":       [1,2,3,5,6,7,8,9,10,11,12,13]
+                }]
+            };
+            */
             this.ec.setOption(data)
 		};
 
@@ -349,8 +361,7 @@ define([
             }
 
             self.ec.addData(dataList)
-        };
-
+        }
 	};
 
 
@@ -530,6 +541,111 @@ define([
 	};
 
 
+    var TableDrawer     =   function() {
+        this.rowList = [];
+        this.columnList = [];
+        this.rowNum = 0;
+        this.columnNum = 0;
+
+		this.work = function(resp) {
+			this.fillRowColumn(resp.data);
+			TableDrawer.prototype.work.call(this, resp);
+		};
+
+        this.fillSeries     =       function(data) {
+            var self = this;
+
+            var rowPosList = $.map(data["belong_row"], function(i) {
+                return self.estRowPos(i)
+            });
+            var columnPosList = $.map(data["belong_column"], function(i) {
+                return self.estColumnPos(i)
+            });
+
+            for(var k in data) {
+                if(k !== "row" && k !== "belong_row" 
+                                && k != "column" && k != "belong_column") {
+
+                    var unitData = [];
+                    for (var i = 0; i < self.columnNum * self.rowNum; i++) {    
+                        unitData.push('')
+                    }
+
+                    $.each(data[k], function(i, val) {
+                        var rowPos      = rowPosList[i];
+                        var columnPos   = columnPosList[i];
+                        var pos = rowPos * self.columnNum + columnPos;
+                        unitData[pos] = val
+                    })
+
+                    var unitSeries = {
+                        "name":             k        
+                        , "type":           "table"
+                        , "data":           unitData 
+                    };
+                    self.optionCloned.series.push(unitSeries)
+                }
+            }
+        };
+
+        this.fillRowColumn  =       function(data) {
+            this.optionCloned["row"] = data["row"];
+            this.optionCloned["column"] = data["column"]
+
+            this.calcRowNum(data["row"]);
+            this.calcColumnNum(data["column"]);
+        };
+
+        this.calcRowNum     =       function(list) {
+            var self = this;
+            $.each(list, function(i, obj) {
+                self.rowList.push(obj.classes);
+                if (0 == i) 
+                    self.rowNum = obj.classes.length
+                else
+                    self.rowNum *= obj.classes.length
+            })
+        };
+
+        this.calcColumnNum  =       function(list) {
+            var self = this;
+            $.each(list, function(i, obj) {
+                self.columnList.push(obj.classes);
+                if (0 == i) 
+                    self.columnNum = obj.classes.length
+                else
+                    self.columnNum *= obj.classes.length
+            })
+        };
+
+        this.estRowPos      =       function(rowClasses) {
+            var len = rowClasses.length;
+            var nextLoopLen = 1;
+            var pos = 0;
+            for (var i = len - 1; i >= 0; i--) {
+                var theRowKindsList = this.rowList[i];
+                var idx = theRowKindsList.indexOf(rowClasses[i]);
+                pos = idx * nextLoopLen + pos;
+                nextLoopLen = theRowKindsList.length
+            }
+            return pos
+        };
+
+        this.estColumnPos   =       function(colClasses) {
+            var len = colClasses.length;
+            var nextLoopLen = 1;
+            var pos = 0;
+            for (var i = len - 1; i >= 0; i--) {
+                var theColumnKindsList = this.columnList[i];
+                var idx = theColumnKindsList.indexOf(colClasses[i]);
+                pos = idx * nextLoopLen + pos;
+                nextLoopLen = theColumnKindsList.length
+            }
+            return pos
+        }          
+    };
+
+
 	var MapDrawer = function() {
 		this.seriesOne = {
             name: '全国'
@@ -610,6 +726,7 @@ define([
 	RadarDrawer.prototype 	= baseDrawer;
 	MapDrawer.prototype 	= baseDrawer;
 	ScatterDrawer.prototype = baseDrawer;
+    TableDrawer.prototype   = baseDrawer;
 	var axisDrawer = new AxisDrawer();
 	BarDrawer.prototype		= axisDrawer;
 	LineDrawer.prototype	= axisDrawer;
