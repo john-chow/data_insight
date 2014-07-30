@@ -175,6 +175,7 @@ define([
             this.ec.setOption(data)
 		};
 
+/*
         // 主要的控制样式部分
         this.styleChart     =   function(style) {
             var self = this;
@@ -191,6 +192,7 @@ define([
                 $.extend(ss, style["se"])
             })
         };
+*/
 
         this.styleLegend    =   function(lgStyle) {
         };
@@ -213,6 +215,7 @@ define([
         // 是否是聚合型图，即有没有stacked
         this.stacked        = false;
 
+/*
 		this.catStyle = {
 			boundaryGap : false
 		};
@@ -223,6 +226,7 @@ define([
             }
 			, splitArea : {show : true}
 		};
+*/
 
         this.seriesNewAdd = [
             0, 0, true, false, null   // 参数意义见echart官网
@@ -256,10 +260,12 @@ define([
 			AxisDrawer.prototype.work.call(this, resp);
 		};
 
+/*
         this.styleChart =   function(style) {
             this.styleAxis(style["x"], style["y"]);
             AxisDrawer.prototype.styleChart.call(this, style);
         };
+*/
 
 		this.fillAxis = function(data) {
 			// 分别加上属性样式，和数值样式
@@ -328,6 +334,7 @@ define([
 
 
 	var BarDrawer = function() {
+/*
 		this.catStyle = {
 		};
 		
@@ -336,6 +343,7 @@ define([
 
 		this.seriesStyle = {
 		};
+*/
 
 		this.styleAxis = function() {
 		};
@@ -346,6 +354,7 @@ define([
 	};
 
 	var LineDrawer = function() {
+/*
 		this.catStyle = {
 		};
 		
@@ -354,6 +363,7 @@ define([
 
 		this.seriesStyle = {
 		};
+*/
 
 		this.styleAxis = function() {
 		};
@@ -368,6 +378,7 @@ define([
             AreaDrawer.prototype.init.call(this, ec, "line" ,stateOption)
         };
 
+/*
 		this.catStyle = {
 		};
 		
@@ -376,6 +387,7 @@ define([
 
 		this.seriesStyle = {
 		};
+*/
 
 		this.styleAxis = function() {
 		};
