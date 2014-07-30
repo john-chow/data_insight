@@ -184,9 +184,6 @@ def widgetEdit(request, widget_id, template_name):
 
         # 有没有直接把Model里面全部属性转换成dict的办法？ 
         req_data = widget_model.restoreReqDataDict()
-        style_data  = widget_model.m_skin.getSkinDict() \
-                                    if widget_model.m_skin else {}
-        image_data  = dict(req_data, **style_data)
         aid_data    = widget_model.restoreAidData()
 
         # 删掉空值的属性
@@ -200,7 +197,7 @@ def widgetEdit(request, widget_id, template_name):
 
         data = {
             'id':           widget_id
-            , 'content':    json.dumps(image_data)
+            , 'content':    json.dumps(req_data)
             , 'aid':        json.dumps(aid_data)
         }
         return render_to_response(template_name, data, context)
@@ -224,9 +221,6 @@ def widgetShow(request, widget_id):
         st              = stRestore(hk)
         st.reflectTables(json.loads(widget_model.m_table))
         image_data      = genWidgetImageData(req_data, hk)
-        style_data      = widget_model.m_skin.getSkinDict() \
-                                        if widget_model.m_skin else {}
-        image_data['style'] = style_data
         return MyHttpJsonResponse({u'succ': True, u'widget_id':widget_id, u'data': image_data})
 
 
