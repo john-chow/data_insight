@@ -328,59 +328,22 @@ define("compontnents", ["display"], function(d) {
 // 皮肤模块
 // ************************
 define("skin", [], function() {
-
     var skinObj         =   {
-        $el:                    null,
-        skinNumber:             1,
 
-        init:               function() {
-            //this.$el.find("").on("click", bindContext(this.rqSkinDetail, this))
-            $body.on("test", bindContext(this.rqSkinDetail, this))
-        },
-
-        rqSkinDetail:         function(ev, data) {
-            var self        =   this;
-            var skinNumber  =   data;
-            //var skinNumber      = $(ev.target).attr("skin_number");
-            $.ajax({
-                url:            "/skin/detail/scene/" + skinNumber     
-                , type:         "GET"
-                , dataType:     "json"
-                , success:      function(resp) {
-                    if (resp.succ) {
-                        self.skinNumber = skinNumber;
-                        self.cmdToChangeSkin(resp.data)
-                    }
-                }
-                , error:        function() {}
+        skinName:               "dark",
+        
+        dressSkin:          function(list, name) {
+            $.each(list, function(i, dw) {
+                dw.getEc().setTheme(name)
             })
         },
 
-
-        cmdToChangeSkin:        function(skinData) {
-            $body.trigger("change_skin", skinData)            
-        },
-
-
-        // 自定义场景皮肤和组件皮肤的合并规则
-        mixSkin2WiData:          function(skinData, wiData) {
-            var wiStyle     = wiData["style"];                  
-            wiStyle         = wiStyle || {};
-
-            $.extend(wiStyle, skinData)
-            return wiData
-        },
-
-        getSkinNumber:              function() {
-            return this.skinNumber
+        changeSkin:         function(name) {            
+            this.skinName   = name;
         }
     }
 
-    skinObj.init();
-
-    return {
-        "sn":       skinObj
-    }
+    return skinObj
 })
 
 
@@ -393,10 +356,9 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
         $el:                $("#scene_design_right"),
         $gridster:          $(".gridster ul"),
         drawerList:             [],             // 画图对象
-        scnSkinData:        {},                 // 场景皮肤
 
         run:                    function() {
-            this.skinObj       = Skin.sn;
+            this.skinObj       = Skin;
             this.init();
             this.startListener()
         },
@@ -406,7 +368,6 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
             this.layoutArr = layoutStr ? JSON.parse(layoutStr) : null;
 
             var skinStr = $("#scn_data").html();
-            this.scnSkinData    = (skinStr.trim().length > 0) ? JSON.parse(skinStr) : {}
         },
         
         startListener:          function() {
@@ -415,18 +376,15 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
             $body.on("change_skin",     bindContext(this.changeSkin, this));
         },
 
-        dressSkin:             function(ev, skinData) {
-            // 对本场景下的每个组件使用该样式
-            var self = this;
-            $.each(this.drawerList, function(i, obj) {
-                var dataDraw = self.skinObj.mixSkin2WiData(skinData, obj["wi_data"]);
-                obj["dr"].getDrawer().start(dataDraw)
-            })
+        dressSkin:             function(ev, name) {
+            var drList = $.map(this.drawerList, function(dw) {
+                return dw['dr']
+            });
+            this.skinObj.dressSkin(drList, name)
         },
 
         changeSkin:             function(ev, skinData) {
-            this.scnSkinData    = skinData;
-            this.dressSkin(ev, this.scnSkinData)
+            this.skinObj.changeSkin(name)
         },
 
         showNewWidget:              function(ev, data) {
@@ -448,9 +406,8 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
             );
 
             var wiData  =    data.data;
-            var dataDraw = this.skinObj.mixSkin2WiData(this.scnSkinData, wiData);
             var drawer = new DrawManager();
-            drawer.run($(".se_wi_div_"+data.widget_id)[len], dataDraw);
+            drawer.run($(".se_wi_div_"+data.widget_id)[len], wiData);
 
             this.drawerList.push({"stamp": timestamp, "dr": drawer, "wi_data": wiData});
 
