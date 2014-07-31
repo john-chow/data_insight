@@ -141,9 +141,10 @@ def uploadFile(request):
         st.connDb(**DEFAULT_DB_INFO)
         file_name = f.name.split('.')[0]
         if 'excel' != request.POST.get('type'):
-            sheets  = request.POST.getlist('sheets')
-            sheets  = ['Sheet1', 'Sheet2']
-            Excel(f, file_name).reflectToTables(st, sheets)
+            #sheets  = request.POST.getlist('sheets')
+            Excel(f, file_name).reflectToTables(st)
+            #sheets  = ['Sheet1', 'Sheet2']
+            #Excel(f, file_name).reflectToTables(st, sheets)
         else:
             spliter  = request.POST.get('spliter')
             spliter  = ','
