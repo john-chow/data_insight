@@ -1,0 +1,29 @@
+<script type="text/template" id="filter-view">	
+	<div class="row">
+		<div class="col-md-3">
+			<p class="filter-label">过滤器: <a class="pull-right" href="#">清空所有过滤器</a></p>
+			<textarea name=""  rows="3" style="width: 100%;">
+				<%= filter %>
+			</textarea>
+		</div>
+		<div class="col-md-4 col-offset-1">
+			<p class="filter-label">选中:</p> 
+			<textarea name="" rows="3" style="width: 100%;">
+				<%= filter %>
+			</textarea>
+		</div>
+		
+		<div class="col-md-3 col-offset-1">
+			<p class="filter-label">
+				<select name="filter">
+					<option>选中</option>
+					<option>排除</option>
+				</select>
+			<a class="pull-right" href="#">清空</a>
+			</p>
+			<textarea name="" rows="3" style="width: 100%;">
+				<%= filter %>
+			</textarea>
+		</div>
+	</div>
+</script>
