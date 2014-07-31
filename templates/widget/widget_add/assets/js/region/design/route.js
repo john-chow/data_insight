@@ -6,14 +6,14 @@ define([
 
 	  //////////////////////////////////////////////////////////定义接口
 	  var API = {
-	    showGraph: function(){
-	    	DesignRegion.Controller.showGraph();
+		showDesingView: function(){
+	    	new DesignRegion.Controller();
 	    }
 	  };
 
 	  //////////////////////////////////////////////////////////监听页面start
 	  DataInsightManager.on("start", function(){
-	    API.showGraph();
+	    API.showDesingView();
 	  });
 	});
 

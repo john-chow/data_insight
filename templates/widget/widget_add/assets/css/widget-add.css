@@ -207,7 +207,8 @@ body {
 	height: inherit;	
 }
 
-#design-content{
+#design-content,#design-graph
+,#design-filter,#design-property{
 	height: 100%;
 	margin-left: 41px;
 	background: white;
@@ -292,6 +293,7 @@ body {
 	border-color: #ddd;
 	border-top-left-radius: 8px;
 	background-color: #F2F2F0;
+	float: left;
 }
 #graph-feature ul{
 	list-style: none;
@@ -313,4 +315,56 @@ body {
 	border-right: 1px solid #ddd;
 	height: 38px;
 }
+
+#x_sortable>li[type='mension'], 
+#y_sortable>li[type='mension'] {
+background-color: #C9DBF5;
+border: 1px solid #C9DBF5;
+}
+#x_sortable>li[type='measure'], 
+#y_sortable>li[type='measure'] {
+background-color: #E0E7CB;
+border: 1px solid #CAD8B7;
+}
+
+#x_sortable>li:hover[type='mension'],
+#y_sortable>li:hover[type='mension'] { 
+    background-color: #CAE4FC;
+    border: 1px solid #AA9DEB;
+}
+
+#x_sortable>li:hover[type='timesion'],
+#y_sortable>li:hover[type='timesion'] { 
+    background-color: #CAE4FC;
+    border: 1px solid #AA9DEB;
+}
+
+#x_sortable>li, #y_sortable>li {
+	margin: 1px 0 1px 1px;
+	border-radius: 6px;
+	padding: 0px;
+	float: left;
+	width: 110px;
+	height: 23px;
+	text-align: center;
+	background: none;
+	transition: background-color 0.3s ,border 0.3s;
+	-moz-transition: background-color 0.3s, border 0.3s;
+	-webkit-transition: background-color 0.3s, border 0.3s;
+	-o-transition: background-color 0.3s, border 0.3s;
+	/* overflow: hidden; */
+	position: relative;
+	list-style: none;
+}
+
+.filter-label{
+	height: 30px;
+}
+
+#design-property input,#design-property select{
+	width: 300px;
+	height: 35px;
+	margin: 0 0 15px 15px;
+}
+
 /* end design«¯”Úcss */

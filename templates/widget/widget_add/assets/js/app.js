@@ -4,6 +4,7 @@
  */
 define([
 	'jquery',
+	'jquery-ui',
 	'json2',
 	'underscore',
 	'backbone',
@@ -12,7 +13,7 @@ define([
 	'region/table/route',
 	'region/field/route',
 	"region/design/route"
-], function ($, json, _, backbone, Marionette, dialog, tableRoute, fieldRoute) {
+], function ($, JqueryUi, json, _, backbone, Marionette, dialog, tableRoute, fieldRoute) {
 
 	DataInsightManager.addRegions({
 	      operateRegion: 			"#operate_region",	//操作栏区域
