@@ -18,7 +18,19 @@ define([
 		//图表视图
 		DesignRegion.Graph = Marionette.ItemView.extend({
 			template: graphViewTemplate,
+			//调用完layoutview的show或者region的show方法后，触发
 			onShow: function(){
+				var self = this;
+				$(".select-graph .charts").each(function(){
+					var type = $(this).data("graph");
+					$(".select-graph").on("click", ".chart-" + type , function(){
+						//触发改变图表类型事件,更新操作由图表model完成
+						self.model.trigger("change:graphType", type);
+					});
+				})
+			},
+			//调用该view的render方法触发
+			onRender: function(){
 				var self = this;
 				$(".select-graph .charts").each(function(){
 					var type = $(this).data("graph");
@@ -31,7 +43,7 @@ define([
 			initialize: function(){
 				//当改变图表类型的时候触发，更新图表视图
 				this.model.on("change:feature", function(mapping){
-					this.render();
+					this.render();//重新render后等于新建视图，则在onShow方法绑定的事件失效
 				}, this)
 			},
 			changeGraph: function(e){
@@ -43,9 +55,27 @@ define([
 		DesignRegion.Design = Marionette.LayoutView.extend({
 			template: regionDesignTemplate,
 			className: "outer-design-content",
+			events: {
+				"click .graph-view" : "switchGraphTab",
+				"click .filter-view" : "switchFilterTab",
+				"click .property-view" : "switchPropertyTab"
+			},
 			regions: {
 				designContentRegion: "#design-content"
-			}
+			},
+			switchGraphTab: function(e){
+				$(".active").removeClass("active");
+				$(e.target).addClass("active");
+				
+			},
+			switchFilterTab: function(e){
+				$(".active").removeClass("active");
+				$(e.target).addClass("active");
+			},
+			switchPropertyTab: function(e){
+				$(".active").removeClass("active");
+				$(e.target).addClass("active");
+			},
 			
 		})
 	})

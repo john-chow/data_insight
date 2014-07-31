@@ -17,6 +17,9 @@ define([
 						model: fetchGraph
 					});
 					designView.designContentRegion.show(graphView);
+				},
+				showFilter: function(){
+					var fetchFilter = DataInsightManager.request("filter:entity");
 				}
 		}
 	});
