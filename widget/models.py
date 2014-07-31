@@ -36,6 +36,8 @@ class WidgetModel(ElementModel):
                                         db_column='graph')               
     m_if_update     = models.BooleanField(db_column = 'ifupdate', default = False)
     m_update_period = models.IntegerField(db_column = 'period', default = 0)
+    m_skin          = models.CharField(db_column = 'skin', max_length = 16, \
+                                        default = 'default')
     m_pic           = models.TextField(db_column='snapshot')
     m_external_db   = models.ForeignKey('ExternalDbModel')
 

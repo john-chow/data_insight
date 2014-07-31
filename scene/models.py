@@ -19,7 +19,8 @@ class SceneModel(ElementModel):
     m_insert_word   = models.TextField(db_column = u'insert_word')
     m_insert_pic    = models.TextField(db_column = u'insert_pic')
     m_snapshot      = models.TextField(db_column = u'snapshot')
-    m_skin   = models.CharField(max_length = 20, db_column='skin', null=True)
+    m_skin          = models.CharField(db_column = 'skin', max_length = 16, \
+                                        default = 'default')
     m_widgets       = models.ManyToManyField(WidgetModel \
                             , through='ScnToWiRelationModel' \
                             , related_name = 's2w_set')

@@ -340,6 +340,10 @@ define("skin", [], function() {
 
         changeSkin:         function(name) {            
             this.skinName   = name;
+        },
+
+        getSkinName:        function() {
+            return this.skinName
         }
     }
 
@@ -555,7 +559,7 @@ define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
             var displayObj      = this.display.getDisplayDataForAjax();          
             var widgetsStr      = this.scnWidgetsObj.getWidgetsDataForAjax();
             var name            = this.myAttributesObj.getName();
-            var skinNumber      = this.display.getSkinObj().getSkinNumber();
+            var skinNumber      = this.display.getSkinObj().getSkinName();
 
             if (window.scene_id) 
                 var url = "/scene/edit/" + window.scene_id + "/"

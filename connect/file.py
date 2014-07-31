@@ -307,7 +307,9 @@ class Excel():
         self.workbook = xlrd.open_workbook(file_contents = f.read())
         self.sheet_list = []
 
-    def reflectToTables(self, st, sheets):
+    #def reflectToTables(self, st, sheets):
+    def reflectToTables(self, st):
+        sheets = self.workbook.sheets()
         for sheet_name in sheets:
             worksheet   = self.workbook.sheet_by_name(sheet_name)
             sheet_obj   = Sheet(st, sheet_name, worksheet)
