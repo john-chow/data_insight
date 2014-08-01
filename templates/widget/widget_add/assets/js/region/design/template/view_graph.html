@@ -21,16 +21,34 @@
 			<div class="dragging-custom design-column clearfix">
 				<div class="test">纵轴</div>
 				<ul id="y_sortable" ondragover="return false" class="connectedSortable clearfix ">
-					<% _.each(axisX, function(x, index){ %>
-   					 	<li class="mension" type="mension"> <%= x %> </li>
+					<% _.each(y, function(yItem, index){ %>
+   					 	<li class="mension" type="mension"> 
+							<!--(<%=yItem.calcFunc%>)-->
+							&nbsp;<%= yItem.name %>
+							<b data-toggle="dropdown" class="glyphicon glyphicon-plus-sign dropdown-toggle"></b> 
+							<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+								<li class="coordinate-edit"><a data-yItem='<%=JSON.stringify(yItem)%>' href="#"><i class="glyphicon glyphicon-edit"></i>&nbsp;编辑</a></li>
+								<li class="coordinate-filter"><a href="#"><i class="glyphicon glyphicon-filter"></i>&nbsp;筛选</a></li>
+								<li class="coordinate-remove"><a data-yItem='<%=JSON.stringify(yItem)%>' href="#"><i class="glyphicon glyphicon-remove"></i>&nbsp;移除</a></li>
+							</ul>
+						</li>
     				<% }); %>
 				</ul>
 			</div>
 			<div class="dragging-custom design-column clearfix" style="margin-top: 25px;">
 				<div class="test">横轴</div>
 				<ul id="x_sortable" ondragover="return false" class="connectedSortable clearfix">
-					<% _.each(axisY, function(y){ %>
-   					 	<li class="measure" type="measure"> <%= y %> </li>
+					<% _.each(x, function(xItem){ %>
+   					 	<li class="measure" type="measure"> 
+							<!--(<%=xItem.calcFunc%>)&nbsp;-->
+							<%= xItem.name %>
+							<b data-toggle="dropdown" class="glyphicon glyphicon-plus-sign dropdown-toggle"></b>
+							<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+								<li class="coordinate-edit"><a  data-xItem='<%=JSON.stringify(xItem)%>' href="#"><i class="glyphicon glyphicon-edit"></i>&nbsp;编辑</a></li>
+								<li class="coordinate-filter"><a href="#"><i class="glyphicon glyphicon-filter"></i>&nbsp;筛选</a></li>
+								<li class="coordinate-remove"><a data-xItem='<%=JSON.stringify(xItem)%>' href="#"><i class="glyphicon glyphicon-remove"></i>&nbsp;移除</a></li>
+							</ul>
+						</li>
     				<% }); %>
 				</ul>
 			</div>

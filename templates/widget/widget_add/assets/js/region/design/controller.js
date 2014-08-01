@@ -1,6 +1,7 @@
 define([
         'entities/graph',
         'entities/filter',
+        'entities/axis',
         'entities/property',
         'region/design/view'
 ],function(){
@@ -14,12 +15,33 @@ define([
 				 * 初始化controller
 				 */
 				initialize: function(){
+					var self = this;
 					this.graph = DataInsightManager.request("graph:entity");
 					this.filter = DataInsightManager.request("filter:entity");
 					this.property = DataInsightManager.request("property:entity");
 					this.graphView = new DesignRegion.Graph({
 						model: this.graph
 					});
+					//监听编辑x轴元素的事件
+					this.graphView.on("x:edit", function(xItem){
+						var axisX = DataInsightManager.request("axis:entity");
+						axisX.set(xItem);
+						var dialogXView = new DesignRegion.DialogX({
+							model: axisX
+						});
+						DataInsightManager.dialogRegion.show(dialogXView);
+					})
+					
+					//监听编辑y轴元素的事件
+					this.graphView.on("y:edit", function(yItem){
+						var axisY = DataInsightManager.request("axis:entity");
+						axisY.set(yItem);
+						var dialogYView = new DesignRegion.DialogX({
+							model: axisY
+						});
+						DataInsightManager.dialogRegion.show(dialogYView);
+					})
+					
 					this.filterView = new DesignRegion.Filter({
 						model : this.filter
 					});
@@ -67,12 +89,7 @@ define([
 				 * 显示默认的design区域的视图，即显示图标视图
 				 */
 				showDefaultView: function(){
-					var fetchGraph = DataInsightManager.request("graph:entity");
-					//默认选中图表选项卡
-					var graphView = new DesignRegion.Graph({
-						model: fetchGraph
-					});
-					this.designView.designGraphRegion.show(graphView);
+					this.designView.designGraphRegion.show(this.graphView);
 				},
 				
 			}

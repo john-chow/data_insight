@@ -16,7 +16,8 @@ requirejs.config({
 	        "text":				"lib/text",
 	        "spin":				"lib/spin",
 	        "spin-jquery":		"lib/spin.jquery",
-	        "bootstrap":		"lib/bootstrap"
+	        "bootstrap":		"lib/bootstrap",
+	        "tool": 			"common/tool"
     },
 
     //添加依赖关系
