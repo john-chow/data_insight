@@ -7,18 +7,18 @@ define([], function () {
 var data = DataInsightManager.module("Entities",
     function(Entities, DataInsightManager, Backbone, Marionette, $, _){
 
-    //////////////////////////////////////////////////////////定义Table模型
+    //定义Table模型
     Entities.Table = Backbone.Model.extend({
       urlRoot: "table",
     });
 
-    //////////////////////////////////////////////////////////定义Table集合
+    //定义Table集合
     Entities.TableCollection = Backbone.Collection.extend({
       url: "tables",
       model: Entities.Table,
     });
 
-    //////////////////////////////////////////////////////////假设测试数据
+    //假设测试数据
     var tables;
     var initializeTables = function(options){
       //根据options去获取数据，下面是测试数据
@@ -38,7 +38,7 @@ var data = DataInsightManager.module("Entities",
       return tables;
     };
 
-    //////////////////////////////////////////////////////////定义接口
+    //定义接口
     var API = {
       //获取表集合
       getTableEntities: function(options){
@@ -58,7 +58,7 @@ var data = DataInsightManager.module("Entities",
 
     };
 
-    //////////////////////////////////////////////////////////设定request获取
+    //设定request获取
     DataInsightManager.reqres.setHandler("table:entities", function(options){
       return API.getTableEntities(options);
     });

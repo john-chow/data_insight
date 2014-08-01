@@ -12,10 +12,10 @@ define([
 		FieldRegion.Controller = {
 			ListFields: function(id){
 
-			/////////////////////////////获取数据
+			//获取数据
 			var fields = DataInsightManager.request("field:entities",id);
 
-			/////////////////////////////新建View
+			//新建View
 			var fieldsListView = new FieldRegion.FieldView({
 				collection: fields
 			});
@@ -33,7 +33,7 @@ define([
 				DataInsightManager.dialogRegion.show(fieldManageView);
 			});
 	        
-			/////////////////////////////显示View
+			//显示View
 			DataInsightManager.fieldRegion.show(fieldsListView);
 			}
 		}

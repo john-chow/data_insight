@@ -7,18 +7,18 @@ define([], function () {
 var data = DataInsightManager.module("Entities",
     function(Entities, DataInsightManager, Backbone, Marionette, $, _){
 
-    //////////////////////////////////////////////////////////定义Field模型
+    //定义Field模型
     Entities.Field = Backbone.Model.extend({
       urlRoot: "field",
     });
 
-    //////////////////////////////////////////////////////////定义Field集合
+    //定义Field集合
     Entities.FieldCollection = Backbone.Collection.extend({
       url: "fields",
       model: Entities.Field,
     });
 
-    //////////////////////////////////////////////////////////假设测试数据
+    //假设测试数据
     var fields;
     var initializeFields = function(id){
       if(id==undefined){
@@ -64,7 +64,7 @@ var data = DataInsightManager.module("Entities",
       return fields;
     };
 
-    //////////////////////////////////////////////////////////定义接口
+    //定义接口
     var API = {
       //获取表集合
       getFieldEntities: function(id){
@@ -73,7 +73,7 @@ var data = DataInsightManager.module("Entities",
       },
     };
 
-    //////////////////////////////////////////////////////////设定request获取
+    //设定request获取
     DataInsightManager.reqres.setHandler("field:entities", function(id){
       return API.getFieldEntities(id);
     });

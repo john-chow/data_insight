@@ -77,7 +77,6 @@ body {
 	width: 100%;
 	min-height: 80px;
 	background: #D4D4D4;
-	border: 1px solid #ddd;
 }
 
 #show_region {
@@ -180,7 +179,6 @@ body {
 	text-align: center;
 }
 
-<<<<<<< HEAD
 .choosed-db-new,
 .choosed-db-old {
 	list-style: none;
@@ -298,7 +296,7 @@ body {
 }
 
 .field-manage-content {
-	max-height: 350x;
+	max-height: 350px;
 	overflow: auto;
 }
 
