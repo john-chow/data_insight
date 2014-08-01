@@ -13,7 +13,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 
 from scene.models import SceneModel, ScnToWiRelationModel
 from widget.models import WidgetModel
-from skin.models import SkinModel
+#from skin.models import SkinModel
 from common.tool import MyHttpJsonResponse
 from common.head import SCENE_SKIN_PATH
 
@@ -48,7 +48,7 @@ def sceneCreate(request):
     """
     if u'POST' == request.method:
         owner = request.user.username
-        name, snapshot, layout, skin_id = map(lambda x: request.POST.get(x), \
+        name, snapshot, layout, skin_name = map(lambda x: request.POST.get(x), \
                                         ('name', 'image', 'layout', 'skin'))
         widgets = json.loads(request.POST.get('widgets'))
 
@@ -56,14 +56,9 @@ def sceneCreate(request):
         if not widgets:
             return MyHttpJsonResponse({u'succ': False, u'msg': 'no widgets'})
 
-        try:
-            skin    = SkinModel.objects.get(m_number = skin_id)
-        except SkinModel.DoesNotExist, e:
-            return MyHttpJsonResponse({'succ': False, 'msg': '没有皮肤'})
-
         scene = SceneModel.objects.create(  \
             m_name = name, m_owner = owner, m_layout = layout   \
-            , m_snapshot = snapshot, m_skin = skin    \
+            , m_snapshot = snapshot, m_skin = skin_name    \
         )
 
         rla_list = []
@@ -92,7 +87,7 @@ def sceneEdit(request, scn_id):
     编辑场景
     """
     if u'POST' == request.method:
-        name, snapshot, layout, skin_id = map(lambda x: request.POST.get(x), \
+        name, snapshot, layout, skin_name = map(lambda x: request.POST.get(x), \
                                                 ('name', 'image', 'layout', 'skin'))
         widgets = json.loads(request.POST.get(u'widgets'))
 
@@ -101,10 +96,7 @@ def sceneEdit(request, scn_id):
             return MyHttpJsonResponse({u'succ': False, u'msg': 'no widgets'})
 
         try:
-            skin    = SkinModel.objects.get(m_number = skin_id)
             scene   = SceneModel.objects.get(pk = scn_id)
-        except SkinModel.DoesNotExist, e:
-            return MyHttpJsonResponse({'succ': False, 'msg': ''})
         except SceneModel.DoesNotExist, e:
             return MyHttpJsonResponse({'succ': False, 'msg': ''})
 
@@ -118,7 +110,7 @@ def sceneEdit(request, scn_id):
 
         SceneModel.objects.filter(pk = scn_id)  \
                     .update(m_name = name, m_layout = layout, \
-                            m_snapshot = snapshot, m_skin = skin)
+                            m_snapshot = snapshot, m_skin = skin_name)
 
         # 删掉以前所有关联，重新全部建立
         ScnToWiRelationModel.objects.filter(m_scn = scene).delete()
@@ -133,12 +125,10 @@ def sceneEdit(request, scn_id):
 
         scene = get_object_or_404(SceneModel, pk = scn_id)
         scn_wi_rla_set = scene.s2r_set.all()
-        scn_skin_data   = json.dumps(scene.m_skin.getSkinDict())
 
         dict = {u'scene': scene
                 , u'allowed_widgets': allow_use_widgets
                 , u'sw_rla_set': scn_wi_rla_set
-                , u'scn_skin':  scn_skin_data
             }
         return render_to_response('scene/add.html', dict, context)
 

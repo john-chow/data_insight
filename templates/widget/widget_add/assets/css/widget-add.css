@@ -1,5 +1,5 @@
 /*!
- * 缁勪欢璁捐椤甸潰涓撶敤CSS
+ * 组件设计页面专用CSS
  * Date: 2014-7-25
  */
 
@@ -70,12 +70,14 @@ body {
 }
 
 #area {
+	background: #BDC4C4;
 }
 
 #design_region {
 	width: 100%;
 	min-height: 80px;
-	background: #B9B9B2;
+	background: #D4D4D4;
+	border: 1px solid #ddd;
 }
 
 #show_region {
@@ -178,6 +180,7 @@ body {
 	text-align: center;
 }
 
+<<<<<<< HEAD
 .choosed-db-new,
 .choosed-db-old {
 	list-style: none;
@@ -298,3 +301,194 @@ body {
 	max-height: 350x;
 	overflow: auto;
 }
+
+
+/*begin design区域css */
+.design-tab{
+	margin-bottom: 0;
+}
+.design-tab .tab{
+	float: left;
+	list-style: none;
+}
+.design-tab .tab .btn{
+	background: white;
+	padding: 6px 29px;
+	margin: 10px 1px 0;
+	color: black;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border: 1px solid #978C8C;
+	border-bottom: 0;
+}
+
+.design-tab .tab .btn:active,.design-tab .tab .btn.active{
+	background: #CC33FF;
+	color: white;
+}
+.outer-design-content{
+	height: inherit;	
+}
+
+#design-content,#design-graph
+,#design-filter,#design-property{
+	height: 100%;
+	margin-left: 41px;
+	background: white;
+	border: 1px solid #978C8C;
+	padding-top: 25px;
+}
+#graph{
+	width: 100%;
+	height: 100px;
+	border: 1px solid #ddd;
+}
+.select-graph{
+	width: 400px;
+	height: 420px;
+	overflow: auto;
+}
+.select-graph li{
+	float: left;
+	border: 1px solid #ddd;
+	margin: 10px;
+}
+.chart-bar{
+	width: 160px;
+	height: 100px;
+	background: url(../img/bar.png) -16px 2px;
+}
+.chart-line{
+	width: 160px;
+	height: 100px;
+	background: url(../img/line.png) -16px 2px;
+}
+.chart-area{
+	width: 160px;
+	height: 100px;
+	background: url(../img/area.png) -16px 2px;
+}
+
+.chart-gauge{
+	width: 160px;
+	height: 100px;
+	background: url(../img/gauge.png) -16px 2px;
+}
+
+.chart-map{
+	width: 160px;
+	height: 100px;
+	background: url(../img/map.png) -16px 2px;
+}
+.chart-pie{
+	width: 160px;
+	height: 100px;
+	background: url(../img/pie.png) -16px 2px;
+}
+.chart-radar{
+	width: 160px;
+	height: 100px;
+	background: url(../img/radar.png) -16px 2px;
+}
+.chart-scatter{
+	width: 160px;
+	height: 100px;
+	background: url(../img/scatter.png) -16px 2px;
+}
+
+.design-column, .design-row {
+	height: 27px;
+	background-color: white;
+	margin-bottom: 12px;
+	margin-top: 2px;
+	border-top-left-radius: 8px;
+	border: 1px solid #CCC9C9;
+	height: 35px;
+}
+
+.design-column>div:first-child, .design-row>div:first-child {
+	border-right: 1px solid transparent;
+	width: 75px;
+	height: 33px;
+	text-align: center;
+	line-height: 30px;
+	color: #333;
+	border-color: #ddd;
+	border-top-left-radius: 8px;
+	background-color: #F2F2F0;
+	float: left;
+}
+#graph-feature ul{
+	list-style: none;
+	padding: 0;
+}
+#graph-feature ul li{
+	float: left;
+	width: 138px;
+	height: 40px;
+	border: 1px solid #ddd;
+	margin: 5px;
+}
+
+.feature-item label{
+	line-height: 3;
+	text-align: center;
+	width: 55px;
+	background: #F2F2F2;
+	border-right: 1px solid #ddd;
+	height: 38px;
+}
+
+#x_sortable>li[type='mension'], 
+#y_sortable>li[type='mension'] {
+background-color: #C9DBF5;
+border: 1px solid #C9DBF5;
+}
+#x_sortable>li[type='measure'], 
+#y_sortable>li[type='measure'] {
+background-color: #E0E7CB;
+border: 1px solid #CAD8B7;
+}
+
+#x_sortable>li:hover[type='mension'],
+#y_sortable>li:hover[type='mension'] { 
+    background-color: #CAE4FC;
+    border: 1px solid #AA9DEB;
+}
+
+#x_sortable>li:hover[type='timesion'],
+#y_sortable>li:hover[type='timesion'] { 
+    background-color: #CAE4FC;
+    border: 1px solid #AA9DEB;
+}
+
+#x_sortable>li, #y_sortable>li {
+	margin: 1px 0 1px 1px;
+	border-radius: 6px;
+	padding: 0px;
+	float: left;
+	width: 110px;
+	height: 23px;
+	text-align: center;
+	background: none;
+	transition: background-color 0.3s ,border 0.3s;
+	-moz-transition: background-color 0.3s, border 0.3s;
+	-webkit-transition: background-color 0.3s, border 0.3s;
+	-o-transition: background-color 0.3s, border 0.3s;
+	/* overflow: hidden; */
+	position: relative;
+	list-style: none;
+}
+
+.filter-label{
+	height: 30px;
+}
+
+#design-property input,#design-property select{
+	width: 300px;
+	height: 35px;
+	margin: 0 0 15px 15px;
+}
+
+/* end design区域css */
+

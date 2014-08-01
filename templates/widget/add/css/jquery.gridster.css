@@ -1,4 +1,4 @@
-/*! gridster.js - v0.5.1 - 2014-03-26
+/*! gridster.js - v0.5.4 - 2014-07-16
 * http://gridster.net/
 * Copyright (c) 2014 ducksboard; Licensed MIT */
 
@@ -13,11 +13,6 @@
     -o-transition: height .4s, width .4s;
     -ms-transition: height .4s, width .4s;
     transition: height .4s, width .4s;
-}
-
-.gridster * {
-  margin:0;
-  padding:0;
 }
 
 .gridster .gs-w {
@@ -43,9 +38,9 @@
 .gridster .preview-holder {
     z-index: 1;
     position: absolute;
-    background-color: #ddd;
+    background-color: #fff;
     border-color: #fff;
-    opacity: 1;
+    opacity: 0.3;
 }
 
 .gridster .player-revert {

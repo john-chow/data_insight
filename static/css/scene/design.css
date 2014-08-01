@@ -110,6 +110,7 @@ font-family: \5FAE\8F6F\96C5\9ED1,Tohoma;
 
 #scene_design_right .gridster ul {
     list-style: none;
+    margin-left: 0px;
 }
 
 .gridster ul{

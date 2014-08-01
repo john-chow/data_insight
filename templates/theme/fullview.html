@@ -11,38 +11,93 @@
 </head>
 <body>
 	<!--menu end-->
-	<div>
-	<a id="fullsreen" class="btn" style="display: block;text-align:center" onclick="fullScreen()">全屏显示</a>
+	<div style="height: inherit">
+	<!-- <a id="fullsreen" class="btn" style="display: block;text-align:center">全屏显示</a> -->
     <div class="row">
-    <div id="container" class="col-md-12">
-    <div id="ipresenter">
-    	
+    <div id="container"  class="col-md-12">
+     <div id="ipresenter">
+    {% for rla in theme_scene_rla.all|dictsort:"m_order" %}
+    	<div class="step" data-x="0" id="scene_{{rla.m_scn.pk}}">
+    		<div class="gridster">
+    			<ul id="scId_{{rla.m_scn.id}}" class="scene-to-widget" data-id="{{rla.m_scn.pk}}" data-layout="{{rla.m_scn.m_layout}}" data-src="{{rla.m_scn.m_snapshot}}" >
+    				{% for sc_wi_ral in rla.m_scn.s2r_set.all %}
+						<li class="se_wi_{{sc_wi_ral.m_wi.pk}}_{{sc_wi_ral.m_stamp}}" data-id="{{sc_wi_ral.m_wi.pk}}" data-stamp="{{sc_wi_ral.m_stamp}}">
+							<div class="se_wi_div se_wi_div_{{sc_wi_ral.m_wi.pk}}"></div>
+						</li>
+					{% endfor %}
+    			</ul>
+    		</div>
+    	</div>
+	{% endfor %}
 	</div>
 	<div class="loading" style="left: 48%;top: 41%;position: absolute;"></div>
 	</div>
 	</div>
-	<!-- 此处是为了让design.js能够获取查看的主题的所有场景信息和组件信息而设的隐藏dom -->
-	<div style="display:none" id="theme_scences">
-		<ul>
-		{% for rla in theme_scene_rla.all|dictsort:"m_order" %}
-			<li data-id="{{rla.m_scn.pk}}" data-layout="{{rla.m_scn.m_layout}}" data-src="{{rla.m_scn.m_snapshot}}">
-			<div class="scence_wigets">
-				<ul id="scId_{{rla.m_scn.id}}">
-					{% for sc_wi_ral in rla.m_scn.s2r_set.all %}
-						<li data-id="{{sc_wi_ral.m_wi.pk}}" data-stamp="{{sc_wi_ral.m_stamp}}"></li>
-					{% endfor %}
-				</ul>
-			</div>
-			</li>
-		{% endfor %}
-		</ul>
+	<div class="hover-left"></div>
+	<div class="hover-right"></div>
+	<div id="dock">
+	  <div class="dock-container"> 
+	  	<a class="dock-item" href="/"><span>首页</span><img src="{% static 'img/dock/home.png'%}" alt="首页" /></a>
+	  	<a class="dock-item" href="/theme/viewList"><span>主题列表</span><img src="{% static 'img/dock/portfolio.png'%}" alt="主题列表" /></a>
+	  	<a class="dock-item" href="/theme/view/{{theme.pk}}"><span>普通模式</span><img src="{% static 'img/dock/history.png'%}" alt="history" /></a>
+	  	<a class="dock-item" href="/theme/view/{{theme.pk}}?pattern=2"><span>列表模式</span><img src="{% static 'img/dock/link.png'%}" alt="links" /></a>
+	  </div>
 	</div>
 	</div>
 </body>
+<style>
+#dock{
+opacity: 0; 
+z-index: 9999;
+} 
+.hover-left{
+position: absolute;
+height:100%;
+width: 50px;
+top: 0;
+left: 0
+}
+.hover-right{
+position: absolute;
+height:100%;
+width: 50px;
+top: 0;
+right: 0
+}
+.dock-container { position: relative; top: -8px; height: 50px; padding-left: 20px; }
+a.dock-item { display: block; width: 50px; position: absolute; bottom: 0; text-align: center; text-decoration: none; color: #333; }
+.dock-item span { display: none; padding-left: 20px; }
+.dock-item img { border: 0; margin: 5px 10px 0px; width: 100%; }
+.blank20{ height:270px;}
+</style>
 <script src="{% static 'js/theme/ipresenter.js' %}"></script>
+<script src="{% static 'js/fisheye-iutil.min.js' %}"></script>
 <script>
+$('#dock').Fisheye({
+	maxWidth: 30,
+	items: 'a',
+	itemsText: 'span',
+	container: '.dock-container',
+	itemWidth: 50,
+	proximity: 60,
+	alignment : 'left',
+	valign: 'bottom',
+	halign : 'center'
+});
+$("#dock").hover(function(){
+		$(this).css("opacity", "1");
+	}, function(){
+		$(this).css("opacity", "0");
+});
+$(".hover-left,.hover-right").mouseenter(function(){
+	$(".ipresenter_stepsNav").show();
+})
+
+$("#container").on("mouseleave", ".ipresenter_stepsNav", function(){
+		$(".ipresenter_stepsNav").hide();
+	})
 window.onload = function(){
-	requirejs(['theme/full_view'], function(xx,xxx){
+	requirejs(['theme/full_view'], function(xx){
 		$(".loading").hide();
 		$('#ipresenter').iPresenter({
 			timerPadding: -1,
@@ -52,8 +107,13 @@ window.onload = function(){
 			controlNavNextPrev: false,
 		});
 		//下面两个语句等同于手动打开iPresenter,必须的
-		$(".ipresenter_stepsNav").show();
-		$(".step").show();
+		//$(".ipresenter_stepsNav").show();
+		$(".step").show(); 
+		
+		/* $("#fullsreen").click(function(){
+			launchFullscreen(document.getElementById("test"));
+		}) */
+		
 	})
 }
 </script>

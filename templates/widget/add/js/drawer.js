@@ -92,9 +92,6 @@ define([
             // 重启更新器
             this.updator.bindDrawer(this.now_drawer);
             if(this.updator.isEnable())      this.updator.restart()
-
-            // 为给外部提供可直接操控图表的接口，把绘图对象保存到全局window中
-            window.drawer[place.id] = this.now_drawer;
 		};
 
         // 退出管理图型工作
@@ -167,7 +164,7 @@ define([
 			this.fillSeries(resp.data);
 
             // 根据是否有样式，决定是否做style
-            if (resp.style)     this.styleChart(resp.style);
+            //if (resp.style)     this.styleChart(resp.style);
 
 			this.draw()
 		};
@@ -175,26 +172,10 @@ define([
 		this.draw =		function(optionData) {
             this.ec.clear();
             var data = optionData || this.optionCloned;
-
-            /*
-            var data = {
-                "row":          {
-                    "style":        ["english", "usa"]
-                }
-                , "column":     {
-                    "size":         ["small", "big"]
-                    , "color":      ["red", "yellow", "blue"]
-                }
-                , "series":     [{
-                    "name":         "price"
-                    , "type":       "table"
-                    , "data":       [1,2,3,5,6,7,8,9,10,11,12,13]
-                }]
-            };
-            */
             this.ec.setOption(data)
 		};
 
+/*
         // 主要的控制样式部分
         this.styleChart     =   function(style) {
             var self = this;
@@ -211,20 +192,9 @@ define([
                 $.extend(ss, style["se"])
             })
         };
+*/
 
         this.styleLegend    =   function(lgStyle) {
-        };
-
-        this.setBgColor =   function(color) {
-            this.optionCloned.backgroundColor   = color
-        };
-
-        this.setIsColors =  function(colorList) {
-            this.optionCloned.color = colorList
-        };
-
-        this.setSymbols =   function(symbolList) {
-            this.optionCloned.symbolList    = symbolList
         };
 
         this.findSeriesIdxByName    =   function(name) {
@@ -234,12 +204,6 @@ define([
                     return idx = i
             })
             return idx
-        };
-
-        this.transType  =   function(type) {
-            var newType = new toType();
-            newType.optionCloned = this.optionCloned;
-            return newType
         }
 	};
 
@@ -251,6 +215,7 @@ define([
         // 是否是聚合型图，即有没有stacked
         this.stacked        = false;
 
+/*
 		this.catStyle = {
 			boundaryGap : false
 		};
@@ -261,6 +226,7 @@ define([
             }
 			, splitArea : {show : true}
 		};
+*/
 
         this.seriesNewAdd = [
             0, 0, true, false, null   // 参数意义见echart官网
@@ -294,10 +260,12 @@ define([
 			AxisDrawer.prototype.work.call(this, resp);
 		};
 
+/*
         this.styleChart =   function(style) {
             this.styleAxis(style["x"], style["y"]);
             AxisDrawer.prototype.styleChart.call(this, style);
         };
+*/
 
 		this.fillAxis = function(data) {
 			// 分别加上属性样式，和数值样式
@@ -366,6 +334,7 @@ define([
 
 
 	var BarDrawer = function() {
+/*
 		this.catStyle = {
 		};
 		
@@ -374,6 +343,7 @@ define([
 
 		this.seriesStyle = {
 		};
+*/
 
 		this.styleAxis = function() {
 		};
@@ -384,6 +354,7 @@ define([
 	};
 
 	var LineDrawer = function() {
+/*
 		this.catStyle = {
 		};
 		
@@ -392,6 +363,7 @@ define([
 
 		this.seriesStyle = {
 		};
+*/
 
 		this.styleAxis = function() {
 		};
@@ -406,6 +378,7 @@ define([
             AreaDrawer.prototype.init.call(this, ec, "line" ,stateOption)
         };
 
+/*
 		this.catStyle = {
 		};
 		
@@ -414,6 +387,7 @@ define([
 
 		this.seriesStyle = {
 		};
+*/
 
 		this.styleAxis = function() {
 		};

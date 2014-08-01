@@ -29,7 +29,8 @@
 		</div>
 		
 		<div class="pull-right play-pattern">
-			<a href="/theme/view/{{theme.pk}}?pattern=3" target="_blanck" class="btn">全屏模式</a>
+		<!-- onclick="window.open('/theme/view/{{theme.pk}}?pattern=3', 'big', ' left=0,top=0,width='+ (screen.availWidth - 10) +',height='+ (screen.availHeight-50) +',scrollbars,resizable=yes,toolbar=no' )"-->
+			<a href="/theme/view/{{theme.pk}}?pattern=3" class="btn">全屏查看</a>
 		</div>
 		</div>
 		</div>
@@ -48,13 +49,41 @@
     	</ul>
     </div>
     <div class="col-md-10">
-    <div class="loading" style="left: 48%;top: 41%;position: absolute;"></div>
+    <div class="loading" id="loading" style="left: 48%;top: 41%;position: absolute;"></div>
 		<div id="box" class="">
-			 <!-- 场景展示区 -->
+			 {% for rla in theme_scene_rla.all|dictsort:"m_order" %}
+		    	<div class="step" id="scene_{{rla.m_scn.pk}}">
+		    		<div class="gridster">
+		    			<ul id="scId_{{rla.m_scn.id}}" class="scene-to-widget" data-id="{{rla.m_scn.pk}}" data-layout="{{rla.m_scn.m_layout}}" data-src="{{rla.m_scn.m_snapshot}}" >
+		    				{% for sc_wi_ral in rla.m_scn.s2r_set.all %}
+								<li class="se_wi_{{sc_wi_ral.m_wi.pk}}_{{sc_wi_ral.m_stamp}}" data-id="{{sc_wi_ral.m_wi.pk}}" data-stamp="{{sc_wi_ral.m_stamp}}">
+									<div class="se_wi_div se_wi_div_{{sc_wi_ral.m_wi.pk}}"></div>
+								</li>
+							{% endfor %}
+		    			</ul>
+		    		</div>
+		    	</div>
+			{% endfor %}
 		</div>
 	</div>
 	</div>
-	<!-- 此处是为了让design.js能够获取查看的主题的所有场景信息和组件信息而设的隐藏dom -->
+	
+	<!-- 全屏显示模态框 -->
+	<div class="modal" tabindex="-1" role="dialog" id="fullsreen-show" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+	  <div class="modal-dialog modal-lg" style="height: 100%;width:100%">
+	    <div class="modal-content" style="height: 100%;background-color: transparent">
+	      <div id="container" style="height: 100%">
+	      	<button type="button" style="margin-right: -18px;" class="close" data-dismiss="modal">
+	      		<span aria-hidden="true" style="font-size: 27px;">&times;</span><span class="sr-only">Close</span>
+	      	</button>
+		    <div id="ipresenter">
+			</div>
+			<div class="loading" id="fullsreen-loading" style="left: 48%;top: 41%;position: absolute;"></div>
+		  </div>
+	    </div>
+	  </div>
+	</div>
+	<!-- 此处是为了让design.js能够获取查看的主题的所有场景信息和组件信息而设的隐藏dom
 	<div style="display:none" id="theme_scences">
 		<ul>
 		{% for rla in theme_scene_rla.all|dictsort:"m_order" %}
@@ -69,23 +98,35 @@
 			</li>
 		{% endfor %}
 		</ul>
-	</div>
+	</div> -->
 	</div>
 </body>
 <script src='{% static "js/lib/bootstrap.js" %}'></script>
+<script src="{% static 'js/theme/ipresenter.js' %}"></script>
 <script>
 window.onload = function(){
 	requirejs(['theme/view'], function(xx,xxx){
-		$(".loading").hide();
-		/* $(".scene-list-thumbnail .thumbnail").each(function(i){
-			var self = this;
-			$(this).on("click", function(){
-				$("figure").hide();
-				var index = $(this).data("slideindex");
-				$("#box figure:nth-child(" + index + ")").show();
+		$("#loading").hide();
+	})
+	
+	$("#fullSreen").click(function(){
+		$("#fullsreen-show").modal("show");
+		if(!$(this).data("on")){
+			requirejs(['theme/full_view'], function(xx){
+				$("#fullsreen-loading").hide();
+				$('#ipresenter').iPresenter({
+					timerPadding: -1,
+					controlNav: false,
+					autoPlay: false,
+					controlNavThumbs: true,
+					controlNavNextPrev: false,
+				});
+				//下面两个语句等同于手动打开iPresenter,必须的
+				$(".ipresenter_stepsNav").show();
+				$(".step").show();
 			})
-			
-		}) */
+			$(this).data("on", true);
+		}
 	})
 }
 </script>

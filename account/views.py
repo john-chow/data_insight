@@ -25,6 +25,7 @@ def mylogin(request):
 		if user is not None:
 			if user.is_active:
 				login(request, user)
+				html_next = '/' if html_next == '' else html_next
 				return HttpResponseRedirect(html_next)
 			else:
 				context_dict = {u'not_allowed': True}

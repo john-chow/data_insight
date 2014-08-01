@@ -14,7 +14,6 @@ class ElementModel(models.Model):
     m_create_time = models.DateTimeField(auto_now_add=True, db_column='create_time')
     m_is_distributed = models.BooleanField(default=False, db_column='is_distributed')
     m_status = models.BooleanField(default=True, db_column='status')
-    m_skin   = models.ForeignKey(SkinModel, db_column='skin_id', null=True)
 
     class Meta:
         abstract = True

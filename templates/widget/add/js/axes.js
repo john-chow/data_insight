@@ -71,8 +71,7 @@ define([
                     default:    break
                 }
             })
-
-            this.$el.append(data.item);
+            //this.$el.append(data.item);
         },
 
 
@@ -165,7 +164,6 @@ define([
 		setDragProperty: function() {
 			//设置可自动排序
 			var self = this;
-
 			this.$(this.sortObjId).sortable({
 				connectWith: ".connectedSortable",
 				//revert: true,

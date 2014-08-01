@@ -239,7 +239,7 @@ define("compontnents", ["display"], function(d) {
 
             //删除场景内某个组件
             $toAddedObj.find("span.glyphicon")
-                        .on("click", $.proxy(this.rmWidget, this));
+                        .on("click", bindContext(this.rmWidget, this));
 
             this.widgetsList.push(widgetObj)
         },
@@ -328,59 +328,26 @@ define("compontnents", ["display"], function(d) {
 // 皮肤模块
 // ************************
 define("skin", [], function() {
-
     var skinObj         =   {
-        $el:                    null,
-        skinNumber:             1,
 
-        init:               function() {
-            //this.$el.find("").on("click", bindContext(this.rqSkinDetail, this))
-            $body.on("test", $.proxy(this.rqSkinDetail, this))
-        },
-
-        rqSkinDetail:         function(ev, data) {
-            var self        =   this;
-            var skinNumber  =   data;
-            //var skinNumber      = $(ev.target).attr("skin_number");
-            $.ajax({
-                url:            "/skin/detail/scene/" + skinNumber     
-                , type:         "GET"
-                , dataType:     "json"
-                , success:      function(resp) {
-                    if (resp.succ) {
-                        self.skinNumber = skinNumber;
-                        self.cmdToChangeSkin(resp.data)
-                    }
-                }
-                , error:        function() {}
+        skinName:               "dark",
+        
+        dressSkin:          function(list, name) {
+            $.each(list, function(i, dw) {
+                dw.getEc().setTheme(name)
             })
         },
 
-
-        cmdToChangeSkin:        function(skinData) {
-            $body.trigger("change_skin", skinData)            
+        changeSkin:         function(name) {            
+            this.skinName   = name;
         },
 
-
-        // 自定义场景皮肤和组件皮肤的合并规则
-        mixSkin2WiData:          function(skinData, wiData) {
-            var wiStyle     = wiData["style"];                  
-            wiStyle         = wiStyle || {};
-
-            $.extend(wiStyle, skinData)
-            return wiData
-        },
-
-        getSkinNumber:              function() {
-            return this.skinNumber
+        getSkinName:        function() {
+            return this.skinName
         }
     }
 
-    skinObj.init();
-
-    return {
-        "sn":       skinObj
-    }
+    return skinObj
 })
 
 
@@ -393,10 +360,9 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
         $el:                $("#scene_design_right"),
         $gridster:          $(".gridster ul"),
         drawerList:             [],             // 画图对象
-        scnSkinData:        {},                 // 场景皮肤
 
         run:                    function() {
-            this.skinObj       = Skin.sn;
+            this.skinObj       = Skin;
             this.init();
             this.startListener()
         },
@@ -406,27 +372,23 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
             this.layoutArr = layoutStr ? JSON.parse(layoutStr) : null;
 
             var skinStr = $("#scn_data").html();
-            this.scnSkinData    = (skinStr.trim().length > 0) ? JSON.parse(skinStr) : {}
         },
         
         startListener:          function() {
-            $body.on("show_widget",     $.proxy(this.showNewWidget, this));
-            $body.on("try_skin",        $.proxy(this.dressSkin, this));
-            $body.on("change_skin",     $.proxy(this.changeSkin, this));
+            $body.on("show_widget",     bindContext(this.showNewWidget, this));
+            $body.on("try_skin",        bindContext(this.dressSkin, this));
+            $body.on("change_skin",     bindContext(this.changeSkin, this));
         },
 
-        dressSkin:             function(ev, skinData) {
-            // 对本场景下的每个组件使用该样式
-            var self = this;
-            $.each(this.drawerList, function(i, obj) {
-                var dataDraw = self.skinObj.mixSkin2WiData(skinData, obj["wi_data"]);
-                obj["dr"].getDrawer().start(dataDraw)
-            })
+        dressSkin:             function(ev, name) {
+            var drList = $.map(this.drawerList, function(dw) {
+                return dw['dr']
+            });
+            this.skinObj.dressSkin(drList, name)
         },
 
         changeSkin:             function(ev, skinData) {
-            this.scnSkinData    = skinData;
-            this.dressSkin(ev, this.scnSkinData)
+            this.skinObj.changeSkin(name)
         },
 
         showNewWidget:              function(ev, data) {
@@ -447,14 +409,17 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
                 , parseInt(posObj.col),     parseInt(posObj.row)
             );
 
+            var dom     = $(".se_wi_div_"+data.widget_id)[len];
             var wiData  =    data.data;
-            var dataDraw = this.skinObj.mixSkin2WiData(this.scnSkinData, wiData);
-            var drawer = new DrawManager();
-            drawer.run($(".se_wi_div_"+data.widget_id)[len], dataDraw);
+            var drawer  = new DrawManager();
+            drawer.run(dom, wiData);
 
-            this.drawerList.push({"stamp": timestamp, "dr": drawer, "wi_data": wiData});
+            var gridUnitData = {
+                "stamp": timestamp, "dr": drawer, "wi_data": wiData, "dom": dom 
+            };
+            this.drawerList.push(gridUnitData);
 
-            this.afterWidgetShown(drawer, data.widget_id);
+            this.afterWidgetShown(gridUnitData, data.widget_id)
         },
 
         sureShowPos:                function(timestamp) {
@@ -484,19 +449,26 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
             })
         },
 
-        afterWidgetShown:       function(drawer, widgetId) {
+        afterWidgetShown:       function(gridUnitData, widgetId) {
             // 保持伸缩性，拖到的时候也可以增大缩小
             this.keepFlexible();
 
             // 监听自己的resize事件
-            $body.on("widget_resize_" + widgetId, {"drawer": drawer}
+            $body.on("widget_resize_" + widgetId, {"unit": gridUnitData}
                                                 , bindContext(this.onWidgetResize, this))
         },
 
         onWidgetResize:      function(ev) {
+            /*
             var ec = ev.data.drawer.getEc();
             ec.resize();
-            
+            */
+    
+            var drawer = ev.data.unit.dr;
+            var option = ev.data.unit.wi_data;
+            var dom = ev.data.unit.dom
+            drawer.run(dom, option);
+
             this.keepFlexible();
         },
 
@@ -527,7 +499,7 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
                 for(var j = 0; j < len; j++) {
                     if (self.drawerList[j].stamp == layout.data_time)  {
                         var ec = self.drawerList[j].dr.getEc();  
-                        layout["canvas"] = ec.getZrender().toDataCanvas("");
+                        layout["canvas"] = ec.getZrender().toDataCanvas();
                         break
                     }
                 }
@@ -560,7 +532,6 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
 
     return display
 })
-
 
 
 // *************************
@@ -599,7 +570,7 @@ define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
             var displayObj      = this.display.getDisplayDataForAjax();          
             var widgetsStr      = this.scnWidgetsObj.getWidgetsDataForAjax();
             var name            = this.myAttributesObj.getName();
-            var skinNumber      = this.display.getSkinObj().getSkinNumber();
+            var skinNumber      = this.display.getSkinObj().getSkinName();
 
             if (window.scene_id) 
                 var url = "/scene/edit/" + window.scene_id + "/"
@@ -638,4 +609,7 @@ define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
 
 require(["display", "compontnents", "whole"], function() {
 })
+
+
+
 
