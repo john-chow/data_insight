@@ -1,4 +1,10 @@
 <script>
 	<div id="table_template_header" class="panel-heading">数据表<span class="glyphicon glyphicon-new-window"></span></div>
-	<ul id="table_template_content"></ul>
+	<ul id="table_template_content">
+	 <% _.each(items, function(item){ %>
+	 	 <% if(item.selected) { %>
+             <li class="table-item" data-id ="<%= item.id %>"> <%= item.tableName %> </li>
+         <% } %>
+    <% }); %>
+	</ul>
 </script>

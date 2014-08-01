@@ -1,0 +1,40 @@
+<script type="text/template">
+<div class="modal-content">
+
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="connect_db_title">新建连接到数据库</h4>
+      </div>
+
+      <div class="modal-body">
+			<div id="connect_db_form">
+				<p>
+					<label for="id_ip">Ip:</label> 
+					<input id="id_ip" name="ip" type="text" value="10.1.50.125">
+				</p>
+				<p>
+					<label for="id_port">Port:</label> 
+					<input id="id_port" max="65535" min="0" name="port" type="number" value="5432">
+				</p>
+				<p>
+					<label for="id_db">Db:</label> 
+					<input id="id_db" name="db" type="text" value="data_insight">
+				</p>
+				<p>
+					<label for="id_user">User:</label> 
+					<input id="id_user" name="user" type="text" value="postgres">
+				</p>
+				<p>
+					<label for="id_pwd">Pwd:</label> 
+					<input id="id_pwd" name="pwd" type="password">
+				</p>
+			</div>
+      </div>
+
+      <div class="modal-footer">
+      	<button type="button" class="connect-db-commit btn btn-primary">连接</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+      </div>
+
+</div>
+</script>

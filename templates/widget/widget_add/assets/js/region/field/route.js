@@ -22,8 +22,11 @@ define([
 
 	  //////////////////////////////////////////////////////////
 	  DataInsightManager.commands.setHandler("showField", function(id){
-	  	console.log("123");
-		  //API.listFields(id);
+		  API.listFields(id);
+	  });
+
+	  DataInsightManager.on("showField", function(id){
+		  API.listFields(id);
 	  });
 	});
 
