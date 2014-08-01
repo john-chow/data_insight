@@ -1,4 +1,5 @@
 define([
+        'entities/entrance',
         'entities/graph',
         'entities/filter',
         'entities/property',
@@ -17,6 +18,13 @@ define([
 					this.graph = DataInsightManager.request("graph:entity");
 					this.filter = DataInsightManager.request("filter:entity");
 					this.property = DataInsightManager.request("property:entity");
+
+                    /*
+                    this.entrance = DataInsightManager.request("entrance:entity");
+                    this.entrance.register("draw", [this.graph, this.filter]);
+                    this.entrance.register("additional", [this.property]);
+                    */
+
 					this.graphView = new DesignRegion.Graph({
 						model: this.graph
 					});
