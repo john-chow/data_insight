@@ -10,14 +10,18 @@ define([
 
 	  //////////////////////////////////////////////////////////定义接口
 	  var API = {
-	    listTables: function(){
-	      TableRegion.Controller.ListTables();
+	    showTable: function(collection){
+	      TableRegion.Controller.ShowTable(collection);
 	    }
 	  };
 
 	  //////////////////////////////////////////////////////////监听页面start
 	  DataInsightManager.on("start", function(){
-	    API.listTables();
+	    API.showTable();
+	  });
+
+	  DataInsightManager.on("table:list", function(collection){
+	    API.showTable(collection);
 	  });
 	});
 

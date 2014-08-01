@@ -16,8 +16,21 @@ define([
 			var fields = DataInsightManager.request("field:entities",id);
 
 			/////////////////////////////新建View
-			var fieldsListView = new FieldRegion.Fields({
+			var fieldsListView = new FieldRegion.FieldView({
 				collection: fields
+			});
+
+			fieldsListView.on("show:manage-dialog", function(){
+				var fieldManageView = new FieldRegion.FieldManageDialog({
+					collection: fields
+				});
+				fieldManageView.on("change:nickName",function(options){
+					//此处更改collection里面model的nickName，保存
+					//未做
+					DataInsightManager.dialogRegion.$el.modal("hide");
+					DataInsightManager.trigger('showField', id);
+				});
+				DataInsightManager.dialogRegion.show(fieldManageView);
 			});
 	        
 			/////////////////////////////显示View

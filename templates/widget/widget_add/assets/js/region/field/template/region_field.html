@@ -1,4 +1,15 @@
 <script>
-	<div id="field_template_header" class="panel-heading">字段名</div>
-	<ul id="field_template_content"></ul>
+	<div id="field_template_header" class="panel-heading">字段名<span class="glyphicon glyphicon-new-window"></div>
+	<ul id="field_template_content">
+	<% _.each(items, function(item){ %>
+        <li class="field-item" data-id ="<%= item.id %>"> 
+        	<% if(item.nickName == "") { %>
+        		<%= item.fieldName %>&nbsp;<%= item.type %>
+        	<% } %>
+        	<% if(item.nickName !== "") { %>
+        		<%= item.nickName %>&nbsp;<%= item.type %>
+        	<% } %>
+        </li>
+    <% }); %>
+	</ul>
 </script>

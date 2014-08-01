@@ -4,41 +4,20 @@
  */
 define([
   "text!region/field/template/region_field.html",
-  "text!region/field/template/region_field_item.html",
-], function (fieldRegionTemplate, fieldRegionTtemTemplate) {
+  "text!region/field/template/dialog_field_manage.html"
+], function (fieldRegionTemplate, fieldManageTemplate) {
 
 var data = DataInsightManager.module("FieldRegion",
     function(FieldRegion, DataInsightManager, Backbone, Marionette, $, _){
 
     //////////////////////////////////////////////////////////定义field的view
-    FieldRegion.Field = Marionette.ItemView.extend({
-      tagName: "li",
-      template: fieldRegionTtemTemplate,
-      className: "field-item",
-    });
-
-    //////////////////////////////////////////////////////////定义fieldCollection的view
-    FieldRegion.Fields = Marionette.CompositeView.extend({
+    FieldRegion.FieldView = Marionette.ItemView.extend({
       tagName: "div",
       className: "panel panel-default",
       template: fieldRegionTemplate,
-      childView: FieldRegion.Field,
-      childViewContainer: "#field_template_content",
 
-      /////////////////////////////初始化
-      initialize: function(){
-        this.listenTo(this.collection, "reset", function(){
-          this.attachHtml = function(collectionView, childView, index){
-            collectionView.$el.append(childView.el);
-          }
-        });
-      },
-
-      /////////////////////////////渲染
-      onRenderCollection: function(){
-        this.attachHtml = function(collectionView, childView, index){
-          collectionView.$el.prepend(childView.el);
-        }
+      triggers: {
+          "click #field_template_header>span": "show:manage-dialog",
       },
 
       /////////////////////////////显示
@@ -48,6 +27,33 @@ var data = DataInsightManager.module("FieldRegion",
       },
     });
 
+    //定义dialog_field_manage模板
+    FieldRegion.FieldManageDialog = Marionette.ItemView.extend({
+      tagName: "div",
+      className: "modal-dialog",
+      template: fieldManageTemplate,
+
+      events: { 
+          "mouseenter .field-manage-content>ul": "showBackgroundColorFunction",
+          "mouseleave .field-manage-content>ul": "hideBackgroundColorFunction",
+          "click .field-manage-commit":          "fieldManageCommitFunction"
+      }, 
+
+      showBackgroundColorFunction: function(e){
+        $(e.currentTarget).addClass('field-manage-color');
+      },
+
+      hideBackgroundColorFunction: function(e){
+        $(e.currentTarget).removeClass('field-manage-color');
+      },
+
+      fieldManageCommitFunction: function(e){
+        //获取信息，假设已经获取
+        var options={};
+        this.trigger('change:nickName', options);
+      }
+
+    });
   });
 
   return data;
