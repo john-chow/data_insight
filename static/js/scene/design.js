@@ -409,13 +409,17 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
                 , parseInt(posObj.col),     parseInt(posObj.row)
             );
 
+            var dom     = $(".se_wi_div_"+data.widget_id)[len];
             var wiData  =    data.data;
-            var drawer = new DrawManager();
-            drawer.run($(".se_wi_div_"+data.widget_id)[len], wiData);
+            var drawer  = new DrawManager();
+            drawer.run(dom, wiData);
 
-            this.drawerList.push({"stamp": timestamp, "dr": drawer, "wi_data": wiData});
+            var gridUnitData = {
+                "stamp": timestamp, "dr": drawer, "wi_data": wiData, "dom": dom 
+            };
+            this.drawerList.push(gridUnitData);
 
-            this.afterWidgetShown(drawer, data.widget_id)
+            this.afterWidgetShown(gridUnitData, data.widget_id)
         },
 
         sureShowPos:                function(timestamp) {
@@ -445,19 +449,26 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
             })
         },
 
-        afterWidgetShown:       function(drawer, widgetId) {
+        afterWidgetShown:       function(gridUnitData, widgetId) {
             // 保持伸缩性，拖到的时候也可以增大缩小
             this.keepFlexible();
 
             // 监听自己的resize事件
-            $body.on("widget_resize_" + widgetId, {"drawer": drawer}
+            $body.on("widget_resize_" + widgetId, {"unit": gridUnitData}
                                                 , bindContext(this.onWidgetResize, this))
         },
 
         onWidgetResize:      function(ev) {
+            /*
             var ec = ev.data.drawer.getEc();
             ec.resize();
-            
+            */
+    
+            var drawer = ev.data.unit.dr;
+            var option = ev.data.unit.wi_data;
+            var dom = ev.data.unit.dom
+            drawer.run(dom, option);
+
             this.keepFlexible();
         },
 

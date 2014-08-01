@@ -10208,6 +10208,7 @@ define('echarts/component/base',['require','../config','../util/ecQuery','../uti
      */
     Base.prototype = {
         canvasSupported : require('zrender/tool/env').canvasSupported,
+
         /**
          * 获取zlevel基数配置
          * @param {Object} contentType
@@ -22765,6 +22766,8 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
     self.dependencies = {
         zrender : '2.0.0'
     };
+
+
     /**
      * 入口方法 
      */
@@ -22814,6 +22817,10 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
      */
     function Echarts(dom) {
         this._themeConfig = zrUtil.clone(ecConfig);
+        
+        // 做自适应   周钲然增加
+        var times = this._calcTimes(dom.clientHeight, dom.clientWidth);
+        this._autoSize(this._themeConfig, times);
 
         this.dom = dom;
         // this._zr;
@@ -22888,6 +22895,42 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
     }
 
     Echarts.prototype = {
+        _calcTimes:     function(height, width) {
+            var heightTimes = height / 500;
+            var widthTimes = width / 800;
+            return (heightTimes > widthTimes ? widthTimes : heightTimes)
+        },
+
+        /**
+         *   自适应屏幕大小，设置ecConfig根据dom大小进行等比例变化
+         *      周钲然增加
+         */
+        _autoSize:   function(ecConfig, times) {
+            var self = this;
+            // 基本不是样式类的字段，数字大小不做变化
+            var excludeString = [
+                "percision", "Percision", "Index", "Number", "Delay", "Duration", "rotate", 
+                "power", "Angle", "Interval", "Blur"
+            ];
+            var f = function(key) {
+                for (var i in excludeString) {
+                    if(key.indexOf(excludeString[i]) >= 0) 
+                        return false
+                }
+                return true
+            };
+
+            for (var k in ecConfig) {
+                var val = ecConfig[k];
+                if ("number" ===  typeof(val)) {
+                    if (f(k))   ecConfig[k] = val * times
+                }
+                else if (val && Object == val.constructor) {
+                    self._autoSize(val, times)
+                }
+            }
+        },
+
         /**
          * 初始化::构造函数
          */ 

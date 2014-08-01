@@ -1,5 +1,5 @@
 /*!
- * 缁勪欢璁捐椤甸潰涓撶敤CSS
+ * 组件设计页面专用CSS
  * Date: 2014-7-25
  */
 
@@ -77,7 +77,6 @@ body {
 	width: 100%;
 	min-height: 80px;
 	background: #D4D4D4;
-	border: 1px solid #ddd;
 }
 
 #show_region {
@@ -138,22 +137,41 @@ body {
 	padding: 0px;
 }
 
-.field-item {
+#field_region .field-item {
 	padding:2px 0 2px 20px;
 	cursor:default;
 }
 
-.field-item:hover {
-	background: #E4EFFF;
-	border-radius: 3px;
-	box-shadow: 0px 0px 1px 0px #A7A4A4 inset;
+#field_region .field-item:hover {
+	border-radius: 5px;
+	background-color: #E0E7CB;
+	border: 1px solid #CAD8B7;
 }
 
-#table_template_header {
+#field_region .field-item {
+	border: 1px solid #fff;
+}
+
+#x_sortable>li,
+#y_sortable>li {
+	background-color: #E0E7CB;
+	border: 1px solid #CAD8B7;
+}
+
+#x_sortable>li:hover,
+#y_sortable>li:hover {
+	border: 1px solid #9FC271;
+	background-color: #E5ECCE;
+}
+
+
+#table_template_header,
+#field_template_header {
 	position: relative;
 }
 
-#table_template_header span {
+#table_template_header span,
+#field_template_header span {
 	position: absolute;
 	right: 8px;
 	top: 12px;
@@ -178,6 +196,137 @@ body {
 	text-align: center;
 }
 
+.choosed-db-new,
+.choosed-db-old {
+	list-style: none;
+	padding: 0;
+	border-right: 1px solid #ddd;
+	border-left: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+}
+
+.choosed-db-new span,
+.choosed-db-old span {
+	padding: 0 13px;
+	color: #656366;
+}
+
+.choosed-db-new li,
+.choosed-db-old li {
+	padding: 5px 0;
+	font-size: 16px;
+	cursor: pointer;
+}
+
+.choosed-db-new li:hover,
+.choosed-db-old li:hover {
+	background-color: #F7F2F2;
+}
+
+#connect_db_form label {
+	width: 200px;
+	text-align: right;
+	padding: 0 5px;
+}
+
+#import_file_form label {
+	width: 150px;
+	text-align: right;
+	padding: 0 5px;
+}
+
+#import_file_form{
+	font-size: 16px;
+}
+
+#connect_db_form p {
+	margin: 15px 0;
+}
+
+#import_file_form p {
+	margin: 40px 0;
+}
+
+#import_file_form input {
+	display: inline-block;
+}
+
+.modal-footer {
+	margin-top: 0;
+}
+
+.table-manage-content>div {
+	float: left;
+}
+
+.table-manage-content select{
+	height: 200px;
+	width: 245px;
+}
+
+.table-manage-unselect {
+
+}
+
+.table-manage-select {
+
+}
+
+.table-manage-operate {
+	margin:90px 10px 0 10px;
+}
+
+.table-manage-operate button{
+	display: block;
+	margin:10px 0;
+}
+
+#table_manage_new {
+	text-align: right;
+}
+
+.field-manage-content ul{
+	list-style: none;
+	margin: 0;
+	padding:5px 0;
+}
+
+.field-manage-content li{
+	display: inline-block;
+}
+
+.field-manage-fieldName {
+	width:30%;
+}
+
+.field-manage-type {
+	width:30%;
+}
+
+.field-manage-nickName {
+	width:35%;
+}
+
+.field-manage-color {
+	background: #E2DFBA;
+	border-radius: 3px;
+}
+
+.field-manage-content {
+	max-height: 350px;
+	overflow: auto;
+}
+
+.dragging-field-item {
+	width: 110px;
+	height: 23px;
+	background-color: #E0E7CB;
+	border: 1px solid #CAD8B7;
+	border-radius: 6px;
+	padding: 0px;
+	text-align: center;
+	cursor: default;
+}
 
 
 /*begin design区域css */
@@ -316,7 +465,7 @@ body {
 	height: 38px;
 }
 
-#x_sortable>li[type='mension'], 
+/*#x_sortable>li[type='mension'], 
 #y_sortable>li[type='mension'] {
 background-color: #C9DBF5;
 border: 1px solid #C9DBF5;
@@ -326,7 +475,6 @@ border: 1px solid #C9DBF5;
 background-color: #E0E7CB;
 border: 1px solid #CAD8B7;
 }
-
 #x_sortable>li:hover[type='mension'],
 #y_sortable>li:hover[type='mension'] { 
     background-color: #CAE4FC;
@@ -337,7 +485,7 @@ border: 1px solid #CAD8B7;
 #y_sortable>li:hover[type='timesion'] { 
     background-color: #CAE4FC;
     border: 1px solid #AA9DEB;
-}
+}*/
 
 #x_sortable>li, #y_sortable>li {
 	margin: 1px 0 1px 1px;
@@ -347,7 +495,6 @@ border: 1px solid #CAD8B7;
 	width: 110px;
 	height: 23px;
 	text-align: center;
-	background: none;
 	transition: background-color 0.3s ,border 0.3s;
 	-moz-transition: background-color 0.3s, border 0.3s;
 	-webkit-transition: background-color 0.3s, border 0.3s;
@@ -355,6 +502,7 @@ border: 1px solid #CAD8B7;
 	/* overflow: hidden; */
 	position: relative;
 	list-style: none;
+	cursor:default;
 }
 
 .filter-label{
@@ -388,3 +536,4 @@ border: 1px solid #CAD8B7;
 	height: 35px;
 }
 /* end design区域css */
+

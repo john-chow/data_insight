@@ -1,0 +1,38 @@
+<script type="text/template">
+<div class="modal-content">
+
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="field_manage_title">参数管理</h4>
+      </div>
+
+      <div class="modal-body field-manage-content">
+       <ul>
+          <li class="field-manage-fieldName">字段名</li>
+          <li class="field-manage-type">类型</li>
+          <li class="field-manage-nickName">备注名</li>
+       </ul>
+        <% _.each(items, function(item){ %>
+         <ul>
+          <li class="field-manage-fieldName"><%= item.fieldName %></li>
+          <li class="field-manage-type">
+          <select>
+            <option value="F" <% if(item.type == 'F') { %> selected="selected" <% } %>>因子变量(F)</option>
+            <option value="N" <% if(item.type == 'N') { %> selected="selected" <% } %> >数值变量(N)</option>
+            <option value="D" <% if(item.type == 'D') { %> selected="selected" <% } %>>时间变量(D)</option>
+            <option value="T" <% if(item.type == 'T') { %> selected="selected" <% } %>>逻辑变量(T)</option>
+            <option value="G" <% if(item.type == 'G') { %> selected="selected" <% } %>>地理信息(G)</option>
+          </select>
+          </li>
+          <li class="field-manage-nickName"><input type="text" value="<%= item.nickName %>"/></li>
+        </ul>
+         <% }); %>
+      </div>
+
+      <div class="modal-footer">
+      	<button type="button" class="btn btn-primary field-manage-commit">确定</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+      </div>
+
+</div>
+</script>

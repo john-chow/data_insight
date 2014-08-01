@@ -1,11 +1,41 @@
 <script type="text/template">
 <div class="modal-content">
+
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="new_table_title">新建连接到数据库</h4>
+        <h4 class="modal-title" id="choosed_db_title">新建连接到数据库</h4>
       </div>
 
       <div class="modal-body">
+      	<div class="bs-example bs-example-tabs">
+		    <ul id="choosed_db_tab" class="nav nav-tabs" role="tablist">
+		      <li class="active"><a href="#choosed_db" role="tab" data-toggle="tab">建立新的连接</a></li>
+		      <li class=""><a href="#choosed_history" role="tab" data-toggle="tab">连接到历史数据源</a></li>
+		    </ul>
+		    <div class="tab-content">
+		      <div class="tab-pane fade active in" id="choosed_db">
+		        <ul class="choosed-db-new">
+			        <li><span class="glyphicon glyphicon-book"></span>mysql</li>
+			        <li><span class="glyphicon glyphicon-book"></span>oracle</li>
+			        <li><span class="glyphicon glyphicon-book"></span>postgres</li>
+			        <li><span class="glyphicon glyphicon-book"></span>mongdb</li>
+			        <li><span class="glyphicon glyphicon-book"></span>sql server</li>
+			        <li><span class="glyphicon glyphicon-book"></span>sqlsite</li>
+		        </ul>
+		      </div>
+		      <div class="tab-pane fade" id="choosed_history">
+		        <ul class="choosed-db-old">
+			        <li><span class="glyphicon glyphicon-tasks"></span>历史数据源1</li>
+			        <li><span class="glyphicon glyphicon-tasks"></span>历史数据源2</li>
+			        <li><span class="glyphicon glyphicon-tasks"></span>历史数据源3</li>
+			        <li><span class="glyphicon glyphicon-tasks"></span>历史数据源4</li>
+			        <li><span class="glyphicon glyphicon-tasks"></span>历史数据源5</li>
+			        <li><span class="glyphicon glyphicon-tasks"></span>历史数据源6</li>
+		        </ul>
+		      </div>
+		    </div>
+  		</div>
       </div>
+
 </div>
 </script>
