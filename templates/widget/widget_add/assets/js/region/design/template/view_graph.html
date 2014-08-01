@@ -20,7 +20,7 @@
 		<div class="col-md-5" style="padding: 0">
 			<div class="dragging-custom design-column clearfix">
 				<div class="test">纵轴</div>
-				<ul id="y_sortable" ondragover="return false" class="connectedSortable clearfix ">
+				<ul id="y_sortable" ondragover="return false" class="dragging-custom connectedSortable clearfix ">
 					<% _.each(axisX, function(x, index){ %>
    					 	<li class="mension" type="mension"> <%= x %> </li>
     				<% }); %>
@@ -28,7 +28,7 @@
 			</div>
 			<div class="dragging-custom design-column clearfix" style="margin-top: 25px;">
 				<div class="test">横轴</div>
-				<ul id="x_sortable" ondragover="return false" class="connectedSortable clearfix">
+				<ul id="x_sortable" ondragover="return false" class="dragging-custom connectedSortable clearfix">
 					<% _.each(axisY, function(y){ %>
    					 	<li class="measure" type="measure"> <%= y %> </li>
     				<% }); %>
@@ -39,7 +39,7 @@
 		<div id="graph-feature" class="col-md-5">
 			<ul class="clearfix">
 			<% _.each(mapping, function(value, key){ %>
-   				<li class="feature-item"><label><%= key %></label> <%= value %> </li>
+   				<li class="feature-item dragging-custom"><label><%= key %></label> <%= value %> </li>
     		<% }); %>
 			</ul>
 		</div>
