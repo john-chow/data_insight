@@ -15,6 +15,7 @@ define([], function () {
 			initilize: function(){
 				var self = this;
 				this.listenChange();
+                Entities.entranceFascade.register("additional", this)
 			},
 			/**
 			 * 抓取数据，这里触发widget模型去后台抓取数据

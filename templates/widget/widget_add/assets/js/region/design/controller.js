@@ -19,6 +19,7 @@ define([
 					this.graph = DataInsightManager.request("graph:entity");
 					this.filter = DataInsightManager.request("filter:entity");
 					this.property = DataInsightManager.request("property:entity");
+
 					this.graphView = new DesignRegion.Graph({
 						model: this.graph
 					});

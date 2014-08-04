@@ -1,99 +1,115 @@
-DataInsightManager.module("Entities"
-    , function(Entities, DataInsightManager, Backbone, Marionette, $, _) {
-    
-    var DrawPrefix      =   "draw";
-    var AdditionPrefix  =   "additional";
+define([
+    'entities/graph'
+    , 'entities/filter'
+    , 'entities/property'
+], function () {
+    DataInsightManager.module("Entities"
+        , function(Entities, DataInsightManager, Backbone, Marionette, $, _) {
+        
+        /*
+         * 聚合外部Model，自己不存任何实质数据
+         */
+        Entities.BaseEntrance = Backbone.Model.extend({
+            initialize:          function() {
+                this.list   = [];
+                this.listen && this.listen();
+            },
 
-    Entities.BaseEntrance = Backbone.Model.extend({
-        list:               [],
-
-        initalize:          function() {
-            this.listenEach();
-            this.on(this.toSaveCmd, this.onGetSaveCmd);
-            this.on(this.toFetchCmd, this.onGetFetchCmd)
-        },
-
-        listenEach:         function() {
-            var self = this;
-            $.each(self.list, function(m) {
-                m.on("change", function() {
-                    self.trigger(this.toSaveCmd)
-                });
-                m.on("", function(callback) {
-                    self.trigger(this.toFetchCmd, callback)
+            merge:              function() {
+                var data = {};
+                $.each(this.list, function(i, m) {
+                    $.merge(data, m.toJSON())
                 })
-            })
-        },
+                return data
+            },
 
-        merge:              function() {
-            var data = {};
-            $.each(this.list, function(m) {
-                $.merge(data, m.toJSON())
-            })
-            return data
-        },
-
-        distribute:         function() {
-        },
-
-        register:           function(model) {
-            this.list.push(model)
-        },
-
-        onGetSaveCmd:       function() {
-            var data = this.merge();
-            this.save({"data": data})
-        },
-
-        onGetFetchCmd:      function(callback) {
-            this.fetch()
-        }
-    });
-
-
-    /*
-     * 图表形成类
-     */
-    Entities.DrawEntrance = Entities.BaseEntrance.extend({
-        toSaveCmd:          DrawPrefix + ":save",
-        toFetchCmd:         DrawPrefix + ":fetch",
-        url:                "",
-    });
-
-
-    /* 
-     * 图表辅助类
-     */
-    Entities.AdditionalEntrance = Entities.BaseEntrance.extend({
-        toSaveCmd:          AdditionPrefix + ":save",
-        toFetchCmd:         AdditionPrefix + ":fetch",
-        url:                ""
-    });
-
-
-    /*
-     * 对外提供的接口类
-     */
-    var Entities.Entrance = function() {
-        DrawPrefix:             new Entities.DrawEntrance
-        , AdditionPrefix:       new Entities.AdditionalEntrance
-
-        this.register   =   function(kind, model) {
-            this[kind].register(model)
-        }
-    };
-
-
-    var API = {
-        getEntrance:    function() {
-            if (Entities.entrance === undefined) {
-                Entities.entrance = new Entities.Entrance;
+            register:           function(model) {
+                this.list.push(model)
             }
-            return Entities.entrance
-        }
-    };
+        });
 
-    DataInsightManager.reqres.setHandler("entrance:entities", function(){
-        return API.getEntrance();
-    });
+
+        /*
+         * 图表形成类
+         */
+        Entities.DrawEntrance = Entities.BaseEntrance.extend({
+            url:                "xxx",
+
+            listen:             function() {
+                Entities.on("graph:change filter:change", $.proxy(this.draw, this));
+            },
+
+            draw:               function() {
+                var data = this.merge();
+                this.save({
+                    data:       data
+                    , success:  function() {
+                        DataInsightManager.commands.execute("board:draw")
+                    }
+                })
+            }
+        });
+
+
+        /* 
+         * 图表辅助类
+         */
+        Entities.AdditionalEntrance = Entities.BaseEntrance.extend({
+        });
+
+
+        /*
+         * 对外提供的接口类，组件的save和fetch的通道
+         */
+        Entities.EntranceFascade = Backbone.Model.extend({
+        	url:                "xxx",
+        	
+            initialize:     function() {
+                this.set({
+                    "draw":             new Entities.DrawEntrance
+                    , "additional":     new Entities.AdditionalEntrance
+                });
+
+                Entities.on("toFetch", $.proxy(this.onReqWidgetData, this));
+                DataInsightManager.commands.setHandler(
+                    "widget:save", $.proxy(this.save, this)
+                );
+            },
+
+            register:       function(kind, model) {
+                this.get(kind).register(model);
+            },
+
+            save:           function() {
+                var data = this.merge();
+                this.save({"data": data});
+            },
+
+            merge:          function() {
+                var drawData = this.drawModel.merge();
+                var additionalData = this.additionalModel.merge();
+                return $.extend({}, drawData, additionalData)
+            },
+
+            onReqWidgetData:        function(e) {
+                var self = this;
+                self.fetch({
+                    "success":  function(m, resp) {
+                        e.func(resp.data, e.arg);
+                    }
+                })
+            }
+        });
+
+
+        (function() {
+            if (Entities.entranceFascade === undefined) {
+                Entities.entranceFascade = new Entities.EntranceFascade;
+            }
+            return Entities.entranceFascade
+        })()
+
+    })
 })
+
+
