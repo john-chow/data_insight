@@ -9,8 +9,8 @@ define([], function () {
 			//url: "/widget/" + window.id,
 			defaults: {
 				graph: "bar",//组件图表类型
-				axisX: [1,2],//组件x轴属性
-				axisY: [1,2],//组件y轴属性
+				x: [{name: "namex", title:"titlex", calcFunc: "sum"},{name: "namex1", title:"titlex1", calcFunc: "sum"}],//组件x轴属性
+				y: [{name: "namey", title:"titley", calcFunc: ""}],//组件y轴属性
 				mapping: {},//组件的映射字段，不同图表类型所需的映射字段列表不同
 				/*shap: '',//组件的形状映射属性
 				color: 'white',//组件的颜色映射属性
@@ -18,14 +18,16 @@ define([], function () {
 				fill: ''//组件填充字段映射属性*/				
 			},
 			initialize: function(){
+				var self = this;
+				this.graph = this.get("graph");
 				this.getMaping();
+				this.listenChange();
 				//当图表类型改变的时候，触发事件，修改图表右边的视图
-				this.on("change:graphType", function(graph){
-					this.set("graph", graph);
+				this.on("graphType:change", function(graph){
+					this.graph = graph;
 					this.getMaping();
 					//触发图表类型变化事件，通知'图表视图'更新，更新视图工作由图表视图完成
-					this.trigger("change:feature", self.mapping);
-					//TODO 更新作图区域
+					this.trigger("feature:change", self.mapping);
 					
 				}, this);
 				
@@ -33,25 +35,51 @@ define([], function () {
 					
 				});
 
+				//删除x轴中的元素
+				this.on("x:remove", function(xItem){
+					this.get("x").remove(xItem);
+					this.trigger("change");//触发change事件;
+				}, this);
+				
+				//删除y轴中的元素
+				this.on("y:remove", function(yItem){
+					this.get("y").remove(yItem);
+					this.trigger("change");//触发change事件;
+				}, this);
+
                 Entities.entranceFascade.register("draw", this)
 				
 			},
-			/*
-			 * 抓取数据，这里出发widget模型去后台抓取数据
+			/**
+			 * 抓取数据，这里触发widget模型去后台抓取数据
+			 * 备注：触发wiget模型抓取数据的时候，传了代理执行的回调函数和defer对象过去
+			 * return jquery deferrd的promise()方法，确保defer对象无法从外部改变
 			 * 
 			*/
 			fecthFromWidget: function(){
-				//通知widget模型去后台fetch数据，并且代替执行回调函数
-				Entities.trigger("graph:initial", $.proxy(this.handlerData, this));
+				var defer = $.Deferred();
+				//通知widget模型去后台fetch数据，并且代替执行回调函数,同时将jquery的deferred参数传过去
+				Entities.trigger("design:initial", {
+					"func" : $.proxy(this.handlerData, this),
+					"arg"  :defer
+				});
+				return defer.promise();
 			},
-			//通知wiget模型去后台fetch数据后代理执行的函数,这里只是初始化工作
-			handlerData: function(data){
+			/**
+			 * 通知wiget模型去后台fetch数据后代理执行的函数,这里只是初始化工作
+			 * data:后台返回数据， defer:jquery deferred对象，其实从上面的方法传过去然后又递过来的
+			 * 说明:defer.resolve方法将defer状态设置为成功状态
+			 */
+			handlerData: function(data, defer){
 				this.graph = data.graph;
-				this.axisX = data.axisX;
-				this.axisY = data.axisY;
+				this.x = data.x;
+				this.y = data.y;
 				this.mapping = data.mapping;
+				deffer.resolve();
 			},
-			//获取图表类型对于的映射字段列表
+			/**
+			 * 获取图表类型对于的映射字段列表
+			 */
 			getMaping: function(){
 				var map = {
 					"area": ["alpha","colour", "fill", 
@@ -76,7 +104,7 @@ define([], function () {
 					"violin": ["alpha", "colour", "fill", "linetype",
 					                "size", "weight"]
 				}
-				var featureArr = eval("map." + this.get("graph")),
+				var featureArr = eval("map." + this.graph),
 					self = this;
 				//默认的映射
 				if(!featureArr){
@@ -88,7 +116,30 @@ define([], function () {
 					//根据先前定义好的映射创建mapping的属性，即确定该图表类型对应的字段映射列表
 					eval("mapping." + value + "='1'");
 				});
-				self.set("mapping", mapping);
+				self.set({mapping : mapping, graph: this.graph});//会触发change事件，这里不太合适但无法改变
+			},
+			/**
+			*说明：如果是编辑状态，则在抓取完后台数据后再监听change事件,否则直接监听
+			*return ture对应编辑状态，false对应创建状态
+			*/
+			listenChange: function(){
+				var self = this;
+				//编辑状态
+				if(window.wigetId){
+					//确保从后台抓取完数据后才监听属性改变事件，确保不会做无谓的触发
+					$.when(this.fecthFromWidget()).done(function(){
+						//只要模型的属性改变便通知widget模型改变属性
+						self.on("change", function(){
+							Entities.trigger("graph:change", this.toJSON());
+						}, this);
+					});
+					return true;
+				}
+				//创建状态，忽略抓取数据和触发graph:change的顺序，在graph模型改变的时候立即触发garph:change事件
+				this.on("change", function(){
+					Entities.trigger("graph:change", this.toJSON());
+				}, this);
+				return false;
 			}
 		})
 		
@@ -100,7 +151,6 @@ define([], function () {
 			 getGraphEntity: function(){
 				 var id = window.widgetId;//TODO 这里获取后台传过来的id，如果是新建则为空
 				 var graphEntity = new Entities.Graph();
-				 graphEntity.fecthFromWidget();
 				 return graphEntity;
 				 /*var defer = $.Deferred();
 				 if(!id){

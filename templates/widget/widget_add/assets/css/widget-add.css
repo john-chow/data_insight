@@ -515,5 +515,25 @@ border: 1px solid #CAD8B7;
 	margin: 0 0 15px 15px;
 }
 
+.design-column b {
+	position: absolute;
+	right: 3px;
+	top: 3px;
+	cursor: pointer;
+	opacity: 0.1;
+	display: block;
+}
+.design-column b:hover{
+	opacity: .8;
+}
+
+.edit-axis .axis-param{
+	margin-bottom: 40px;
+}
+
+.edit-axis .axis-param input,.edit-axis .axis-param select{
+	width: 450px;
+	height: 35px;
+}
 /* end design«¯”Úcss */
 

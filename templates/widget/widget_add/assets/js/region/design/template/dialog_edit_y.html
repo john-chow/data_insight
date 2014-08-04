@@ -1,0 +1,38 @@
+<script type="text/template">
+<div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="new_table_title">编辑属性</h4>
+      </div>
+ 	  <div class="modal-body edit-axis">
+
+		<div class="axis-param">
+		<label>标&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题:</label>
+			<input name="y_title" type="text" value="<%=y.title%>"/>
+		</div>
+		<div class="axis-param">
+			<label>数据变量:</label>
+			<select name="y_type">
+				<option value="F">因子变量(F)</option>
+				<option value="N">数值变量(N)</option>
+				<option value="D">时间变量(D)</option>
+				<option value="G">地理变量(G)</option>
+				<option value="T">逻辑变量(T)</option>
+			</select>
+		</div>
+		<div class="axis-param">
+			<label>计算类型:</label>
+			<select name="y_calcFunc">
+				<option value="none">无(NONE)</option>
+				<option value="sum">求和(SUM)</option>
+				<option value="count">统计个数(COUNT)</option>
+				<option value="mean">平均值(MEAN)</option>
+				<option value="max">最大值(MAX)</option>
+				<option value="min">最小值(MIN)</option>
+				<option value="median">中位值(MEDIAN)</option>
+			</select>
+		</div>
+      </div>
+</div>
+</script>
+	
