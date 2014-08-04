@@ -79,6 +79,10 @@ define([
 		    	DataInsightManager.trigger('table:list', collection);
 		    })
 
+		    DataInsightManager.dialogRegion.on("model:set", function(model, option){
+		    	model.set(option)
+		    })
+
 			//显示View
 			DataInsightManager.tableRegion.show(showTableView);
 

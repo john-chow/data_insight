@@ -30,13 +30,24 @@ var data = DataInsightManager.module("TableRegion",
       },
       //显示
       onShow: function() {
-        var id, i, variable, selectedCollection;
+        //定义变量
+        var variable, selectedCollection, choosedModel;
+        //设置高度
         variable = DataInsightManager.tableRegion.$el.outerHeight()-this.$("#table_template_header").outerHeight()
         this.$("#table_template_content").height(variable);
+        //设置model的放在Controller实现
         selectedCollection = this.collection.where({selected:true});
         if(selectedCollection.length > 0){
-          this.$(".table-item").eq(0).addClass("table-item-select");
-          this.trigger("change:table", selectedCollection[0].get("id"));
+          choosedModel = this.collection.findWhere({choosed:true});
+          if(choosedModel){
+              this.$(".table-"+choosedModel.get("id")).addClass("table-item-select");
+              this.trigger("change:table", choosedModel.get("id"));
+          }
+          else{
+            this.$(".table-item").eq(0).addClass("table-item-select");
+            DataInsightManager.dialogRegion.trigger('model:set', selectedCollection[0], {"choosed":true});
+            this.trigger("change:table", selectedCollection[0].get("id"));
+          }
         }
         else{
           this.trigger("change:table");
@@ -46,7 +57,11 @@ var data = DataInsightManager.module("TableRegion",
       changeSelectTable: function(e){
         this.$(".table-item-select").removeClass("table-item-select");
         $(e.target).addClass("table-item-select");
-        this.trigger("change:table", $(e.target).attr("data-id"));
+        var choosedModel = this.collection.findWhere({choosed:true});
+        DataInsightManager.dialogRegion.trigger('model:set', choosedModel, {"choosed":false});
+        var id = $(e.target).attr("data-id");
+        DataInsightManager.dialogRegion.trigger('model:set', this.collection.get(id), {"choosed":true});
+        this.trigger("change:table", id);
       },
 
     });
@@ -94,11 +109,11 @@ var data = DataInsightManager.module("TableRegion",
       managetableFunction: function(){
         //根据表单信息
         var options= {
-          "ip":     "127.0.0.1",
-          "port":   "5432",
-          "db":     "postgres",
-          "user":   "postgres",
-          "pwd":    "123456"
+          "ip":     this.$("#connect_ip").val(),
+          "port":   this.$("#connect_port").val(),
+          "db":     this.$("#connect_db").val(),
+          "user":   this.$("#connect_user").val(),
+          "pwd":    this.$("#connect_pwd").val()
         };
         DataInsightManager.dialogRegion.trigger('show:dialog-table-manage', options);
       },
@@ -138,20 +153,33 @@ var data = DataInsightManager.module("TableRegion",
         "click #table_manage_unchoosed":  "unchoosedTableFunction"
       }, 
       tableListFunction: function(){
+        var self = this;
+        //关于对model的操作应该放到controller，下同
+        this.$(".table-manage-select select option").each(function(i){
+          var model =self.collection.get($(this).val());
+            DataInsightManager.dialogRegion.trigger('model:set', model, {"index":(i+1)});
+          });
+        this.collection.sort();
         DataInsightManager.dialogRegion.trigger('table:list',this.collection);
       },
       choosedTableFunction: function(){
           var self = this;
           this.$(".table-manage-unselect select option:selected").each(function(){
             self.$(".table-manage-select select").append(this);
-            self.collection.get($(this).val()).set("selected", true);
+            var model = self.collection.get($(this).val());
+            DataInsightManager.dialogRegion.trigger('model:set', model, {"selected":true});
           });
       },
       unchoosedTableFunction: function(){
           var self = this;
           this.$(".table-manage-select select option:selected").each(function(){
             self.$(".table-manage-unselect select").append(this);
-            self.collection.get($(this).val()).set("selected", false);
+            var model = self.collection.get($(this).val());
+            DataInsightManager.dialogRegion.trigger('model:set', model, {
+              "selected":false,
+              "choosed":false,
+              "index":0,
+            });
           });
       }
     });
