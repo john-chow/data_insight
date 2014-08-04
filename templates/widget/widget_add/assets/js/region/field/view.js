@@ -70,9 +70,11 @@ var data = DataInsightManager.module("FieldRegion",
       },
 
       fieldManageCommitFunction: function(e){
-        //获取信息，假设已经获取
-        var options={};
-        this.trigger('change:nickName', options);
+        //获取信息
+        var options=$("#field-manage-form").serialize();
+        //中文会被编码，所以需要解码
+        options = decodeURIComponent(options,true)
+        this.trigger('change:field-attributes', options);
       }
 
     });

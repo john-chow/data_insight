@@ -16,23 +16,24 @@ var data = DataInsightManager.module("Entities",
     Entities.TableCollection = Backbone.Collection.extend({
       url: "tables",
       model: Entities.Table,
+      comparator: 'index',
     });
 
     //假设测试数据
     var tables;
     var initializeTables = function(options){
-      //根据options去获取数据，下面是测试数据
+      //根据options去获取数据，成功则返回数据，错误返回error,下面是测试数据
       tables = new Entities.TableCollection([
-        { id: 1, tableName:'测试数据表1', "selected":false},
-        { id: 2, tableName:'测试数据表2', "selected":false},
-        { id: 3, tableName:'测试数据表3', "selected":false},
-        { id: 4, tableName:'测试数据表4', "selected":false},
-        { id: 5, tableName:'测试数据表5', "selected":false},
-        { id: 6, tableName:'测试数据表6', "selected":false},
-        { id: 7, tableName:'测试数据表7', "selected":false},
-        { id: 8, tableName:'测试数据表8', "selected":false},
-        { id: 9, tableName:'测试数据表9', "selected":false},
-        { id: 10, tableName:'测试数据表10', "selected":false}
+        { id: 1, tableName:'测试数据表1', selected:false, index:0, choosed:false},
+        { id: 2, tableName:'测试数据表2', selected:false, index:0, choosed:false},
+        { id: 3, tableName:'测试数据表3', selected:false, index:0, choosed:false},
+        { id: 4, tableName:'测试数据表4', selected:false, index:0, choosed:false},
+        { id: 5, tableName:'测试数据表5', selected:false, index:0, choosed:false},
+        { id: 6, tableName:'测试数据表6', selected:false, index:0, choosed:false},
+        { id: 7, tableName:'测试数据表7', selected:false, index:0, choosed:false},
+        { id: 8, tableName:'测试数据表8', selected:false, index:0, choosed:false},
+        { id: 9, tableName:'测试数据表9', selected:false, index:0, choosed:false},
+        { id: 10, tableName:'测试数据表10', selected:false, index:0, choosed:false}
       ]);
       
       return tables;
