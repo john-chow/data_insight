@@ -5,6 +5,22 @@ define([], function () {
 
 	var AxisEntity = DataInsightManager.module("Entities", function(Entities, DataInsightManager, Backbone, Marionette, $, _){
 		Entities.Axis = Backbone.Model.extend({
+			defaults: {
+				name: "",
+				title: "",
+				calcFunc: "none",
+				
+			},
+			initialize: function(){
+				this.on("axis:change", function(data){
+					this.set('title', data.title);
+					this.set('calcFunc', data.calcFunc);
+					if(data.axis == "x")//改变x轴的元素
+						Entities.trigger("x:change", this.toJSON());
+					else//改变y轴的元素
+						Entities.trigger("y:change", this.toJSON());
+				}, this);
+			},
 		})
 		
 		Entities.Axises = Backbone.Collection.extend({
