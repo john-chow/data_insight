@@ -16,25 +16,35 @@ from widget.models import ExternalDbModel
 from widget.factor import ElementFactor
 from common.log import logger
 import common.protocol as Protocol
+from common.head import ConnNamedtuple
 
 import pdb
 
 
-# 登陆数据库信息的hash key到PysqlAgent对象之间的映射表
-HK_ST_MAP   = {}
+class PysqlAgentManager(): 
+    HK_ST_MAP   = {}
 
-def stRestore(hk):
-    if not hk:
-        return False
+    @classmethod
+    def stRestore(cls, hk):
+        if not hk:
+            return False
 
-    st = HK_ST_MAP.get(hk)
-    if not st:
-        st = PysqlAgent().restore(hk)
+        st = cls.HK_ST_MAP.get(hk)
 
-    return st
+        #
+        #if not st:
+            #st = PysqlAgent().restore(hk)
 
-def stStore(hk, st):
-    HK_ST_MAP[hk] = st
+        return st
+
+    @classmethod
+    def stStore(cls, hk, st):
+        cls.HK_ST_MAP[hk] = st
+
+    @staticmethod
+    def stCreate():
+        st = PysqlAgent()
+        return st
 
 
 
@@ -76,28 +86,23 @@ class PysqlAgent():
         except ExternalDbModel.DoesNotExist:
             raise Exception(u'can''t resotre')
         else:
-            self.connDb(externdb.m_kind, externdb.m_ip, externdb.m_port, \
-                externdb.m_db, externdb.m_user, externdb.m_pwd    \
+            conn_nt = ConnNamedtuple( \
+                ip = externaldb.m_ip, port = externaldb.m_port, \
+                kind = externaldb.m_kind, db = externaldb.m_db, \
+                user = externaldb.m_user, pwd = externaldb.m_pwd \
             )
+            self.connDb(conn_nt)
 
         return self
 
 
-    def connDb(self, kind, ip, port, db, user, pwd):
+    def connDb(self, conn_nt):
         """
         连接数据库
         """
-        if not kind:
-            return False, u'database kind missing'
-        if not db:
-            return False, u'database name missing'
-
-        ip      = ip if ip else u'127.0.0.1'
-        port    = port if port else 5432
-
         cnt = u'{kind}://{user}:{pwd}@{host}:{port}/{db}'.format(   \
-            kind = kind, user = user, pwd = pwd, host = ip, \
-            port = port, db = db   \
+            kind = conn_nt.kind, user = conn_nt.user, pwd = conn_nt.pwd, \
+            host = conn_nt.ip, port = conn_nt.port, db = conn_nt.db   \
         )
 
         self.cnt    = cnt

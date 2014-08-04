@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from widget.models import WidgetModel, ExternalDbModel
 from widget.echart import EChartManager
 from widget.factor import ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE
-from connect.sqltool import stRestore, SqlObjReader
+from connect.sqltool import PysqlAgentManager, SqlObjReader
 from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb, cleanDataFromDb
 import common.protocol as Protocol
 from common.log import logger
@@ -87,7 +87,7 @@ def widgetCreate(request):
                                     u'msg': u'保存成功'})
     else:
         hk      = request.session.get(u'hk')
-        st      = stRestore(hk)
+        st      = PysqlAgentManager.stRestore(hk)
 
         tables  = request.session.get('tables')
 
@@ -218,7 +218,7 @@ def widgetShow(request, widget_id):
         return HttpResponse({u'succ': False, u'msg': u'yyyyyyyyyyyy'})
     else:
         hk              = widget_model.m_external_db.m_hk
-        st              = stRestore(hk)
+        st              = PysqlAgentManager.stRestore(hk)
         st.reflectTables(json.loads(widget_model.m_table))
         image_data      = genWidgetImageData(req_data, hk)
         return MyHttpJsonResponse({u'succ': True, u'widget_id':widget_id, u'data': image_data})
@@ -287,7 +287,7 @@ def reqTimelyData(request, wi_id):
     获取及时的新数据
     '''
     hk = request.session.get(u'hk')
-    st = stRestore(hk)
+    st = PysqlAgentManager.stRestore(hk)
 
     widget_model = WidgetModel.objects.get(pk = wi_id)
     if not widget_model.m_if_update:
@@ -410,7 +410,7 @@ def genWidgetImageData(req_data, hk):
     生成返回前端数据
     """
     logger.debug("function genWidgetImageData() is called")
-    st = stRestore(hk)
+    st = PysqlAgentManager.stRestore(hk)
 
     # 地图先特殊对待
     if 'china_map' == req_data.get(u'graph') or \
@@ -592,7 +592,7 @@ def searchLatestData(hk, factor_list, group_list):
         select_factors.append(factor)
         group_factors.append(factor)       
 
-    st  = stRestore(hk)
+    st  = PysqlAgentManager.stRestore(hk)
     resultes = st.exeSelect(selects = select_factors, groups = group_factors) \
                     .fetchone()
     return resultes
