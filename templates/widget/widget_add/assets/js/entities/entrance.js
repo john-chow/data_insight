@@ -23,11 +23,8 @@ define([
                 return data
             },
 
-            register:           function(models) {
-                var self = this;
-                $.each(models, function(i, m) {
-                    self.list.push(m)
-                })
+            register:           function(model) {
+                this.list.push(model)
             }
         });
 
@@ -77,8 +74,8 @@ define([
                 );
             },
 
-            register:       function(kind, models) {
-                this.get(kind).register(models);
+            register:       function(kind, model) {
+                this.get(kind).register(model);
             },
 
             save:           function() {
