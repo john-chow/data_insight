@@ -22,7 +22,7 @@
 				<div class="test">纵轴</div>
 				<ul id="y_sortable" ondragover="return false" class="connectedSortable clearfix ">
 					<% _.each(y, function(yItem, index){ %>
-   					 	<li class="mension" type="mension"> 
+   					 	<li class="mension" type="mension" data-title="<%=yItem.title%>" data-calcFunc="<%=yItem.calcFunc%>" data-name='<%=yItem.name%>'> 
 							<!--(<%=yItem.calcFunc%>)-->
 							&nbsp;<%= yItem.name %>
 							<b data-toggle="dropdown" class="glyphicon glyphicon-plus-sign dropdown-toggle"></b> 
@@ -39,7 +39,7 @@
 				<div class="test">横轴</div>
 				<ul id="x_sortable" ondragover="return false" class="connectedSortable clearfix">
 					<% _.each(x, function(xItem){ %>
-   					 	<li class="measure" type="measure"> 
+   					 	<li class="measure" type="measure" data-title="<%=xItem.title%>" data-calcFunc="<%=xItem.calcFunc%>" data-name='<%=xItem.name%>'> 
 							<!--(<%=xItem.calcFunc%>)&nbsp;-->
 							<%= xItem.name %>
 							<b data-toggle="dropdown" class="glyphicon glyphicon-plus-sign dropdown-toggle"></b>

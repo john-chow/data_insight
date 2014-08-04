@@ -156,6 +156,7 @@ body {
 
 #field_region .field-item {
 	border: 1px solid #fff;
+	cursor: move;
 }
 
 #x_sortable>li,
@@ -338,6 +339,7 @@ body {
 /*begin designÇøÓòcss */
 .design-tab{
 	margin-bottom: 0;
+	padding-left: 19px;
 }
 .design-tab .tab{
 	float: left;
@@ -365,7 +367,7 @@ body {
 #design-content,#design-graph
 ,#design-filter,#design-property{
 	height: 100%;
-	margin-left: 41px;
+	margin-left: 20px;
 	background: white;
 	border: 1px solid #978C8C;
 	padding-top: 25px;

@@ -19,6 +19,7 @@ define([
 					this.graph = DataInsightManager.request("graph:entity");
 					this.filter = DataInsightManager.request("filter:entity");
 					this.property = DataInsightManager.request("property:entity");
+
 					this.graphView = new DesignRegion.Graph({
 						model: this.graph
 					});
@@ -36,7 +37,7 @@ define([
 					this.graphView.on("y:edit", function(yItem){
 						var axisY = DataInsightManager.request("axis:entity");
 						axisY.set(yItem);
-						var dialogYView = new DesignRegion.DialogX({
+						var dialogYView = new DesignRegion.DialogY({
 							model: axisY
 						});
 						DataInsightManager.dialogRegion.show(dialogYView);
