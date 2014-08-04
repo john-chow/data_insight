@@ -13,7 +13,11 @@ define([
 	'region/table/route',
 	'region/field/route',
 	"region/design/route",
+<<<<<<< HEAD
 	"region/show/route"
+=======
+	'tool',
+>>>>>>> 0f2c56cee455cccceff1c844c858280c59dbb167
 ], function ($, JqueryUi, json, _, backbone, Marionette, dialog, tableRoute, fieldRoute) {
 
 	DataInsightManager.addRegions({

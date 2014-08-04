@@ -14,24 +14,59 @@ define([], function () {
 			},
 			initilize: function(){
 				var self = this;
+<<<<<<< HEAD
                 Entities.entranceFascade.register("additional", this)
+=======
+				this.listenChange();
+>>>>>>> 0f2c56cee455cccceff1c844c858280c59dbb167
 			},
-			/*
-			 * 通知wiget模型去后台fetch数据后代理执行的函数
+			/**
+			 * 抓取数据，这里触发widget模型去后台抓取数据
+			 * 备注：触发wiget模型抓取数据的时候，传了回调函数和defer对象过去
+			 * return jquery deferrd的promise()方法，确保defer对象无法从外部改变
 			 */
-			handlerData: function(data){
+			fecthFromWidget: function(){
+				var defer = $.Deferred();
+				Entities.trigger("graph:initial", {
+					"func" : $.proxy(this.handlerData, this),
+					"arg" : defer
+				});
+				return defer.promise();
+			},
+			/**
+			 * 通知wiget模型去后台fetch数据后代理执行的函数
+			 * data:后台返回的response， defer：fetchFromWidget函数里面的jquery deferred
+			 */
+			handlerData: function(data, defer){
 				this.name = data.name;
 				this.title = data.title;
 				this.style = data.style;
 				this.autoRefresh = data.autoRefresh;
 				this.isPublish = data.isPublish;
-				
+				defer.resolve();
 			},
-			/*
-			 * 通知widget模型去后台fetch数据，并且代替执行回调函数
-			 */
-			fecthFromWidget: function(){
-				Entities.trigger("graph:initial", $.proxy(this.handlerData, this));
+			/**
+			*说明：如果是编辑状态，则在抓取完后台数据后再监听change事件,否则直接监听
+			*return ture对应编辑状态，false对应创建状态
+			*/
+			listenChange: function(){
+				var self = this;
+				//编辑状态
+				if(window.wigetId){
+					//确保从后台抓取完数据后才监听属性改变事件，确保不会做无谓的触发
+					$.when(this.fecthFromWidget()).done(function(){
+						//只要模型的属性改变便通知widget模型改变属性
+						self.on("change", function(){
+							Entities.trigger("property:change", this.toJSON());
+						}, this);
+					});
+					return true;
+				}
+				//创建状态，忽略抓取数据和触发property:change的顺序，在property模型改变的时候立即触发property:change事件
+				this.on("change", function(){
+					Entities.trigger("property:change", this.toJSON());
+				}, this);
+				return false;
 			}
 		});
 		
@@ -41,7 +76,6 @@ define([], function () {
 		var API = {
 			getPropertyEntity: function(){
 				var propertyEntity = new Entities.Property();
-				propertyEntity.fecthFromWidget();
 				return propertyEntity;
 			}
 		}
