@@ -10,7 +10,8 @@ define([], function () {
 			},
 			initialize: function(){
 				var self = this;
-				
+
+                Entities.entranceFascade.register("draw", this)
 			},
 			fetchFromWidget: function(){
 				//通知widget模型去后台fetch数据，并且代替执行回调函数

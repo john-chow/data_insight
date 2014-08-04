@@ -14,6 +14,7 @@ define([], function () {
 			},
 			initilize: function(){
 				var self = this;
+                Entities.entranceFascade.register("additional", this)
 			},
 			/*
 			 * 通知wiget模型去后台fetch数据后代理执行的函数

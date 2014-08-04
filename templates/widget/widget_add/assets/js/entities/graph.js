@@ -31,7 +31,9 @@ define([], function () {
 				
 				this.on("change:axisX", function(){
 					
-				})
+				});
+
+                Entities.entranceFascade.register("draw", this)
 				
 			},
 			/*
