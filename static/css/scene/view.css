@@ -1,15 +1,10 @@
-
+body,html{
+	background: white;
+	height: 100%;
+}
 #scenceView{
 position: relative;
-background: white;
 height: auto;
-overflow: hidden;
-box-shadow: inset 0px 0px 15px rgba(200,200,200,1);
-margin: auto;
-margin-top: 10px;
-border: #DDD 1px solid;
-border-radius: 5px;
-padding: 0 21px 140px;
 }
 
 #content {
@@ -22,10 +17,6 @@ padding: 0 21px 140px;
 
 .gridster ul {
 list-style: none;
-}
-
-.gridster ul li{
-border: 1px solid #ddd;
 }
 
 .toolbar {

@@ -150,7 +150,8 @@
 					////////////////等比例缩放,gridster////////////////////
 					var rate = 1, 
 						width    = self.$box.width() - 50,
-						height   = self.$box.height() - 50;				var image = new Image();
+						height   = self.$box.height() - 50;				
+					var image = new Image();
 					image.src = this.model.src;
 					var sceneWidth = image.width,
             			sceneHeight = image.height;
