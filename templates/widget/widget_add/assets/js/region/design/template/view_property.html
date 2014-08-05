@@ -1,9 +1,9 @@
 <script type="text/template" id="property-view">	
 	<div class="row">
-		<div class="col-md-5">
-			<label>标&nbsp;&nbsp;题&nbsp;:&nbsp;</label><input type="text" name="name" value="<%= name %>"/>
+		<div class="col-md-5 col-sm-5">
+			<label>标&nbsp;&nbsp;题&nbsp;:&nbsp;</label><input type="text" name="title" value="<%= name %>"/>
 		</div>
-		<div class="col-md-5 col-offset-2">
+		<div class="col-md-5 col-sm-5 col-offset-2">
 			<label>数据更新频率:</label>
 			<select name="autoRefresh" value="<%= autoRefresh %>">
 				<option value="0">从不更新</option>
@@ -16,7 +16,7 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-5">
+		<div class="col-md-5 col-sm-5">
 			<label>样&nbsp;&nbsp;式&nbsp;:</label>
 			<select name="style" value="<%= style %>">
 				<option value="default">默认主题</option>
@@ -25,7 +25,7 @@
 				<option value="green">绿色主题</option>
 			</select>
 		</div>
-		<div class="col-md-5 col-offset-2">
+		<div class="col-md-5 col-sm-5 col-offset-2">
 			<label>是&nbsp;&nbsp;否&nbsp;&nbsp;发&nbsp;&nbsp;布&nbsp;:</label>
 			<select name="isPublish" value="<%= isPublish %>">
 				<option value="true">是</option>

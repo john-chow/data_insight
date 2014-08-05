@@ -6,7 +6,7 @@
 import time
 
 from widget.factor import Factor
-from connect.sqltool import stRestore
+from connect.sqltool import PysqlAgentManager
 from monitor.models import EventModel
 from common.log import logger
 import pdb
@@ -27,7 +27,7 @@ ADD_WARNING_PREFIX = 'addwarning'
 class TriggerBaseModel():
     def __init__(self, evModel):
         self.ev = evModel
-        self.st = stRestore(self.ev.m_conn_db.m_hk)
+        self.st = PysqlAgentManager.stRestore(self.ev.m_conn_db.m_hk)
 
 
 '''

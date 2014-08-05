@@ -24,6 +24,35 @@ define([
 				$("[name=style]").val(this.model.get("style"));
 				$("[name=autoRefresh]").val(this.model.get("autoRefresh"));
 				$("[name=isPublish]").val(this.model.get("isPublish"));
+				
+				this.whenChange();
+			},
+			/**
+			 * 监听各个属性的变化，jquery监听，触发后通知property model更新
+			 */
+			whenChange: function(){
+				var self = this;
+				//监听样式下拉框的变化，实时重画
+				$("[name=style]").on("change", function(){
+					//通知property model更新style属性
+					self.model.trigger("style:change", $(this).val());
+				});
+				//监听更新频率下拉框的变化
+				$("[name=autoRefresh]").on("change", function(){
+					//通知property model更新autoRefresh属性
+					self.model.trigger("autoRefresh:change", $(this).val());
+				});
+				/*$("[name=title]").bind("input propertychange", function(){
+					console.log($(this).val());
+				})*/
+				//监听标题输入框的值的改变
+				$("[name=title]").on("change", function(){
+					self.model.trigger("title:change", $(this).val());
+				});
+				//监听是否发布下拉框的变化
+				$("[name=isPublish]").on("change", function(){
+					self.model.trigger("isPublish:change", $(this).val());
+				});
 			}
 		})
 		

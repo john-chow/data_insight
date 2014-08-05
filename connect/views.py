@@ -14,51 +14,59 @@ from django_sse.redisqueue import send_event
 from widget.forms import ConnDbForm
 from widget.models import ExternalDbModel
 from connect.file import Text, Excel
-from connect.sqltool import PysqlAgent, stRestore, stStore
+from connect.sqltool import PysqlAgentManager, PysqlAgent
 from common.tool import MyHttpJsonResponse
 from common.log import logger
-from common.head import DEFAULT_DB_INFO
+from common.head import DEFAULT_DB_INFO, ConnNamedtuple, ConnArgsList
 
 import pdb
 
 
-def genConnHk(kind, ip, port, db, user, pwd):
+def genConnHk(nt):
     str = u'{kind}_{ip}_{port}_{db}_{user}_{pwd}'
     cnt = str.format(   \
-        kind = kind, user = user, pwd = pwd, \
-        ip = ip,   port = port, db = db   \
+        kind = nt.kind, user = nt.user, pwd = nt.pwd, \
+        ip = nt.ip,   port = nt.port, db = nt.db   \
     )
     return hash(cnt)
 
 
-def connectDb(request):
+def connectDb(nt):
+    if not isinstance(nt, ConnNamedtuple):
+        return False, 'xxxxxxxxxx'
+
+    hk  = genConnHk(nt)
+    st = PysqlAgentManager.stRestore(hk) or PysqlAgentManager.stCreate()
+    succ, msg = st.connDb(nt)
+    return succ, msg, hk, st
+
+
+def handleConn(request):
     """
     连接数据库
     """
-    logger.debug("function connectDb() is called")
+    logger.debug("function handleConn() is called")
 
     if u'POST' == request.method:
-        [ip, port, db, user, pwd, kind] \
-                = map(lambda x: request.POST.get(x)  \
-                        , [u'ip', u'port', u'db', u'user', u'pwd', u'kind'])
+        conn_list = map(lambda x: request.POST.get(x)  \
+                        , ConnArgsList)
 
-        st = PysqlAgent()
-        succ, msg = st.connDb( \
-            kind = 'postgres', ip = ip, port = port, db = db, user = user, pwd = pwd \
-        )
+        conn_list[-1] = 'postgres'
+
+        conn_nt = ConnNamedtuple(*conn_list)
+        succ, msg, hk, st = connectDb(conn_nt)
 
         if succ:
-            kind    = u'postgres'
-            hk  = genConnHk(ip = ip, port = port, db = db, user = user, pwd = pwd, kind = kind)
-            stStore(hk, st)
             request.session[u'hk'] = hk
+            PysqlAgentManager.stStore(hk, st)
 
             ExternalDbModel.objects.get_or_create(pk = hk, \
-                m_kind = kind, m_user = user, m_pwd = pwd, \
-                m_ip = ip, m_port = port, m_db = db \
+                m_kind = conn_nt.kind, m_user = conn_nt.user, m_pwd = conn_nt.pwd, \
+                m_ip = conn_nt.ip, m_port = conn_nt.port, m_db = conn_nt.db \
             )
 
             return HttpResponseRedirect(u'/connect/table')
+
         else:
             err_dict = {u'succ': False, u'msg': msg}
             return MyHttpJsonResponse(err_dict)
@@ -81,7 +89,7 @@ def selectTables(request):
         chosen_tables   = request.POST.getlist(u'table', u'[]')
 
         hk  = request.session.get(u'hk')
-        st  = stRestore(hk)
+        st  = PysqlAgentManager.stRestore(hk)
         tables_list = st.listTables()
 
         # 注意传多个来怎么办
@@ -97,7 +105,7 @@ def selectTables(request):
             return HttpResponse(res_dict, content_type='application/json')
     else:
         hk  = request.session.get(u'hk')
-        st  = stRestore(hk)
+        st  = PysqlAgentManager.stRestore(hk)
         tables_list = st.listTables()
 
         return MyHttpJsonResponse( {u'succ': True, \
@@ -119,7 +127,7 @@ def getTableInfo(request):
         )
 
     try:
-        st = stRestore(hk)
+        st = PysqlAgentManager.stRestore(hk)
     except Exception, e:
         return MyHttpJsonResponse(  \
             {u'succ': False, u'msg': u'Connect db first'}   \

@@ -184,7 +184,7 @@ define([], function () {
 		
 		/**
 		 * 对外暴露接口
-		 * getGraphEntity:获取
+		 * getGraphEntity:获取图表实体，如果是编辑的情况下则会去后台抓取。新建的情况下只是新建一个图表实体（没值）
 		 */
 		var API = {
 			 getGraphEntity: function(){

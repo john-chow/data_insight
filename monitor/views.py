@@ -11,7 +11,6 @@ from django_sse.redisqueue import RedisQueueView
 
 from monitor.models import EventModel, WarningModel
 from monitor.trigger import TriggerPsgModel
-from connect.sqltool import stRestore
 from widget.factor import FactorCreator
 from widget.models import ExternalDbModel
 from common.log import logger

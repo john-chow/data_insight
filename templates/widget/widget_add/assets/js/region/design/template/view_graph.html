@@ -1,6 +1,6 @@
 <script type="text/template" id="graph-view">	
 	<div class="row">
-		<div class="col-md-2">
+		<div class="col-md-2 col-sm-2">
 			<div class="dropdown">
  			 <button id="graph" type="button" class="choosed-chart-style chart-<%=graph%>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
   			 </button>
@@ -17,7 +17,7 @@
 			</div>
 			
 		</div>
-		<div class="col-md-5" style="padding: 0">
+		<div class="col-md-5 col-sm-5" style="padding: 0">
 			<div class="dragging-custom design-column clearfix">
 				<div class="test">纵轴</div>
 				<ul id="y_sortable" ondragover="return false" class="connectedSortable clearfix ">
@@ -54,7 +54,7 @@
 			</div>
 		</div>
 		
-		<div id="graph-feature" class="col-md-5">
+		<div id="graph-feature" class="col-md-5 col-sm-5">
 			<ul class="clearfix">
 			<% _.each(mapping, function(value, key){ %>
    				<li class="feature-item"><label><%= key %></label> <%= value %> </li>

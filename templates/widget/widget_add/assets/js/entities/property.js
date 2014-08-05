@@ -12,10 +12,11 @@ define([], function () {
 				autoRefresh: "1h",
 				isPublish: "false",//组件是否发布
 			},
-			initilize: function(){
+			initialize: function(){
 				var self = this;
 				this.listenChange();
-                Entities.entranceFascade.register("additional", this)
+                Entities.entranceFascade.register("additional", this);
+                this.listenPropertyChange();
 			},
 			/**
 			 * 抓取数据，这里触发widget模型去后台抓取数据
@@ -64,6 +65,23 @@ define([], function () {
 					Entities.trigger("property:change", this.toJSON());
 				}, this);
 				return false;
+			},
+			/**
+			 * 监听各个属性的变化
+			 */
+			listenPropertyChange: function(){
+                this.on("style:change", function(style){
+                	this.set("style", style);//触发change事件
+                }, this);
+                this.on("autoRefresh:change", function(autoRefresh){
+                	this.set("autoRefresh", autoRefresh);//触发change事件
+                }, this);
+                this.on("isPublish:change", function(isPublish){
+                	this.set("isPublish", isPublish, {silent : true});//不触发change事件
+                }, this);
+                this.on("title:change", function(title){
+                	this.set("title", title, {silent : true});//不触发change事件
+                }, this);
 			}
 		});
 		
