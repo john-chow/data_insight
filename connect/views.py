@@ -31,8 +31,6 @@ def genConnHk(nt):
     return hash(cnt)
 
 
-
-
 def connectDb(nt):
     if not isinstance(nt, ConnNamedtuple):
         return False, 'xxxxxxxxxx'
@@ -41,7 +39,6 @@ def connectDb(nt):
     st = PysqlAgentManager.stRestore(hk) or PysqlAgentManager.stCreate()
     succ, msg = st.connDb(nt)
     return succ, msg, hk, st
-
 
 
 def handleConn(request):

@@ -20,7 +20,7 @@ urlpatterns = patterns('',
 	url(r'^batch/undistri/$',	views.batachOp, {'op': 'undis'} ),
 	url(r'^batch/delete/$',		views.batachOp, {'op': 'delete'} ),
 
-	url(r'^draw/$', 			views.reqDrawData),
+	url(r'^draw/$', 			views.handleDraw),
     url(r'^draw/update/(\d+)$',      views.reqUpdateData),
     url(r'^draw/timely/(\d+)$',      views.reqTimelyData),
     

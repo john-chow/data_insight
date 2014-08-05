@@ -210,7 +210,7 @@ def widgetShow(request, widget_id):
     """
     try:
         widget_model    = WidgetModel.objects.select_related().get(pk = widget_id)
-        req_data     = widget_model.restoreReqDataDict()
+        req_data        = widget_model.restoreReqDataDict()
         skin_id         = request.GET.get(u'skin_id')
     except WidgetModel.DoesNotExist:
         return HttpResponse({u'succ': False, u'msg': u'xxxxxxxxxxxx'})
@@ -248,11 +248,11 @@ def saveDrawAuxInfo(request):
 
 
 @require_http_methods(['POST'])
-def reqDrawData(request):
+def handleDraw(request):
     """
     获取能画出chart的数据
     """
-    logger.debug("function reqDrawData() is called")
+    logger.debug("function handleDraw() is called")
     req_data = json.loads(request.POST.get(u'data', u'{}'), 
                                 object_pairs_hook=OrderedDict)
 
@@ -260,9 +260,13 @@ def reqDrawData(request):
     if not rsu[0]:
         return MyHttpJsonResponse({u'succ': False, u'msg': rsu[1]})
 
+    #try:
+        #hk      = request.session[u'hk']
+        #data    = genWidgetImageData(req_data, hk)
     try:
-        hk      = request.session[u'hk']
-        data    = genWidgetImageData(req_data, hk)
+        hk       = request.session[u'hk']
+        producer = DrawDataProducer(hk)
+        data    = producer.produce(req_data)
     except Exception, e:
         logger.debug("catch Exception: %s" % e)
         logExcInfo()
@@ -628,6 +632,146 @@ def widgetAdd(request):
         return render_to_response('widget/widget_add/add.html', {}, context)
     else:
         raise Http404()
+
+
+
+class DrawDataProducer():
+    def __init__(self, hk):
+        self.st = PysqlAgentManager.stRestore(hk)
+
+    def produce(self, req):
+        """
+        生成数据，对外接口
+        """
+        shape = req.get('graph')
+        echart = EChartManager().get_echart(shape)
+        self.setDecorator(echart)
+
+        self.fh = FactorHandler(req)
+        part_dict = self.fh.mapToSqlPart()
+
+        sql_obj = self.st.makeSelectSql(**part_dict)
+        data_db = self.st.conn.execute(sql_obj).fetchall()
+        clean_data_db = cleanDataFromDb(data_db)
+        strf_data_db = strfDataAfterFetchDb(clean_data_db)
+
+        result = self.decorate(
+            strf_data_db, self.fh.getMsus(), self.fh.getMsns(), 
+            self.fh.getGroups()
+        )
+
+        return {'type': shape, 'data': result}
+
+
+    def setDecorator(self, obj):
+        """
+        设置最终数据格式对象
+        """
+        self.dt = obj
+
+    def decorate(self, data, msus, msns, groups):
+        """
+        格式化数据
+        """
+        if not self.dt:
+            return data
+
+        return self.dt.makeData(data, msus, msns, groups)
+
+
+class FactorHandler():
+    def __init__(self, req):
+        self.extract(req)
+
+
+    def extract(self, req):
+        '''
+        解析获得各维度上的Factor对象
+        '''
+        [col_kind_attr_list, row_kind_attr_list] = \
+                map( lambda i: req.get(i, []), \
+                        (u'x', u'y') \
+                    ) 
+
+        # 获取轴上属性Factor对象
+        msn_factors, msu_factors = [], []
+        for idx, col_element in enumerate(row_kind_attr_list + col_kind_attr_list):
+            element_dict = {key:col_element[key] for key in EXPRESS_FACTOR_KEYS_TUPLE}
+            factor = ElementFactor(**element_dict)
+            if idx < len(row_kind_attr_list):
+                factor.setBelongToAxis('row')
+            else:
+                factor.setBelongToAxis('col')
+
+            tmp_factors = msn_factors \
+                    if 'rgl' == factor.getProperty('cmd') \
+                        or 2 == factor.getProperty('kind')  \
+                    else msu_factors
+
+            tmp_factors.append(factor)
+
+
+        # 获取选择器上属性Factor对象
+        group_factor_list = []
+        color_dict = req.get(Protocol.Color)
+        if color_dict:
+            color_attr_table = color_dict.get(u'table', u'')
+            color_attr_column = color_dict.get('column', u'')
+            color_dict = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
+                                    (color_attr_table, color_attr_column, -1, u'')))
+            factor = ElementFactor(**color_dict)
+            factor.setBelongToAxis('group')
+            group_factor_list.append(factor)
+
+        self.msus = msu_factors
+        self.msns = msn_factors
+        self.groups = group_factor_list
+        return 
+
+
+    def mapToSqlPart(self):
+        """
+        按照对所处select语句中的位置部分
+        对所有x、y、group等部分的变量做分类
+        """
+
+        # 轴上面的数字列一定存在sql语句中select段
+        # 轴上面的文字列一定存在sql语句中的select段和group段
+        # 选择区别里面的数字列不存在sql语句中，它只是做值域范围设定用的
+        # 选择区别里面的文字列存在sql语句中的select段和group段
+
+        selects, groups  = [], []
+        for factor in (self.msus + self.msns):
+            kind    = factor.getProperty(Protocol.Kind)
+            if 0 == kind:
+                selects.append(factor)
+            else:
+                selects.append(factor)
+                groups.append(factor)
+
+        for factor in self.groups:
+            selects.append(factor)
+            groups.append(factor)       
+
+        return {
+            'selects':          selects
+            , 'groups':         groups
+        }
+
+    def getMsus(self):
+        return self.msus
+
+    def getMsns(self):
+        return self.msns
+
+    def getGroups(self):
+        return self.groups
+
+
+
+
+
+  
 
 
 

@@ -75,7 +75,6 @@ class WidgetModel(ElementModel):
         return False
 
 
-
     class Meta:
         db_table = 'widgets'
 
