@@ -152,7 +152,7 @@ define([
 			* 显示View
 			*/
 			DataInsightManager.tableRegion.show(showTableView);
-			console.log("123");
+
 			}
 		}
 	});

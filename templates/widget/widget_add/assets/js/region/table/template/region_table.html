@@ -4,9 +4,9 @@
 	 <% _.each(items, function(item){ %>
 	 	 <% if(item.selected) { %>
 	 	 	<% if(item.choosed) { %>
-             <li class="table-item table-item-choosed"> <%= item.tableName %> </li>
+             <li class="table-item table-item-choosed" data-id="<%= item.id %>"> <%= item.tableName %> </li>
              <% }else { %>
-             	<li class="table-item"> <%= item.tableName %> </li>
+             	<li class="table-item" data-id="<%= item.id %>"> <%= item.tableName %> </li>
              <% } %>
          <% } %>
     <% }); %>

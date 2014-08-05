@@ -67,7 +67,7 @@ var data = DataInsightManager.module("TableRegion",
         var id = $(e.target).attr("data-id");
         DataInsightManager.dialogRegion.trigger('model:set', this.collection.get(id), {"choosed":true});
         
-        this.trigger("change:table", id);
+        this.trigger("change:table", $(e.target).html());
       },
 
     });
