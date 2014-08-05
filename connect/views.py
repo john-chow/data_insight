@@ -140,6 +140,19 @@ def getTableInfo(request):
     return MyHttpJsonResponse(res_dict)
 
 
+
+@login_required
+def handleFields(request):
+    """
+    关于某数据表中全部列信息
+    """
+    if 'POST' == request.method:
+        pass
+    else:
+        pass
+
+
+
 @login_required
 #这个接口需要前端配合，具体需要上传内容看本函数中代码即可
 def uploadFile(request):
