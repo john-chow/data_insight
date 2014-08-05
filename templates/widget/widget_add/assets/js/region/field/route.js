@@ -8,25 +8,24 @@ define([
 
 	var data = DataInsightManager.module("FieldRegion", function(FieldRegion, DataInsightManager, Backbone, Marionette, $, _){
 
-	  //////////////////////////////////////////////////////////定义接口
+	  //定义接口
 	  var API = {
-	    listFields: function(id){
-	      FieldRegion.Controller.ListFields(id);
+	    listFields: function(tableName){
+	      FieldRegion.Controller.ListFields(tableName);
 	    }
 	  };
 
-	  //////////////////////////////////////////////////////////监听页面start
+	  //监听页面start
 	  DataInsightManager.on("start", function(){
 	    API.listFields();
 	  });
 
-	  //////////////////////////////////////////////////////////
-	  DataInsightManager.commands.setHandler("showField", function(id){
-		  API.listFields(id);
+	  DataInsightManager.commands.setHandler("showField", function(tableName){
+		  API.listFields(tableName);
 	  });
 
-	  DataInsightManager.on("showField", function(id){
-		  API.listFields(id);
+	  DataInsightManager.on("showField", function(tableName){
+		  API.listFields(tableName);
 	  });
 	});
 

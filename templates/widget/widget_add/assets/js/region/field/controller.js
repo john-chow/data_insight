@@ -10,10 +10,10 @@ define([
 	var data = DataInsightManager.module("FieldRegion", function(FieldRegion, DataInsightManager,
 	Backbone, Marionette, $, _){
 		FieldRegion.Controller = {
-			ListFields: function(id){
+			ListFields: function(tableName){
 
 			//获取数据
-			var fields = DataInsightManager.request("field:entities",id);
+			var fields = DataInsightManager.request("field:entities",tableName);
 
 			//新建View
 			var fieldsListView = new FieldRegion.FieldView({
@@ -28,7 +28,7 @@ define([
 					//解析options，set model，然后保存
 					//未做
 					DataInsightManager.dialogRegion.$el.modal("hide");
-					DataInsightManager.trigger('showField', id);
+					DataInsightManager.trigger('showField', tableName);
 				});
 				DataInsightManager.dialogRegion.show(fieldManageView);
 			});
