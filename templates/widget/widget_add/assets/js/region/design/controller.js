@@ -37,7 +37,7 @@ define([
 					this.graphView.on("y:edit", function(yItem){
 						var axisY = DataInsightManager.request("axis:entity");
 						axisY.set(yItem);
-						var dialogYView = new DesignRegion.DialogX({
+						var dialogYView = new DesignRegion.DialogY({
 							model: axisY
 						});
 						DataInsightManager.dialogRegion.show(dialogYView);

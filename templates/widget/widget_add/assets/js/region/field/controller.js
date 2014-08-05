@@ -24,8 +24,8 @@ define([
 				var fieldManageView = new FieldRegion.FieldManageDialog({
 					collection: fields
 				});
-				fieldManageView.on("change:nickName",function(options){
-					//此处更改collection里面model的nickName，保存
+				fieldManageView.on("change:field-attributes",function(options){
+					//解析options，set model，然后保存
 					//未做
 					DataInsightManager.dialogRegion.$el.modal("hide");
 					DataInsightManager.trigger('showField', id);

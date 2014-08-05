@@ -94,7 +94,13 @@ body {
 
 #info {
 	height: 15px;
-	background: #FC8F8F;
+	-khtml-box-shadow: 0 0px 0px 0.5px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow: 0 0px 0px 0.5px rgba(0, 0, 0, 0.5);
+	-ms-box-shadow: 0 0px 0px 0.5px rgba(0, 0, 0, 0.5);
+	-o-box-shadow: 0 0px 0px 0.5px rgba(0, 0, 0, 0.5);
+	box-shadow: inset 0 0px 0px 0.5px rgba(0, 0, 0, 0.5);
+	border-top: 1px solid #888888;
+	background-color: #F0F0F0;
 }
 
 .panel {
@@ -150,6 +156,7 @@ body {
 
 #field_region .field-item {
 	border: 1px solid #fff;
+	cursor: move;
 }
 
 #x_sortable>li,
@@ -332,6 +339,7 @@ body {
 /*begin designÇøÓòcss */
 .design-tab{
 	margin-bottom: 0;
+	padding-left: 19px;
 }
 .design-tab .tab{
 	float: left;
@@ -359,7 +367,7 @@ body {
 #design-content,#design-graph
 ,#design-filter,#design-property{
 	height: 100%;
-	margin-left: 41px;
+	margin-left: 20px;
 	background: white;
 	border: 1px solid #978C8C;
 	padding-top: 25px;

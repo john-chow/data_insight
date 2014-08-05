@@ -3,41 +3,34 @@
 <!DOCTYPE html>
 <head>
 	<meta charset='utf-8'>
-	<title>场景</title>
+	<title>{{scene.m_name}}</title>
 	{% include 'head.html' %}
 	<link rel="stylesheet" type="text/css" href="{% static 'css/jquery.gridster.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/view.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'css/scene/view.css' %}">
 </head>
 <body>
-	<!-- <div id="header" class="row navbar navbar-default ">
-		<div class="col-md-10 col-xs-12 col-md-offset-1">
-			<div class="text-center">
-				<span class="menu-home">{{scene.m_name}}场景</span>
-			</div>
-			
-		</div>
-	</div> -->
 	<div class="row">
-		<h1 style="text-align:center">{{scene.m_name}}</h1>
-		<div class="col-md-1"></div>
-		<div id="scenceView" class="col-md-10 col-xs-12" data-layout="{{scene.m_layout}}">
+		<div id="scenceView" class="col-md-12 col-xs-12" data-src="{{scene.m_snapshot}}" data-layout="{{scene.m_layout}}">
 		<div class="loading" style="left: 48%;top: 41%;position: absolute;"></div>
 		<div class="gridster">
-			<ul>
+			<ul id="scenceWidget">
+				{% for ral in scene.s2r_set.all %}
+					<li class="se_wi_{{ral.m_wi.pk}}_{{ral.m_stamp}}" data-id="{{ral.m_wi.pk}}" data-stamp="{{ral.m_stamp}}">
+						<div class="se_wi_div se_wi_div_{{ral.m_wi.pk}}"></div>
+					</li>
+				{% endfor %}
 			</ul>
 		</div>
 		</div>
-		<div class="col-md-1"></div>
 	</div>
 	<!--隐藏元素，以便view.js获取该场景下组件的信息-->
-	<ul style="display:none" id="scenceWidget">
+	<!-- <ul style="display:none" id="scenceWidget">
 		{% for ral in scene.s2r_set.all %}
 			<li data-id="{{ral.m_wi.pk}}" data-stamp="{{ral.m_stamp}}"></li>
 		{% endfor %}
-	</ul>
+	</ul> -->
 </body>
-
 <script src='{% static "js/lib/jquery.gridster.js" %}'></script>
 <script src='{% static "js/common/tools.js" %}'></script>
 <script>

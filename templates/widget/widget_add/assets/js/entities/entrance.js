@@ -17,7 +17,7 @@ define([
 
             merge:              function() {
                 var data = {};
-                $.each(this.list, function(m) {
+                $.each(this.list, function(i, m) {
                     $.merge(data, m.toJSON())
                 })
                 return data
@@ -33,7 +33,7 @@ define([
          * 图表形成类
          */
         Entities.DrawEntrance = Entities.BaseEntrance.extend({
-            url:                "",
+            url:                "xxx",
 
             listen:             function() {
                 Entities.on("graph:change filter:change", $.proxy(this.draw, this));
@@ -62,6 +62,8 @@ define([
          * 对外提供的接口类，组件的save和fetch的通道
          */
         Entities.EntranceFascade = Backbone.Model.extend({
+        	url:                "xxx",
+        	
             initialize:     function() {
                 this.set({
                     "draw":             new Entities.DrawEntrance

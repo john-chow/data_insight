@@ -8,30 +8,32 @@
 </head>
 <body>
 	<!--menu begin-->
-	<div id="" class="row navbar navbar-default ">
-		<div class="col-md-10 col-xs-12 col-md-offset-1">
-			<div class="text-center">
-				<span class="menu-home">DataInsight</span>
-			</div>
-			
-		</div>
-	</div>
 	<!--menu end-->
-	<div id="contianer">
-    <div class="slider-viewport">
+	<div id="container">
     <div class="loading" style="left: 48%;top: 41%;position: absolute;"></div>
     <div class="row">
-		<div class="col-md-1"></div>
-		<div id="draw_panel" style="height:526px" data-content="{{content}}" class="col-md-10 col-xs-12">
+		<div id="draw_panel" style="" data-content="{{content}}" class="col-md-12 col-xs-12">
 		</div>
-		<div class="col-md-1"></div>
 	</div>
 	</div>
 </body>
+<style>
+html,body,#container{
+	height: 100%;
+}
+.row{
+height: 85%
+}
+#draw_panel{
+height: 100%;
+}
+</style>
 <script>
 window.onload = function(){
 	requirejs(['widget/view'], function(xx){
 		$(".loading").hide();
+		var marginTop = (document.body.clientHeight - $("#draw_panel").outerHeight())/2;
+		$("#draw_panel").css("margin-top", marginTop);
 	})
 }
 </script>

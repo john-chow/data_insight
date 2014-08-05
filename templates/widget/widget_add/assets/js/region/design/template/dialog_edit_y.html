@@ -8,7 +8,7 @@
 
 		<div class="axis-param">
 		<label>标&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题:</label>
-			<input name="y_title" type="text" value="<%=y.title%>"/>
+			<input name="y_title" type="text" value="<%=title%>"/>
 		</div>
 		<div class="axis-param">
 			<label>数据变量:</label>
@@ -32,6 +32,10 @@
 				<option value="median">中位值(MEDIAN)</option>
 			</select>
 		</div>
+      </div>
+ 	<div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" id="save-setting" data-dismiss="modal" class="btn btn-primary">保存</button>
       </div>
 </div>
 </script>
