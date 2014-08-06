@@ -25,10 +25,32 @@ define([
 					collection: fields
 				});
 				fieldManageView.on("change:field-attributes",function(options){
-					//解析options，set model，然后保存
-					//未做
-					DataInsightManager.dialogRegion.$el.modal("hide");
-					DataInsightManager.trigger('showField', tableName);
+					//解析数据
+					var i,
+					temp,
+					arrList = options.split("&"),
+					dataList = [],
+					j = -1;
+					for(i = 0; i<arrList.length ; i++){
+						if(i%3==0){
+							j++;
+							dataList[j] = {};
+						}
+						temp = arrList[i].split("=");
+						dataList[j][temp[0]]=temp[1];
+					}
+					console.log(dataList);
+					//ajax上传数据
+					$.ajax({
+		             	type: "POST",
+		             	url: "/XXX",
+		             	data: JSON.stringify(dataList),
+		            	dataType: "json",
+		            	success: function(data){
+		            		DataInsightManager.dialogRegion.$el.modal("hide");
+							DataInsightManager.trigger('showField', tableName);
+		                }
+		          	});
 				});
 				DataInsightManager.dialogRegion.show(fieldManageView);
 			});
