@@ -15,7 +15,7 @@
 				"db": 		"data_insight",
 				"user": 	"postgres",
 				"pwd": 		"",
-				"dbName": 	"",
+				"kind": 	"",
 			},
 			validate: function(attrs, options) {
 		      var errors = {}
