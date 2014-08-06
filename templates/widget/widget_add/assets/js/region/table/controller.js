@@ -5,6 +5,7 @@
 define([
 	'entities/table',
 	'entities/connectDbForm',
+	'entities/importFileForm',
 	'region/table/view'
 ], function (v) {
 
@@ -62,7 +63,10 @@ define([
 			* 打开导入文件模态框
 			*/
 		    DataInsightManager.dialogRegion.on("show:dialog-import-file", function(){
-		        var importFileView = new TableRegion.importFileDialog();
+		    	var importFileModel = DataInsightManager.request("import-file:entity");
+		        var importFileView = new TableRegion.importFileDialog({
+		        	model:importFileModel
+		        });
 				DataInsightManager.dialogRegion.show(importFileView);
 		    });
 
@@ -71,7 +75,7 @@ define([
 			*/
 		    DataInsightManager.dialogRegion.on("show:dialog-connect-db", function(dbName){
 		    	var connectModel = DataInsightManager.request("connect:entity");
-		    	connectModel.dbName = dbName;
+		    	connectModel.attributes.dbName = dbName;
 		        var connectDbView = new TableRegion.connectDbDialog({
 		        	model: connectModel
 		        });
@@ -81,16 +85,22 @@ define([
 		    /*
 			* 将导入文件信息传到后台，让后台读取
 			*/
-		    DataInsightManager.dialogRegion.on("import:db-file", function(options){
-			   	$.ajax({
-	             	type: "POST",
-	             	url: "/XXX",
-	             	data: options,
-	            	dataType: "json",
-	            	success: function(data){
-	            		DataInsightManager.dialogRegion.trigger("show:dialog-table-manage", data.collection);
-	                }
-	          	});
+		    DataInsightManager.dialogRegion.on("import:db-file", function(model, options){
+			   	model.save(options, {
+					success: function(model, response, options){
+						var collection = DataInsightManager.request("table:entities", response);
+						for(var i =0;i<response.length;i++){
+					    	response[i].id = (i+1);
+					    	response[i].selected = false;
+					    	response[i].index = 0;
+					    	response[i].choosed = false;
+					    }
+						DataInsightManager.dialogRegion.trigger("show:dialog-table-manage", collection);
+					},
+					error: function(model, response, options){
+						console.log("连接失败");
+					},
+				});
 		    });
 
 		    /*
