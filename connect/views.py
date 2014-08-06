@@ -80,11 +80,11 @@ def handleConn(request):
 
 
 @csrf_exempt
-def selectTables(request):
+def handleTable(request):
     """
     选择数据表
     """
-    logger.debug("function selectTables() is called")
+    logger.debug("function handleTable() is called")
 
     if u'POST' == request.method:
         chosen_tables   = request.POST.getlist(u'table', u'[]')
