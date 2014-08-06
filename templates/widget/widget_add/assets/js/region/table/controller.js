@@ -4,7 +4,7 @@
  */
 define([
 	'entities/table',
-	'entities/connectForm',
+	'entities/connectDbForm',
 	'region/table/view'
 ], function (v) {
 
@@ -69,8 +69,9 @@ define([
 		    /*
 			* 打开连接数据库模态框
 			*/
-		    DataInsightManager.dialogRegion.on("show:dialog-connect-db", function(){
+		    DataInsightManager.dialogRegion.on("show:dialog-connect-db", function(dbName){
 		    	var connectModel = DataInsightManager.request("connect:entity");
+		    	connectModel.dbName = dbName;
 		        var connectDbView = new TableRegion.connectDbDialog({
 		        	model: connectModel
 		        });
@@ -98,19 +99,25 @@ define([
 		    DataInsightManager.dialogRegion.on("connect:get-data", function(model, options){
 		    	//返回response的形式，测试数据
 		    	var response = [
-			        { tableName:'测试数据表1', selected:false, index:0, choosed:false},
-			        { tableName:'测试数据表2', selected:false, index:0, choosed:false},
+			        { tableName:'测试数据表1'},
+			        { tableName:'测试数据表2'},
 			    ]
 			    for(var i =0;i<response.length;i++){
-			    	response[i].id=(i+1);
+			    	response[i].id = (i+1);
+			    	response[i].selected = false;
+			    	response[i].index = 0;
+			    	response[i].choosed = false;
 			    }
 			    var collection = DataInsightManager.request("table:entities", response);
 				DataInsightManager.dialogRegion.trigger("show:dialog-table-manage", collection);
 				/*model.save(options, {
 					success: function(model, response, options){
 						var collection = DataInsightManager.request("table:entities", response);
-						 for(var i =0;i<response.length;i++){
-					    	response[i].id=(i+1);
+						for(var i =0;i<response.length;i++){
+					    	response[i].id = (i+1);
+					    	response[i].selected = false;
+					    	response[i].index = 0;
+					    	response[i].choosed = false;
 					    }
 						DataInsightManager.dialogRegion.trigger("show:dialog-table-manage", collection);
 					},

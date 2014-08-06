@@ -14,6 +14,7 @@ define([
 	'region/field/route',
 	"region/design/route",
 	"region/show/route",
+	"csrf",
 	'tool'
 ], function ($, JqueryUi, json, _, backbone, Marionette, dialog, tableRoute, fieldRoute) {
 

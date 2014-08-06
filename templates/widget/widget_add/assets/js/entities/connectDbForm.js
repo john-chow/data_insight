@@ -14,7 +14,8 @@
 				"port": 	"5432",
 				"db": 		"data_insight",
 				"user": 	"postgres",
-				"pwd": 		""
+				"pwd": 		"",
+				"dbName": 	"",
 			},
 			validate: function(attrs, options) {
 		      var errors = {}
