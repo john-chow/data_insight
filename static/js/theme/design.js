@@ -106,8 +106,11 @@
 					connectToSortable: "#draw_theme",
 					scroll: "false",
 					helper: function( event ) {
-								return $( "<div class='theme-draggable'>"+ $(this).html()+"</div>" );
-							},
+						var id = $(this).data("id");
+						var layout = $(this).data("layout");
+						var name = $(this).data("name");
+						return $( "<div data-id='" + id +"' data-name='" + name + "' data-layout='" + layout + "' class='theme-draggable'>"+ $(this).html()+"</div>" );
+					},
 					start: function(event,ui) {
 						$(".slider-viewport").css("border", "2px solid #666");
 					},
@@ -147,6 +150,7 @@
 		        	$("#s_" + sId).remove();
 		       		$(this).parent().remove();
 		       		//恢复被删场景的拖拽功能
+		       		$("#sceneId_" + sId).css("cursor"," move");
 		       		$("#sceneId_" + sId).draggable( 'enable' );
 		       		var count = $("#scenceCount").data("count") - 1;
 		            $("#scenceCount").html(count);
@@ -217,16 +221,18 @@
 	        		this.$el.droppable({
 						drop: function( event, ui ) {
 							var imgSrc = ui.helper.find("img").attr("src");
-							var scenceId = ui.helper.find("img").data("id");
-							var scenceName = ui.helper.find("img").data("name");
+							var sceneId = ui.helper.data("id");
+							var sceneName = ui.helper.data("name");
+							var sceneLayout = ui.helper.data("layout");
 							//禁用已经放入主题的场景的拖拽功能
-							$("#sceneId_" + scenceId).draggable( 'disable' );
+							$("#sceneId_" + sceneId).css("cursor", "not-allowed");
+							$("#sceneId_" + sceneId).draggable( 'disable' );
+							
 							var sceneModel = new SceneModel();
-							sceneModel.setId(scenceId);
-							sceneModel.name = scenceName;
+							sceneModel.setId(sceneId);
+							sceneModel.name = sceneName;
 							sceneModel.imgSrc = imgSrc;
 							scenceCollection.add(sceneModel);//添加主题场景id
-							var scenceName = ui.helper.find("img").data("name");
 							//初始化中心区域场景列表现,并渲染
 							drawthemeView.init($self, sceneModel);
 							drawthemeView.render();
@@ -257,7 +263,7 @@
         	render:function(){
         		$("<figure class='slide' id='s_" + this.sceneModel.id + "'><img src='"
         				/*<h5 class='scence-title'>" + this.sceneModel.name +"</h5>*/ 
-        				+ this.sceneModel.imgSrc + "' width='1000'  height='600'></figure>").prependTo(this.$parent);
+        				+ this.sceneModel.imgSrc + "' width='100%'  height='100%'></figure>").prependTo(this.$parent);
         	}
         }
         

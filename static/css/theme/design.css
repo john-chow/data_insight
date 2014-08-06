@@ -193,13 +193,13 @@ height: 620px;
 overflow: hidden; 
 position: relative;
 margin: auto;
-padding: 0 8px 149px;
 box-shadow: 1px 1px 18px #292929;
 margin-top: 25px;
 }
 #viewport, #draw_theme, .slide {
   width: 1020px;
   height: 620px;
+  background: white;
   
 }
 
