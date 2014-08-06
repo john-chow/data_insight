@@ -769,6 +769,21 @@ class FactorHandler():
 
 
 
+# 组件更新器基类
+class WidgetUpdator():
+    def update():
+        pass
+
+# 补充型组件更新器
+class SupplyUpdator(WidgetUpdator):
+    pass
+
+# 完全刷新型组件更新器
+class RefreshUpdator(WidgetUpdator):
+    pass
+
+
+
 
 
   
