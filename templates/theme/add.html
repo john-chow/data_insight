@@ -55,7 +55,10 @@
 								    <div class="panel-heading">场景</div>
 								    <ul id="theme_list">
 								    	{% for scene in allowed_scenes %}
-							            <li class="theme-item" id="sceneId_{{scene.pk}}"  title="{{ scene.m_name }}"><img data-id='{{ scene.pk }}' data-name="{{ scene.m_name }}" width="30" height="30" src="{{scene.m_snapshot}}"/>{{ scene.m_name }}</li>
+							            <li class="theme-item" id="sceneId_{{scene.pk}}" data-id='{{ scene.pk }}' data-name="{{ scene.m_name }}" data-layout="{{scene.m_layout}}"  title="{{ scene.m_name }}">
+							            	<img width="30" height="30" src="{{scene.m_snapshot}}"/>
+							            	{{ scene.m_name }}
+							            </li>
 							            {% endfor %}
 								    </ul>
 								</div>

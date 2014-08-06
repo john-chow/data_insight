@@ -140,6 +140,7 @@ requirejs([
     });
 
 
+    /*
     ListenToServer('/monitor/sse/', 'myevent1', 
         function() {console.log('1111111')},
         function() {console.log('222222')},
@@ -148,7 +149,7 @@ requirejs([
             console.log(data)
         }
     )
-
+*/
 });
 
 function xxx() {

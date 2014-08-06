@@ -81,7 +81,7 @@ define([
 			 * @param filedName 字段名
 			 */
 			enableFiledDrage: function(filedName){
-				var $selectedFiledEl = $(".field-item[data-name=" + filedName +"]");
+				var $selectedFiledEl = $("#filed_" + filedName);
 				$selectedFiledEl.css("cursor", "move");
 				$selectedFiledEl.draggable("enable");
 			},
@@ -90,7 +90,7 @@ define([
 			 * @param filedName 字段名
 			 */
 			disableFiledDrage: function(filedName){
-				var $selectedFiledEl = $(".field-item[data-name=" + filedName +"]");
+				var $selectedFiledEl = $("#filed_" + filedName);
 				$selectedFiledEl.css("cursor", "not-allowed");
 				$selectedFiledEl.draggable("disable");
 			},
@@ -127,7 +127,7 @@ define([
 					self.trigger("y:edit", yItem);
 				});
 				
-				//如果自动已经被拖入到x或者y轴中，则禁止filed区域对应的字段不让拖拽
+				//如果字段(filed)已经被拖入到x或者y轴中，则禁止filed区域对应的字段不让拖拽
 				$.each(this.model.get("x"), function(index, value){
 					self.disableFiledDrage(value.name);
 				});
@@ -166,46 +166,48 @@ define([
 						
 					},
 					receive: function(event,ui) { //这个时间在一个已连接的sortable接收到来自另一个列表的元素时触发.
-						var name = ui.item.data("name");
+						//判断x轴还是y轴的标志
 						var axis = $(this).attr("id") == "x_sortable" ? "x" : "y";
-						var title = ui.item.data("title") == undefined ? name : ui.item.data("title");
-						var calcFunc = ui.item.data("calcfunc") == undefined ? "none" : ui.item.data("calcfunc");
+						//坐标某个元素的序列化
+						var axisItem = ui.item.data("axisitem");
+						//字段名
+						var name = axisItem.name;
+						//显示标题
+						var title = axisItem.title == undefined ? name : axisItem.title;
+						//计算函数
+						var calcFunc = axisItem.calcFunc == undefined ? "none" : axisItem.calcFunc;
+						//计算类型(对应关系:{N:数值变量,F:因子变量,D:时间变量,G:地理变量,T:逻辑变量})
+						var kind = axisItem.kind;
+						//字段所属数据表
+						var table = $(".table-item-choosed").data("table");
+						var addXItem = {
+								name: name,	title: title,
+								calcFunc: calcFunc, table : table,
+								kind: kind
+						};
 						if(axis == "x"){
-							var addXItem = {
-									name: name,	title: title,
-									calcFunc: calcFunc
-							};
 							//通知graph model添加x轴的这个被拖进来的元素
 							self.model.trigger("x:add", addXItem);
 						}else{
-							var addYItem = {
-									name: name,	title: title,
-									calcFunc: calcFunc
-							};
 							//通知graph model添加y轴的这个被拖进来的元素
-							self.model.trigger("y:add", addYItem);
+							self.model.trigger("y:add", addXItem);
 						}
 					},
 					remove: function(event,ui) { //这个事件在sortable中的元素移除自身列表添加到另一个列表时触发.
-						var name = ui.item.data("name");
 						var axis = $(this).attr("id") == "x_sortable" ? "x" : "y";
-						var title = ui.item.data("title");
-						var calcFunc = ui.item.data("calcfunc");
+						var axisItem = ui.item.data("axisitem");
+						var name = axisItem.name;
+						var title = axisItem.title;
+						var calcFunc = axisItem.calcfunc;
+						var table = axisItem.table;
+						var kind = axisItem.kind;
 						//这里remove会间接触发一次graph的change事件，上面的receive也会在间接触发一次。两次会冗余
 						if(axis == "x"){
-							var removeXItem = {
-									name: name,	title: title,
-									calcFunc: calcFunc
-							}
 							//通知graph model删除x轴的这个被移除的元素
-							self.model.trigger("x:remove", removeXItem);
+							self.model.trigger("x:remove", axisItem);
 						}else{
-							var removeYItem = {
-									name: name,	title: title,
-									calcFunc: calcFunc
-							}
 							//通知graph model删除y轴的这个被移除的元素
-							self.model.trigger("y:remove", removeYItem);
+							self.model.trigger("y:remove", axisItem);
 						}
 						
 					},
@@ -266,6 +268,7 @@ define([
 					var data = {
 							title: $("[name=x_title]").val(),
 							calcFunc: $("[name=x_calcFunc]").val(),
+							kind: $("[name=x_type]").val(),
 							axis: "x"
 					}
 					//触发axis:change事件，通知axis model更新
@@ -277,6 +280,7 @@ define([
 			 */
 			onBeforeShow: function(){
 				this.$el.find("[name=x_calcFunc]").val(this.model.get("calcFunc"));
+				this.$el.find("[name=x_type]").val(this.model.get("kind"));
 			}
 		});
 		
@@ -291,6 +295,7 @@ define([
 					var data = {
 							title: $("[name=y_title]").val(),
 							calcFunc: $("[name=y_calcFunc]").val(),
+							kind: $("[name=y_type]").val(),
 							axis: "y"
 					}
 					//触发axis:change事件，通知axis model更新
@@ -302,6 +307,7 @@ define([
 			 */
 			onBeforeShow: function(){
 				this.$el.find("[name=y_calcFunc]").val(this.model.get("calcFunc"));
+				this.$el.find("[name=y_type]").val(this.model.get("kind"));
 			}
 		})
 	})

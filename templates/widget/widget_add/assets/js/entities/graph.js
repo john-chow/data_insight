@@ -63,6 +63,7 @@ define([], function () {
 						if(value.name == data.name){
 							self.get('x')[i].title = data.title;
 							self.get('x')[i].calcFunc = data.calcFunc;
+							self.get('x')[i].kind = data.kind;
 							self.trigger("change");//触发change事件
 							//通知graph视图更新视图
 							//self.trigger("axis:change");
@@ -77,6 +78,7 @@ define([], function () {
 						if(value.name == data.name){
 							self.get('y')[i].title = data.title;
 							self.get('y')[i].calcFunc = data.calcFunc;
+							self.get('y')[i].kind = data.kind;
 							self.trigger("change");//触发change事件
 							//通知graph视图更新视图
 							//self.trigger("axis:change");

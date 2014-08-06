@@ -8,6 +8,8 @@ define([], function () {
 			defaults: {
 				name: "",
 				title: "",
+				kind: "N",
+				table: "",
 				calcFunc: "none",
 				
 			},
@@ -15,6 +17,7 @@ define([], function () {
 				this.on("axis:change", function(data){
 					this.set('title', data.title);
 					this.set('calcFunc', data.calcFunc);
+					this.set("kind", data.kind);
 					if(data.axis == "x")//改变x轴的元素
 						Entities.trigger("x:change", this.toJSON());
 					else//改变y轴的元素
