@@ -3,7 +3,11 @@
 	<ul id="table_template_content">
 	 <% _.each(items, function(item){ %>
 	 	 <% if(item.selected) { %>
-             <li class="table-item table-<%= item.id %>" data-id ="<%= item.id %>"> <%= item.tableName %> </li>
+	 	 	<% if(item.choosed) { %>
+             <li class="table-item table-item-choosed" data-id="<%= item.id %>"> <%= item.tableName %> </li>
+             <% }else { %>
+             	<li class="table-item" data-id="<%= item.id %>"> <%= item.tableName %> </li>
+             <% } %>
          <% } %>
     <% }); %>
 	</ul>
