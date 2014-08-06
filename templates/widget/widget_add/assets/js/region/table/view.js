@@ -104,8 +104,8 @@ var data = DataInsightManager.module("TableRegion",
         "click .choosed-db-new>li": "connectDbFunction",
       }, 
       connectDbFunction: function(e){
-        var dbName = $(e.target).attr("data-name")
-        DataInsightManager.dialogRegion.trigger('show:dialog-connect-db', dbName);
+        var kind = $(e.target).attr("data-name")
+        DataInsightManager.dialogRegion.trigger('show:dialog-connect-db', kind);
       },
     });
 

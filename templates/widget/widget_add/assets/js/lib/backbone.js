@@ -496,6 +496,7 @@
       method = this.isNew() ? 'create' : (options.patch ? 'patch' : 'update');
       if (method === 'patch') options.attrs = attrs;
 
+      options = options || {};
       options.data = {'data': JSON.stringify(this.toJSON())};  // 周钲然增加
       xhr = this.sync(method, this, options);
 
