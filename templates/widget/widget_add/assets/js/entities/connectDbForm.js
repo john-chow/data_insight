@@ -8,7 +8,7 @@
 	    function(Entities, DataInsightManager, Backbone, Marionette, $, _){
 
 		Entities.connectForm = Backbone.Model.extend({
-			urlRoot: "connect_form",
+			url: "/connect/db/",
 			defaults: {
 				"ip": 		"10.1.50.125",
 				"port": 	"5432",

@@ -483,6 +483,11 @@
         if (_.isObject(serverAttrs) && !model.set(serverAttrs, options)) {
           return false;
         }
+
+        // 周钲然增加
+        if (resp.data && 'string' === typeof(resp.data))
+            resp.data = JSON.parse(resp.data)
+
         if (success) success(model, resp, options);
         model.trigger('sync', model, resp, options);
       };
@@ -490,6 +495,8 @@
 
       method = this.isNew() ? 'create' : (options.patch ? 'patch' : 'update');
       if (method === 'patch') options.attrs = attrs;
+
+      options.data = {'data': JSON.stringify(this.toJSON())};  // 周钲然增加
       xhr = this.sync(method, this, options);
 
       // Restore attributes.
@@ -1155,7 +1162,7 @@
     // For older servers, emulate JSON by encoding the request into an HTML-form.
     if (options.emulateJSON) {
       params.contentType = 'application/x-www-form-urlencoded';
-      params.data = params.data ? {model: params.data} : {};
+      params.data = params.data ? {model: params.data} : {};   
     }
 
     // For older servers, emulate HTTP by mimicking the HTTP method with `_method`

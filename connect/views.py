@@ -45,14 +45,15 @@ def handleConn(request):
     """
     连接数据库
     """
-    logger.debug("function handleConn() is called")
+    logger.warning("function handleConn() is called")
 
     if u'POST' == request.method:
-        conn_list = map(lambda x: request.POST.get(x)  \
-                        , ConnArgsList)
+        post_data = json.loads(request.POST.get('data'))
+        if not post_data:
+            return MyHttpJsonResponse({'succ': False, 'msg': 'xxxxx'})
 
+        conn_list = map(lambda x: post_data.get(x), ConnArgsList)
         conn_list[-1] = 'postgres'
-
         conn_nt = ConnNamedtuple(*conn_list)
         succ, msg, hk, st = connectDb(conn_nt)
 
