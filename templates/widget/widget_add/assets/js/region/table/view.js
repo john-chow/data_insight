@@ -15,58 +15,66 @@ define([
 var data = DataInsightManager.module("TableRegion",
     function(TableRegion, DataInsightManager, Backbone, Marionette, $, _){
 
-    //定义table的view
+    /*
+    * 定义table的view
+    */
     TableRegion.TableView = Marionette.ItemView.extend({
       tagName: "div",
       className: "panel panel-default",
       template: tableRegionTemplate,
-      //注册事件
+
       events: {
          "click .table-item": "changeSelectTable",
       },
-      //触发器
+
       triggers: {
           "click #table_template_header>span": "show:new-table",
       },
-      //显示
+
       onShow: function() {
-        //定义变量
         var variable, selectedCollection, choosedModel;
+
         //设置高度
         variable = DataInsightManager.tableRegion.$el.outerHeight()-this.$("#table_template_header").outerHeight()
         this.$("#table_template_content").height(variable);
-        //设置model的放在Controller实现
+
+        //三种不同情况下显示数据表（无数据，有数据有选中表，有数据无选中表）
         selectedCollection = this.collection.where({selected:true});
         if(selectedCollection.length > 0){
           choosedModel = this.collection.findWhere({choosed:true});
           if(choosedModel){
-              this.$(".table-"+choosedModel.get("id")).addClass("table-item-select");
-              this.trigger("change:table", choosedModel.get("id"));
+              this.trigger("change:table", choosedModel.get("tableName"));
           }
           else{
-            this.$(".table-item").eq(0).addClass("table-item-select");
+            this.$(".table-item").eq(0).addClass("table-item-choosed");
             DataInsightManager.dialogRegion.trigger('model:set', selectedCollection[0], {"choosed":true});
-            this.trigger("change:table", selectedCollection[0].get("id"));
+            this.trigger("change:table", selectedCollection[0].get("tableName"));
           }
         }
         else{
           this.trigger("change:table");
         }
       },
-      //定义事件
+
+      //定义切换数据表事件
       changeSelectTable: function(e){
-        this.$(".table-item-select").removeClass("table-item-select");
-        $(e.target).addClass("table-item-select");
+        this.$(".table-item-choosed").removeClass("table-item-choosed");
+        $(e.target).addClass("table-item-choosed");
+
         var choosedModel = this.collection.findWhere({choosed:true});
         DataInsightManager.dialogRegion.trigger('model:set', choosedModel, {"choosed":false});
+        
         var id = $(e.target).attr("data-id");
         DataInsightManager.dialogRegion.trigger('model:set', this.collection.get(id), {"choosed":true});
-        this.trigger("change:table", id);
+        
+        this.trigger("change:table", $(e.target).html());
       },
 
     });
 
-    //定义diaglog_new_table模板
+    /*
+    * 定义diaglog_new_table模板
+    */
     TableRegion.newTableDialog = Marionette.ItemView.extend({
       tagName: "div",
       className: "modal-dialog",
@@ -85,7 +93,9 @@ var data = DataInsightManager.module("TableRegion",
       },
     });
 
-    //定义diaglog_choosed-db模板
+    /*
+    * 定义diaglog_choosed-db模板
+    */
     TableRegion.choosedDbDialog = Marionette.ItemView.extend({
       tagName: "div",
       className: "modal-dialog",
@@ -93,12 +103,15 @@ var data = DataInsightManager.module("TableRegion",
       events: {
         "click .choosed-db-new>li": "connectDbFunction",
       }, 
-      connectDbFunction: function(){
-        DataInsightManager.dialogRegion.trigger('show:dialog-connect-db');
+      connectDbFunction: function(e){
+        var dbName = $(e.target).attr("data-name")
+        DataInsightManager.dialogRegion.trigger('show:dialog-connect-db', dbName);
       },
     });
 
-    //定义diaglog_connect-db模板
+    /*
+    * 定义diaglog_connect-db模板
+    */
     TableRegion.connectDbDialog = Marionette.ItemView.extend({
       tagName: "div",
       className: "modal-dialog",
@@ -107,19 +120,21 @@ var data = DataInsightManager.module("TableRegion",
         "click .connect-db-commit": "managetableFunction",
       }, 
       managetableFunction: function(){
-        //根据表单信息
-        var options= {
-          "ip":     this.$("#connect_ip").val(),
-          "port":   this.$("#connect_port").val(),
-          "db":     this.$("#connect_db").val(),
-          "user":   this.$("#connect_user").val(),
-          "pwd":    this.$("#connect_pwd").val()
+        this.$(".connect-db-commit").html("连接中...");
+        var options = {
+            "ip":     this.$("#connect_ip").val(),
+            "port":   this.$("#connect_port").val(),
+            "db":     this.$("#connect_db").val(),
+            "user":   this.$("#connect_user").val(),
+            "pwd":    this.$("#connect_pwd").val()
         };
-        DataInsightManager.dialogRegion.trigger('show:dialog-table-manage', options);
+        DataInsightManager.dialogRegion.trigger('connect:get-data', this.model, options);
       },
     });
 
-    //定义diaglog_import-file模板
+    /*
+    * 定义diaglog_import-file模板
+    */
     TableRegion.importFileDialog = Marionette.ItemView.extend({
       tagName: "div",
       className: "modal-dialog",
@@ -128,16 +143,21 @@ var data = DataInsightManager.module("TableRegion",
         "click .import-file-commit": "managetableFunction",
       }, 
       managetableFunction: function(){
+        this.$(".import-file-commit").html("导入中...");
+        this.$(".import-file-commit").css("cursor","wait");
         var options={
-          filePath: this.$("#import_file_name").val(),
-          dbType: this.$("#import_file_type").val(),
-          characteType:this.$("#import_file_characte").val()
+          "file":   this.$("#import_file_name").val(),
+          "type":   this.$("#import_file_type").val(),
+          "attr":   this.$("#import_file_attr").val(),
+          "code":   this.$("#import_file_code").val()
         }
-        DataInsightManager.dialogRegion.trigger('import:db-file', options);
+        DataInsightManager.dialogRegion.trigger('import:db-file', this.model, options);
       },
     });
 
-    //定义diaglog_table-manage模板
+    /*
+    * 定义diaglog_table-manage模板
+    */
     TableRegion.tableManageDialog = Marionette.ItemView.extend({
       tagName: "div",
       className: "modal-dialog",
@@ -152,16 +172,17 @@ var data = DataInsightManager.module("TableRegion",
         "click #table_manage_choosed":    "choosedTableFunction",
         "click #table_manage_unchoosed":  "unchoosedTableFunction"
       }, 
+
       tableListFunction: function(){
         var self = this;
-        //关于对model的操作应该放到controller，下同
         this.$(".table-manage-select select option").each(function(i){
-          var model =self.collection.get($(this).val());
+            var model =self.collection.get($(this).val());
             DataInsightManager.dialogRegion.trigger('model:set', model, {"index":(i+1)});
           });
         this.collection.sort();
         DataInsightManager.dialogRegion.trigger('table:list',this.collection);
       },
+
       choosedTableFunction: function(){
           var self = this;
           this.$(".table-manage-unselect select option:selected").each(function(){
@@ -170,6 +191,7 @@ var data = DataInsightManager.module("TableRegion",
             DataInsightManager.dialogRegion.trigger('model:set', model, {"selected":true});
           });
       },
+      
       unchoosedTableFunction: function(){
           var self = this;
           this.$(".table-manage-select select option:selected").each(function(){

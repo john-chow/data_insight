@@ -1,5 +1,6 @@
 # -*-coding: utf-8 -*-
 import os
+from collections import namedtuple
 
 FILE_PATH           	= os.path.dirname( os.path.abspath(__file__) )
 PROJECT_ROOT_PATH   	= os.path.abspath( os.path.join(FILE_PATH, os.pardir) )
@@ -35,4 +36,6 @@ REGEX_FOR_NUMBER        = '^(-)?(?!(0[0-9]{0,}$))[0-9]{1,}[.]{0,}[0-9]{0,}$'
 	
 SUPPORTED_DBS = ['postgres', 'mysql']
 
+ConnArgsList = ['ip', 'port', 'db', 'user', 'pwd', 'kind']
+ConnNamedtuple = namedtuple('ConnNamedtuple', ConnArgsList)
 

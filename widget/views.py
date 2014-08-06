@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from widget.models import WidgetModel, ExternalDbModel
 from widget.echart import EChartManager
 from widget.factor import ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE
-from connect.sqltool import stRestore, SqlObjReader
+from connect.sqltool import PysqlAgentManager, SqlObjReader
 from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb, cleanDataFromDb
 import common.protocol as Protocol
 from common.log import logger
@@ -87,7 +87,7 @@ def widgetCreate(request):
                                     u'msg': u'保存成功'})
     else:
         hk      = request.session.get(u'hk')
-        st      = stRestore(hk)
+        st      = PysqlAgentManager.stRestore(hk)
 
         tables  = request.session.get('tables')
 
@@ -210,7 +210,7 @@ def widgetShow(request, widget_id):
     """
     try:
         widget_model    = WidgetModel.objects.select_related().get(pk = widget_id)
-        req_data     = widget_model.restoreReqDataDict()
+        req_data        = widget_model.restoreReqDataDict()
         skin_id         = request.GET.get(u'skin_id')
     except WidgetModel.DoesNotExist:
         return HttpResponse({u'succ': False, u'msg': u'xxxxxxxxxxxx'})
@@ -218,7 +218,7 @@ def widgetShow(request, widget_id):
         return HttpResponse({u'succ': False, u'msg': u'yyyyyyyyyyyy'})
     else:
         hk              = widget_model.m_external_db.m_hk
-        st              = stRestore(hk)
+        st              = PysqlAgentManager.stRestore(hk)
         st.reflectTables(json.loads(widget_model.m_table))
         image_data      = genWidgetImageData(req_data, hk)
         return MyHttpJsonResponse({u'succ': True, u'widget_id':widget_id, u'data': image_data})
@@ -248,11 +248,11 @@ def saveDrawAuxInfo(request):
 
 
 @require_http_methods(['POST'])
-def reqDrawData(request):
+def handleDraw(request):
     """
     获取能画出chart的数据
     """
-    logger.debug("function reqDrawData() is called")
+    logger.debug("function handleDraw() is called")
     req_data = json.loads(request.POST.get(u'data', u'{}'), 
                                 object_pairs_hook=OrderedDict)
 
@@ -260,9 +260,13 @@ def reqDrawData(request):
     if not rsu[0]:
         return MyHttpJsonResponse({u'succ': False, u'msg': rsu[1]})
 
+    #try:
+        #hk      = request.session[u'hk']
+        #data    = genWidgetImageData(req_data, hk)
     try:
-        hk      = request.session[u'hk']
-        data    = genWidgetImageData(req_data, hk)
+        hk       = request.session[u'hk']
+        producer = DrawDataProducer(hk)
+        data    = producer.produce(req_data)
     except Exception, e:
         logger.debug("catch Exception: %s" % e)
         logExcInfo()
@@ -287,7 +291,7 @@ def reqTimelyData(request, wi_id):
     获取及时的新数据
     '''
     hk = request.session.get(u'hk')
-    st = stRestore(hk)
+    st = PysqlAgentManager.stRestore(hk)
 
     widget_model = WidgetModel.objects.get(pk = wi_id)
     if not widget_model.m_if_update:
@@ -410,7 +414,7 @@ def genWidgetImageData(req_data, hk):
     生成返回前端数据
     """
     logger.debug("function genWidgetImageData() is called")
-    st = stRestore(hk)
+    st = PysqlAgentManager.stRestore(hk)
 
     # 地图先特殊对待
     if 'china_map' == req_data.get(u'graph') or \
@@ -592,7 +596,7 @@ def searchLatestData(hk, factor_list, group_list):
         select_factors.append(factor)
         group_factors.append(factor)       
 
-    st  = stRestore(hk)
+    st  = PysqlAgentManager.stRestore(hk)
     resultes = st.exeSelect(selects = select_factors, groups = group_factors) \
                     .fetchone()
     return resultes
@@ -628,6 +632,161 @@ def widgetAdd(request):
         return render_to_response('widget/widget_add/add.html', {}, context)
     else:
         raise Http404()
+
+
+
+class DrawDataProducer():
+    def __init__(self, hk):
+        self.st = PysqlAgentManager.stRestore(hk)
+
+    def produce(self, req):
+        """
+        生成数据，对外接口
+        """
+        shape = req.get('graph')
+        echart = EChartManager().get_echart(shape)
+        self.setDecorator(echart)
+
+        self.fh = FactorHandler(req)
+        part_dict = self.fh.mapToSqlPart()
+
+        sql_obj = self.st.makeSelectSql(**part_dict)
+        data_db = self.st.conn.execute(sql_obj).fetchall()
+        clean_data_db = cleanDataFromDb(data_db)
+        strf_data_db = strfDataAfterFetchDb(clean_data_db)
+
+        result = self.decorate(
+            strf_data_db, self.fh.getMsus(), self.fh.getMsns(), 
+            self.fh.getGroups()
+        )
+
+        return {'type': shape, 'data': result}
+
+
+    def setDecorator(self, obj):
+        """
+        设置最终数据格式对象
+        """
+        self.dt = obj
+
+    def decorate(self, data, msus, msns, groups):
+        """
+        格式化数据
+        """
+        if not self.dt:
+            return data
+
+        return self.dt.makeData(data, msus, msns, groups)
+
+
+class FactorHandler():
+    def __init__(self, req):
+        self.extract(req)
+
+
+    def extract(self, req):
+        '''
+        解析获得各维度上的Factor对象
+        '''
+        [col_kind_attr_list, row_kind_attr_list] = \
+                map( lambda i: req.get(i, []), \
+                        (u'x', u'y') \
+                    ) 
+
+        # 获取轴上属性Factor对象
+        msn_factors, msu_factors = [], []
+        for idx, col_element in enumerate(row_kind_attr_list + col_kind_attr_list):
+            element_dict = {key:col_element[key] for key in EXPRESS_FACTOR_KEYS_TUPLE}
+            factor = ElementFactor(**element_dict)
+            if idx < len(row_kind_attr_list):
+                factor.setBelongToAxis('row')
+            else:
+                factor.setBelongToAxis('col')
+
+            tmp_factors = msn_factors \
+                    if 'rgl' == factor.getProperty('cmd') \
+                        or 2 == factor.getProperty('kind')  \
+                    else msu_factors
+
+            tmp_factors.append(factor)
+
+
+        # 获取选择器上属性Factor对象
+        group_factor_list = []
+        color_dict = req.get(Protocol.Color)
+        if color_dict:
+            color_attr_table = color_dict.get(u'table', u'')
+            color_attr_column = color_dict.get('column', u'')
+            color_dict = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
+                                    (color_attr_table, color_attr_column, -1, u'')))
+            factor = ElementFactor(**color_dict)
+            factor.setBelongToAxis('group')
+            group_factor_list.append(factor)
+
+        self.msus = msu_factors
+        self.msns = msn_factors
+        self.groups = group_factor_list
+        return 
+
+
+    def mapToSqlPart(self):
+        """
+        按照对所处select语句中的位置部分
+        对所有x、y、group等部分的变量做分类
+        """
+
+        # 轴上面的数字列一定存在sql语句中select段
+        # 轴上面的文字列一定存在sql语句中的select段和group段
+        # 选择区别里面的数字列不存在sql语句中，它只是做值域范围设定用的
+        # 选择区别里面的文字列存在sql语句中的select段和group段
+
+        selects, groups  = [], []
+        for factor in (self.msus + self.msns):
+            kind    = factor.getProperty(Protocol.Kind)
+            if 0 == kind:
+                selects.append(factor)
+            else:
+                selects.append(factor)
+                groups.append(factor)
+
+        for factor in self.groups:
+            selects.append(factor)
+            groups.append(factor)       
+
+        return {
+            'selects':          selects
+            , 'groups':         groups
+        }
+
+    def getMsus(self):
+        return self.msus
+
+    def getMsns(self):
+        return self.msns
+
+    def getGroups(self):
+        return self.groups
+
+
+
+# 组件更新器基类
+class WidgetUpdator():
+    def update():
+        pass
+
+# 补充型组件更新器
+class SupplyUpdator(WidgetUpdator):
+    pass
+
+# 完全刷新型组件更新器
+class RefreshUpdator(WidgetUpdator):
+    pass
+
+
+
+
+
+  
 
 
 

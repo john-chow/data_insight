@@ -17,7 +17,8 @@ requirejs.config({
 	        "spin":				"lib/spin",
 	        "spin-jquery":		"lib/spin.jquery",
 	        "bootstrap":		"lib/bootstrap",
-	        "tool": 			"common/tool"
+	        "tool": 			"common/tool",
+	        "csrf": 			"lib/csrf",
     },
 
     //添加依赖关系

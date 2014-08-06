@@ -10,7 +10,7 @@ define([
 var data = DataInsightManager.module("FieldRegion",
     function(FieldRegion, DataInsightManager, Backbone, Marionette, $, _){
 
-    //////////////////////////////////////////////////////////定义field的view
+    //定义field的view
     FieldRegion.FieldView = Marionette.ItemView.extend({
       tagName: "div",
       className: "panel panel-default",
@@ -20,7 +20,7 @@ var data = DataInsightManager.module("FieldRegion",
           "click #field_template_header>span": "show:manage-dialog",
       },
 
-      /////////////////////////////显示
+      //显示
       onShow: function() {
         var self = this;
         var variable = DataInsightManager.fieldRegion.$el.outerHeight()-this.$("#field_template_header").outerHeight()

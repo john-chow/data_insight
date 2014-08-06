@@ -3,26 +3,26 @@
 
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="connect_db_title">新建连接到数据库</h4>
+        <h4 class="modal-title" id="connect_db_title">新建连接到数据库  [<%= dbName %>]</h4>
       </div>
 
       <div class="modal-body">
 			<div id="connect_db_form">
 				<p>
 					<label for="id_ip">Ip:</label> 
-					<input id="connect_ip" name="ip" type="text" value="10.1.50.125">
+					<input id="connect_ip" name="ip" type="text" value="<%= ip %>">
 				</p>
 				<p>
 					<label for="id_port">Port:</label> 
-					<input id="connect_port" max="65535" min="0" name="port" type="number" value="5432">
+					<input id="connect_port" max="65535" min="0" name="port" type="number" value="<%= port %>">
 				</p>
 				<p>
 					<label for="id_db">Db:</label> 
-					<input id="connect_db" name="db" type="text" value="data_insight">
+					<input id="connect_db" name="db" type="text" value="<%= db %>">
 				</p>
 				<p>
 					<label for="id_user">User:</label> 
-					<input id="connect_user" name="user" type="text" value="postgres">
+					<input id="connect_user" name="user" type="text" value="<%= user %>">
 				</p>
 				<p>
 					<label for="id_pwd">Pwd:</label> 

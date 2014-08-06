@@ -92,7 +92,7 @@ define([
 			disableFiledDrage: function(filedName){
 				var $selectedFiledEl = $("#filed_" + filedName);
 				$selectedFiledEl.css("cursor", "not-allowed");
-				$selectedFiledEl.disable("enable");
+				$selectedFiledEl.draggable("disable");
 			},
 			onShow: function(){
 				var self = this;
@@ -179,7 +179,7 @@ define([
 						//计算类型(对应关系:{N:数值变量,F:因子变量,D:时间变量,G:地理变量,T:逻辑变量})
 						var kind = axisItem.kind;
 						//字段所属数据表
-						var table = $(".table-item-select").data("table");
+						var table = $(".table-item-choosed").data("table");
 						var addXItem = {
 								name: name,	title: title,
 								calcFunc: calcFunc, table : table,
