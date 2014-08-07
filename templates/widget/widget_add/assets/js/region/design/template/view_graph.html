@@ -60,7 +60,7 @@
 				<%
 					switch(key){
 						case 'colour'	:%>
-											  <li class="feature-item col-md-4"><label>颜色</label>
+											  <li class="feature-item col-md-4 col-sm-4"><label>颜色</label>
 											  	<div class="feature dragging-custom" name="<%=key%>">
 											  	<% if(value.column){%>
 											  		<span data-filedname="<%= value.column %>"><%= value.column %><b>&times;</b></span>
@@ -69,7 +69,7 @@
 											  </li> 
 											  <%break;
 						case 'size'  	:%>
-											  <li class="feature-item col-md-4"><label>大小</label>
+											  <li class="feature-item col-md-4 col-sm-4"><label>大小</label>
 											  	<div class="feature dragging-custom" name="<%=key%>">
 											  	<% if(value.column){%>
 											  		<span data-filedname="<%= value.column %>"><%= value.column %><b>&times;</b></span>
@@ -77,7 +77,7 @@
 											  	<div>
 											  </li>
 										 	  <% break;
-						case 'shape' :   %>   <li class="feature-item col-md-4"><label>形状</label>
+						case 'shape' :   %>   <li class="feature-item col-md-4 col-sm-4"><label>形状</label>
 												<div class="feature dragging-custom" name="<%=key%>">
 												<% if(value.column){%>
 													<span data-filedname="<%= value.column %>"><%= value.column %><b>&times;</b></span>
@@ -85,7 +85,7 @@
 												<div>
 											</li>
 										      <%break;
-						case 'linetype' :%>   <li class="feature-item col-md-4"><label>线型</label>
+						case 'linetype' :%>   <li class="feature-item col-md-4 col-sm-4"><label>线型</label>
 												<div class="feature dragging-custom" name="<%=key%>">
 												<% if(value.column){%>
 													<span data-filedname="<%= value.column %>"><%= value.column %><b>&times;</b></span>
@@ -93,7 +93,7 @@
 												<div>
 											  </li>
 										      <%break;
-						case 'fill' 	:%>   <li class="feature-item col-md-4"><label>填充</label>
+						case 'fill' 	:%>   <li class="feature-item col-md-4 col-sm-4"><label>填充</label>
 												<div class="feature dragging-custom" name="<%=key%>">
 												<% if(value.column){%>
 												  <span data-filedname="<%= value.column %>"><%= value.column %><b>&times;</b></span>
@@ -101,7 +101,7 @@
 												<div>
 											  </li>
 											  <%break;
-						case 'group' 	:%>   <li class="feature-item col-md-4"><label>分组</label>
+						case 'group' 	:%>   <li class="feature-item col-md-4 col-sm-4"><label>分组</label>
 												<div class="feature dragging-custom" name="<%=key%>">
 												<% if(value.column){%>
 													<span data-filedname="<%= value.column %>"><%= value.column %><b>&times;</b></span>
@@ -109,7 +109,7 @@
 												<div>
 											  </li>
 						 					  <%break;
-						case 'weight' 	:%>   <li class="feature-item col-md-4"><label>权重</label>
+						case 'weight' 	:%>   <li class="feature-item col-md-4 col-sm-4"><label>权重</label>
 													<div class="feature dragging-custom" name="<%=key%>">
 													<% if(value.column){%>
 														<span data-filedname="<%= value.column %>"><%= value.column %><b>&times;</b></span>
@@ -117,7 +117,7 @@
 													<div>
 											  </li>
 	 					  					  <%break;
-						case 'map_id' 	:%>   <li class="feature-item col-md-4"><label>地图ID</label>
+						case 'map_id' 	:%>   <li class="feature-item col-md-4 col-sm-4"><label>地图ID</label>
 												<div class="feature dragging-custom" name="<%=key%>">
 												<% if(value.column){%>
 													<span data-filedname="<%= value.column %>"><%= value.column %><b>&times;</b></span>
@@ -125,7 +125,7 @@
 												<div>
 											  </li>
 	  					  					  <%break;
-						case 'alpha' 	:%>   <li class="feature-item col-md-4" ><label>阿尔法</label>
+						case 'alpha' 	:%>   <li class="feature-item col-md-4 col-sm-4" ><label>阿尔法</label>
 												<div class="feature dragging-custom" name="<%=key%>">
 												<% if(value.column){%>
 													<span data-filedname="<%= value.column %>"><%= value.column %><b>&times;</b></span>
