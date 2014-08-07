@@ -24,22 +24,30 @@ define([
 				var fieldManageView = new FieldRegion.FieldManageDialog({
 					collection: fields
 				});
+
+				fieldManageView.on("model:set", function(model, options){
+					model.set(options);
+				});
+
 				fieldManageView.on("change:field-attributes",function(options){
 					//解析数据
-					var i,
-					temp,
-					arrList = options.split("&"),
-					dataList = [],
-					j = -1;
+					var i, temp, j = -1, dataList = [],
+					arrList = options.split("&");
 					for(i = 0; i<arrList.length ; i++){
-						if(i%3==0){
-							j++;
-							dataList[j] = {};
-						}
 						temp = arrList[i].split("=");
-						dataList[j][temp[0]]=temp[1];
+						if(i%4==0){
+							if(temp[1]=="1"){
+								dataList[++j] = {};
+							}
+							else{
+								i=i+3;
+							}
+						}
+						else{
+							dataList[j][temp[0]]=temp[1];
+						}
 					}
-					console.log(dataList);
+					//console.log(dataList);
 					//ajax上传数据
 					$.ajax({
 		             	type: "POST",
