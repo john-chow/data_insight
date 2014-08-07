@@ -543,5 +543,11 @@ border: 1px solid #CAD8B7;
 	width: 450px;
 	height: 35px;
 }
-/* end design«¯”Úcss */
+
+#connect_error {
+	float: left;
+	color: rgb(224, 55, 55);
+	font-size: 17px;
+	display: none;
+}
 

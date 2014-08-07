@@ -120,8 +120,6 @@ var data = DataInsightManager.module("TableRegion",
         "click .connect-db-commit": "managetableFunction",
       }, 
       managetableFunction: function(){
-        this.$(".connect-db-commit").html("连接中...");
-        this.$(".connect-db-commit").css("cursor","wait");
         var options = {
             "ip":     this.$("#connect_ip").val(),
             "port":   this.$("#connect_port").val(),
@@ -129,7 +127,14 @@ var data = DataInsightManager.module("TableRegion",
             "user":   this.$("#connect_user").val(),
             "pwd":    this.$("#connect_pwd").val()
         };
+        this.$(".connect-db-commit").html("连接中...");
+        this.$(".connect-db-commit").css("cursor","wait");
         DataInsightManager.dialogRegion.trigger('connect:get-data', this.model, options);
+      },
+      onFormConnectError: function(){
+        this.$(".connect-db-commit").html("确定");
+        this.$(".connect-db-commit").css("cursor","pointer");
+        this.$("#connect_error").show();
       },
     });
 

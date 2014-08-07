@@ -15,11 +15,6 @@ define([
 	    }
 	  };
 
-	  //监听页面start
-	  DataInsightManager.on("start", function(){
-	    API.listFields();
-	  });
-
 	  DataInsightManager.commands.setHandler("showField", function(tableName){
 		  API.listFields(tableName);
 	  });

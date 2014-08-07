@@ -79,6 +79,9 @@ define([
 		        var connectDbView = new TableRegion.connectDbDialog({
 		        	model: connectModel
 		        });
+		        DataInsightManager.dialogRegion.on("connect:error", function(){
+					connectDbView.triggerMethod("form:connect:error");
+				});
 				DataInsightManager.dialogRegion.show(connectDbView);
 		    });
 
@@ -104,7 +107,7 @@ define([
 		    });
 
 		    /*
-			* 根据填入数据库账号密码连接数据库，成功返回collection
+			* 根据填入数据库账号密码连接数据库，成功返回表名
 			*/
 		    DataInsightManager.dialogRegion.on("connect:get-data", function(model, options){
 				model.save(options, {
@@ -126,6 +129,7 @@ define([
                         }
 					},
 					error: function(model, response, options){
+						DataInsightManager.dialogRegion.trigger("connect:error");
 						console.log("连接失败");
 					},
 				});

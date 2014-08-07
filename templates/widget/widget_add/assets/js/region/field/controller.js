@@ -13,13 +13,14 @@ define([
 			ListFields: function(tableName){
 
 			//获取数据
-			var fields = DataInsightManager.request("field:entities",tableName);
+			var fieldEntities = DataInsightManager.request("field:entities",tableName);
 
-			//新建View
-			var fieldsListView = new FieldRegion.FieldView({
+			$.when(fieldEntities).done(function(fields){
+
+		    var fieldsListView = new FieldRegion.FieldView({
 				collection: fields
 			});
-
+			
 			fieldsListView.on("show:manage-dialog", function(){
 				var fieldManageView = new FieldRegion.FieldManageDialog({
 					collection: fields
@@ -65,7 +66,8 @@ define([
 	        
 			//显示View
 			DataInsightManager.fieldRegion.show(fieldsListView);
-			}
+		});
+		}
 		}
 	});
 
