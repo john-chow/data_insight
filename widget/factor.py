@@ -5,13 +5,15 @@ Factor类:
     也可以只是表达某个单纯的数字，比如 5
 """
 from common.tool import isSublist
+import common.protocol as Protocol
 import ast
 import re
 
 import pdb
 
 # 打印、存储FACTOR类对象时，按照这样顺序进行
-EXPRESS_FACTOR_KEYS_TUPLE = ('table', 'attr', 'kind', 'cmd')
+EXPRESS_FACTOR_KEYS_TUPLE = \
+        (Protocol.Table, Protocol.Attr, Protocol.Kind, Protocol.Func)
 
 
 class FactorCreator():
