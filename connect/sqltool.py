@@ -8,6 +8,7 @@ PysqlAgent和SqlRelation是聚合关系
 
 
 import sys
+
 from sqlalchemy import create_engine, inspect, Table, MetaData, types, \
                         func, select, extract, Column
 from sqlalchemy import *
@@ -70,9 +71,12 @@ class PysqlAgent():
         激活对象
         """
         if not (self.engine and self.conn and self.insp):
-            self.engine     = create_engine(self.cnt, echo=True)
-            self.conn       = self.engine.connect()
-            self.insp       = inspect(self.engine)
+            try:
+                self.engine     = create_engine(self.cnt, echo=True)
+                self.conn       = self.engine.connect()
+                self.insp       = inspect(self.engine)
+            except Exception, e:
+                return False
         return self
 
 
@@ -106,8 +110,10 @@ class PysqlAgent():
         )
 
         self.cnt    = cnt
-        self.active()
-        return True, u''
+        if self.active():
+            return True, ''
+        else:
+            return False, ''
 
 
     def listTables(self):
