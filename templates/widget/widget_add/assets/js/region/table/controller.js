@@ -75,7 +75,7 @@ define([
 			*/
 		    DataInsightManager.dialogRegion.on("show:dialog-connect-db", function(dbName){
 		    	var connectModel = DataInsightManager.request("connect:entity");
-		    	connectModel.attributes.dbName = dbName;
+		    	connectModel.attributes.kind = dbName;
 		        var connectDbView = new TableRegion.connectDbDialog({
 		        	model: connectModel
 		        });
@@ -107,34 +107,28 @@ define([
 			* 根据填入数据库账号密码连接数据库，成功返回collection
 			*/
 		    DataInsightManager.dialogRegion.on("connect:get-data", function(model, options){
-		    	//返回response的形式，测试数据
-		    	var response = [
-			        { tableName:'测试数据表1'},
-			        { tableName:'测试数据表2'},
-			    ]
-			    for(var i =0;i<response.length;i++){
-			    	response[i].id = (i+1);
-			    	response[i].selected = false;
-			    	response[i].index = 0;
-			    	response[i].choosed = false;
-			    }
-			    var collection = DataInsightManager.request("table:entities", response);
-				DataInsightManager.dialogRegion.trigger("show:dialog-table-manage", collection);
-				/*model.save(options, {
+				model.save(options, {
 					success: function(model, response, options){
-						var collection = DataInsightManager.request("table:entities", response);
-						for(var i =0;i<response.length;i++){
-					    	response[i].id = (i+1);
-					    	response[i].selected = false;
-					    	response[i].index = 0;
-					    	response[i].choosed = false;
-					    }
-						DataInsightManager.dialogRegion.trigger("show:dialog-table-manage", collection);
+                        if (response.succ) {
+                            var respData = response.data;
+                            for(var i =0;i<respData.length;i++){
+                            	respData[i] = {
+                            		'tableName': 	respData[i],
+                            		'id': 			(i+1),
+                            		'selected': 	false,
+                            		'choosed': 		false,
+                            		'index': 		0,
+                            	}
+                            }
+                            var collection = DataInsightManager.request("table:entities", respData);
+                            DataInsightManager.dialogRegion.trigger("show:dialog-table-manage", collection);
+                        } else {
+                        }
 					},
 					error: function(model, response, options){
 						console.log("连接失败");
 					},
-				});*/
+				});
 			});
 				
 			/*

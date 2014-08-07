@@ -13,11 +13,13 @@ from django_sse.redisqueue import send_event
 
 from widget.forms import ConnDbForm
 from widget.models import ExternalDbModel
+from connect.models import FieldsInfoModel
 from connect.file import Text, Excel
 from connect.sqltool import PysqlAgentManager, PysqlAgent
 from common.tool import MyHttpJsonResponse
 from common.log import logger
 from common.head import DEFAULT_DB_INFO, ConnNamedtuple, ConnArgsList
+import common.protocol as Protocol
 
 import pdb
 
@@ -45,14 +47,15 @@ def handleConn(request):
     """
     连接数据库
     """
-    logger.debug("function handleConn() is called")
+    logger.warning("function handleConn() is called")
 
     if u'POST' == request.method:
-        conn_list = map(lambda x: request.POST.get(x)  \
-                        , ConnArgsList)
+        post_data = json.loads(request.POST.get('data'))
+        if not post_data:
+            return MyHttpJsonResponse({'succ': False, 'msg': 'xxxxx'})
 
+        conn_list = map(lambda x: post_data.get(x), ConnArgsList)
         conn_list[-1] = 'postgres'
-
         conn_nt = ConnNamedtuple(*conn_list)
         succ, msg, hk, st = connectDb(conn_nt)
 
@@ -79,11 +82,11 @@ def handleConn(request):
 
 
 @csrf_exempt
-def selectTables(request):
+def handleTable(request):
     """
     选择数据表
     """
-    logger.debug("function selectTables() is called")
+    logger.debug("function handleTable() is called")
 
     if u'POST' == request.method:
         chosen_tables   = request.POST.getlist(u'table', u'[]')
@@ -150,6 +153,74 @@ def handleFields(request):
         pass
     else:
         pass
+
+
+@login_required
+def handleField(request):
+    """
+    处理自定义数据表请求
+    """
+    hk = request.session.get('hk')
+    st = PysqlAgentManager.stRestore(hk)
+    try:
+        conn = ExternalDbModel.objects.get(pk = hk)
+    except ExternalDbModel.DoesNotExist, e:
+        return MyHttpJsonResponse({'succ': False, 'msg': 'xxxxx'})
+
+    user = request.user
+
+    if 'POST' == request.method:
+        table = request.POST.get('table')
+        if not table:
+            return MyHttpJsonResponse({'succ': False, 'msg': 'yyyyy'})
+
+        post_data = request.POST.get('data')
+        data = json.loads(post_data)
+
+        types, nicknames = {}, {}
+        for item in data:
+            fieldname = item[Protocol.FieldName]
+            types[fieldname] = item[Protocol.FieldType]
+            nicknames[fieldname] = item[Protocol.FieldNickname]
+
+        try:
+            obj, created = FieldsInfoModel.objects.get_or_create( \
+                m_user = user, m_conn = conn, m_table = table \
+            )
+            obj.m_types = json.dumps(types)
+            obj.m_nicknames = json.dumps(nicknames)
+            obj.save()
+        except Exception, e:
+            return MyHttpJsonResponse({'succ': False, 'msg': 'xxxxx'})
+
+        return MyHttpJsonResponse({'succ': True, 'msg': 'xxxxxxxxx'})
+
+    else:
+        table = request.GET.get('table')
+        if not table:
+            return MyHttpJsonResponse({'succ': False, 'msg': 'yyyyy'})
+
+        obj = FieldsInfoModel.objects.filter( \
+            m_user = user, m_conn = conn, m_table = table \
+        )
+
+        if obj:
+            types_dict = obj.getTypesDict()
+            nicknames_dict = obj.getNicknamesDict()
+        else:
+            [types_dict] = st.statFieldsType([table])
+            nicknames_dict = dict(zip(types_dict.keys(), [''] * len(types_dict)))
+
+        fields_list     = types_dict.keys()
+        types_list      = types_dict.values()
+        nicknames_list  = [nicknames_dict[i] for i in fields_list]
+        data = {
+            'fields':       fields_list
+            , 'types':      types_list
+            , 'nicknames':  nicknames_list
+        }
+
+        return MyHttpJsonResponse({'succ': True, 'data': json.dumps(data)})
 
 
 

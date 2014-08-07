@@ -15,10 +15,11 @@ define([
 	"region/design/route",
 	"region/show/route",
 	"csrf",
-	'tool',
-	'minicolors'
-], function ($, JqueryUi, json, _, backbone, Marionette, dialog, tableRoute, fieldRoute, Minicolors) {
+	'tool'
+], function ($, JqueryUi, json, _, Backbone, Marionette, dialog, tableRoute, fieldRoute) {
 
+    // 设置ajax的content-type默认为application/x-www-form-urlencoded
+    Backbone.emulateJSON = true;
 	DataInsightManager.addRegions({
 	      operateRegion: 			"#operate_region",	//操作栏区域
 	      tableRegion: 				"#table_region",	//数据表区域

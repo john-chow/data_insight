@@ -314,7 +314,7 @@ body {
 	width:35%;
 }
 
-.field-manage-color {
+#field-manage-form>ul:hover {
 	background: #E2DFBA;
 	border-radius: 3px;
 }

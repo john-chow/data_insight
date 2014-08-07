@@ -24,11 +24,41 @@ define([
 				var fieldManageView = new FieldRegion.FieldManageDialog({
 					collection: fields
 				});
+
+				fieldManageView.on("model:set", function(model, options){
+					model.set(options);
+				});
+
 				fieldManageView.on("change:field-attributes",function(options){
-					//解析options，set model，然后保存
-					//未做
-					DataInsightManager.dialogRegion.$el.modal("hide");
-					DataInsightManager.trigger('showField', tableName);
+					//解析数据
+					var i, temp, j = -1, dataList = [],
+					arrList = options.split("&");
+					for(i = 0; i<arrList.length ; i++){
+						temp = arrList[i].split("=");
+						if(i%4==0){
+							if(temp[1]=="1"){
+								dataList[++j] = {};
+							}
+							else{
+								i=i+3;
+							}
+						}
+						else{
+							dataList[j][temp[0]]=temp[1];
+						}
+					}
+					//console.log(dataList);
+					//ajax上传数据
+					$.ajax({
+		             	type: "POST",
+		             	url: "/XXX",
+		             	data: JSON.stringify(dataList),
+		            	dataType: "json",
+		            	success: function(data){
+		            		DataInsightManager.dialogRegion.$el.modal("hide");
+							DataInsightManager.trigger('showField', tableName);
+		                }
+		          	});
 				});
 				DataInsightManager.dialogRegion.show(fieldManageView);
 			});

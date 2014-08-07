@@ -13,11 +13,13 @@
           <li class="field-manage-nickName">备注名</li>
        </ul>
        <form id="field-manage-form">
-        <% _.each(items, function(item){ %>
+        <% _.each(items, function(item, index){ %>
          <ul>
+          <input class="field-change-flag" name="change" type="hidden" value="0"/>
+          <input name="fieldName" type="hidden" value="<%= item.fieldName %>"/>
           <li class="field-manage-fieldName"><%= item.fieldName %></li>
           <li class="field-manage-type">
-          <select name="type_<%= item.id %>">
+          <select name="type" data-index="<%= index %>">
             <option value="F" <% if(item.type == 'F') { %> selected="selected" <% } %>>因子变量(F)</option>
             <option value="N" <% if(item.type == 'N') { %> selected="selected" <% } %> >数值变量(N)</option>
             <option value="D" <% if(item.type == 'D') { %> selected="selected" <% } %>>时间变量(D)</option>
@@ -25,7 +27,7 @@
             <option value="G" <% if(item.type == 'G') { %> selected="selected" <% } %>>地理信息(G)</option>
           </select>
           </li>
-          <li class="field-manage-nickName"><input name="nickName_<%= item.id %>" type="text" value="<%= item.nickName %>"/></li>
+          <li class="field-manage-nickName"><input data-index="<%= index %>" name="nickName" type="text" value="<%= item.nickName %>"/></li>
         </ul>
          <% }); %>
         </form>

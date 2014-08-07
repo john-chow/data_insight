@@ -56,18 +56,10 @@ var data = DataInsightManager.module("FieldRegion",
       template: fieldManageTemplate,
 
       events: { 
-          "mouseenter .field-manage-content>ul": "showBackgroundColorFunction",
-          "mouseleave .field-manage-content>ul": "hideBackgroundColorFunction",
-          "click .field-manage-commit":          "fieldManageCommitFunction"
+          "click .field-manage-commit":             "fieldManageCommitFunction",
+          "change .field-manage-nickName>input":    "changeTextFunction",
+          "change .field-manage-type>select":       "changeSelectFunction",
       }, 
-
-      showBackgroundColorFunction: function(e){
-        $(e.currentTarget).addClass('field-manage-color');
-      },
-
-      hideBackgroundColorFunction: function(e){
-        $(e.currentTarget).removeClass('field-manage-color');
-      },
 
       fieldManageCommitFunction: function(e){
         //获取信息
@@ -75,6 +67,14 @@ var data = DataInsightManager.module("FieldRegion",
         //中文会被编码，所以需要解码
         options = decodeURIComponent(options,true)
         this.trigger('change:field-attributes', options);
+      },
+
+      changeTextFunction: function(e){
+        $(e.target).parents("ul").find(".field-change-flag").val("1");
+      },
+
+      changeSelectFunction: function(e){
+        $(e.target).parents("ul").find(".field-change-flag").val("1");
       }
 
     });

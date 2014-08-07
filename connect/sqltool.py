@@ -152,11 +152,11 @@ class PysqlAgent():
 
                 # 增加字段标记数字列和非数字列
                 if isinstance(i_type, (types.Numeric, types.Integer)):
-                    me_list.append(i[u'name'])
+                    me_list.append(i['name'])
                 elif isinstance(i_type, (types.Date, types.DateTime)):
-                    tm_list.append(i[u'name'])
+                    tm_list.append(i['name'])
                 else:
-                    dm_list.append(i[u'name'])
+                    dm_list.append(i['name'])
 
             tables_info_list.append({
                 u'name':    t
@@ -166,6 +166,31 @@ class PysqlAgent():
             })
 
         return tables_info_list
+
+    def statFieldsType(self, tables):
+        fields_info_list = []
+        for t in tables:
+            if t not in self.sql_relation.rf.keys():
+                self.reflectTables([t])
+
+            info = self.insp.get_columns(t)
+            fields_info = {}
+            for i in info:
+                i_type    = i['type']
+                i_name    = i['name']
+
+                # 增加字段标记数字列和非数字列
+                if isinstance(i_type, (types.Numeric, types.Integer)):
+                    fields_info[i_name] = Protocol.NumericType
+                elif isinstance(i_type, (types.Date, types.DateTime)):
+                    fields_info[i_name] = Protocol.TimeType
+                else:
+                    fields_info[i_name] = Protocol.FactorType
+
+            fields_info_list.append(fields_info)
+
+        return fields_info_list
+
 
 
     def makeSelectSql(self, selects, filter = [], groups = [], **kwargs):
