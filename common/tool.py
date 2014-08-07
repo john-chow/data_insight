@@ -2,6 +2,7 @@
 import psycopg2 as pysql
 import datetime, time, random, sys, os, traceback
 
+from collections import defaultdict
 from django.http import HttpResponse
 from django.utils import simplejson as json
 
@@ -152,6 +153,14 @@ def cleanDataFromDb(data):
         return [round(i, 2) if isinstance(i, float) else i  for i in record]
 
     return [f(r) for r in data]
+
+
+def mergeListByKey(list1, list2, key):
+    d = defaultdict(dict)
+    for l in (l1, l2):
+        for elem in l:
+            d[elem[key]].update(elem)
+    return d.values()
 
 
 def strfDataList(data_list):

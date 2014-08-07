@@ -46,3 +46,28 @@ Cmd = 'cmd'
 
 # 统一的日期时间格式
 DatetimeFormat = '%Y-%m-%d %H:%M:%S'
+
+
+''' 
+数据字段类型
+'''
+TimeType    = 'T'
+NumericType = 'N'
+FactorType  = 'F'
+
+
+'''
+标记数据表字段类型
+'''
+FieldType = 'type'
+
+'''
+标记
+'''
+FieldNickname = 'nickName'
+
+
+FieldName = 'fieldName'
+
+
+

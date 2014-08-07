@@ -9,12 +9,11 @@ var data = DataInsightManager.module("Entities",
 
     //定义Field模型
     Entities.Field = Backbone.Model.extend({
-      urlRoot: "/field",
     });
 
     //定义Field集合
     Entities.FieldCollection = Backbone.Collection.extend({
-      url: "/fields",
+      url: "/connect/field",
       model: Entities.Field,
     });
 
@@ -25,7 +24,9 @@ var data = DataInsightManager.module("Entities",
         fields = new Entities.FieldCollection([]);
       }
       else{
-        //fields.fetch(tableName);
+        //fields.fetch({'table': tableName});
+        fields.fetch({'data': {'table': tableName}});
+        /*
         //测试数据
           fields = new Entities.FieldCollection([
             { fieldName:'字段1', type:"F", nickName:"备注名1"},
@@ -39,6 +40,7 @@ var data = DataInsightManager.module("Entities",
             { fieldName:'字段9', type:"F", nickName:""},
             { fieldName:'字段10', type:"N", nickName:""}
           ]);
+          */
       }
       
       return fields;
