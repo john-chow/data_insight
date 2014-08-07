@@ -104,6 +104,7 @@ define([
 					});
 				});
 				this.setDragProperty();
+				this.setFeatureDroppable();
 				//监听x轴y轴的操作
 				$("#x_sortable").on("click", ".coordinate-remove a", function(e){
 					var xItem = $(e.target).data("xitem");
@@ -127,13 +128,26 @@ define([
 					self.trigger("y:edit", yItem);
 				});
 				
+				//监听图表类型对应的属性列表类型删除的时候
+				$(".feature").on("click", "span", function(){
+					var $this = $(this);
+					var name = $this.parent().attr("name");
+					var column = $this.data("filedname");
+					var table = $(".table-item-choosed").data("table");
+					self.model.trigger("mapping:remove", {
+						name: name,
+						column: column,
+						table: table
+					});
+				})
+				
 				//如果字段(filed)已经被拖入到x或者y轴中，则禁止filed区域对应的字段不让拖拽
-				$.each(this.model.get("x"), function(index, value){
+				/*$.each(this.model.get("x"), function(index, value){
 					self.disableFiledDrage(value.name);
 				});
 				$.each(this.model.get("y"), function(index, value){
 					self.disableFiledDrage(value.name);
-				});
+				});*/
 			},
 			//调用该view的render方法触发
 			onRender: function(){
@@ -220,6 +234,52 @@ define([
 					deactivate: function(event,ui) { //这个事件发生在排序结束后,传播到所有可能的连接列表.
 					}
 				}).disableSelection();
+			},
+			/**
+			 * 设置图表类型对应的映射字段可拖放
+			 * 
+			 */
+			setFeatureDroppable: function(){
+				var self = this;
+				$(".feature").each(function(index){
+					var $this = $(this);
+					$this.sortable({
+						connectWith: ".feature",
+						receive: function(event,ui) {
+							//字段名
+							var column = ui.item.data("filedname");
+							//表明
+							var table = $(".table-item-choosed").data("table");
+							//mapping对应的属性名
+							var name = $(this).attr("name");
+							self.model.trigger("mapping:add", {
+								name: name,
+								column: column,
+								table: table
+							});
+						},
+						remove: function(event, ui){
+							//字段名
+							var column = ui.item.data("filedname");
+							//表明
+							var table = $(".table-item-choosed").data("table");
+							//mapping对应的属性名
+							var name = $(this).attr("name");
+							self.model.trigger("mapping:remove", {
+								name: name,
+								column: column,
+								table: table
+							});
+						},
+						start: function(event, ui){
+							$(".feature").css("border-color", "#9FC271");
+						},
+						stop: function(event, ui){
+							$(".feature").css("border-color", "#ddd");
+						}
+						
+					})
+				})
 			}
 		})
 		

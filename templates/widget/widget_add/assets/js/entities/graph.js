@@ -19,6 +19,30 @@ define([], function () {
 			},
 			initialize: function(){
 				var self = this;
+				//映射关系
+				this.map = {
+						"area": ["alpha","colour", "fill", 
+						         "linetype", "size"],
+						"bar": ["alpha", "colour", "fill",
+						        "linetype", "size", "weight"],
+						"pie": ["alpha", "colour", "linetype", "size"],
+						"boxplot": ["alpha", "colour", "fill",
+						            "linetype", "shape", "size", "weight"],
+						"line": ["alpha", "colour", "linetype", "size"],
+						"map": ["alpha", "colour", "fill", "linetype",
+						        "size", "map_id"],
+						"path": ["alpha", "colour", "linetype", "size"],
+						"point": ["alpha", "colour", "fill", 
+						           "size", "shape"],
+						"polygon": ["alpha", "colour", "fill", 
+						              "linetype", "size", "group"],
+						"ribbon": ["alpha", "colour", "fill", 
+						              "linetype", "size"],
+						"tile": ["alpha", "colour", "fill",
+						              "linetype", "size"],
+						"violin": ["alpha", "colour", "fill", "linetype",
+						                "size", "weight"]
+					};
 				this.graph = this.get("graph");
 				this.getMaping();
 				this.listenChange();
@@ -86,6 +110,19 @@ define([], function () {
 						}
 					})
 				});
+				
+				//监听将字段拖拽到图表类型对应的字段列表中的某个列表项中
+				this.on("mapping:add", function(data){
+					eval("this.get('mapping')." + data.name + "={column:'" +
+						  data.column + "', table:" + "'" + data.table + "'}");
+					this.trigger("change");//触发change事件
+				}, this);
+				
+				//监听将字段从图表类型对应的字段列表项中脱离或者删除
+				this.on("mapping:remove", function(data){
+					eval("this.get('mapping')." + data.name + "={}");
+					this.trigger("change");//触发change事件
+				}, this);
 			},
 			/**
 			 * 抓取数据，这里触发widget模型去后台抓取数据
@@ -118,40 +155,21 @@ define([], function () {
 			 * 获取图表类型对于的映射字段列表
 			 */
 			getMaping: function(){
-				var map = {
-					"area": ["alpha","colour", "fill", 
-					         "linetype", "size"],
-					"bar": ["alpha", "colour", "fill",
-					        "linetype", "size", "weight"],
-					"pie": ["alpha", "colour", "linetype", "size"],
-					"boxplot": ["alpha", "colour", "fill",
-					            "linetype", "shape", "size", "weight"],
-					"line": ["alpha", "colour", "linetype", "size"],
-					"map": ["alpha", "colour", "fill", "linetype",
-					        "size", "map_id"],
-					"path": ["alpha", "colour", "linetype", "size"],
-					"point": ["alpha", "colour", "fill", 
-					           "size", "shape"],
-					"polygon": ["alpha", "colour", "fill", 
-					              "linetype", "size", "group"],
-					"ribbon": ["alpha", "colour", "fill", 
-					              "linetype", "size"],
-					"tile": ["alpha", "colour", "fill",
-					              "linetype", "size"],
-					"violin": ["alpha", "colour", "fill", "linetype",
-					                "size", "weight"]
-				}
-				var featureArr = eval("map." + this.graph),
-					self = this;
+				var self = this,
+					featureArr = eval("this.map." + this.graph);
 				//默认的映射
 				if(!featureArr){
 					featureArr = ["alpha", "colour", "linetype", "size"];
 				}
 				//先清空先前的映射
 				var mapping = {};
+				//根据先前定义好的映射创建mapping的属性，即确定该图表类型对应的字段映射列表
 				$.each(featureArr, function(index, value){
-					//根据先前定义好的映射创建mapping的属性，即确定该图表类型对应的字段映射列表
-					eval("mapping." + value + "='1'");
+					if(!(value in self.get("mapping"))){
+						eval("mapping." + value + "={}")
+					}else{
+						eval("mapping." + value + "=self.get('mapping')." + value);
+					}
 				});
 				self.set({mapping : mapping, graph: this.graph});//会触发change事件
 			},
@@ -167,6 +185,7 @@ define([], function () {
 					$.when(this.fecthFromWidget()).done(function(){
 						//只要模型的属性改变便通知widget模型改变属性
 						self.on("change", function(){
+							//通知入口model图表类型改变
 							Entities.trigger("graph:change", this.toJSON());
 							//通知视图重画
 							self.trigger("graph:change");
@@ -176,6 +195,7 @@ define([], function () {
 				}
 				//创建状态，忽略抓取数据和触发graph:change的顺序，在graph模型改变的时候立即触发garph:change事件
 				this.on("change", function(){
+					//通知入口model图表类型改变
 					Entities.trigger("graph:change", this.toJSON());
 					//通知视图重画
 					self.trigger("graph:change");

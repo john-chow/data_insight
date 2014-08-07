@@ -15,8 +15,9 @@ define([
 	"region/design/route",
 	"region/show/route",
 	"csrf",
-	'tool'
-], function ($, JqueryUi, json, _, backbone, Marionette, dialog, tableRoute, fieldRoute) {
+	'tool',
+	'minicolors'
+], function ($, JqueryUi, json, _, backbone, Marionette, dialog, tableRoute, fieldRoute, Minicolors) {
 
 	DataInsightManager.addRegions({
 	      operateRegion: 			"#operate_region",	//操作栏区域
