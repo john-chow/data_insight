@@ -90,6 +90,7 @@ define([
 				 * 显示默认的design区域的视图，即显示图标视图
 				 */
 				showDefaultView: function(){
+					$("#design-graph").show();
 					this.designView.designGraphRegion.show(this.graphView);
 				},
 				

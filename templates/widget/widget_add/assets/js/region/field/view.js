@@ -27,7 +27,7 @@ var data = DataInsightManager.module("FieldRegion",
         this.$("#field_template_content").height(variable);
 
         this.$(".field-item").draggable({
-          connectToSortable: "#x_sortable, #y_sortable",
+          connectToSortable: "#x_sortable, #y_sortable, .feature",
           helper: "clone",
           scroll: "false",
           zIndex: "3000",
@@ -38,12 +38,12 @@ var data = DataInsightManager.module("FieldRegion",
           },
           //所有的回调函数(start, stop, drag)接受两个参数: 浏览器事件和ui对象
           start: function(event,ui) {
-            $(".dragging-custom").addClass("dragging-change-border");
+            $(".dragging-custom").css("border-color", "#9FC271");
           },
           drag: function(event,ui) {
           },
           stop: function(event,ui) {
-            $(".dragging-custom").removeClass("dragging-change-border");
+            $(".dragging-custom").css("border-color", "#ddd");
           }
         });
       },

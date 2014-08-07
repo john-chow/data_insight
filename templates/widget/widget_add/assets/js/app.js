@@ -20,7 +20,6 @@ define([
 
     // 设置ajax的content-type默认为application/x-www-form-urlencoded
     Backbone.emulateJSON = true;
-
 	DataInsightManager.addRegions({
 	      operateRegion: 			"#operate_region",	//操作栏区域
 	      tableRegion: 				"#table_region",	//数据表区域

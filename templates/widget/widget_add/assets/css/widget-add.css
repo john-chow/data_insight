@@ -370,7 +370,8 @@ body {
 	margin-left: 20px;
 	background: white;
 	border: 1px solid #978C8C;
-	padding-top: 25px;
+	padding: 15px 0 5px 0;
+	display: none;
 }
 #graph{
 	width: 100%;
@@ -457,20 +458,53 @@ body {
 	padding: 0;
 }
 #graph-feature ul li{
-	float: left;
-	width: 138px;
+	height: 40px;
+	position: relative;
+	margin-bottom: 16px;
+}
+#graph-feature ul li button{
+	display: inline;
+width: 78px;
+border-radius: 0;
+height: 40px;
+padding: 12px 0px;
+}
+.feature{
+	width: 63%;
 	height: 40px;
 	border: 1px solid #ddd;
-	margin: 5px;
+	display: inline-block;
+	padding: 6px 0px;
+	vertical-align: middle;
+	text-align: center;
+	margin-left: -4px;
 }
-
+.feature>span{
+	padding: 3px 0;
+	background: rgb(183, 219, 250);
+	width: 73px;
+	border: 1px solid #CCC5EC;
+	border-radius: 4px;
+	display: inline-block;
+	cursor: pointer;
+}
+.feature>span:hover{
+	border: 1px solid #ebccd1;
+}
+.feature>span>b{
+	float:right;
+	margin-right: 7px;
+}
 .feature-item label{
 	line-height: 3;
 	text-align: center;
-	width: 55px;
+	width: 37%;
 	background: #F2F2F2;
-	border-right: 1px solid #ddd;
-	height: 38px;
+	border: 1px solid #ddd;
+	border-right: 0;
+	height: 40px;
+	vertical-align: middle;
+	margin-bottom: 0;
 }
 
 /*#x_sortable>li[type='mension'], 

@@ -19,6 +19,7 @@ requirejs.config({
 	        "bootstrap":		"lib/bootstrap",
 	        "tool": 			"common/tool",
 	        "csrf": 			"lib/csrf",
+	        "minicolors":		"lib/jquery.minicolors"
     },
 
     //添加依赖关系

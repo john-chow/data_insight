@@ -27,7 +27,7 @@ define([
     	$("#field_region").height(leaveHeight*0.7);
 
     	//设置area的高度
-    	$("#design_region").height((leaveHeight-$("#switch_region").outerHeight())*0.3);
+    	//$("#design_region").height((leaveHeight-$("#switch_region").outerHeight())*0.3);
     	$("#show_region").height((leaveHeight-$("#switch_region").outerHeight())*0.7);
 
         //设置table_template_content的高度
