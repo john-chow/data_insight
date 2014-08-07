@@ -3,7 +3,8 @@ from connect import views
 
 urlpatterns = patterns('',
     url(r'db/$',            views.handleConn),
-    url(r'table/$',         views.selectTables),
+    url(r'table/$',         views.handleTable),
     url(r'content/$',       views.getTableInfo),
     url(r'file/$',          views.uploadFile),
+    url(r'field/$',         views.handleField),
 )

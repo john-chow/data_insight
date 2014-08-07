@@ -41,9 +41,8 @@ define([
 
             draw:               function() {
                 var data = this.merge();
-                this.save({
-                    data:       data
-                    , success:  function() {
+                this.save(data, {
+                    success:  function(m, resp) {
                         DataInsightManager.commands.execute("board:draw")
                     }
                 })
@@ -82,7 +81,10 @@ define([
 
             save:           function() {
                 var data = this.merge();
-                this.save({"data": data});
+                this.save(data, {
+                    success:    function(m, resp) {
+                    }
+                });
             },
 
             merge:          function() {
