@@ -70,7 +70,8 @@ body {
 }
 
 #area {
-	background: #BDC4C4;
+	background: #D4D4D4;
+	border: 1px solid #978C8C;
 }
 
 #design_region {
@@ -80,16 +81,19 @@ body {
 }
 
 #show_region {
-	width: 100%;
 	min-height: 100px;
-	background: #B8B87F;
+	background: white;
+	border: 1px solid #978C8C;
+	margin: 10px 0 0 20px;
 }
 
 #switch_region {
 	width: 100%;
 	margin:0;
 	height: 30px;
-	background: #5F5F31;
+	background: white;
+	margin-top: 8px;
+	border-top: 1px solid #978C8C;
 }
 
 #info {
@@ -348,7 +352,7 @@ body {
 .design-tab .tab .btn{
 	background: white;
 	padding: 6px 29px;
-	margin: 10px 1px 0;
+	margin: 0px 1px 0;
 	color: black;
 	border-bottom-left-radius: 0;
 	border-bottom-right-radius: 0;
@@ -370,12 +374,12 @@ body {
 	margin-left: 20px;
 	background: white;
 	border: 1px solid #978C8C;
-	padding: 15px 0 5px 0;
+	padding: 15px 0 2px 0;
 	display: none;
 }
 #graph{
 	width: 100%;
-	height: 100px;
+	height: 90px;
 	border: 1px solid #ddd;
 }
 .select-graph{
@@ -460,7 +464,7 @@ body {
 #graph-feature ul li{
 	height: 40px;
 	position: relative;
-	margin-bottom: 16px;
+	margin-bottom: 10px;
 }
 #graph-feature ul li button{
 	display: inline;
@@ -578,4 +582,15 @@ border: 1px solid #CAD8B7;
 	height: 35px;
 }
 /* end design«¯”Úcss */
+/* begin switch region */
+.workbook{
+	border: 1px solid #ddd;
+	padding: 2px;
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+	background-color: #FCFFFA;
+	cursor: default;
+	margin-right: 5px;
+}
+/* end switch region */
 
