@@ -25,7 +25,7 @@ var data = DataInsightManager.module("Entities",
         fields = new Entities.FieldCollection([]);
       }
       else{
-        //fields.fetch(tableName);
+        //fields.fetch({'data': {'table': tableName}});
         //测试数据
           fields = new Entities.FieldCollection([
             { fieldName:'字段1', type:"F", nickName:"备注名1"},

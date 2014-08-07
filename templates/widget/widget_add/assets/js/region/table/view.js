@@ -121,6 +121,7 @@ var data = DataInsightManager.module("TableRegion",
       }, 
       managetableFunction: function(){
         this.$(".connect-db-commit").html("连接中...");
+        this.$(".connect-db-commit").css("cursor","wait");
         var options = {
             "ip":     this.$("#connect_ip").val(),
             "port":   this.$("#connect_port").val(),
