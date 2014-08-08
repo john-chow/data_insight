@@ -511,11 +511,11 @@ def classifyFactors(req_data):
     # 找到轴上文字列和时间列，其并集就是msn_factor_list
 
     msn_factor_list = [axis_factor for axis_factor in axis_factor_list \
-                                if 'rgl' == axis_factor.getProperty('cmd') \
-                                    or 2 == axis_factor.getProperty('kind')]
+                                if Protocol.NoneFunc == axis_factor.getProperty(Protocol.Func) \
+                                    or 2 == axis_factor.getProperty(Protocol.Kind)]
     msu_factor_list = [axis_factor for axis_factor in axis_factor_list \
-                                if 'rgl' != axis_factor.getProperty('cmd') \
-                                    and 0 == axis_factor.getProperty('kind')]
+                                if Protocol.NoneFunc != axis_factor.getProperty(Protocol.Func) \
+                                    and 0 == axis_factor.getProperty(Protocol.Kind)]
 
     return {
         'msn':      msn_factor_list
@@ -704,8 +704,8 @@ class FactorHandler():
                 factor.setBelongToAxis('col')
 
             tmp_factors = msn_factors \
-                    if 'rgl' == factor.getProperty('cmd') \
-                        or 2 == factor.getProperty('kind')  \
+                    if Protocol.NoneFunc == factor.getProperty(Protocol.Func) \
+                        or 2 == factor.getProperty(Protocol.Kind)  \
                     else msu_factors
 
             tmp_factors.append(factor)
@@ -715,10 +715,10 @@ class FactorHandler():
         group_factor_list = []
         color_dict = req.get(Protocol.Color)
         if color_dict:
-            color_attr_table = color_dict.get(u'table', u'')
-            color_attr_column = color_dict.get('column', u'')
+            color_attr_table = color_dict.get(Protocol.Table, '')
+            color_attr_column = color_dict.get(Protocol.Attr, '')
             color_dict = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
-                                    (color_attr_table, color_attr_column, -1, u'')))
+                                    (color_attr_table, color_attr_column, -1, '')))
             factor = ElementFactor(**color_dict)
             factor.setBelongToAxis('group')
             group_factor_list.append(factor)

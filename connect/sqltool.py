@@ -53,14 +53,14 @@ class PysqlAgentManager():
 实现由外部输入Factor对象转换为Sql过程
 '''
 class PysqlAgent():
-    cnt             = ''
-    engine          = None
-    conn            = None
-    insp            = None
-
     def __init__(self, kwargs = None):
         if kwargs:
             self.connDb(**kwargs)
+
+        self.cnt = ''
+        self.engine = None
+        self.conn = None
+        self.insp = None
 
         # 聚合SqlRelation，用来存储和实现
         self.sql_relation = SqlRelation()
@@ -254,6 +254,7 @@ class SqlRelation():
         '''
         sel_list    = []
         for factor in selects:
+            pdb.set_trace()
             table           = self.getTableObj(factor)
             _t, c_str, kind, cmd = factor.extract()
             if not table.c.has_key(c_str):
@@ -395,10 +396,8 @@ class SqlRelation():
     def getTableObj(self, factor):
         t_str = factor.extract()[0]
 
-        '''
         if t_str not in self.rf.keys():
             self.reflectTables([t_str])
-        '''
 
         return self.rf.get(t_str)
 
