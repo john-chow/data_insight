@@ -28,10 +28,10 @@ define([
             DataInsightManager.commands.setHandler("board:draw", function(resp) {
                 if (resp.succ)      this.showView.draw(resp.data)
             });
+        }
 
         ShowRegion.Controller.prototype.showShowView    = function() {
              DataInsightManager.showRegion.show(this.showView, {preventDestroy: true});
-        }
         }
     })
 })
