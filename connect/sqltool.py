@@ -16,8 +16,8 @@ from sqlalchemy import *
 from widget.models import ExternalDbModel
 from widget.factor import ElementFactor
 from common.log import logger
-import common.protocol as Protocol
 from common.head import ConnNamedtuple
+import common.protocol as Protocol
 
 import pdb
 
@@ -61,9 +61,10 @@ class PysqlAgent():
         self.engine = None
         self.conn = None
         self.insp = None
+        self.rf = {}     
 
         # 聚合SqlRelation，用来存储和实现
-        self.sql_relation = SqlRelation()
+        self.sql_relation = SqlRelation(self.rf)
 
 
     def active(self):
@@ -131,7 +132,7 @@ class PysqlAgent():
         meta    = MetaData()
         for name in tables:
             # 建立过映射关系的不需要再建
-            if name in self.sql_relation.rf.keys():
+            if name in self.rf.keys():
                 continue
 
             try:
@@ -139,7 +140,7 @@ class PysqlAgent():
             except exc.NoSuchTableError:
                 raise Exception(u'No such table, name = {0}'.format(name))
             else:
-                self.sql_relation.registerNewTable(name, obj)
+                self.registerNewTable(name, obj)
 
 
     def getTablesInfo(self, tables):
@@ -148,7 +149,7 @@ class PysqlAgent():
         '''
         tables_info_list = []
         for t in tables:
-            if t not in self.sql_relation.rf.keys():
+            if t not in self.rf.keys():
                 self.reflectTables([t])
 
             info = self.insp.get_columns(t)
@@ -176,7 +177,7 @@ class PysqlAgent():
     def statFieldsType(self, tables):
         fields_info_list = []
         for t in tables:
-            if t not in self.sql_relation.rf.keys():
+            if t not in self.rf.keys():
                 self.reflectTables([t])
 
             info = self.insp.get_columns(t)
@@ -224,7 +225,7 @@ class PysqlAgent():
         metadata = MetaData()
         t = Table(name, metadata, *cols)
         metadata.create_all(self.engine)
-        self.sql_relation.registerNewTable(name, t)
+        self.registerNewTable(name, t)
         return t
 
 
@@ -241,12 +242,21 @@ class PysqlAgent():
         return self.conn.execute(sql_obj)
 
 
+    def registerNewTable(self, name, table):
+        """
+        增加新表后，登记记录
+        """
+        self.rf[name] = table
+
+
+
 
 '''
 实现数据库对象到SqlAlchemy对象的映射
 '''
 class SqlRelation():
-    rf              = {}
+    def __init__(self, rf):
+        self.rf = rf
 
     def cvtSelect(self, selects):
         '''
@@ -396,19 +406,13 @@ class SqlRelation():
     def getTableObj(self, factor):
         t_str = factor.extract()[0]
 
+        '''
         if t_str not in self.rf.keys():
             self.reflectTables([t_str])
+        '''
 
         return self.rf.get(t_str)
 
-
-    def registerNewTable(self, name, table):
-        """
-        增加新表后，登记记录
-        """
-        #table_helper = new TableHelper()
-        #setattr(table, 'helper', table_helper)
-        self.rf[name] = table
 
 
 

@@ -102,7 +102,8 @@ def handleTable(request):
             request.session[u'tables']  =   chosen_tables
             st.reflectTables(chosen_tables)
             logger.debug('redirect to widget/create')
-            return HttpResponseRedirect(u'/widget/create')
+            #return HttpResponseRedirect(u'/widget/create')
+            return MyHttpJsonResponse({'succ': True})
         else:
             res_dict = {u'succ': False, u'msg': u'xxxxx'}
             return HttpResponse(res_dict, content_type='application/json')
