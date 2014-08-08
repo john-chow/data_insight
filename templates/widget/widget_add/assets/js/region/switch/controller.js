@@ -6,7 +6,8 @@
 define([
 	'region/show/controller',
 	'region/design/controller',
-    'region/switch/view'
+    'region/switch/view',
+    'entities/switch',
 ], function() {
 	var SwitchController = DataInsightManager.module("SwitchRegion"
 	        , function(SwitchRegion, DataInsightManager, Backbone, Marionette, $, _) {
@@ -17,11 +18,8 @@ define([
 	        					var self = this;
 	        					this.designControllerList = [];
 	        					this.showControllerList = [];
+	        					this.collection = DataInsightManager.request("switch:entities");
 	        					this.newArea();
-	        					//监听切换工作区
-	        					SwitchRegion.Controller.on("area:switch", function(i){
-	        						self.switchArea(i)
-	        					})
 	        				},
 	        				/**
 	        				 * 新建工作簿(组件)
@@ -33,11 +31,26 @@ define([
 	        					showController.showShowView();
 	        					this.designControllerList.push(desingeController);
 	        					this.showControllerList.push(showController);
+	        					var switchEntity = DataInsightManager.request("switch:entity");
+	        					switchEntity.set("name",  desingeController.property.get("name"));
+	        					this.collection.add(switchEntity);
 	        					//显示工作簿,这里的model不是switch区域所独有的，从design区域的property model作为其model
-	        					var switchView = new SwitchRegion.Area({
-	        						model: desingeController.property
+	        					this.switchViews = new SwitchRegion.Areas({
+	        						collection: this.collection
 	        					});
-	        					DataInsightManager.switchRegion.show(switchView);
+	        					/*
+	        					 * 下面的两个监听一定要放在this.switchViews赋值后
+	        					 */
+	        					//监听新建工作区
+	        					this.switchViews.on("switch:new", function(){
+	        						this.newArea();
+	        					}, this)
+	        					//监听切换工作区,有前缀childview说明触发该事件的是孩子view
+	        					this.switchViews.on("childview:area:switch", function(childView, i){
+	        						this.switchArea(i);
+	        					}, this);
+	        					
+	        					DataInsightManager.switchRegion.show(this.switchViews);
 	        				},
 	        				/**
 	        				 * 切换工作簿
@@ -45,13 +58,10 @@ define([
 	        				 */
 	        				switchArea: function(index){
 	        					//获取指定工作簿
-	        					var selectDesignController = this.designControllerList[index];
-	        					var showShowController = this.showControllerList[index];
-	        					//显示工作簿
-	        					var switchView = new SwitchRegion.Area({
-	        						model: desingeController.property
-	        					});
-	        					DataInsightManager.switchRegion.show(switchView);
+	        					var desingeController = this.designControllerList[index];
+	        					var showController = this.showControllerList[index];
+	        					desingeController.showDesingView();
+	        					showController.showShowView();
 	        				}
 	        		}
 	        		obj.initialize();

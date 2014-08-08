@@ -29,9 +29,9 @@ define([
                 if (resp.succ)      this.showView.draw(resp.data)
             });
 
-        };
-
-        ShowRegion.Controller.prototype = {
+        ShowRegion.Controller.prototype.showShowView    = function() {
+             DataInsightManager.showRegion.show(this.showView, {preventDestroy: true});
+        }
         }
     })
 })

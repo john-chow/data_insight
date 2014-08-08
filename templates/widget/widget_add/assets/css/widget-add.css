@@ -90,10 +90,11 @@ body {
 #switch_region {
 	width: 100%;
 	margin:0;
-	height: 30px;
+	height: 28px;
 	background: white;
 	margin-top: 8px;
 	border-top: 1px solid #978C8C;
+	line-height: 2;
 }
 
 #info {
@@ -552,12 +553,12 @@ border: 1px solid #CAD8B7;
 }
 
 .filter-label{
-	height: 30px;
+	height: 32px;
 }
 
 #design-property input,#design-property select{
 	width: 300px;
-	height: 35px;
+	height: 40px;
 	margin: 0 0 15px 15px;
 }
 
@@ -583,14 +584,23 @@ border: 1px solid #CAD8B7;
 }
 /* end design«¯”Úcss */
 /* begin switch region */
-.workbook{
-	border: 1px solid #ddd;
-	padding: 2px;
+.workbooks{
+	padding-left: 13px;
+}
+.workbook, .new-workbook{
+	border: 1px solid #978C8C;
+	padding: 1px 24px;
 	border-top-left-radius: 8px;
 	border-top-right-radius: 8px;
-	background-color: #FCFFFA;
+	background-color: white;
 	cursor: default;
-	margin-right: 5px;
+	margin-left: 5px;
+	cursor: pointer;
+}
+.workbook.selected-workbook{
+	background : #CC33FF;
+	color: white;
+	cursor: default;
 }
 /* end switch region */
 
