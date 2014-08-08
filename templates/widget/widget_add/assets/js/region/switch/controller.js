@@ -19,6 +19,34 @@ define([
 	        					this.designControllerList = [];
 	        					this.showControllerList = [];
 	        					this.collection = DataInsightManager.request("switch:entities");
+	        					this.switchViews = new SwitchRegion.Areas();
+	        					/*
+	        					 * 下面的三个监听一定要放在this.switchViews赋值后
+	        					 */
+	        					//监听新建工作区
+	        					this.switchViews.on("switch:new", function(){
+	        						this.newArea();
+	        					}, this);
+	        					this.switchViews.on("switch:remove", function(i){
+	        						//删除前,选中隔壁的工作区
+	        						if(i > 0){
+	        							//this.switchArea(i - 1);
+	        							$(".workbook").get(i-1).click();
+	        						}else if(i == 0){
+	        							//this.switchArea(i + 1);
+	        							$(".workbook").get(i+1).click();
+	        						}
+	        						var removeDesignController = this.designControllerList[i];
+	        						this.designControllerList.remove(removeDesignController);
+	        						var removeShowController = this.showControllerList[i];
+	        						this.showControllerList.remove(removeShowController);
+	        						this.collection.remove(this.collection.at(i));
+	        					}, this);
+	        					//监听切换工作区,有前缀childview说明触发该事件的是孩子view
+	        					this.switchViews.on("childview:area:switch", function(childView, i){
+	        						this.switchArea(i);
+	        					}, this);
+	        					//默认新建一个工作簿
 	        					this.newArea();
 	        				},
 	        				/**
@@ -34,22 +62,9 @@ define([
 	        					var switchEntity = DataInsightManager.request("switch:entity");
 	        					switchEntity.set("name",  desingeController.property.get("name"));
 	        					this.collection.add(switchEntity);
-	        					//显示工作簿,这里的model不是switch区域所独有的，从design区域的property model作为其model
-	        					this.switchViews = new SwitchRegion.Areas({
-	        						collection: this.collection
-	        					});
-	        					/*
-	        					 * 下面的两个监听一定要放在this.switchViews赋值后
-	        					 */
-	        					//监听新建工作区
-	        					this.switchViews.on("switch:new", function(){
-	        						this.newArea();
-	        					}, this)
-	        					//监听切换工作区,有前缀childview说明触发该事件的是孩子view
-	        					this.switchViews.on("childview:area:switch", function(childView, i){
-	        						this.switchArea(i);
-	        					}, this);
 	        					
+	        					this.switchViews.collection = this.collection;
+	        					//显示工作簿
 	        					DataInsightManager.switchRegion.show(this.switchViews);
 	        				},
 	        				/**

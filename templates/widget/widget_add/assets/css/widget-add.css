@@ -587,7 +587,7 @@ border: 1px solid #CAD8B7;
 .workbooks{
 	padding-left: 13px;
 }
-.workbook, .new-workbook{
+.workbook, .new-workbook, .remove-workbook{
 	border: 1px solid #978C8C;
 	padding: 1px 24px;
 	border-top-left-radius: 8px;

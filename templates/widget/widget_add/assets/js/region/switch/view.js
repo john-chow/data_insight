@@ -21,6 +21,7 @@ define([
 					//通知controller去切换工作区
 					self.trigger("area:switch", self.$el.index());
 				});
+				//$(".workbooks").sortable();
 			}
 			
 		});
@@ -31,10 +32,27 @@ define([
 			template: switchsRegionTemplate,
 			childViewContainer: ".workbooks",
 			events: {
-				"click .new-workbook" : "newWorkBook"
+				"click .new-workbook"    : "newWorkBook",
+				"click .remove-workbook" : "removeWorkBook"
 			},
+			onShow: function(){
+				console.log("show")
+			},
+			/**
+			 * 新建工作簿
+			 */
 			newWorkBook: function(){
 				this.trigger("switch:new");
+			},
+			/**
+			 * 删除选中工作簿
+			 */
+			removeWorkBook: function(){
+				if($(".workbook").length == 1){
+					return;
+				}
+				this.trigger("switch:remove", $(".selected-workbook").index());
+				
 			}
 		})
 		
