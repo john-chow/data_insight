@@ -2,7 +2,7 @@
  * 配置marionette
  * Date: 2014-7-25
  */
-define([
+/*define([
 	'jquery',
 	'jquery-ui',
 	'json2',
@@ -16,7 +16,21 @@ define([
 	"region/show/route",
 	"csrf",
 	'tool'
-], function ($, JqueryUi, json, _, Backbone, Marionette, dialog, tableRoute, fieldRoute) {
+], function ($, JqueryUi, json, _, Backbone, Marionette, dialog, tableRoute, fieldRoute) {*/
+define([
+	'jquery',
+	'jquery-ui',
+	'json2',
+	'underscore',
+	'backbone',
+	'marionette',
+	'common/dialog',
+	'region/table/route',
+	'region/field/route',
+	"region/switch/route",
+	"csrf",
+	'tool'
+], function ($, JqueryUi, json, _, Backbone, Marionette, dialog, tableRoute, filedRoute, switchRoute) {
 
     // 设置ajax的content-type默认为application/x-www-form-urlencoded
     Backbone.emulateJSON = true;
