@@ -9,7 +9,7 @@ define([
             this.entrance = DataInsightManager.request("entrance:entity");
             this.showController = DataInsightManager.request("show:entity");
             this.showView = new ShowRegion.Board();
-            DataInsightManager.showRegion.show(this.showView);
+            DataInsightManager.showRegion.show(this.showView, {preventDestroy: true});
 
             DataInsightManager.commands.setHandler("widget:save", function() {
                 var snapshot = this.showView.getSnapshot();
