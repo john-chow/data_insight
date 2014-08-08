@@ -15,6 +15,7 @@ define([
 				this.$el.addClass("selected-workbook");
 				//监听切换工作区
 				this.$el.on("click", function(){
+					if($(this).hasClass("selected-workbook")) return;
 					$(".selected-workbook").removeClass("selected-workbook");
 					$(this).addClass("selected-workbook");
 					//通知controller去切换工作区

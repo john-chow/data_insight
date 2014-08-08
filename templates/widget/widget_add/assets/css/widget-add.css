@@ -553,12 +553,12 @@ border: 1px solid #CAD8B7;
 }
 
 .filter-label{
-	height: 30px;
+	height: 32px;
 }
 
 #design-property input,#design-property select{
 	width: 300px;
-	height: 35px;
+	height: 40px;
 	margin: 0 0 15px 15px;
 }
 
@@ -595,10 +595,12 @@ border: 1px solid #CAD8B7;
 	background-color: white;
 	cursor: default;
 	margin-left: 5px;
+	cursor: pointer;
 }
 .workbook.selected-workbook{
 	background : #CC33FF;
 	color: white;
+	cursor: default;
 }
 /* end switch region */
 
