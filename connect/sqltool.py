@@ -264,7 +264,6 @@ class SqlRelation():
         '''
         sel_list    = []
         for factor in selects:
-            pdb.set_trace()
             table           = self.getTableObj(factor)
             _t, c_str, kind, cmd = factor.extract()
             if not table.c.has_key(c_str):
@@ -276,7 +275,7 @@ class SqlRelation():
 
             if 2 == int(kind):
                 sel_obj = self.cvtTimeColumn(sel_obj, cmd)
-            elif 0 == int(kind) and u'rgl' != cmd:
+            elif 0 == int(kind) and Protocol.NoneFunc != cmd:
                 f       = self.cvtFunc(cmd)
                 sel_obj = f(sel_obj)
 

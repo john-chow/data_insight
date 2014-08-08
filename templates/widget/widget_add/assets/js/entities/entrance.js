@@ -25,6 +25,11 @@ define([
 
             register:           function(model) {
                 this.list.push(model)
+            },
+
+            // 此函数作用，本model不把服务器返回值设为属性
+            parse:              function() {
+                return {}
             }
         });
 
@@ -43,7 +48,7 @@ define([
                 var data = this.merge();
                 this.save(data, {
                     success:  function(m, resp) {
-                        DataInsightManager.commands.execute("board:draw")
+                        DataInsightManager.commands.execute("board:draw", resp)
                     }
                 })
             }
@@ -74,7 +79,7 @@ define([
                     , "additional":     new Entities.AdditionalEntrance
                 });
 
-                Entities.on("toFetch", $.proxy(this.onReqWidgetData, this));
+                Entities.on("design:initial", $.proxy(this.onReqWidgetData, this));
                 DataInsightManager.commands.setHandler(
                     "widget:save", $.proxy(this.save, this)
                 );
@@ -98,10 +103,14 @@ define([
                 return _.extend(drawData, additionalData)
             },
 
+            parse:              function() {
+                return {}
+            },
+
             onReqWidgetData:        function(e) {
                 var self = this;
                 self.fetch({
-                    "success":  function(m, resp) {
+                    success:  function(m, resp) {
                         e.func(resp.data, e.arg);
                     }
                 })

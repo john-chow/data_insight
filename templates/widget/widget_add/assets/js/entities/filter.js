@@ -1,7 +1,9 @@
 /**
  * 
  */
-define([], function () {
+define([
+    "entities/entrance"
+], function () {
 
 	var FilterEntity = DataInsightManager.module("Entities", function(Entities, DataInsightManager, Backbone, Marionette, $, _){
 		Entities.Filter = Backbone.Model.extend({

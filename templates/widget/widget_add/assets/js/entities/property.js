@@ -1,7 +1,9 @@
 /**
  * 
  */
-define([], function () {
+define([
+    "entities/entrance"
+], function () {
 
 	var PropertyEntity = DataInsightManager.module("Entities", function(Entities, DataInsightManager, Backbone, Marionette, $, _){
 		Entities.Property = Backbone.Model.extend({

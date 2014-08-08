@@ -58,9 +58,13 @@ def widgetCreate(request):
     if u'POST' == request.method:
         req_data = json.loads(request.POST.get('data', '{}'))
 
-        [tables, x, y, color, size, graph, image, name] \
-            = map(lambda arg: req_data.get(arg, u''), \
-                    ['tables', 'x', 'y', 'color', 'size', 'graph', 'image', 'name'])
+        [tables, graph, x, y, mapping, snapshot] \
+            = map(lambda i: req_data.get(i), \
+                [Protocol.Table, Protocol.Graph, Protocol.Xaxis, Protocol.Yaxis, \
+                Protocol.Mapping, Protocol.Snapshot])
+
+        color = mapping.get(Protocol.Color)
+        size = mapping.get(Protocol.Size)
 
         try:
             tables = json.dumps(tables)
@@ -74,7 +78,7 @@ def widgetCreate(request):
             widget = WidgetModel.objects.create( 
                 m_name='组件', m_table = tables, m_x=x, m_y=y, \
                 m_color = color, m_size = size, m_graph = graph, \
-                m_external_db = external_conn, m_pic = image  \
+                m_external_db = external_conn, m_pic = snapshot  \
             )
         except DatabaseError, e:
             logger.error(e[0])
@@ -258,11 +262,8 @@ def handleDraw(request):
 
     rsu = checkExtentData(req_data)
     if not rsu[0]:
-        return MyHttpJsonResponse({u'succ': False, u'msg': rsu[1]})
+        return MyHttpJsonResponse({'succ': False, 'msg': rsu[1]})
 
-    #try:
-        #hk      = request.session[u'hk']
-        #data    = genWidgetImageData(req_data, hk)
     try:
         hk       = request.session[u'hk']
         producer = DrawDataProducer(hk)
@@ -270,10 +271,10 @@ def handleDraw(request):
     except Exception, e:
         logger.debug("catch Exception: %s" % e)
         logExcInfo()
-        error_dict = {u'succ': False, u'msg': str(e)}
+        error_dict = {'succ': False, 'msg': str(e)}
         return MyHttpJsonResponse(error_dict)
     else:
-        backData = {u'succ': True, u'data': data}
+        backData = {'succ': True, 'data': data}
         return MyHttpJsonResponse(backData)
 
 
@@ -643,7 +644,7 @@ class DrawDataProducer():
         """
         生成数据，对外接口
         """
-        shape = req.get('graph')
+        shape = req.get(Protocol.Graph)
         echart = EChartManager().get_echart(shape)
         self.setDecorator(echart)
 

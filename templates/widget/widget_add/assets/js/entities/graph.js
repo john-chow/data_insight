@@ -1,8 +1,9 @@
 /**
  * 
  */
-define([], function () {
-
+define([
+    "entities/entrance"
+], function () {
 	var GraphEntity = DataInsightManager.module("Entities", 
 			function(Entities, DataInsightManager, Backbone, Marionette, $, _){
 		Entities.Graph = Backbone.Model.extend({
@@ -149,7 +150,7 @@ define([], function () {
 				this.x = data.x;
 				this.y = data.y;
 				this.mapping = data.mapping;
-				deffer.resolve();
+				defer.resolve();
 			},
 			/**
 			 * 获取图表类型对于的映射字段列表

@@ -5,6 +5,7 @@ from common.head import *
 import common.protocol as Protocol
 from widget.factor import ElementFactor
 from widget.map import getCityPM2dot5, getRailLine
+from common.log import logger
 
 
 class EChart():
@@ -400,6 +401,7 @@ class EChartManager():
             return WorldMap()
 
         else:
+            logger.error('shape = {}'.format(shape))
             raise Exception(u'Unknown pictrue shape')
 
 
