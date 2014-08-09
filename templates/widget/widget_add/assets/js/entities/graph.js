@@ -68,7 +68,7 @@ define([
 					this.trigger("change");//触发change事件;
 				}, this);
 
-                Entities.entranceFascade.register("draw", this)
+                Entities.entranceFascade.register("draw", this, "graph:change")
 				
 				//添加x轴被拖进来的元素
 				this.on("x:add", function(xItem){

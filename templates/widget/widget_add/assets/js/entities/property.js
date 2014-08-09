@@ -17,7 +17,7 @@ define([
 			initialize: function(){
 				var self = this;
 				this.listenChange();
-                Entities.entranceFascade.register("additional", this);
+                Entities.entranceFascade.register("additional", this, "property:change");
                 this.listenPropertyChange();
 			},
 			/**

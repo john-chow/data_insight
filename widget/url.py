@@ -12,6 +12,7 @@ urlpatterns = patterns('',
 	url(r'^create/$', 			views.widgetCreate),
 	url(r'^edit/(\w+)/$', 		views.widgetEdit,{'template_name': 'add.html'}, name='edit'),
 	url(r'^show/(\w+)/$', 		views.widgetShow),
+	url(r'^fetch/$', 		    views.fetch),
 
 	url(r'^distr/$', 			views.widgetOp, {'op': 'dis'}),
 	url(r'^delete/$', 			views.widgetOp, {'op': 'delete'}),

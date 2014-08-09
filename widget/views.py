@@ -55,7 +55,7 @@ def widgetCreate(request):
     """
     logger.debug("function widgetList() is called")
 
-    if u'POST' == request.method:
+    if 'POST' == request.method:
         req_data = json.loads(request.POST.get('data', '{}'))
 
         [tables, graph, x, y, mapping, snapshot] \
@@ -71,7 +71,7 @@ def widgetCreate(request):
         except ValueError, e:
             return MyHttpJsonResponse({u'succ': False, u'msg': u'arguments error'})
 
-        hk = request.session.get(u'hk')
+        hk = request.session.get('hk')
         external_conn = ExternalDbModel.objects.get(pk = hk)
 
         try:
@@ -96,7 +96,7 @@ def widgetCreate(request):
         tables  = request.session.get('tables')
 
         context = RequestContext(request)
-        dict = {u'content': json.dumps({u'tables': tables})}
+        dict = {'content': json.dumps({'tables': tables})}
         return render_to_response(u'add.html', dict, context)
 
 
@@ -174,17 +174,19 @@ def widgetEdit(request, widget_id, template_name):
                                         m_table = tables, \
                                         m_pic = image)
         except ValueError, e:
-            return MyHttpJsonResponse({u'succ': False, u'msg': u'arguments error'})
+            return MyHttpJsonResponse({'succ': False, 'msg': 'arguments error'})
         except Exception, e:
-            return MyHttpJsonResponse({u'succ': False, u'msg': u'异常情况'})
+            return MyHttpJsonResponse({'succ': False, 'msg': '异常情况'})
         else:
-            return MyHttpJsonResponse({u'succ': True, u'msg': u'修改成功'})
+            return MyHttpJsonResponse({'succ': True, 'msg': '修改成功'})
 
     else:
         context = RequestContext(request)
 
-        widget_model = get_object_or_404(WidgetModel, pk = widget_id)
-        request.session[u'widget_id'] = widget_id
+        widget = get_object_or_404(WidgetModel, pk = widget_id)
+
+        '''
+        request.session['widget_id'] = widget_id
 
         # 有没有直接把Model里面全部属性转换成dict的办法？ 
         req_data = widget_model.restoreReqDataDict()
@@ -205,6 +207,11 @@ def widgetEdit(request, widget_id, template_name):
             , 'aid':        json.dumps(aid_data)
         }
         return render_to_response(template_name, data, context)
+        '''
+
+        return render_to_response( \
+            'widget/widget_add/add.html', {'widget_id': widget_id}, context \
+        )
 
 
 @require_http_methods(['GET'])
@@ -215,17 +222,32 @@ def widgetShow(request, widget_id):
     try:
         widget_model    = WidgetModel.objects.select_related().get(pk = widget_id)
         req_data        = widget_model.restoreReqDataDict()
-        skin_id         = request.GET.get(u'skin_id')
+        skin_id         = request.GET.get('skin_id')
     except WidgetModel.DoesNotExist:
-        return HttpResponse({u'succ': False, u'msg': u'xxxxxxxxxxxx'})
+        return HttpResponse({'succ': False, 'msg': 'xxxxxxxxxxxx'})
     except ExternalDbModel.DoesNotExist:
-        return HttpResponse({u'succ': False, u'msg': u'yyyyyyyyyyyy'})
+        return HttpResponse({'succ': False, 'msg': 'yyyyyyyyyyyy'})
     else:
         hk              = widget_model.m_external_db.m_hk
         st              = PysqlAgentManager.stRestore(hk)
         st.reflectTables(json.loads(widget_model.m_table))
         image_data      = genWidgetImageData(req_data, hk)
-        return MyHttpJsonResponse({u'succ': True, u'widget_id':widget_id, u'data': image_data})
+        return MyHttpJsonResponse({'succ': True, 'widget_id':widget_id, 'data': image_data})
+
+
+@require_http_methods(['GET'])
+@login_required
+def fetch(request, widget_id):
+    """
+    获取场景的数据
+    """
+    try:
+        widget = WidgetModel.objects.get(pk = widget_id)
+    except WidgetModel.DoesNotExist, e:
+        return HttpResponse({'succ': False})
+
+    data = widget.restore()
+    return MyHttpJsonResponse({'succ': True, 'data': data})
 
 
 
@@ -265,7 +287,7 @@ def handleDraw(request):
         return MyHttpJsonResponse({'succ': False, 'msg': rsu[1]})
 
     try:
-        hk       = request.session[u'hk']
+        hk       = request.session['hk']
         producer = DrawDataProducer(hk)
         data    = producer.produce(req_data)
     except Exception, e:
@@ -622,6 +644,7 @@ def formatData(data_from_db, msu_factor_list, msn_factor_list, group_list, shape
 
     echart = EChartManager().get_echart(shape_in_use)
     return echart.makeData(data_from_db, msu_factor_list, msn_factor_list, group_list)
+
 
 @login_required
 def widgetAdd(request):
