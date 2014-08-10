@@ -64,7 +64,8 @@ class PysqlAgent():
         self.rf = {}     
 
         # 聚合SqlRelation，用来存储和实现
-        self.sql_relation = SqlRelation(self.rf)
+        self.storage = Storage(self.engine)
+        self.sql_relation = SqlRelation(self.storage)
 
 
     def active(self):
@@ -125,24 +126,6 @@ class PysqlAgent():
         return tables
 
 
-    def reflectTables(self, tables):
-        """
-        建立sa的对象与实际表的映射关系
-        """
-        meta    = MetaData()
-        for name in tables:
-            # 建立过映射关系的不需要再建
-            if name in self.rf.keys():
-                continue
-
-            try:
-                obj = Table(name, meta, autoload = True, autoload_with = self.engine)
-            except exc.NoSuchTableError:
-                raise Exception(u'No such table, name = {0}'.format(name))
-            else:
-                self.registerNewTable(name, obj)
-
-
     def getTablesInfo(self, tables):
         '''
         获取某数据表中全部列的分类情况
@@ -150,7 +133,7 @@ class PysqlAgent():
         tables_info_list = []
         for t in tables:
             if t not in self.rf.keys():
-                self.reflectTables([t])
+                self.reflect([t])
 
             info = self.insp.get_columns(t)
             dm_list, me_list, tm_list   = [], [], []
@@ -178,7 +161,7 @@ class PysqlAgent():
         fields_info_list = []
         for t in tables:
             if t not in self.rf.keys():
-                self.reflectTables([t])
+                self.reflect([t])
 
             info = self.insp.get_columns(t)
             fields_info = {}
@@ -199,25 +182,6 @@ class PysqlAgent():
         return fields_info_list
 
 
-
-    def makeSelectSql(self, selects, filter = [], groups = [], **kwargs):
-        '''
-        制作select形式的sql语句
-        '''
-        if not selects or len(selects) <= 0:
-            raise Exception(u'no selected content')
-
-        select_part  = self.sql_relation.cvtSelect(selects)
-        group_part  = self.sql_relation.cvtGroup(groups)
-
-        sql_obj = select(select_part)
-        if group_part:
-            sql_obj = sql_obj.group_by(*group_part)
-
-        logger.info(u'{0}'.format(str(sql_obj)))
-        return sql_obj
-
-
     def createTable(self, name, *cols):
         """
         新建数据表
@@ -225,7 +189,7 @@ class PysqlAgent():
         metadata = MetaData()
         t = Table(name, metadata, *cols)
         metadata.create_all(self.engine)
-        self.registerNewTable(name, t)
+        self.register(name, t)
         return t
 
 
@@ -241,22 +205,37 @@ class PysqlAgent():
         """
         return self.conn.execute(sql_obj)
 
+    def getSwither(self):
+        return self.sql_relation
 
-    def registerNewTable(self, name, table):
-        """
-        增加新表后，登记记录
-        """
-        self.rf[name] = table
-
-
+    def getStorage(self):
+        return self.storage
 
 
 '''
 实现数据库对象到SqlAlchemy对象的映射
 '''
 class SqlRelation():
-    def __init__(self, rf):
-        self.rf = rf
+    def __init__(self, storage):
+        self.storage = storage
+
+    def makeSelectSql(self, selects, filter = [], groups = [], **kwargs):
+        '''
+        制作select形式的sql语句
+        '''
+        if not selects or len(selects) <= 0:
+            raise Exception(u'no selected content')
+
+        select_part  = self.cvtSelect(selects)
+        group_part  = self.cvtGroup(groups)
+
+        sql_obj = select(select_part)
+        if group_part:
+            sql_obj = sql_obj.group_by(*group_part)
+
+        logger.info(u'{0}'.format(str(sql_obj)))
+        return sql_obj
+
 
     def cvtSelect(self, selects):
         '''
@@ -264,8 +243,8 @@ class SqlRelation():
         '''
         sel_list    = []
         for factor in selects:
-            table           = self.getTableObj(factor)
-            _t, c_str, kind, cmd = factor.extract()
+            tablename, c_str, kind, cmd = factor.extract()
+            table           = self.storage.getTable(tablename)
             if not table.c.has_key(c_str):
                 msg = u'can''t recongnize column name of {0}'.format(c_str)
                 logger.error(msg)
@@ -290,9 +269,9 @@ class SqlRelation():
         '''
         group_list  = []
         for factor in groups:
-            table   = self.getTableObj(factor)
-            c_str, kind_str, cmd_str  = map(lambda x: factor.getProperty(x), \
-                                            [Protocol.Attr, Protocol.Kind, Protocol.Cmd])
+            tablename, c_str, kind_str, cmd_str  = map(lambda x: factor.getProperty(x), \
+                                            [Protocol.Table, Protocol.Attr, Protocol.Kind, Protocol.Cmd])
+            table   = self.storage.getTable(tablename)
             if not table.c.has_key(c_str):
                 raise Exception(u'can''t recongnize column name of {0}' \
                                     .format(c_str))
@@ -328,8 +307,8 @@ class SqlRelation():
             return None
 
         for idx, j_unit in enumerate(joins[u'data']):
-            t_str, c_str = j_unit.get(u'table'), j_unit.get(u'column')
-            table   = self.getTableObj(t_str)
+            tablename, c_str = j_unit.get(u'table'), j_unit.get(u'column')
+            table   = self.storage.getTable(tablename)
             column  = getattr(table.c, c_str)
 
             if 0 == idx:
@@ -380,39 +359,57 @@ class SqlRelation():
         return f
 
 
-    def getColumnObj(self, factor):
+
+''''''''''''''''''''''''''''''''''
+'' 仓储类，用来记录被保存的数据表
+''''''''''''''''''''''''''''''''''
+class Storage():
+    def __init__(self, engine):
+        self.engine = engine
+
+    def reflect(self, names):
+        """
+        建立sa的对象与实际表的映射关系
+        """
+        meta    = MetaData()
+        for name in names:
+            # 建立过映射关系的不需要再建
+            if name in self.rf.keys():
+                continue
+
+            try:
+                obj = Table(name, meta, autoload = True, autoload_with = self.engine)
+            except exc.NoSuchTableError:
+                raise Exception(u'No such table, name = {0}'.format(name))
+            else:
+                self.register(name, obj)
+
+
+    def register(self, name, table):
+        self.rf[name] = table
+
+    def unregister(self, name):
+        if name in self.rf.keys():
+            del self.rf[name]
+
+    def getTable(self, name):
+        return self.rf[name]
+
+    def getColumn(self, factor):
         """
         根据数据表名和列名获取列对象
         """
-        table = self.getTableObj(factor)
-
-        '''
+        tablename, columnname = map(lambda x: factor.get(x), \
+                                    Protocol.Table, Protocol.Attr)
+        table = self.getTable(tablename)
         if not table:
             return None
-        '''
-
-        c_str = factor.getProperty(Protocol.Attr)
-
-        if not table.c.has_key(c_str):
+        if not table.c.has_key(columnname):
             msg = u'can''t recongnize column name of {0}'.format(c_str)
             logger.error(msg)
-            raise Exception(msg)
-
-        column = table.c.get(c_str)
+            return None
+        column = table.c.get(columnname)
         return column
-
-
-    def getTableObj(self, factor):
-        t_str = factor.extract()[0]
-
-        '''
-        if t_str not in self.rf.keys():
-            self.reflectTables([t_str])
-        '''
-
-        return self.rf.get(t_str)
-
-
 
 
 """

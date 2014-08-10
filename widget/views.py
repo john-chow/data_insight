@@ -82,12 +82,12 @@ def widgetCreate(request):
             )
         except DatabaseError, e:
             logger.error(e[0])
-            return MyHttpJsonResponse({u'succ': False   \
-                                        , u'msg': u'无法保存到数据库'})
+            return MyHttpJsonResponse({'succ': False   \
+                                        , 'msg': u'无法保存到数据库'})
         else:
             saveStyleArgs(request, widget)
 
-        return MyHttpJsonResponse({u'succ': True, u'wiId': widget.pk, \
+        return MyHttpJsonResponse({'succ': True, 'wiId': widget.pk, \
                                     u'msg': u'保存成功'})
     else:
         hk      = request.session.get(u'hk')
