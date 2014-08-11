@@ -9,6 +9,11 @@ var data = DataInsightManager.module("Entities",
 
     //定义Field模型
     Entities.Field = Backbone.Model.extend({
+      defaults: {
+        fieldName: "",
+        type: "",
+        nickName: "",
+      }
     });
 
     //定义Field集合
@@ -20,8 +25,9 @@ var data = DataInsightManager.module("Entities",
     //定义接口
     var API = {
       //获取表集合
-      getFieldEntities: function(tableName){
-        var fields;
+      getFieldEntities: function(fields){
+
+/*        var fields;
         var defer = $.Deferred();
         fields = new Entities.FieldCollection();
         if(tableName==undefined){
@@ -48,13 +54,14 @@ var data = DataInsightManager.module("Entities",
             },
           });
         }
-        return defer.promise();
+        return defer.promise();*/
+        return new Entities.FieldCollection(fields);
       }
     };
 
     //设定request获取
-    DataInsightManager.reqres.setHandler("field:entities", function(tableName){
-      return API.getFieldEntities(tableName);
+    DataInsightManager.reqres.setHandler("field:entities", function(fields){
+      return API.getFieldEntities(fields);
     });
   });
 

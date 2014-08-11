@@ -10,20 +10,18 @@ define([
 	var data = DataInsightManager.module("FieldRegion", function(FieldRegion, DataInsightManager,
 	Backbone, Marionette, $, _){
 		FieldRegion.Controller = {
-			ListFields: function(tableName){
+			ListFields: function(fields){
 
 			//获取数据
-			var fieldEntities = DataInsightManager.request("field:entities",tableName);
-
-			$.when(fieldEntities).done(function(fields){
+			var fieldsCollection = DataInsightManager.request("field:entities",fields);
 
 		    var fieldsListView = new FieldRegion.FieldView({
-				collection: fields
+				collection: fieldsCollection
 			});
 			
 			fieldsListView.on("show:manage-dialog", function(){
 				var fieldManageView = new FieldRegion.FieldManageDialog({
-					collection: fields
+					collection: fieldsCollection
 				});
 
 				fieldManageView.on("model:set", function(model, options){
@@ -48,7 +46,7 @@ define([
 							dataList[j][temp[0]]=temp[1];
 						}
 					}
-					//console.log(dataList);
+
 					//ajax上传数据
 					$.ajax({
 		             	type: "POST",
@@ -57,7 +55,7 @@ define([
 		            	dataType: "json",
 		            	success: function(data){
 		            		DataInsightManager.dialogRegion.$el.modal("hide");
-							DataInsightManager.trigger('showField', tableName);
+							//DataInsightManager.trigger('showField', tableName);
 		                }
 		          	});
 				});
@@ -66,7 +64,6 @@ define([
 	        
 			//显示View
 			DataInsightManager.fieldRegion.show(fieldsListView);
-		});
 		}
 		}
 	});
