@@ -10,13 +10,14 @@ PysqlAgent和SqlRelation是聚合关系
 import sys
 
 from sqlalchemy import create_engine, inspect, Table, MetaData, types, \
-                        func, select, extract, Column
+                        func, select, extract, Column, engine
 from sqlalchemy import *
 
 from widget.models import ExternalDbModel
 from widget.factor import ElementFactor
 from common.log import logger
 from common.head import ConnNamedtuple
+from common.tool import logExcInfo
 import common.protocol as Protocol
 
 import pdb
@@ -58,13 +59,13 @@ class PysqlAgent():
             self.connDb(**kwargs)
 
         self.cnt = ''
-        self.engine = None
+        self.engine = {}
         self.conn = None
         self.insp = None
         self.rf = {}     
 
         # 聚合SqlRelation，用来存储和实现
-        self.storage = Storage(self.engine)
+        self.storage = Storage()
         self.sql_relation = SqlRelation(self.storage)
 
 
@@ -79,7 +80,14 @@ class PysqlAgent():
                 self.insp       = inspect(self.engine)
             except Exception, e:
                 return False
+
+            self.broadcast()
+
         return self
+
+
+    def broadcast(self):
+        self.storage.observe(self.engine)
 
 
     def restore(self, hk):
@@ -360,11 +368,12 @@ class SqlRelation():
 
 
 
-''''''''''''''''''''''''''''''''''
-'' 仓储类，用来记录被保存的数据表
-''''''''''''''''''''''''''''''''''
+# 仓储类，用来记录被保存的数据表
 class Storage():
-    def __init__(self, engine):
+    def __init__(self):
+        self.rf = {}
+
+    def observe(self, engine):
         self.engine = engine
 
     def reflect(self, names):
@@ -379,7 +388,8 @@ class Storage():
 
             try:
                 obj = Table(name, meta, autoload = True, autoload_with = self.engine)
-            except exc.NoSuchTableError:
+            except Exception, e:
+                logExcInfo()
                 raise Exception(u'No such table, name = {0}'.format(name))
             else:
                 self.register(name, obj)
@@ -393,7 +403,12 @@ class Storage():
             del self.rf[name]
 
     def getTable(self, name):
-        return self.rf[name]
+        table = self.rf.get(name)
+        if not table:
+            self.reflect([name])
+            table = self.rf.get(name)
+
+        return table
 
     def getColumn(self, factor):
         """
