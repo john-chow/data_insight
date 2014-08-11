@@ -406,7 +406,7 @@ class Storage():
 
         # 建立过映射关系的不需要再建
         if name in self.rf.keys():
-            continue
+            return
 
         try:
             obj = Table(name, meta, autoload = True, autoload_with = self.engine)
