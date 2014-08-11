@@ -267,31 +267,27 @@ body {
 	margin-top: 0;
 }
 
-.table-manage-content>div {
-	float: left;
+#table_manage_ul{
+	list-style: none;
+	max-height: 450px;
+	padding:0;
 }
 
-.table-manage-content select{
-	height: 200px;
-	width: 245px;
+#table_manage_ul li {
+	padding: 3px 0 3px 10px;
+	font-size: 18px;
+	cursor:pointer;
 }
 
-.table-manage-unselect {
-
+#table_manage_ul li:hover {
+	background-color: #F1DDCA;
+	border-radius: 3px;
 }
 
-.table-manage-select {
-
+#table_manage_ul input {
+	margin-right: 5px;
 }
 
-.table-manage-operate {
-	margin:90px 10px 0 10px;
-}
-
-.table-manage-operate button{
-	display: block;
-	margin:10px 0;
-}
 
 #table_manage_new {
 	text-align: right;
@@ -582,6 +578,23 @@ border: 1px solid #CAD8B7;
 	width: 450px;
 	height: 35px;
 }
+
+#connect_error {
+	float: left;
+	color: rgb(224, 55, 55);
+	font-size: 17px;
+	display: none;
+}
+
+.table-manage-operate {
+	float:left;
+	margin: 0;
+}
+
+.table-manage-operate a {
+	margin-left:10px;
+}
+
 /* end design«¯”Úcss */
 /* begin switch region */
 .workbooks{
@@ -603,4 +616,5 @@ border: 1px solid #CAD8B7;
 	cursor: default;
 }
 /* end switch region */
+
 

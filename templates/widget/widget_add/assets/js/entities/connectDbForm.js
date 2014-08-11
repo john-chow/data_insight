@@ -10,9 +10,9 @@
 		Entities.connectForm = Backbone.Model.extend({
 			url: "/connect/db/",
 			defaults: {
-				"ip": 		"10.1.50.125",
+				"ip": 		"127.0.0.1",
 				"port": 	"5432",
-				"db": 		"data_insight",
+				"db": 		"test",
 				"user": 	"postgres",
 				"pwd": 		"",
 				"kind": 	"",
