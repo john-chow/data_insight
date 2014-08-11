@@ -867,8 +867,3 @@ class AllUpdator():
 
 
 
-
-  
-
-
-

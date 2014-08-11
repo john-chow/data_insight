@@ -49,7 +49,7 @@ def handleConn(request):
     """
     logger.warning("function handleConn() is called")
 
-    if u'POST' == request.method:
+    if 'POST' == request.method:
         post_data = json.loads(request.POST.get('data'))
         if not post_data:
             return MyHttpJsonResponse({'succ': False, 'msg': 'xxxxx'})
@@ -89,7 +89,7 @@ def handleTable(request):
     logger.debug("function handleTable() is called")
 
     if u'POST' == request.method:
-        chosen_tables   = request.POST.getlist(u'table', u'[]')
+        chosen_tables   = request.POST.getlist('table', '[]')
 
         hk  = request.session.get(u'hk')
         st  = PysqlAgentManager.stRestore(hk)
@@ -99,61 +99,48 @@ def handleTable(request):
         unkonwn_tables = list(set(chosen_tables) - set(tables_list))
 
         if 0 == len(unkonwn_tables):
-            request.session[u'tables']  =   chosen_tables
+            request.session['tables']  =   chosen_tables
             st.reflectTables(chosen_tables)
-            logger.debug('redirect to widget/create')
-            #return HttpResponseRedirect(u'/widget/create')
-            return MyHttpJsonResponse({'succ': True})
+            return HttpResponseRedirect('/connect/field')
         else:
-            res_dict = {u'succ': False, u'msg': u'xxxxx'}
+            res_dict = {'succ': False, 'msg': 'xxxxx'}
             return HttpResponse(res_dict, content_type='application/json')
     else:
-        hk  = request.session.get(u'hk')
+        hk  = request.session.get('hk')
         st  = PysqlAgentManager.stRestore(hk)
         tables_list = st.listTables()
 
-        return MyHttpJsonResponse( {u'succ': True, \
-                                    u'data': json.dumps(tables_list)} )
+        return MyHttpJsonResponse( {'succ': True, \
+                                    'data': json.dumps(tables_list)} )
 
 
 
-@require_http_methods(['GET'])
-def getTableInfo(request):
+#@require_http_methods(['GET'])
+def handleColumn(request):
     """
     获取数据表信息
     """
-    logger.debug("function getTableInfo() is called")
+    logger.debug("function handleColumn() is called")
 
     hk = request.session.get('hk')
     if not hk:
         return MyHttpJsonResponse(  \
-            {u'succ': False, u'msg': u'Connect db first'}   \
+            {'succ': False, 'msg': 'Connect db first'}   \
         )
 
     try:
         st = PysqlAgentManager.stRestore(hk)
     except Exception, e:
         return MyHttpJsonResponse(  \
-            {u'succ': False, u'msg': u'Connect db first'}   \
+            {'succ': False, 'msg': 'Connect db first'}   \
         )
 
-    tables = json.loads(request.GET.get(u'tables'))
+    tables = json.loads(request.GET.get('tables'))
     tables_info_list = st.getTablesInfo(tables)
 
     res_dict = {u'succ': True, u'data': tables_info_list}
     return MyHttpJsonResponse(res_dict)
 
-
-
-@login_required
-def handleFields(request):
-    """
-    关于某数据表中全部列信息
-    """
-    if 'POST' == request.method:
-        pass
-    else:
-        pass
 
 
 @login_required
@@ -197,29 +184,32 @@ def handleField(request):
         return MyHttpJsonResponse({'succ': True, 'msg': 'xxxxxxxxx'})
 
     else:
-        table = request.GET.get('table')
-        if not table:
+        tables = request.GET.getlist('tables')
+        if (not tables) or len(tables) < 1:
             return MyHttpJsonResponse({'succ': False, 'msg': 'yyyyy'})
 
-        obj = FieldsInfoModel.objects.filter( \
-            m_user = user, m_conn = conn, m_table = table \
-        )
+        data = []
+        for t in tables:
+            obj = FieldsInfoModel.objects.filter( \
+                m_user = user, m_conn = conn, m_table = t \
+            )
 
-        if obj:
-            types_dict = obj.getTypesDict()
-            nicknames_dict = obj.getNicknamesDict()
-        else:
-            [types_dict] = st.statFieldsType([table])
-            nicknames_dict = dict(zip(types_dict.keys(), [''] * len(types_dict)))
+            if obj:
+                types_dict = obj.getTypesDict()
+                nicknames_dict = obj.getNicknamesDict()
+            else:
+                types_dict = st.statFieldsType(t)
+                nicknames_dict = dict(zip(types_dict.keys(), [''] * len(types_dict)))
 
-        fields_list     = types_dict.keys()
-        types_list      = types_dict.values()
-        nicknames_list  = [nicknames_dict[i] for i in fields_list]
-        data = {
-            'fields':       fields_list
-            , 'types':      types_list
-            , 'nicknames':  nicknames_list
-        }
+            fields_list     = types_dict.keys()
+            types_list      = types_dict.values()
+            nicknames_list  = [nicknames_dict[i] for i in fields_list]
+            each_data = {
+                'fields':       fields_list
+                , 'types':      types_list
+                , 'nicknames':  nicknames_list
+            }
+            data.append(each_data)
 
         return MyHttpJsonResponse({'succ': True, 'data': json.dumps(data)})
 

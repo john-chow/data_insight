@@ -141,7 +141,7 @@ class PysqlAgent():
         tables_info_list = []
         for t in tables:
             if t not in self.rf.keys():
-                self.reflect([t])
+                self.reflect(t)
 
             info = self.insp.get_columns(t)
             dm_list, me_list, tm_list   = [], [], []
@@ -165,11 +165,12 @@ class PysqlAgent():
 
         return tables_info_list
 
+
     def statFieldsType(self, tables):
         fields_info_list = []
         for t in tables:
             if t not in self.rf.keys():
-                self.reflect([t])
+                self.reflect(t)
 
             info = self.insp.get_columns(t)
             fields_info = {}
@@ -188,6 +189,27 @@ class PysqlAgent():
             fields_info_list.append(fields_info)
 
         return fields_info_list
+
+
+    def statFieldsType(self, tablename):
+        if tablename not in self.rf.keys():
+            self.storage.reflect(tablename)
+
+        info = self.insp.get_columns(tablename)
+        types = {}
+        for item in info:
+            fieldtype    = item['type']
+            fieldname    = item['name']
+
+            # 增加字段标记数字列和非数字列
+            if isinstance(fieldtype, (types.Numeric, types.Integer)):
+                types[fieldname] = Protocol.NumericType
+            elif isinstance(fieldtype, (types.Date, types.DateTime)):
+                types[fieldname] = Protocol.TimeType
+            else:
+                types[fieldname] = Protocol.FactorType
+
+        return types
 
 
     def createTable(self, name, *cols):
@@ -376,23 +398,23 @@ class Storage():
     def observe(self, engine):
         self.engine = engine
 
-    def reflect(self, names):
+    def reflect(self, name):
         """
         建立sa的对象与实际表的映射关系
         """
         meta    = MetaData()
-        for name in names:
-            # 建立过映射关系的不需要再建
-            if name in self.rf.keys():
-                continue
 
-            try:
-                obj = Table(name, meta, autoload = True, autoload_with = self.engine)
-            except Exception, e:
-                logExcInfo()
-                raise Exception(u'No such table, name = {0}'.format(name))
-            else:
-                self.register(name, obj)
+        # 建立过映射关系的不需要再建
+        if name in self.rf.keys():
+            continue
+
+        try:
+            obj = Table(name, meta, autoload = True, autoload_with = self.engine)
+        except Exception, e:
+            logExcInfo()
+            raise Exception(u'No such table, name = {0}'.format(name))
+        else:
+            self.register(name, obj)
 
 
     def register(self, name, table):
@@ -405,7 +427,7 @@ class Storage():
     def getTable(self, name):
         table = self.rf.get(name)
         if not table:
-            self.reflect([name])
+            self.reflect(name)
             table = self.rf.get(name)
 
         return table
