@@ -1,7 +1,9 @@
 /**
  * 
  */
-define([], function () {
+define([
+    "entities/entrance"
+], function () {
 
 	var FilterEntity = DataInsightManager.module("Entities", function(Entities, DataInsightManager, Backbone, Marionette, $, _){
 		Entities.Filter = Backbone.Model.extend({
@@ -14,7 +16,7 @@ define([], function () {
 				//创建状态，忽略抓取数据和触发filter:change的顺序，在filter模型改变的时候立即触发filter:change事件
 				this.listenChange();
 
-                Entities.entranceFascade.register("draw", this)
+                Entities.entranceFascade.register("draw", this, "filter:change")
 			},
 			/**
 			 * 抓取数据，这里触发widget模型去后台抓取数据

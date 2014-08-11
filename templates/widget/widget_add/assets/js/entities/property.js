@@ -1,7 +1,9 @@
 /**
  * 
  */
-define([], function () {
+define([
+    "entities/entrance"
+], function () {
 
 	var PropertyEntity = DataInsightManager.module("Entities", function(Entities, DataInsightManager, Backbone, Marionette, $, _){
 		Entities.Property = Backbone.Model.extend({
@@ -15,7 +17,7 @@ define([], function () {
 			initialize: function(){
 				var self = this;
 				this.listenChange();
-                Entities.entranceFascade.register("additional", this);
+                Entities.entranceFascade.register("additional", this, "property:change");
                 this.listenPropertyChange();
 			},
 			/**

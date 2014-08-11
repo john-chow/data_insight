@@ -1,8 +1,9 @@
 /**
  * 
  */
-define([], function () {
-
+define([
+    "entities/entrance"
+], function () {
 	var GraphEntity = DataInsightManager.module("Entities", 
 			function(Entities, DataInsightManager, Backbone, Marionette, $, _){
 		Entities.Graph = Backbone.Model.extend({
@@ -16,6 +17,15 @@ define([], function () {
 				color: 'white',//组件的颜色映射属性
 				size: 1,//组件大小映射属性
 				fill: ''//组件填充字段映射属性*/				
+			},
+			/**
+			 * 该方法修复backbone里面数组属性为全局变量的bug，如果backbone里面有数组属性，要给这个
+			 * 数组属性再添加一个元素进去，调用这个push方法，不要调用js Array的push方法
+			 */
+			push: function(arg, val) {
+			    var arr = _.clone(this.get(arg));
+			    arr.push(val);
+			    this.set(arg, arr);
 			},
 			initialize: function(){
 				var self = this;
@@ -67,19 +77,19 @@ define([], function () {
 					this.trigger("change");//触发change事件;
 				}, this);
 
-                Entities.entranceFascade.register("draw", this)
+                Entities.entranceFascade.register("draw", this, "graph:change")
 				
 				//添加x轴被拖进来的元素
 				this.on("x:add", function(xItem){
-					this.get("x").push(xItem);
+					this.push("x", xItem);
 					this.trigger("change");//触发change事件
-				});
+				}, this);
 				
 				//添加y轴被拖进来的元素
 				this.on("y:add", function(yItem){
-					this.get("y").push(yItem);
+					this.push("y", yItem);
 					this.trigger("change");//触发change事件
-				});
+				}, this);
 				
 				//监听通过模态框修改x轴属性的变化,因为是垮model的所以绑定在Entities上
 				Entities.on("x:change", function(data){
@@ -149,7 +159,7 @@ define([], function () {
 				this.x = data.x;
 				this.y = data.y;
 				this.mapping = data.mapping;
-				deffer.resolve();
+				defer.resolve();
 			},
 			/**
 			 * 获取图表类型对于的映射字段列表

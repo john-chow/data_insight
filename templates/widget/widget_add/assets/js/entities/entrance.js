@@ -12,19 +12,23 @@ define([
         Entities.BaseEntrance = Backbone.Model.extend({
             initialize:          function() {
                 this.list   = [];
-                this.listen && this.listen();
             },
 
             merge:              function() {
                 var data = {};
                 $.each(this.list, function(i, m) {
-                    $.merge(data, m.toJSON())
+                    data = _.extend(data, m.toJSON())
                 })
                 return data
             },
 
             register:           function(model) {
                 this.list.push(model)
+            },
+
+            // 此函数作用，本model不把服务器返回值设为属性
+            parse:              function() {
+                return {}
             }
         });
 
@@ -33,17 +37,17 @@ define([
          * 图表形成类
          */
         Entities.DrawEntrance = Entities.BaseEntrance.extend({
-            url:                "xxx",
+            url:                "/widget/draw/",
 
-            listen:             function() {
-                Entities.on("graph:change filter:change", $.proxy(this.draw, this));
+            listen:             function(name) {
+                Entities.on(name, $.proxy(this.onChange, this));
             },
 
-            draw:               function() {
+            onChange:               function() {
                 var data = this.merge();
                 this.save(data, {
                     success:  function(m, resp) {
-                        DataInsightManager.commands.execute("board:draw")
+                        DataInsightManager.commands.execute("board:draw", resp)
                     }
                 })
             }
@@ -61,7 +65,12 @@ define([
          * 对外提供的接口类，组件的save和fetch的通道
          */
         Entities.EntranceFascade = Backbone.Model.extend({
-        	url:                "xxx",
+        	url:                function() {
+                if (window.widgetId)       
+                    return "/widget/edit/"
+                else        
+                    return "/widget/create/"
+            },
         	
             initialize:     function() {
                 this.set({
@@ -69,14 +78,16 @@ define([
                     , "additional":     new Entities.AdditionalEntrance
                 });
 
-                Entities.on("toFetch", $.proxy(this.onReqWidgetData, this));
+                Entities.on("design:initial", $.proxy(this.onReqWidgetData, this));
                 DataInsightManager.commands.setHandler(
                     "widget:save", $.proxy(this.save, this)
                 );
             },
 
-            register:       function(kind, model) {
-                this.get(kind).register(model);
+            register:       function(kind, model, changeEvent) {
+                var concreteModel = this.get(kind);
+                concreteModel.register(model);
+                concreteModel.listen && concreteModel.listen(changeEvent)
             },
 
             save:           function() {
@@ -90,13 +101,17 @@ define([
             merge:          function() {
                 var drawData = this.drawModel.merge();
                 var additionalData = this.additionalModel.merge();
-                return $.extend({}, drawData, additionalData)
+                return _.extend(drawData, additionalData)
+            },
+
+            parse:              function() {
+                return {}
             },
 
             onReqWidgetData:        function(e) {
                 var self = this;
                 self.fetch({
-                    "success":  function(m, resp) {
+                    success:  function(m, resp) {
                         e.func(resp.data, e.arg);
                     }
                 })

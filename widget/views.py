@@ -55,26 +55,30 @@ def widgetCreate(request):
     """
     logger.debug("function widgetList() is called")
 
-    if u'POST' == request.method:
+    if 'POST' == request.method:
         req_data = json.loads(request.POST.get('data', '{}'))
 
-        [tables, x, y, color, size, graph, image, name] \
-            = map(lambda arg: req_data.get(arg, u''), \
-                    ['tables', 'x', 'y', 'color', 'size', 'graph', 'image', 'name'])
+        [tables, graph, x, y, mapping, snapshot] \
+            = map(lambda i: req_data.get(i), \
+                [Protocol.Table, Protocol.Graph, Protocol.Xaxis, Protocol.Yaxis, \
+                Protocol.Mapping, Protocol.Snapshot])
+
+        color = mapping.get(Protocol.Color)
+        size = mapping.get(Protocol.Size)
 
         try:
             tables = json.dumps(tables)
         except ValueError, e:
             return MyHttpJsonResponse({u'succ': False, u'msg': u'arguments error'})
 
-        hk = request.session.get(u'hk')
+        hk = request.session.get('hk')
         external_conn = ExternalDbModel.objects.get(pk = hk)
 
         try:
             widget = WidgetModel.objects.create( 
                 m_name='组件', m_table = tables, m_x=x, m_y=y, \
                 m_color = color, m_size = size, m_graph = graph, \
-                m_external_db = external_conn, m_pic = image  \
+                m_external_db = external_conn, m_pic = snapshot  \
             )
         except DatabaseError, e:
             logger.error(e[0])
@@ -92,7 +96,7 @@ def widgetCreate(request):
         tables  = request.session.get('tables')
 
         context = RequestContext(request)
-        dict = {u'content': json.dumps({u'tables': tables})}
+        dict = {'content': json.dumps({'tables': tables})}
         return render_to_response(u'add.html', dict, context)
 
 
@@ -170,17 +174,19 @@ def widgetEdit(request, widget_id, template_name):
                                         m_table = tables, \
                                         m_pic = image)
         except ValueError, e:
-            return MyHttpJsonResponse({u'succ': False, u'msg': u'arguments error'})
+            return MyHttpJsonResponse({'succ': False, 'msg': 'arguments error'})
         except Exception, e:
-            return MyHttpJsonResponse({u'succ': False, u'msg': u'异常情况'})
+            return MyHttpJsonResponse({'succ': False, 'msg': '异常情况'})
         else:
-            return MyHttpJsonResponse({u'succ': True, u'msg': u'修改成功'})
+            return MyHttpJsonResponse({'succ': True, 'msg': '修改成功'})
 
     else:
         context = RequestContext(request)
 
-        widget_model = get_object_or_404(WidgetModel, pk = widget_id)
-        request.session[u'widget_id'] = widget_id
+        widget = get_object_or_404(WidgetModel, pk = widget_id)
+
+        '''
+        request.session['widget_id'] = widget_id
 
         # 有没有直接把Model里面全部属性转换成dict的办法？ 
         req_data = widget_model.restoreReqDataDict()
@@ -201,6 +207,11 @@ def widgetEdit(request, widget_id, template_name):
             , 'aid':        json.dumps(aid_data)
         }
         return render_to_response(template_name, data, context)
+        '''
+
+        return render_to_response( \
+            'widget/widget_add/add.html', {'widget_id': widget_id}, context \
+        )
 
 
 @require_http_methods(['GET'])
@@ -211,17 +222,32 @@ def widgetShow(request, widget_id):
     try:
         widget_model    = WidgetModel.objects.select_related().get(pk = widget_id)
         req_data        = widget_model.restoreReqDataDict()
-        skin_id         = request.GET.get(u'skin_id')
+        skin_id         = request.GET.get('skin_id')
     except WidgetModel.DoesNotExist:
-        return HttpResponse({u'succ': False, u'msg': u'xxxxxxxxxxxx'})
+        return HttpResponse({'succ': False, 'msg': 'xxxxxxxxxxxx'})
     except ExternalDbModel.DoesNotExist:
-        return HttpResponse({u'succ': False, u'msg': u'yyyyyyyyyyyy'})
+        return HttpResponse({'succ': False, 'msg': 'yyyyyyyyyyyy'})
     else:
         hk              = widget_model.m_external_db.m_hk
         st              = PysqlAgentManager.stRestore(hk)
         st.reflectTables(json.loads(widget_model.m_table))
         image_data      = genWidgetImageData(req_data, hk)
-        return MyHttpJsonResponse({u'succ': True, u'widget_id':widget_id, u'data': image_data})
+        return MyHttpJsonResponse({'succ': True, 'widget_id':widget_id, 'data': image_data})
+
+
+@require_http_methods(['GET'])
+@login_required
+def fetch(request, widget_id):
+    """
+    获取场景的数据
+    """
+    try:
+        widget = WidgetModel.objects.get(pk = widget_id)
+    except WidgetModel.DoesNotExist, e:
+        return HttpResponse({'succ': False})
+
+    data = widget.restore()
+    return MyHttpJsonResponse({'succ': True, 'data': data})
 
 
 
@@ -258,22 +284,19 @@ def handleDraw(request):
 
     rsu = checkExtentData(req_data)
     if not rsu[0]:
-        return MyHttpJsonResponse({u'succ': False, u'msg': rsu[1]})
+        return MyHttpJsonResponse({'succ': False, 'msg': rsu[1]})
 
-    #try:
-        #hk      = request.session[u'hk']
-        #data    = genWidgetImageData(req_data, hk)
     try:
-        hk       = request.session[u'hk']
+        hk       = request.session['hk']
         producer = DrawDataProducer(hk)
         data    = producer.produce(req_data)
     except Exception, e:
         logger.debug("catch Exception: %s" % e)
         logExcInfo()
-        error_dict = {u'succ': False, u'msg': str(e)}
+        error_dict = {'succ': False, 'msg': str(e)}
         return MyHttpJsonResponse(error_dict)
     else:
-        backData = {u'succ': True, u'data': data}
+        backData = {'succ': True, 'data': data}
         return MyHttpJsonResponse(backData)
 
 
@@ -511,11 +534,11 @@ def classifyFactors(req_data):
     # 找到轴上文字列和时间列，其并集就是msn_factor_list
 
     msn_factor_list = [axis_factor for axis_factor in axis_factor_list \
-                                if 'rgl' == axis_factor.getProperty('cmd') \
-                                    or 2 == axis_factor.getProperty('kind')]
+                                if Protocol.NoneFunc == axis_factor.getProperty(Protocol.Func) \
+                                    or 2 == axis_factor.getProperty(Protocol.Kind)]
     msu_factor_list = [axis_factor for axis_factor in axis_factor_list \
-                                if 'rgl' != axis_factor.getProperty('cmd') \
-                                    and 0 == axis_factor.getProperty('kind')]
+                                if Protocol.NoneFunc != axis_factor.getProperty(Protocol.Func) \
+                                    and 0 == axis_factor.getProperty(Protocol.Kind)]
 
     return {
         'msn':      msn_factor_list
@@ -622,6 +645,7 @@ def formatData(data_from_db, msu_factor_list, msn_factor_list, group_list, shape
     echart = EChartManager().get_echart(shape_in_use)
     return echart.makeData(data_from_db, msu_factor_list, msn_factor_list, group_list)
 
+
 @login_required
 def widgetAdd(request):
     """
@@ -643,7 +667,7 @@ class DrawDataProducer():
         """
         生成数据，对外接口
         """
-        shape = req.get('graph')
+        shape = req.get(Protocol.Graph)
         echart = EChartManager().get_echart(shape)
         self.setDecorator(echart)
 
@@ -704,8 +728,8 @@ class FactorHandler():
                 factor.setBelongToAxis('col')
 
             tmp_factors = msn_factors \
-                    if 'rgl' == factor.getProperty('cmd') \
-                        or 2 == factor.getProperty('kind')  \
+                    if Protocol.NoneFunc == factor.getProperty(Protocol.Func) \
+                        or 2 == factor.getProperty(Protocol.Kind)  \
                     else msu_factors
 
             tmp_factors.append(factor)
@@ -715,10 +739,10 @@ class FactorHandler():
         group_factor_list = []
         color_dict = req.get(Protocol.Color)
         if color_dict:
-            color_attr_table = color_dict.get(u'table', u'')
-            color_attr_column = color_dict.get('column', u'')
+            color_attr_table = color_dict.get(Protocol.Table, '')
+            color_attr_column = color_dict.get(Protocol.Attr, '')
             color_dict = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
-                                    (color_attr_table, color_attr_column, -1, u'')))
+                                    (color_attr_table, color_attr_column, -1, '')))
             factor = ElementFactor(**color_dict)
             factor.setBelongToAxis('group')
             group_factor_list.append(factor)

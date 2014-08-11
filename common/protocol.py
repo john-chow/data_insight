@@ -9,8 +9,12 @@
 # 表名称的字段
 
 
-# 颜色区分字段的名称
-Color = 'color'
+
+#########################################
+#
+# 组件创建或编辑部分
+#
+########################################
 
 # 所在轴字段名称
 Axis = 'axis'
@@ -19,13 +23,51 @@ Axis = 'axis'
 # 0表示是数字列，1表示是文字列，2表示是时间列
 Kind = 'kind'
 
+# 数据表名称
 Table = 'table'
 
+# 字段的自定义名称
+Title = 'title'
 
-# 
-Attr = 'attr'
+# 字段在数据库中的名称
+Attr = 'name'
 
-Cmd = 'cmd'
+# 字段的运算方式
+Func = 'calcFunc'
+
+# 几种计算方式
+NoneFunc = 'none'
+SumFunc = 'sum'
+AvgFunc = 'avg'
+
+# x,y轴上参数
+Xaxis = 'x'
+Yaxis = 'y'
+
+# 图表类型种类
+Graph = 'graph'
+
+# 快照
+Snapshot = 'snapshot'
+
+# 颜色区分字段的名称
+Color = 'colour'
+
+# 用以进行填充的字段
+Fill = 'fill'
+
+# 用来进行大小的字段
+Size = 'size'
+
+# 选择器封装
+Mapping = 'mapping'
+
+
+
+
+
+
+
 
 
 

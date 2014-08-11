@@ -50,7 +50,7 @@ define([
 						model: this.property
 					})
 					
-					this.showDesingView();
+					//this.showDesingView();
 				},
 				/*
 				 * 显示整个design视图，design视图是个layoutview
@@ -59,9 +59,9 @@ define([
 				showDesingView: function(){
 					//显示整个design视图
 					var designView = new DesignRegion.Design();
-					DataInsightManager.designRegion.show(designView);
+					DataInsightManager.designRegion.show(designView, {preventDestroy: true});
 					this.designView = designView;
-					//显示默认视图，即图标视图
+					//显示默认视图，即图表视图
 					this.showDefaultView();
 					//监听显示区域视图变化的事件，实时显示指定视图，即响应design区域上的选显卡
 					this.listenChangeView();
@@ -91,7 +91,7 @@ define([
 				 */
 				showDefaultView: function(){
 					$("#design-graph").show();
-					this.designView.designGraphRegion.show(this.graphView);
+					this.designView.designGraphRegion.show(this.graphView, {preventDestroy: true});
 				},
 				
 			}

@@ -19,7 +19,8 @@ requirejs.config({
 	        "bootstrap":		"lib/bootstrap",
 	        "tool": 			"common/tool",
 	        "csrf": 			"lib/csrf",
-	        "minicolors":		"lib/jquery.minicolors"
+	        "minicolors":		"lib/jquery.minicolors",
+	        "echarts": 		    "lib/src/echarts-original"
     },
 
     //添加依赖关系
