@@ -42,6 +42,8 @@ class WidgetModel(ElementModel):
     m_pic           = models.TextField(db_column='snapshot')
     m_external_db   = models.ForeignKey('ExternalDbModel')
 
+    def getConn(self):
+        return self.m_external_db
 
     def restoreReqDataDict(self):
         return { 

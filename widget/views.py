@@ -82,12 +82,12 @@ def widgetCreate(request):
             )
         except DatabaseError, e:
             logger.error(e[0])
-            return MyHttpJsonResponse({u'succ': False   \
-                                        , u'msg': u'无法保存到数据库'})
+            return MyHttpJsonResponse({'succ': False   \
+                                        , 'msg': u'无法保存到数据库'})
         else:
             saveStyleArgs(request, widget)
 
-        return MyHttpJsonResponse({u'succ': True, u'wiId': widget.pk, \
+        return MyHttpJsonResponse({'succ': True, 'wiId': widget.pk, \
                                     u'msg': u'保存成功'})
     else:
         hk      = request.session.get(u'hk')
@@ -279,15 +279,15 @@ def handleDraw(request):
     获取能画出chart的数据
     """
     logger.debug("function handleDraw() is called")
-    req_data = json.loads(request.POST.get(u'data', u'{}'), 
+    req_data = json.loads(request.POST.get('data', '{}'), 
                                 object_pairs_hook=OrderedDict)
 
     rsu = checkExtentData(req_data)
     if not rsu[0]:
         return MyHttpJsonResponse({'succ': False, 'msg': rsu[1]})
 
+    hk       = request.session['hk']
     try:
-        hk       = request.session['hk']
         producer = DrawDataProducer(hk)
         data    = producer.produce(req_data)
     except Exception, e:
@@ -300,12 +300,20 @@ def handleDraw(request):
         return MyHttpJsonResponse(backData)
 
 
-@require_http_methods(['POST'])
-def reqUpdateData(request):
-    '''
-    获取在已画出chart之后的更新数据
-    '''
-    pass
+@require_http_methods(['GET'])
+def handleUpdate(request, wi_id):
+    """
+    处理对组件的更新请求
+    """
+    handler = UpdateHandler(wi_id)
+    if not handler.checkUpdatable():
+        return MyHttpJsonResponse({'succ': False, 'msg': 'xxxx'})
+
+    data = handler.handle()
+    data['succ'] = True
+    return MyHttpJsonResponse(data)
+
+
 
 
 @require_http_methods(['POST'])
@@ -313,7 +321,7 @@ def reqTimelyData(request, wi_id):
     '''
     获取及时的新数据
     '''
-    hk = request.session.get(u'hk')
+    hk = request.session.get('hk')
     st = PysqlAgentManager.stRestore(hk)
 
     widget_model = WidgetModel.objects.get(pk = wi_id)
@@ -674,8 +682,8 @@ class DrawDataProducer():
         self.fh = FactorHandler(req)
         part_dict = self.fh.mapToSqlPart()
 
-        sql_obj = self.st.makeSelectSql(**part_dict)
-        data_db = self.st.conn.execute(sql_obj).fetchall()
+        sql_obj = self.st.getSwither().makeSelectSql(**part_dict)
+        data_db = self.st.execute(sql_obj).fetchall()
         clean_data_db = cleanDataFromDb(data_db)
         strf_data_db = strfDataAfterFetchDb(clean_data_db)
 
@@ -714,7 +722,7 @@ class FactorHandler():
         '''
         [col_kind_attr_list, row_kind_attr_list] = \
                 map( lambda i: req.get(i, []), \
-                        (u'x', u'y') \
+                        ('x', 'y') \
                     ) 
 
         # 获取轴上属性Factor对象
@@ -750,6 +758,7 @@ class FactorHandler():
         self.msus = msu_factors
         self.msns = msn_factors
         self.groups = group_factor_list
+        self.extracted = True
         return 
 
 
@@ -782,6 +791,15 @@ class FactorHandler():
             , 'groups':         groups
         }
 
+    def filterTimeFactors(self):
+        if not self.extracted:
+            self.extract()
+
+        factors = [factor for factor in self.msns \
+                    if 'T' == factor.getProperty(Protocol.Type)]
+        return factors
+
+
     def getMsus(self):
         return self.msus
 
@@ -792,25 +810,60 @@ class FactorHandler():
         return self.groups
 
 
+class UpdateHandler():
+    def __init__(self, wi_id):
+        self.widget = WidgetModel.objects.get(pk = wi_id)
+        self.hk = self.widget.getConn().pk
+        self.st = PysqlAgentManager.stRestore(self.hk)
+        self.processor = None
 
-# 组件更新器基类
-class WidgetUpdator():
-    def update():
-        pass
+    def checkUpdatable():
+        return self.widget.m_if_update
+
+    def chooseUpdator(self):
+        req = self.widget.restoreReqDataDict()
+        self.fh = FactorHandler(req)
+        time_num = len(self.fh.filterTimeFactors())
+        if time_num > 0:
+            return AddUpdator(self.hk, req)
+        else:
+            return AllUpdator(self.hk, req)
+
+    def setUpdator(self, obj):
+        self.updator = obj
+
+    def getUpdator(self):
+        return self.updator
+
+    def handle(self):
+        self.setUpdator(self.chooseUpdator())
+        self.updator.produce()
+
+
 
 # 补充型组件更新器
-class SupplyUpdator(WidgetUpdator):
-    pass
+class AddUpdator():
+    def __init__(self, hk, req):
+        self.type = 'add'
+
+    def produce(self):
+        pass
+
+    def ifHasAggrate(self):
+        return False
 
 # 完全刷新型组件更新器
-class RefreshUpdator(WidgetUpdator):
-    pass
+class AllUpdator():
+    def __init__(self, hk, req):
+        self.type = 'all'
+        self.hk = hk
+        self.req = req
 
+    def produce(self):
+        producer = DrawDataProducer(self.hk)
+        data    = producer.produce(self.req)
+        return {'type': self.type, 'data': data}
 
-
-
-
-  
 
 
 
