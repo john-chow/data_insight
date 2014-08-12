@@ -60,7 +60,7 @@ def handleConn(request):
         succ, msg, hk, st = connectDb(conn_nt)
 
         if succ:
-            request.session[u'hk'] = hk
+            request.session['hk'] = hk
             PysqlAgentManager.stStore(hk, st)
 
             ExternalDbModel.objects.get_or_create(pk = hk, \
@@ -68,7 +68,7 @@ def handleConn(request):
                 m_ip = conn_nt.ip, m_port = conn_nt.port, m_db = conn_nt.db \
             )
 
-            return HttpResponseRedirect(u'/connect/table')
+            return HttpResponseRedirect('/connect/table')
 
         else:
             err_dict = {u'succ': False, u'msg': msg}
@@ -86,8 +86,6 @@ def handleTable(request):
     """
     选择数据表
     """
-    logger.debug("function handleTable() is called")
-
     if 'POST' == request.method:
         tables_str   = request.POST.get('table', '[]')
         chosen_tables = json.loads(tables_str)
@@ -100,7 +98,6 @@ def handleTable(request):
         unkonwn_tables = list(set(chosen_tables) - set(tables_list))
 
         if 0 == len(unkonwn_tables):
-            #request.session['tables']  =   chosen_tables
             map(lambda x: st.getStorage().reflect(x), chosen_tables)
             return HttpResponseRedirect( \
                 '/connect/field/' + '?tables={}'.format(tables_str) \
