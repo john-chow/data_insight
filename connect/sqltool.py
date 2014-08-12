@@ -31,11 +31,10 @@ class PysqlAgentManager():
         if not hk:
             return False
 
-        st = cls.HK_ST_MAP.get(hk)
-
-        #
-        #if not st:
-            #st = PysqlAgent().restore(hk)
+        if hk in cls.HK_ST_MAP:
+            st = cls.HK_ST_MAP.get(hk)
+        else:
+            st = PysqlAgent(hk)
 
         return st
 
@@ -54,10 +53,7 @@ class PysqlAgentManager():
 实现由外部输入Factor对象转换为Sql过程
 '''
 class PysqlAgent():
-    def __init__(self, kwargs = None):
-        if kwargs:
-            self.connDb(**kwargs)
-
+    def __init__(self, hk = None):
         self.cnt = ''
         self.engine = {}
         self.conn = None
@@ -67,6 +63,9 @@ class PysqlAgent():
         # 聚合SqlRelation，用来存储和实现
         self.storage = Storage()
         self.sql_relation = SqlRelation(self.storage)
+
+        if hk:
+            self.restore(hk)
 
 
     def active(self):
@@ -96,7 +95,7 @@ class PysqlAgent():
         '''
         try:
             logger.info('restore hk = {0}'.format(hk))
-            externdb = ExternalDbModel.objects.get(pk = hk)
+            externaldb = ExternalDbModel.objects.get(pk = hk)
         except ExternalDbModel.DoesNotExist:
             raise Exception(u'can''t resotre')
         else:
@@ -141,7 +140,7 @@ class PysqlAgent():
         tables_info_list = []
         for t in tables:
             if t not in self.rf.keys():
-                self.reflect(t)
+                self.getStorage().reflect(t)
 
             info = self.insp.get_columns(t)
             dm_list, me_list, tm_list   = [], [], []
@@ -196,20 +195,20 @@ class PysqlAgent():
             self.storage.reflect(tablename)
 
         info = self.insp.get_columns(tablename)
-        types = {}
+        fields_types = {}
         for item in info:
             fieldtype    = item['type']
             fieldname    = item['name']
 
             # 增加字段标记数字列和非数字列
             if isinstance(fieldtype, (types.Numeric, types.Integer)):
-                types[fieldname] = Protocol.NumericType
+                fields_types[fieldname] = Protocol.NumericType
             elif isinstance(fieldtype, (types.Date, types.DateTime)):
-                types[fieldname] = Protocol.TimeType
+                fields_types[fieldname] = Protocol.TimeType
             else:
-                types[fieldname] = Protocol.FactorType
+                fields_types[fieldname] = Protocol.FactorType
 
-        return types
+        return fields_types
 
 
     def createTable(self, name, *cols):
@@ -299,8 +298,9 @@ class SqlRelation():
         '''
         group_list  = []
         for factor in groups:
-            tablename, c_str, kind_str, cmd_str  = map(lambda x: factor.getProperty(x), \
-                                            [Protocol.Table, Protocol.Attr, Protocol.Kind, Protocol.Cmd])
+            tablename, c_str, kind_str, cmd_str  \
+                    = map(lambda x: factor.getProperty(x), \
+                            [Protocol.Table, Protocol.Attr, Protocol.Kind, Protocol.Cmd])
             table   = self.storage.getTable(tablename)
             if not table.c.has_key(c_str):
                 raise Exception(u'can''t recongnize column name of {0}' \
@@ -420,17 +420,19 @@ class Storage():
     def register(self, name, table):
         self.rf[name] = table
 
+
     def unregister(self, name):
         if name in self.rf.keys():
             del self.rf[name]
 
-    def getTable(self, name):
-        table = self.rf.get(name)
-        if not table:
-            self.reflect(name)
-            table = self.rf.get(name)
 
+    def getTable(self, name):
+        if name not in self.rf:
+            self.reflect(name)
+
+        table = self.rf.get(name)
         return table
+
 
     def getColumn(self, factor):
         """
