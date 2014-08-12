@@ -230,7 +230,7 @@ def widgetShow(request, widget_id):
     else:
         hk              = widget_model.m_external_db.m_hk
         st              = PysqlAgentManager.stRestore(hk)
-        st.reflectTables(json.loads(widget_model.m_table))
+        map(lambda x: st.reflect(x), json.loads(widget_model.m_table))
         image_data      = genWidgetImageData(req_data, hk)
         return MyHttpJsonResponse({'succ': True, 'widget_id':widget_id, 'data': image_data})
 
@@ -482,7 +482,8 @@ def transReqDataToSqlObj(req_data, st):
     axis_factor_list = factors_lists_dict['msu'] + factors_lists_dict['msn'] 
     group_factor_list = factors_lists_dict['group']
 
-    sql_obj = st.makeSelectSql(**mapFactorToSqlPart(axis_factor_list, group_factor_list))
+    sql_obj = st.getSwither().makeSelectSql( \
+            **mapFactorToSqlPart(axis_factor_list, group_factor_list))
 
     return sql_obj
 
@@ -735,10 +736,10 @@ class FactorHandler():
             else:
                 factor.setBelongToAxis('col')
 
-            tmp_factors = msn_factors \
-                    if Protocol.NoneFunc == factor.getProperty(Protocol.Func) \
-                        or 2 == factor.getProperty(Protocol.Kind)  \
-                    else msu_factors
+            tmp_factors = msu_factors \
+                    if Protocol.NoneFunc != factor.getProperty(Protocol.Func) \
+                        and 0 == factor.getProperty(Protocol.Kind)  \
+                    else msn_factors
 
             tmp_factors.append(factor)
 

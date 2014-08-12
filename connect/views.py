@@ -38,7 +38,7 @@ def connectDb(nt):
         return False, 'xxxxxxxxxx'
 
     hk  = genConnHk(nt)
-    st = PysqlAgentManager.stRestore(hk) or PysqlAgentManager.stCreate()
+    st = PysqlAgentManager.stCreate()
     succ, msg = st.connDb(nt)
     return succ, msg, hk, st
 
@@ -100,7 +100,7 @@ def handleTable(request):
 
         if 0 == len(unkonwn_tables):
             request.session['tables']  =   chosen_tables
-            st.reflectTables(chosen_tables)
+            map(lambda x: st.getStorage().reflect(x), chosen_tables)
             return HttpResponseRedirect('/connect/field')
         else:
             res_dict = {'succ': False, 'msg': 'xxxxx'}
