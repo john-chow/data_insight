@@ -88,10 +88,11 @@ def handleTable(request):
     """
     logger.debug("function handleTable() is called")
 
-    if u'POST' == request.method:
-        chosen_tables   = request.POST.getlist('table', '[]')
+    if 'POST' == request.method:
+        tables_str   = request.POST.get('table', '[]')
+        chosen_tables = json.loads(tables_str)
 
-        hk  = request.session.get(u'hk')
+        hk  = request.session.get('hk')
         st  = PysqlAgentManager.stRestore(hk)
         tables_list = st.listTables()
 
@@ -99,9 +100,11 @@ def handleTable(request):
         unkonwn_tables = list(set(chosen_tables) - set(tables_list))
 
         if 0 == len(unkonwn_tables):
-            request.session['tables']  =   chosen_tables
+            #request.session['tables']  =   chosen_tables
             map(lambda x: st.getStorage().reflect(x), chosen_tables)
-            return HttpResponseRedirect('/connect/field')
+            return HttpResponseRedirect( \
+                '/connect/field/' + '?tables={}'.format(tables_str) \
+            )
         else:
             res_dict = {'succ': False, 'msg': 'xxxxx'}
             return HttpResponse(res_dict, content_type='application/json')
@@ -184,7 +187,8 @@ def handleField(request):
         return MyHttpJsonResponse({'succ': True, 'msg': 'xxxxxxxxx'})
 
     else:
-        tables = request.GET.getlist('tables')
+        tables_str = request.GET.get('tables')
+        tables = json.loads(tables_str)
         if (not tables) or len(tables) < 1:
             return MyHttpJsonResponse({'succ': False, 'msg': 'yyyyy'})
 

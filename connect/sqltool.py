@@ -195,20 +195,20 @@ class PysqlAgent():
             self.storage.reflect(tablename)
 
         info = self.insp.get_columns(tablename)
-        types = {}
+        fields_types = {}
         for item in info:
             fieldtype    = item['type']
             fieldname    = item['name']
 
             # 增加字段标记数字列和非数字列
             if isinstance(fieldtype, (types.Numeric, types.Integer)):
-                types[fieldname] = Protocol.NumericType
+                fields_types[fieldname] = Protocol.NumericType
             elif isinstance(fieldtype, (types.Date, types.DateTime)):
-                types[fieldname] = Protocol.TimeType
+                fields_types[fieldname] = Protocol.TimeType
             else:
-                types[fieldname] = Protocol.FactorType
+                fields_types[fieldname] = Protocol.FactorType
 
-        return types
+        return fields_types
 
 
     def createTable(self, name, *cols):
