@@ -161,18 +161,20 @@ define([
 		    	for(var i =0; i<selectedModelList.length; i++){
 		    		selectedNameList[i] = selectedModelList[i].attributes.tableName;
 		    	}
-		    	
-		    	/*$.ajax({
+		    	var backDataList;
+		    	$.ajax({
 		             	type: "POST",
-		             	url: "/XXX",
+		             	cache: false,
+		             	async: false,
+		             	url: "/connect/table/",
 		             	data: JSON.stringify(selectedNameList),
 		            	dataType: "json",
 		            	success: function(data){
-		            		DataInsightManager.dialogRegion.trigger('change:table', data.name);
+		            		backDataList = data;
 		                }
-		        });*/
+		        });
 		        //假设ajax返回数据
-		        var testData = [
+		       /* var testData = [
 		            {
 		           		 fields:[
 		            		{fieldName:"a", type:"F", nickName:"SDFSDF"},
@@ -189,16 +191,16 @@ define([
 		            		{fieldName:"h", type:"F", nickName:""}
 		            		]
 		            }
-		        ];
+		        ];*/
 		        //把数据放入model
-		        for(i=0 ; i<testData.length; i++){
+		        for(i=0 ; i<backDataList.length; i++){
 		        	var selectedModelList = collection.where({selected:true});
 		        	if(i==0 && !collection.findWhere({"choosed":true}))
-		        		selectedModelList[i].set({"choosed": true, "fields": testData[i].fields});
+		        		selectedModelList[i].set({"choosed": true, "fields": backDataList[i].fields});
 		        	else
-		        		selectedModelList[i].set({"fields": testData[i].fields});
+		        		selectedModelList[i].set({"fields": backDataList[i].fields});
 		        }
-		        DataInsightManager.dialogRegion.trigger("change:fields", testData[0].fields);
+		        DataInsightManager.dialogRegion.trigger("change:fields", backDataList[0].fields);
 		        DataInsightManager.dialogRegion.$el.modal("hide");
 		    });
 
