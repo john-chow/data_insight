@@ -1,9 +1,9 @@
 # --*-- coding: utf-8 --*--
 '''
 本文件是用SqlAlchemy实现用Factor对象到数据库操作的转换过程
-PysqlAgent实现用SqlAlchemy代理数据库操作的接口
+SqlExecutor实现用SqlAlchemy代理数据库操作的接口
 SqlRelation实现由数据库及数据表到SqlAlchemy对象的映射模型
-PysqlAgent和SqlRelation是聚合关系
+SqlExecutor和SqlRelation是聚合关系
 '''
 
 
@@ -23,7 +23,7 @@ import common.protocol as Protocol
 import pdb
 
 
-class PysqlAgentManager(): 
+class SqlExecutorMgr(): 
     HK_ST_MAP   = {}
 
     @classmethod
@@ -34,7 +34,7 @@ class PysqlAgentManager():
         if hk in cls.HK_ST_MAP:
             st = cls.HK_ST_MAP.get(hk)
         else:
-            st = PysqlAgent(hk)
+            st = SqlExecutor(hk)
 
         return st
 
@@ -44,7 +44,7 @@ class PysqlAgentManager():
 
     @staticmethod
     def stCreate():
-        st = PysqlAgent()
+        st = SqlExecutor()
         return st
 
 
@@ -52,7 +52,7 @@ class PysqlAgentManager():
 '''
 实现由外部输入Factor对象转换为Sql过程
 '''
-class PysqlAgent():
+class SqlExecutor():
     def __init__(self, hk = None):
         self.cnt = ''
         self.engine = {}

@@ -15,7 +15,7 @@ from widget.forms import ConnDbForm
 from widget.models import ExternalDbModel
 from connect.models import FieldsInfoModel
 from connect.file import Text, Excel
-from connect.sqltool import PysqlAgentManager, PysqlAgent
+from connect.sqltool import SqlExecutorMgr, SqlExecutor
 from common.tool import MyHttpJsonResponse
 from common.log import logger
 from common.head import DEFAULT_DB_INFO, ConnNamedtuple, ConnArgsList
@@ -38,7 +38,7 @@ def connectDb(nt):
         return False, 'xxxxxxxxxx'
 
     hk  = genConnHk(nt)
-    st = PysqlAgentManager.stCreate()
+    st = SqlExecutorMgr.stCreate()
     succ, msg = st.connDb(nt)
     return succ, msg, hk, st
 
@@ -61,7 +61,7 @@ def handleConn(request):
 
         if succ:
             request.session['hk'] = hk
-            PysqlAgentManager.stStore(hk, st)
+            SqlExecutorMgr.stStore(hk, st)
 
             ExternalDbModel.objects.get_or_create(pk = hk, \
                 m_kind = conn_nt.kind, m_user = conn_nt.user, m_pwd = conn_nt.pwd, \
@@ -91,7 +91,7 @@ def handleTable(request):
         chosen_tables = json.loads(tables_str)
 
         hk  = request.session.get('hk')
-        st  = PysqlAgentManager.stRestore(hk)
+        st  = SqlExecutorMgr.stRestore(hk)
         tables_list = st.listTables()
 
         # 注意传多个来怎么办
@@ -107,7 +107,7 @@ def handleTable(request):
             return HttpResponse(res_dict, content_type='application/json')
     else:
         hk  = request.session.get('hk')
-        st  = PysqlAgentManager.stRestore(hk)
+        st  = SqlExecutorMgr.stRestore(hk)
         tables_list = st.listTables()
 
         return MyHttpJsonResponse( {'succ': True, \
@@ -129,7 +129,7 @@ def handleColumn(request):
         )
 
     try:
-        st = PysqlAgentManager.stRestore(hk)
+        st = SqlExecutorMgr.stRestore(hk)
     except Exception, e:
         return MyHttpJsonResponse(  \
             {'succ': False, 'msg': 'Connect db first'}   \
@@ -149,7 +149,7 @@ def handleField(request):
     处理自定义数据表请求
     """
     hk = request.session.get('hk')
-    st = PysqlAgentManager.stRestore(hk)
+    st = SqlExecutorMgr.stRestore(hk)
     try:
         conn = ExternalDbModel.objects.get(pk = hk)
     except ExternalDbModel.DoesNotExist, e:
@@ -221,7 +221,7 @@ def handleField(request):
 def uploadFile(request):
     if 'POST' == request.method:
         f   = request.FILES['file']
-        st  = PysqlAgent()
+        st  = SqlExecutor()
         st.connDb(**DEFAULT_DB_INFO)
         file_name = f.name.split('.')[0]
         if 'excel' != request.POST.get('type'):
