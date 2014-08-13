@@ -6,14 +6,15 @@ define([
         , function(ShowRegion, DataInsightManager, Backbone, Marionette, $, _) {
 
         ShowRegion.Controller = function() {
-            this.entrance = DataInsightManager.request("entrance:entity");
-            this.showController = DataInsightManager.request("show:entity");
-            this.showView = new ShowRegion.Board();
-            DataInsightManager.showRegion.show(this.showView, {preventDestroy: true});
+            var self = this;
+            self.entrance = DataInsightManager.request("entrance:entity");
+            self.showController = DataInsightManager.request("show:entity");
+            self.showView = new ShowRegion.Board();
+            DataInsightManager.showRegion.show(self.showView, {preventDestroy: true});
 
             DataInsightManager.commands.setHandler("widget:save", function() {
-                var snapshot = this.showView.getSnapshot();
-                this.showController.trigger("snapshot:take", snapshot)
+                var snapshot = self.showView.getSnapshot();
+                self.showController.trigger("snapshot:take", snapshot)
             });
 
             DataInsightManager.commands.setHandler("widget:back", function() {
@@ -26,7 +27,8 @@ define([
             });
 
             DataInsightManager.commands.setHandler("board:draw", function(resp) {
-                if (resp.succ)      this.showView.draw(resp.data)
+                if (resp.succ)      self.showView.draw(resp.data)
+                else                self.showView.clear()
             });
         }
 

@@ -872,7 +872,7 @@ class FactorHandler():
         selects, groups  = [], []
         for factor in (self.msus + self.msns):
             kind    = factor.getProperty(Protocol.Kind)
-            if 0 == kind:
+            if Protocol.NumericType == kind:
                 selects.append(factor)
             else:
                 selects.append(factor)

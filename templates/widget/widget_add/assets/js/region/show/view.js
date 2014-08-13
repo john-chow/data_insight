@@ -7,21 +7,26 @@ define([
 
         ShowRegion.Board = Marionette.ItemView.extend({
             tagName:        "div",
-            className:      "container",
+            className:      "show_container",
             template:       function() {
                 return ""
             },
 
             initialize:     function() {
-                this.drawerMan = new DrawManager();
+                this.drawerMgr = new DrawManager();
             },
 
             draw:           function(data) {
-                this.drawerMan.run(this.el, data)
+                this.drawerMgr.run(this.el, data)
+            },
+
+            clear:          function() {
+                var ec = this.drawerMgr.getEc();
+                ec && ec.clear()
             },
 
             getSnapshot:    function() {
-                var zr = this.drawerMan.getEc().getZrender();
+                var zr = this.drawerMgr.getEc().getZrender();
                 var snapshot = zr.toDataURL("image/png");
                 return snapshot
             }

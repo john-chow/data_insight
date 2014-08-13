@@ -618,3 +618,9 @@ border: 1px solid #CAD8B7;
 /* end switch region */
 
 
+/* begin show region */
+#show_region .show_container {
+    height: 100%;
+}
+/* end show region */
+
