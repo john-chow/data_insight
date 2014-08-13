@@ -531,7 +531,7 @@ border: 1px solid #CAD8B7;
 }*/
 
 #x_sortable>li, #y_sortable>li {
-	margin: 1px 0 1px 1px;
+	margin: 5px 0 1px 1px;
 	border-radius: 6px;
 	padding: 0px;
 	float: left;
@@ -550,6 +550,7 @@ border: 1px solid #CAD8B7;
 
 .filter-label{
 	height: 32px;
+	margin-bottom: 0;
 }
 
 #design-property input,#design-property select{
@@ -578,23 +579,13 @@ border: 1px solid #CAD8B7;
 	width: 450px;
 	height: 35px;
 }
-
-#connect_error {
-	float: left;
-	color: rgb(224, 55, 55);
-	font-size: 17px;
-	display: none;
+.myfilter{
+	width: 100%;
+	height: 65px;
+	border: 1px solid #ccc;
+	overflow-y: auto;
+	margin-bottom: 13px;
 }
-
-.table-manage-operate {
-	float:left;
-	margin: 0;
-}
-
-.table-manage-operate a {
-	margin-left:10px;
-}
-
 /* end design«¯”Úcss */
 /* begin switch region */
 .workbooks{
@@ -617,6 +608,21 @@ border: 1px solid #CAD8B7;
 }
 /* end switch region */
 
+#connect_error {
+	float: left;
+	color: rgb(224, 55, 55);
+	font-size: 17px;
+	display: none;
+}
+
+.table-manage-operate {
+	float:left;
+	margin: 0;
+}
+
+.table-manage-operate a {
+	margin-left:10px;
+}
 
 /* begin show region */
 #show_region .show_container {

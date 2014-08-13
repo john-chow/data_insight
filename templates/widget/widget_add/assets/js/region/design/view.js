@@ -12,7 +12,25 @@ define([
 		
 		//过滤器视图
 		DesignRegion.Filter = Marionette.ItemView.extend({
-			template: filterViewTemplate
+			template: filterViewTemplate,
+			initialize: function(){
+				//监听过滤器属性改变的，当改变，视图重绘
+				this.model.on("filter:change", function(){
+					this.render();
+				}, this);
+			},
+			onShow: function(){
+				var self = this;
+				this.$el.find(".myfilter").droppable({
+					drop: function(event, ui){
+						var fieldName = ui.helper.data("filedname");
+						//通知model获取fieldName字段的所有值的集合
+						self.model.trigger("fetch:field:values", {
+								column: fieldName, table: $(".table-item-choosed").data("table")
+							});
+						}
+				});
+			}
 		})
 		
 		

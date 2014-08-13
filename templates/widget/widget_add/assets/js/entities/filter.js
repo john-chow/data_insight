@@ -6,16 +6,85 @@ define([
 ], function () {
 
 	var FilterEntity = DataInsightManager.module("Entities", function(Entities, DataInsightManager, Backbone, Marionette, $, _){
+		/**
+		 * 过滤器辅助类
+		 */
+		Entities.filterAssist = Backbone.Model.extend({
+			defaults: {
+				value: "",//字段的某个值
+				isSelect: false//是否选中，默认不选中
+			},
+		})
+		/**
+		 * 过滤器辅助类集合
+		 */
+		Entities.filterAssists = Backbone.Collection.extend({
+			model: Entities.filterAssist,
+			url:"/db/"
+		})
+		
 		Entities.Filter = Backbone.Model.extend({
 			defaults: {
-				filter: ""
+				filter: "",//where语句
+				columns: [],//过滤器列表,里面的元素是{name: column_name, values: '过滤器辅助类集合'}
+				whichColumn: 0//选中的过滤器下标,默认选中第一个
+			},
+			url: "/db/" ,
+			push: function(arg, val) {
+			    var arr = _.clone(this.get(arg));
+			    arr.push(val);
+			    this.set(arg, arr);
 			},
 			initialize: function(){
 				var self = this;
-
 				//创建状态，忽略抓取数据和触发filter:change的顺序，在filter模型改变的时候立即触发filter:change事件
 				this.listenChange();
+				Entities.entranceFascade.register("draw", this);
+				//监听获取某个字段的所有值
+				this.on("fetch:field:values", function(data){
+					var columnsNumber = this.get("columns").length;
+					//新加过滤器（新加字段）
+					this.push("columns", {
+						name: data.column,
+						values: new Entities.filterAssists()
+					});
+					var newColumns = this.get("columns")[columnsNumber];
+					//后台抓取新加的过滤器的所有不重复的值的集合（即是某个字段的所有值集合）
+					newColumns.fetch({
+						data: data,
+						type: "post",
+						/**
+						 * 需要后台返回的数据格式为[{column_name:xxx, [{column_value:xxx, isSelect:t|f}, {column_value:xxx, isSelect: t|f}]},
+						 * 							{column_name:xxx, [{column_value:xxx, isSelect:t|f}, {column_value:xxx, isSelect: t|f}]},...]
+						 */
+						success: function(collection, respose){
+							self.set("whichColumn", columnsNumber), {silent: true};
+							//通知视图重新绘画,展现选中的过滤器值（选中的字段的所有值）
+							self.trigger("filter:rerender");
+						}
+					});
+				})
 
+			},
+			/**
+			 * 获取字段的所有值集合
+			 * @prame data的形式{column:xxxx,table:xxxx}
+			 */
+			fetchFiledValues: function(data){
+				//通知入口model获取指定的字段的所有值的集合，字段和表名在data中
+				Entities.trigger("fetch:field:values", {
+					"func": $.proxy(this.handlerFetcFiledVals, this),
+					"arg" : data
+					
+				});
+			},
+			/**
+			 * 入口model代理执行的函数，当获取完指定字段的所有值后执行
+			 * @parme data,字段的所有值的集合; defer, jquery Deferred对象
+			 */
+			handlerFetcFiledVals: function(data, defer){
+				this.values = data;//不用model的set方法
+				defer.resolve();
                 Entities.entranceFascade.register("draw", this, "filter:change")
 			},
 			/**
@@ -35,6 +104,23 @@ define([
 			 */
 			handlerData: function(data, defer){
 				this.filter = data.filter;
+				//this.filter = "color = 'blue' or color = 'red' and size=1 or size=2";
+				if(this.filter.length > 0){
+					//过滤器中的字段
+					var columns = this.filter.split(/\s+and\s+/);
+					for(var i = 0; i<columns.length; i++){
+						var filterAssists = new Entities.filterAssists();
+						//字段中对应选中的值
+						var values = columns[i].split(/\s+or\s+/);
+						for(var j = 0; j<values.length; j++){
+							var filterAssist = new Entities.filterAssist();
+							var kv = values[j].split(/\s*=\s*/);
+							filterAssist.set({value: kv[1], isSelect: true});
+							filterAssists.add(filterAssist);
+						}
+						this.push("columns", {name: kv[0], values: filterAssists});
+					}
+				}
 				defer.resolve();
 			},
 			/**
@@ -50,6 +136,8 @@ define([
 						//只要模型的属性改变便通知widget模型改变属性
 						self.on("change", function(){
 							Entities.trigger("filter:change", this.toJSON());
+							//通知视图重绘
+							//this.trigger("filter:change");
 						}, this);
 					});
 					return true;
@@ -57,6 +145,8 @@ define([
 				//创建状态
 				this.on("change", function(){
 					Entities.trigger("filter:change", this.toJSON());
+					//通知视图重绘
+					//this.trigger("filter:change");
 				}, this);
 				return false;
 			}
