@@ -154,51 +154,47 @@ define([
 		    });
 
 		    /*
-			* 传送已经选择的表名到后台
+			* 传送已经选择的表名到后台，返回fields
 			*/
 		    DataInsightManager.dialogRegion.on("pass:selected-table", function(selectedModelList){
-		    	var selectedNameList=[];
-		    	for(var i =0; i<selectedModelList.length; i++){
+		    	var selectedNameList=[], i, j, backDataList, tempData;
+		    	for(i =0; i<selectedModelList.length; i++){
 		    		selectedNameList[i] = selectedModelList[i].attributes.tableName;
 		    	}
-		    	
-		    	/*$.ajax({
+		    	$.ajax({
 		             	type: "POST",
-		             	url: "/XXX",
-		             	data: JSON.stringify(selectedNameList),
+		             	cache: false,
+		             	async: false,
+		             	url: "/connect/table/",
+		             	data: {
+		             		'table': JSON.stringify(selectedNameList)
+		            	},
 		            	dataType: "json",
 		            	success: function(data){
-		            		DataInsightManager.dialogRegion.trigger('change:table', data.name);
+		            		if(data.succ)
+		            			backDataList = JSON.parse(data.data);
 		                }
-		        });*/
-		        //假设ajax返回数据
-		        var testData = [
-		            {
-		           		 fields:[
-		            		{fieldName:"a", type:"F", nickName:"SDFSDF"},
-		            		{fieldName:"b", type:"T", nickName:""},
-		            		{fieldName:"c", type:"F", nickName:"按时打算的"},
-		            		{fieldName:"d", type:"T", nickName:""}
-		            		]
-		       		},
-		            {
-		            	fields:[
-		            		{fieldName:"e", type:"T", nickName:""},
-		            		{fieldName:"f", type:"T", nickName:"DFDF"},
-		            		{fieldName:"g", type:"F", nickName:"阿斯顿"},
-		            		{fieldName:"h", type:"F", nickName:""}
-		            		]
-		            }
-		        ];
+		        });
 		        //把数据放入model
-		        for(i=0 ; i<testData.length; i++){
+		        for(i=0 ; i<backDataList.length; i++){
 		        	var selectedModelList = collection.where({selected:true});
-		        	if(i==0 && !collection.findWhere({"choosed":true}))
-		        		selectedModelList[i].set({"choosed": true, "fields": testData[i].fields});
-		        	else
-		        		selectedModelList[i].set({"fields": testData[i].fields});
+		        	tempData = [];
+		        	for(j=0 ; j<backDataList[i].fields.length; j++){
+		        			tempData[j]={
+		        				"fieldName": backDataList[i].fields[j],
+		        				"type": backDataList[i].types[j],
+		        				"nickName": backDataList[i].nicknames[j]
+		        			}
+		        	}
+		        	if(i==0 && !collection.findWhere({"choosed":true})){
+		        		selectedModelList[i].set({"choosed": true, "fields": tempData});
+		        	}
+		        	else{
+		        		selectedModelList[i].set({"fields": tempData});
+		        	}
 		        }
-		        DataInsightManager.dialogRegion.trigger("change:fields", testData[0].fields);
+
+		        DataInsightManager.dialogRegion.trigger("change:fields", collection.findWhere({"choosed":true}).get("fields"));
 		        DataInsightManager.dialogRegion.$el.modal("hide");
 		    });
 

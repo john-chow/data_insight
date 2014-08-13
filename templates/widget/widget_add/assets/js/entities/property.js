@@ -12,7 +12,7 @@ define([
 				title: '标题',
 				style: "default",
 				autoRefresh: "1h",
-				isPublish: "false",//组件是否发布
+				isPublish: "true",//组件是否发布
 			},
 			initialize: function(){
 				var self = this;

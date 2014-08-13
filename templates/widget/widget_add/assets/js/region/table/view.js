@@ -47,7 +47,8 @@ var data = DataInsightManager.module("TableRegion",
           DataInsightManager.dialogRegion.trigger('pass:selected-table', selectedModelList);
         }
         else{
-          DataInsightManager.dialogRegion.trigger("change:fields");
+          DataInsightManager.dialogRegion.trigger("change:fields", []);
+          DataInsightManager.dialogRegion.$el.modal("hide");
         }
       },
 
@@ -200,40 +201,34 @@ var data = DataInsightManager.module("TableRegion",
       tableListFunction: function(){
       	this.$(".table-manage-commit").html("加载中...");
         this.$(".table-manage-commit").css("cursor","wait");
+        var self = this;
+        this.$("[name='manageCheckbox']").each(function(){
+          var model = self.collection.get($(this).attr("data-id"));
+          if($(this).attr("checked")){
+            DataInsightManager.dialogRegion.trigger('model:set', model, {"selected":true});
+          }
+          else {
+            DataInsightManager.dialogRegion.trigger('model:set', model, {"selected":false,"choosed":false});
+          }
+        })
         DataInsightManager.dialogRegion.trigger('table:list', this.collection);
       },
 
       toggleCheckedFunction: function(ev){
     			if($(ev.currentTarget).find("input").attr("checked")) {
     				$(ev.currentTarget).find("input").removeAttr("checked"); 
-    				var model = this.collection.get($(ev.currentTarget).attr("data-id"));
-    				DataInsightManager.dialogRegion.trigger('model:set', model, {"selected":false,"choosed":false});
     			}
     			else {
-    				$(ev.currentTarget).find("input").attr("checked",true); 
-    				$(ev.currentTarget).find("input").prop('checked',true);
-    				var model = this.collection.get($(ev.currentTarget).attr("data-id"));
-    				DataInsightManager.dialogRegion.trigger('model:set', model, {"selected":true});
+    				$(ev.currentTarget).find("input").attr("checked",true).prop('checked',true); 
     			}
       },
 
       selectAllFunction: function(){
-      	var self = this;
-      	this.$("#table_manage_ul>li").each(function(){
-      		 $(this).find("input").attr("checked",true); 
-			     $(this).find("input").prop('checked',true);
-			     var model = self.collection.get($(this).attr("data-id"));
-			     DataInsightManager.dialogRegion.trigger('model:set', model, {"selected":true});
-      	})
+        this.$("[name='manageCheckbox']").attr("checked",'true').prop('checked',true);
       },
 
       selectNoneFunction: function(){
-      	var self = this;
-      	this.$("#table_manage_ul>li").each(function(){
-      		 $(this).find("input").removeAttr("checked"); 
-      		 var model = self.collection.get($(this).attr("data-id"));
-			     DataInsightManager.dialogRegion.trigger('model:set', model, {"selected":false,"choosed":false});
-      	})
+        this.$("[name='manageCheckbox']").removeAttr("checked");
       },
 			
     });
