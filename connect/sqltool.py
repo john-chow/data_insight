@@ -165,31 +165,6 @@ class PysqlAgent():
         return tables_info_list
 
 
-    def statFieldsType(self, tables):
-        fields_info_list = []
-        for t in tables:
-            if t not in self.rf.keys():
-                self.reflect(t)
-
-            info = self.insp.get_columns(t)
-            fields_info = {}
-            for i in info:
-                i_type    = i['type']
-                i_name    = i['name']
-
-                # 增加字段标记数字列和非数字列
-                if isinstance(i_type, (types.Numeric, types.Integer)):
-                    fields_info[i_name] = Protocol.NumericType
-                elif isinstance(i_type, (types.Date, types.DateTime)):
-                    fields_info[i_name] = Protocol.TimeType
-                else:
-                    fields_info[i_name] = Protocol.FactorType
-
-            fields_info_list.append(fields_info)
-
-        return fields_info_list
-
-
     def statFieldsType(self, tablename):
         if tablename not in self.rf.keys():
             self.storage.reflect(tablename)
@@ -253,7 +228,7 @@ class SqlRelation():
         制作select形式的sql语句
         '''
         if not selects or len(selects) <= 0:
-            raise Exception(u'no selected content')
+            raise Exception('no selected content')
 
         select_part  = self.cvtSelect(selects)
         group_part  = self.cvtGroup(groups)
@@ -262,7 +237,7 @@ class SqlRelation():
         if group_part:
             sql_obj = sql_obj.group_by(*group_part)
 
-        logger.info(u'{0}'.format(str(sql_obj)))
+        logger.info('{0}'.format(str(sql_obj)))
         return sql_obj
 
 

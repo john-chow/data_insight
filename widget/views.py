@@ -53,8 +53,6 @@ def widgetCreate(request):
     """
     组件创建
     """
-    logger.debug("function widgetList() is called")
-
     if 'POST' == request.method:
         req_data = json.loads(request.POST.get('data', '{}'))
 
@@ -69,7 +67,7 @@ def widgetCreate(request):
         try:
             tables = json.dumps(tables)
         except ValueError, e:
-            return MyHttpJsonResponse({u'succ': False, u'msg': u'arguments error'})
+            return MyHttpJsonResponse({'succ': False, 'msg': 'arguments error'})
 
         hk = request.session.get('hk')
         external_conn = ExternalDbModel.objects.get(pk = hk)
@@ -83,12 +81,12 @@ def widgetCreate(request):
         except DatabaseError, e:
             logger.error(e[0])
             return MyHttpJsonResponse({'succ': False   \
-                                        , 'msg': u'无法保存到数据库'})
+                                        , 'msg': '无法保存到数据库'})
         else:
             saveStyleArgs(request, widget)
 
         return MyHttpJsonResponse({'succ': True, 'wiId': widget.pk, \
-                                    u'msg': u'保存成功'})
+                                    'msg': '保存成功'})
     else:
         hk      = request.session.get(u'hk')
         st      = PysqlAgentManager.stRestore(hk)
@@ -97,7 +95,7 @@ def widgetCreate(request):
 
         context = RequestContext(request)
         dict = {'content': json.dumps({'tables': tables})}
-        return render_to_response(u'add.html', dict, context)
+        return render_to_response('add.html', dict, context)
 
 
 def saveStyleArgs(request, widget_model = None):
