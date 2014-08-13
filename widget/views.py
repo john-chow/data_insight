@@ -833,7 +833,7 @@ class FactorHandler():
 
             tmp_factors = msu_factors \
                     if Protocol.NoneFunc != factor.getProperty(Protocol.Func) \
-                        and 0 == factor.getProperty(Protocol.Kind)  \
+                        and Protocol.NumericType == factor.getProperty(Protocol.Kind)  \
                     else msn_factors
 
             tmp_factors.append(factor)
