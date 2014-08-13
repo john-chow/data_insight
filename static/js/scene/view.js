@@ -110,7 +110,8 @@ define(['drawer','gridster'], function(DrawManager, Gridster){
 						unitWidth = Math.floor(rate * 50),
 						unitHeight = Math.floor(rate * 55);
 					var $gridster = $gridsterEl.gridster({
-				        widget_base_dimensions: [unitWidth, unitHeight],           //[57,51]面积大小
+						rate: rate,
+				        widget_base_dimensions: [50, 50],           //[57,51]面积大小
 				        widget_margins: [1, 1],                       //margin大小
 				    }).data('gridster');
 					//禁止gridster拖拽

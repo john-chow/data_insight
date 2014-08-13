@@ -21,6 +21,7 @@ define([
 					//通知controller去切换工作区
 					self.trigger("area:switch", self.$el.index());
 				});
+				
 				//$(".workbooks").sortable();
 			}
 			
@@ -36,7 +37,13 @@ define([
 				"click .remove-workbook" : "removeWorkBook"
 			},
 			onShow: function(){
-				console.log("show")
+				console.log("show");
+				//监听修改组件名字
+				this.collection.on("name:change", function(name){
+					//将switch视图中正在编辑状态的工作簿同步
+					this.$el.find(".selected-workbook").find(".widget-name").text(name);
+				}, this);
+
 			},
 			/**
 			 * 新建工作簿

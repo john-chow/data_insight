@@ -258,6 +258,13 @@ def pushToClient(request):
     send_event('myevent', 'xxxxxxx', channel = 'foo')
     return HttpResponse('zzzzz')
 
-
+@login_required
+def getFiledValues(request):
+    """
+    获取列的所有值（不重复）
+    """
+    table, column = map(lambda x: request.Post.get(x),\
+                        ("table", "column"))
+    
 
 
