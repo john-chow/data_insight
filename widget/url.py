@@ -12,6 +12,7 @@ urlpatterns = patterns('',
 	url(r'^create/$', 			views.widgetCreate),
 	url(r'^edit/(\w+)/$', 		views.widgetEdit,{'template_name': 'add.html'}, name='edit'),
 	url(r'^show/(\w+)/$', 		views.widgetShow),
+	url(r'^fetch/$', 		    views.fetch),
 
 	url(r'^distr/$', 			views.widgetOp, {'op': 'dis'}),
 	url(r'^delete/$', 			views.widgetOp, {'op': 'delete'}),
@@ -21,7 +22,7 @@ urlpatterns = patterns('',
 	url(r'^batch/delete/$',		views.batachOp, {'op': 'delete'} ),
 
 	url(r'^draw/$', 			views.handleDraw),
-    url(r'^draw/update/(\d+)$',      views.reqUpdateData),
+    url(r'^update/(\d+)$',      views.handleUpdate),
     url(r'^draw/timely/(\d+)$',      views.reqTimelyData),
     
     url(r'^viewList/$',         views.widgetList ,{'template_name': 'widget/view_list.html'}),

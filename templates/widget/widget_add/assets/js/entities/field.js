@@ -2,13 +2,18 @@
  * 参数model
  * Date: 2014-7-28
  */
-define([], function () {
+define(['jquery'], function ($) {
 
 var data = DataInsightManager.module("Entities",
     function(Entities, DataInsightManager, Backbone, Marionette, $, _){
 
     //定义Field模型
     Entities.Field = Backbone.Model.extend({
+      defaults: {
+        fieldName: "",
+        type: "",
+        nickName: "",
+      }
     });
 
     //定义Field集合
@@ -17,46 +22,46 @@ var data = DataInsightManager.module("Entities",
       model: Entities.Field,
     });
 
-    //假设测试数据
-    var fields;
-    var initializeFields = function(tableName){
-      if(tableName==undefined){
-        fields = new Entities.FieldCollection([]);
-      }
-      else{
-        //fields.fetch({'data': {'table': tableName}});
-
-        //测试数据
-          fields = new Entities.FieldCollection([
-            { fieldName:'字段1', type:"F", nickName:"备注名1"},
-            { fieldName:'字段2', type:"F", nickName:""},
-            { fieldName:'字段3', type:"D", nickName:""},
-            { fieldName:'字段4', type:"N", nickName:""},
-            { fieldName:'字段5', type:"N", nickName:"备注名2"},
-            { fieldName:'字段6', type:"D", nickName:""},
-            { fieldName:'字段7', type:"T", nickName:""},
-            { fieldName:'字段8', type:"F", nickName:""},
-            { fieldName:'字段9', type:"F", nickName:""},
-            { fieldName:'字段10', type:"N", nickName:""}
-          ]);
-
-      }
-      
-      return fields;
-    };
-
     //定义接口
     var API = {
       //获取表集合
-      getFieldEntities: function(tableName){
-        //测试
-        return initializeFields(tableName);
-      },
+      getFieldEntities: function(fields){
+
+/*        var fields;
+        var defer = $.Deferred();
+        fields = new Entities.FieldCollection();
+        if(tableName==undefined){
+          defer.resolve(fields);
+        }
+        else{
+          fields.fetch({'data': {'table': tableName},
+            success: function(collection, response, options){
+              var i, backObject, arrList = [], len;
+              backObject = JSON.parse(response.data);
+              len = backObject.fields.length;
+              for(i = 0; i < len; i++){
+                arrList[i]={
+                  "fieldName": backObject.fields[i],
+                  "type": backObject.types[i],
+                  "nickName": backObject.nicknames[i],
+                }
+              }
+              fields = new Entities.FieldCollection(arrList);
+              defer.resolve(fields);
+            },
+            error: function(collection, response, options){
+              console.log("获取field失败");
+            },
+          });
+        }
+        return defer.promise();*/
+        return new Entities.FieldCollection(fields);
+      }
     };
 
     //设定request获取
-    DataInsightManager.reqres.setHandler("field:entities", function(tableName){
-      return API.getFieldEntities(tableName);
+    DataInsightManager.reqres.setHandler("field:entities", function(fields){
+      return API.getFieldEntities(fields);
     });
   });
 

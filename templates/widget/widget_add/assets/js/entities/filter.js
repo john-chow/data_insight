@@ -85,6 +85,7 @@ define([
 			handlerFetcFiledVals: function(data, defer){
 				this.values = data;//不用model的set方法
 				defer.resolve();
+                Entities.entranceFascade.register("draw", this, "filter:change")
 			},
 			/**
 			 * 抓取数据，这里触发widget模型去后台抓取数据

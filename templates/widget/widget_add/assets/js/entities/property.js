@@ -12,12 +12,12 @@ define([
 				title: '组件',
 				style: "default",
 				autoRefresh: "1h",
-				isPublish: "false",//组件是否发布
+				isPublish: "true",//组件是否发布
 			},
 			initialize: function(){
 				var self = this;
 				this.listenChange();
-                Entities.entranceFascade.register("additional", this);
+                Entities.entranceFascade.register("additional", this, "property:change");
                 this.listenPropertyChange();
 			},
 			/**

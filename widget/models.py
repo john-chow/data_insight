@@ -6,6 +6,7 @@ from django.utils import simplejson as json
 from MyTableau.models import ElementModel
 from common.head import WIDGET_SKIN_PATH, SKIN_FILE_TYPE
 from common.tool import readJsonFile
+import common.protocol as Protocol
 
 import pdb
 # Create your models here.
@@ -41,16 +42,18 @@ class WidgetModel(ElementModel):
     m_pic           = models.TextField(db_column='snapshot')
     m_external_db   = models.ForeignKey('ExternalDbModel')
 
+    def getConn(self):
+        return self.m_external_db
 
     def restoreReqDataDict(self):
         return { 
-            u'x': eval(self.m_x) if self.m_x else self.m_x \
-            , u'y': eval(self.m_y) if self.m_y else self.m_y \
-            , u'tables':    json.loads(self.m_table) \
-            , u'color':     eval(self.m_color) if self.m_color else self.m_color \
-            , u'size':      self.m_size \
-            , u'graph':     self.m_graph \
-            , u'table':     self.m_table \
+            Protocol.Xaxis:     eval(self.m_x) if self.m_x else self.m_x 
+            , Protocol.Yaxis:   eval(self.m_y) if self.m_y else self.m_y
+            , 'tables':         json.loads(self.m_table) 
+            , Protocol.Color:   eval(self.m_color) if self.m_color else self.m_color 
+            , Protocol.Size:    self.m_size 
+            , Protocol.Graph:   self.m_graph 
+            , 'table':          self.m_table
         }
 
     def restoreAidData(self):
@@ -59,7 +62,6 @@ class WidgetModel(ElementModel):
             , 'ifupdate':   self.m_if_update
             , 'period':     self.m_update_period
         }
-
 
     def hasAggreate(self):
         '''
@@ -73,6 +75,20 @@ class WidgetModel(ElementModel):
                 return True
 
         return False
+
+    def restore(self):
+        """
+        返回组件内容数据
+        """
+        return {
+            Protocol.Graph:         self.m_graph
+            , Protocol.Xaxis:       eval(self.m_x)
+            , Protocol.Yaxis:       eval(self.m_y)
+            , Protocol.Mapping:     {
+                Protocol.Color:         eval(self.m_color)
+                , Protocol.Size:        eval(self.m_size)
+            }
+        }
 
 
     class Meta:

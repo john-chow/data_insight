@@ -172,10 +172,17 @@ define("compontnents", ["display"], function(d) {
     var myAttributesObj = {
         $el:                $("#scene_name"),
         init:               function() {
+            this.skinDom = $("#choosed_dashboard .skin");
+            this.skinDom.on("change", $.proxy(this.onSkinChange, this))
         },
         getName:            function() {
             this.name = $("#scene_name").val().trim();
             return this.name
+        },
+
+        onSkinChange:       function(ev) {
+            var skinname = $(ev.target).val();
+            $body.trigger("try_skin", skinname)
         }
     };
 
@@ -332,13 +339,15 @@ define("skin", [], function() {
 
         skinName:               "dark",
         
-        dressSkin:          function(list, name) {
+        work:          function(list, name) {
+            var self = this;
             $.each(list, function(i, dw) {
-                dw.getEc().setTheme(name)
+                dw.getEc().setTheme(name);
+                self.change(name)
             })
         },
 
-        changeSkin:         function(name) {            
+        change:         function(name) {            
             this.skinName   = name;
         },
 
@@ -384,11 +393,11 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
             var drList = $.map(this.drawerList, function(dw) {
                 return dw['dr']
             });
-            this.skinObj.dressSkin(drList, name)
+            this.skinObj.work(drList, name)
         },
 
         changeSkin:             function(ev, skinData) {
-            this.skinObj.changeSkin(name)
+            this.skinObj.change(name)
         },
 
         showNewWidget:              function(ev, data) {
@@ -570,7 +579,7 @@ define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
             var displayObj      = this.display.getDisplayDataForAjax();          
             var widgetsStr      = this.scnWidgetsObj.getWidgetsDataForAjax();
             var name            = this.myAttributesObj.getName();
-            var skinNumber      = this.display.getSkinObj().getSkinName();
+            var skinname      = this.display.getSkinObj().getSkinName();
 
             if (window.scene_id) 
                 var url = "/scene/edit/" + window.scene_id + "/"
@@ -586,7 +595,7 @@ define("whole", ["compontnents", "display", 'showmsg'], function(C, D, X) {
                     , "image":          displayObj.image 
                     , "widgets":        widgetsStr 
                     , "name":           name 
-                    , "skin":           skinNumber
+                    , "skin":           skinname
                 }        
                 , success:      function(data) {
                     window.scene_id = data.scn_id;

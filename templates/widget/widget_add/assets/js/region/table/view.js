@@ -28,31 +28,27 @@ var data = DataInsightManager.module("TableRegion",
       },
 
       triggers: {
-          "click #table_template_header>span": "show:new-table",
+          "click #table_template_header>span": "show:table-dialog",
       },
 
       onShow: function() {
-        var variable, selectedCollection, choosedModel;
+        var variable, selectedModelList, choosedModel;
 
         //设置高度
         variable = DataInsightManager.tableRegion.$el.outerHeight()-this.$("#table_template_header").outerHeight()
         this.$("#table_template_content").height(variable);
-
         //三种不同情况下显示数据表（无数据，有数据有选中表，有数据无选中表）
-        selectedCollection = this.collection.where({selected:true});
-        if(selectedCollection.length > 0){
+        selectedModelList = this.collection.where({selected:true});
+        if(selectedModelList.length > 0){
           choosedModel = this.collection.findWhere({choosed:true});
-          if(choosedModel){
-              this.trigger("change:table", choosedModel.get("tableName"));
-          }
-          else{
+          if(!choosedModel){
             this.$(".table-item").eq(0).addClass("table-item-choosed");
-            DataInsightManager.dialogRegion.trigger('model:set', selectedCollection[0], {"choosed":true});
-            this.trigger("change:table", selectedCollection[0].get("tableName"));
           }
+          DataInsightManager.dialogRegion.trigger('pass:selected-table', selectedModelList);
         }
         else{
-          this.trigger("change:table");
+          DataInsightManager.dialogRegion.trigger("change:fields", []);
+          DataInsightManager.dialogRegion.$el.modal("hide");
         }
       },
 
@@ -66,8 +62,10 @@ var data = DataInsightManager.module("TableRegion",
         
         var id = $(e.target).attr("data-id");
         DataInsightManager.dialogRegion.trigger('model:set', this.collection.get(id), {"choosed":true});
-        
-        this.trigger("change:table", $(e.target).html());
+
+        var fields = this.collection.get(id).get("fields");
+
+        DataInsightManager.dialogRegion.trigger("change:fields", fields);
       },
 
     });
@@ -118,9 +116,26 @@ var data = DataInsightManager.module("TableRegion",
       template: connectDbTemplate,
       events: {
         "click .connect-db-commit": "managetableFunction",
+        "click button": "unbindFunction"
       }, 
+      onShow: function(){
+        $(document).bind("keydown", this.keyDownFunction);
+      },
+
+      keyDownFunction: function(ev){
+        if(ev.keyCode==13 && $(".connect-db-commit")[0] 
+            && $("#dialog_region").css("display") == "block"){
+            $(".connect-db-commit").click();
+          };
+      },
+
+      unbindFunction: function(ev){
+        if($(ev.currentTarget).attr("data-dismiss")=="modal")
+          $(document).unbind("keydown", this.keyDownFunction);
+      },
+      
       managetableFunction: function(){
-        this.$(".connect-db-commit").html("连接中...");
+        $(document).unbind("keydown", this.keyDownFunction);
         var options = {
             "ip":     this.$("#connect_ip").val(),
             "port":   this.$("#connect_port").val(),
@@ -128,7 +143,16 @@ var data = DataInsightManager.module("TableRegion",
             "user":   this.$("#connect_user").val(),
             "pwd":    this.$("#connect_pwd").val()
         };
+        this.$(".connect-db-commit").html("连接中...");
+        this.$(".connect-db-commit").css("cursor","wait");
         DataInsightManager.dialogRegion.trigger('connect:get-data', this.model, options);
+      },
+
+      onFormConnectError: function(){
+        $(document).bind("keydown", this.keyFunction);
+        this.$(".connect-db-commit").html("确定");
+        this.$(".connect-db-commit").css("cursor","pointer");
+        this.$("#connect_error").show();
       },
     });
 
@@ -169,41 +193,44 @@ var data = DataInsightManager.module("TableRegion",
 
       events: {
         "click .table-manage-commit":     "tableListFunction",
-        "click #table_manage_choosed":    "choosedTableFunction",
-        "click #table_manage_unchoosed":  "unchoosedTableFunction"
+        "click #table_manage_ul>li":    "toggleCheckedFunction",
+        "click .table-manage-all": 		"selectAllFunction",
+        "click .table-manage-none": 	"selectNoneFunction",
       }, 
 
       tableListFunction: function(){
+      	this.$(".table-manage-commit").html("加载中...");
+        this.$(".table-manage-commit").css("cursor","wait");
         var self = this;
-        this.$(".table-manage-select select option").each(function(i){
-            var model =self.collection.get($(this).val());
-            DataInsightManager.dialogRegion.trigger('model:set', model, {"index":(i+1)});
-          });
-        this.collection.sort();
-        DataInsightManager.dialogRegion.trigger('table:list',this.collection);
+        this.$("[name='manageCheckbox']").each(function(){
+          var model = self.collection.get($(this).attr("data-id"));
+          if($(this).attr("checked")){
+            DataInsightManager.dialogRegion.trigger('model:set', model, {"selected":true});
+          }
+          else {
+            DataInsightManager.dialogRegion.trigger('model:set', model, {"selected":false,"choosed":false});
+          }
+        })
+        DataInsightManager.dialogRegion.trigger('table:list', this.collection);
       },
 
-      choosedTableFunction: function(){
-          var self = this;
-          this.$(".table-manage-unselect select option:selected").each(function(){
-            self.$(".table-manage-select select").append(this);
-            var model = self.collection.get($(this).val());
-            DataInsightManager.dialogRegion.trigger('model:set', model, {"selected":true});
-          });
+      toggleCheckedFunction: function(ev){
+    			if($(ev.currentTarget).find("input").attr("checked")) {
+    				$(ev.currentTarget).find("input").removeAttr("checked"); 
+    			}
+    			else {
+    				$(ev.currentTarget).find("input").attr("checked",true).prop('checked',true); 
+    			}
       },
-      
-      unchoosedTableFunction: function(){
-          var self = this;
-          this.$(".table-manage-select select option:selected").each(function(){
-            self.$(".table-manage-unselect select").append(this);
-            var model = self.collection.get($(this).val());
-            DataInsightManager.dialogRegion.trigger('model:set', model, {
-              "selected":false,
-              "choosed":false,
-              "index":0,
-            });
-          });
-      }
+
+      selectAllFunction: function(){
+        this.$("[name='manageCheckbox']").attr("checked",'true').prop('checked',true);
+      },
+
+      selectNoneFunction: function(){
+        this.$("[name='manageCheckbox']").removeAttr("checked");
+      },
+			
     });
 
   });

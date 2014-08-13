@@ -7,34 +7,19 @@
       </div>
 
       <div class="modal-body table-manage-content clearfix">
-        <div class="table-manage-unselect">
-          <p>未选中</p>
-          <select multiple="multiple">
-            <% _.each(items, function(item){ %>
-              <% if(!item.selected) { %>
-                 <option value ="<%= item.id %>"> <%= item.tableName %> </option>
-              <% } %>
-            <% }); %>
-          </select>
-        </div>
-        <div class="table-manage-operate">
-          <button id="table_manage_choosed" type="button" class="btn btn-info">>></button> 
-          <button id="table_manage_unchoosed" type="button" class="btn btn-info"><<</button> 
-        </div>
-        <div class="table-manage-select">
-            <p>选中</p>
-            <select multiple="multiple">
-            <% _.each(items, function(item){ %>
-               <% if(item.selected) { %>
-                 <option value ="<%= item.id %>"> <%= item.tableName %> </option>
-              <% } %>
-            <% }); %>
-            </select>
-            <p id="table_manage_new"><a href="#">新建数据表</a></p>
-          </div>
+      <p id="table_manage_new"><a href="#">新建数据表</a></p>
+      <ul id="table_manage_ul">
+      <% _.each(items, function(item){ %>
+           <li><input data-id="<%= item.id %>" name="manageCheckbox" type="checkbox" <% if(item.selected) { %> checked="true" <% } %> /><%= item.tableName %></li>
+      <% }); %>
+      </ul>
       </div>
 
       <div class="modal-footer">
+      <div class="table-manage-operate">
+      	<a class="table-manage-all" href="#">全选</a>
+      	<a class="table-manage-none" href="#">全不选</a>
+      </div>
       	<button type="button" class="btn btn-primary table-manage-commit">确定</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
       </div>

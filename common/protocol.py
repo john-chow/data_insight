@@ -50,9 +50,6 @@ Graph = 'graph'
 # 快照
 Snapshot = 'snapshot'
 
-# 选择器封装
-Mapping = 'mapping'
-
 # 颜色区分字段的名称
 Color = 'colour'
 
@@ -61,6 +58,10 @@ Fill = 'fill'
 
 # 用来进行大小的字段
 Size = 'size'
+
+# 选择器封装
+Mapping = 'mapping'
+
 
 
 

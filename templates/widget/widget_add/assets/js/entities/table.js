@@ -9,6 +9,13 @@ var data = DataInsightManager.module("Entities",
 
     //定义Table模型
     Entities.Table = Backbone.Model.extend({
+      defaults: {
+        id: "",
+        tableName: "", 
+        fields: [],  //字段
+        selected: "", //数据管理中选择的表格（可多个）
+        choosed: "", //显示表区域中选中的表格（一个）
+      },
       urlRoot: "/table",
     });
 
@@ -16,7 +23,6 @@ var data = DataInsightManager.module("Entities",
     Entities.TableCollection = Backbone.Collection.extend({
       url: "/tables",
       model: Entities.Table,
-      comparator: 'index',
     });
 
     //定义接口

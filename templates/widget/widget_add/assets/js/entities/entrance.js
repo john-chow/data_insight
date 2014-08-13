@@ -12,7 +12,6 @@ define([
         Entities.BaseEntrance = Backbone.Model.extend({
             initialize:          function() {
                 this.list   = [];
-                this.listen && this.listen();
             },
 
             merge:              function() {
@@ -40,11 +39,11 @@ define([
         Entities.DrawEntrance = Entities.BaseEntrance.extend({
             url:                "/widget/draw/",
 
-            listen:             function() {
-                Entities.on("graph:change filter:change", $.proxy(this.draw, this));
+            listen:             function(name) {
+                Entities.on(name, $.proxy(this.onChange, this));
             },
 
-            draw:               function() {
+            onChange:               function() {
                 var data = this.merge();
                 this.save(data, {
                     success:  function(m, resp) {
@@ -85,8 +84,10 @@ define([
                 );
             },
 
-            register:       function(kind, model) {
-                this.get(kind).register(model);
+            register:       function(kind, model, changeEvent) {
+                var concreteModel = this.get(kind);
+                concreteModel.register(model);
+                concreteModel.listen && concreteModel.listen(changeEvent)
             },
 
             save:           function() {

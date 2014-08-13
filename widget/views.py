@@ -53,9 +53,7 @@ def widgetCreate(request):
     """
     组件创建
     """
-    logger.debug("function widgetList() is called")
-
-    if u'POST' == request.method:
+    if 'POST' == request.method:
         req_data = json.loads(request.POST.get('data', '{}'))
 
         [tables, graph, x, y, mapping, snapshot] \
@@ -69,9 +67,9 @@ def widgetCreate(request):
         try:
             tables = json.dumps(tables)
         except ValueError, e:
-            return MyHttpJsonResponse({u'succ': False, u'msg': u'arguments error'})
+            return MyHttpJsonResponse({'succ': False, 'msg': 'arguments error'})
 
-        hk = request.session.get(u'hk')
+        hk = request.session.get('hk')
         external_conn = ExternalDbModel.objects.get(pk = hk)
 
         try:
@@ -82,13 +80,13 @@ def widgetCreate(request):
             )
         except DatabaseError, e:
             logger.error(e[0])
-            return MyHttpJsonResponse({u'succ': False   \
-                                        , u'msg': u'无法保存到数据库'})
+            return MyHttpJsonResponse({'succ': False   \
+                                        , 'msg': '无法保存到数据库'})
         else:
             saveStyleArgs(request, widget)
 
-        return MyHttpJsonResponse({u'succ': True, u'wiId': widget.pk, \
-                                    u'msg': u'保存成功'})
+        return MyHttpJsonResponse({'succ': True, 'wiId': widget.pk, \
+                                    'msg': '保存成功'})
     else:
         hk      = request.session.get(u'hk')
         st      = PysqlAgentManager.stRestore(hk)
@@ -96,8 +94,8 @@ def widgetCreate(request):
         tables  = request.session.get('tables')
 
         context = RequestContext(request)
-        dict = {u'content': json.dumps({u'tables': tables})}
-        return render_to_response(u'add.html', dict, context)
+        dict = {'content': json.dumps({'tables': tables})}
+        return render_to_response('add.html', dict, context)
 
 
 def saveStyleArgs(request, widget_model = None):
@@ -174,17 +172,19 @@ def widgetEdit(request, widget_id, template_name):
                                         m_table = tables, \
                                         m_pic = image)
         except ValueError, e:
-            return MyHttpJsonResponse({u'succ': False, u'msg': u'arguments error'})
+            return MyHttpJsonResponse({'succ': False, 'msg': 'arguments error'})
         except Exception, e:
-            return MyHttpJsonResponse({u'succ': False, u'msg': u'异常情况'})
+            return MyHttpJsonResponse({'succ': False, 'msg': '异常情况'})
         else:
-            return MyHttpJsonResponse({u'succ': True, u'msg': u'修改成功'})
+            return MyHttpJsonResponse({'succ': True, 'msg': '修改成功'})
 
     else:
         context = RequestContext(request)
 
-        widget_model = get_object_or_404(WidgetModel, pk = widget_id)
-        request.session[u'widget_id'] = widget_id
+        widget = get_object_or_404(WidgetModel, pk = widget_id)
+
+        '''
+        request.session['widget_id'] = widget_id
 
         # 有没有直接把Model里面全部属性转换成dict的办法？ 
         req_data = widget_model.restoreReqDataDict()
@@ -205,6 +205,11 @@ def widgetEdit(request, widget_id, template_name):
             , 'aid':        json.dumps(aid_data)
         }
         return render_to_response(template_name, data, context)
+        '''
+
+        return render_to_response( \
+            'widget/widget_add/add.html', {'widget_id': widget_id}, context \
+        )
 
 
 @require_http_methods(['GET'])
@@ -215,17 +220,32 @@ def widgetShow(request, widget_id):
     try:
         widget_model    = WidgetModel.objects.select_related().get(pk = widget_id)
         req_data        = widget_model.restoreReqDataDict()
-        skin_id         = request.GET.get(u'skin_id')
+        skin_id         = request.GET.get('skin_id')
     except WidgetModel.DoesNotExist:
-        return HttpResponse({u'succ': False, u'msg': u'xxxxxxxxxxxx'})
+        return HttpResponse({'succ': False, 'msg': 'xxxxxxxxxxxx'})
     except ExternalDbModel.DoesNotExist:
-        return HttpResponse({u'succ': False, u'msg': u'yyyyyyyyyyyy'})
+        return HttpResponse({'succ': False, 'msg': 'yyyyyyyyyyyy'})
     else:
         hk              = widget_model.m_external_db.m_hk
         st              = PysqlAgentManager.stRestore(hk)
-        st.reflectTables(json.loads(widget_model.m_table))
+        map(lambda x: st.reflect(x), json.loads(widget_model.m_table))
         image_data      = genWidgetImageData(req_data, hk)
-        return MyHttpJsonResponse({u'succ': True, u'widget_id':widget_id, u'data': image_data})
+        return MyHttpJsonResponse({'succ': True, 'widget_id':widget_id, 'data': image_data})
+
+
+@require_http_methods(['GET'])
+@login_required
+def fetch(request, widget_id):
+    """
+    获取场景的数据
+    """
+    try:
+        widget = WidgetModel.objects.get(pk = widget_id)
+    except WidgetModel.DoesNotExist, e:
+        return HttpResponse({'succ': False})
+
+    data = widget.restore()
+    return MyHttpJsonResponse({'succ': True, 'data': data})
 
 
 
@@ -257,15 +277,15 @@ def handleDraw(request):
     获取能画出chart的数据
     """
     logger.debug("function handleDraw() is called")
-    req_data = json.loads(request.POST.get(u'data', u'{}'), 
+    req_data = json.loads(request.POST.get('data', '{}'), 
                                 object_pairs_hook=OrderedDict)
 
     rsu = checkExtentData(req_data)
     if not rsu[0]:
         return MyHttpJsonResponse({'succ': False, 'msg': rsu[1]})
 
+    hk       = request.session['hk']
     try:
-        hk       = request.session[u'hk']
         producer = DrawDataProducer(hk)
         data    = producer.produce(req_data)
     except Exception, e:
@@ -278,12 +298,20 @@ def handleDraw(request):
         return MyHttpJsonResponse(backData)
 
 
-@require_http_methods(['POST'])
-def reqUpdateData(request):
-    '''
-    获取在已画出chart之后的更新数据
-    '''
-    pass
+@require_http_methods(['GET'])
+def handleUpdate(request, wi_id):
+    """
+    处理对组件的更新请求
+    """
+    handler = UpdateHandler(wi_id)
+    if not handler.checkUpdatable():
+        return MyHttpJsonResponse({'succ': False, 'msg': 'xxxx'})
+
+    data = handler.handle()
+    data['succ'] = True
+    return MyHttpJsonResponse(data)
+
+
 
 
 @require_http_methods(['POST'])
@@ -291,7 +319,7 @@ def reqTimelyData(request, wi_id):
     '''
     获取及时的新数据
     '''
-    hk = request.session.get(u'hk')
+    hk = request.session.get('hk')
     st = PysqlAgentManager.stRestore(hk)
 
     widget_model = WidgetModel.objects.get(pk = wi_id)
@@ -452,7 +480,8 @@ def transReqDataToSqlObj(req_data, st):
     axis_factor_list = factors_lists_dict['msu'] + factors_lists_dict['msn'] 
     group_factor_list = factors_lists_dict['group']
 
-    sql_obj = st.makeSelectSql(**mapFactorToSqlPart(axis_factor_list, group_factor_list))
+    sql_obj = st.getSwither().makeSelectSql( \
+            **mapFactorToSqlPart(axis_factor_list, group_factor_list))
 
     return sql_obj
 
@@ -623,6 +652,7 @@ def formatData(data_from_db, msu_factor_list, msn_factor_list, group_list, shape
     echart = EChartManager().get_echart(shape_in_use)
     return echart.makeData(data_from_db, msu_factor_list, msn_factor_list, group_list)
 
+
 @login_required
 def widgetAdd(request):
     """
@@ -651,8 +681,8 @@ class DrawDataProducer():
         self.fh = FactorHandler(req)
         part_dict = self.fh.mapToSqlPart()
 
-        sql_obj = self.st.makeSelectSql(**part_dict)
-        data_db = self.st.conn.execute(sql_obj).fetchall()
+        sql_obj = self.st.getSwither().makeSelectSql(**part_dict)
+        data_db = self.st.execute(sql_obj).fetchall()
         clean_data_db = cleanDataFromDb(data_db)
         strf_data_db = strfDataAfterFetchDb(clean_data_db)
 
@@ -691,7 +721,7 @@ class FactorHandler():
         '''
         [col_kind_attr_list, row_kind_attr_list] = \
                 map( lambda i: req.get(i, []), \
-                        (u'x', u'y') \
+                        ('x', 'y') \
                     ) 
 
         # 获取轴上属性Factor对象
@@ -704,10 +734,10 @@ class FactorHandler():
             else:
                 factor.setBelongToAxis('col')
 
-            tmp_factors = msn_factors \
-                    if Protocol.NoneFunc == factor.getProperty(Protocol.Func) \
-                        or 2 == factor.getProperty(Protocol.Kind)  \
-                    else msu_factors
+            tmp_factors = msu_factors \
+                    if Protocol.NoneFunc != factor.getProperty(Protocol.Func) \
+                        and 0 == factor.getProperty(Protocol.Kind)  \
+                    else msn_factors
 
             tmp_factors.append(factor)
 
@@ -727,6 +757,7 @@ class FactorHandler():
         self.msus = msu_factors
         self.msns = msn_factors
         self.groups = group_factor_list
+        self.extracted = True
         return 
 
 
@@ -759,6 +790,15 @@ class FactorHandler():
             , 'groups':         groups
         }
 
+    def filterTimeFactors(self):
+        if not self.extracted:
+            self.extract()
+
+        factors = [factor for factor in self.msns \
+                    if 'T' == factor.getProperty(Protocol.Type)]
+        return factors
+
+
     def getMsus(self):
         return self.msus
 
@@ -769,25 +809,60 @@ class FactorHandler():
         return self.groups
 
 
+class UpdateHandler():
+    def __init__(self, wi_id):
+        self.widget = WidgetModel.objects.get(pk = wi_id)
+        self.hk = self.widget.getConn().pk
+        self.st = PysqlAgentManager.stRestore(self.hk)
+        self.processor = None
 
-# 组件更新器基类
-class WidgetUpdator():
-    def update():
-        pass
+    def checkUpdatable():
+        return self.widget.m_if_update
+
+    def chooseUpdator(self):
+        req = self.widget.restoreReqDataDict()
+        self.fh = FactorHandler(req)
+        time_num = len(self.fh.filterTimeFactors())
+        if time_num > 0:
+            return AddUpdator(self.hk, req)
+        else:
+            return AllUpdator(self.hk, req)
+
+    def setUpdator(self, obj):
+        self.updator = obj
+
+    def getUpdator(self):
+        return self.updator
+
+    def handle(self):
+        self.setUpdator(self.chooseUpdator())
+        self.updator.produce()
+
+
 
 # 补充型组件更新器
-class SupplyUpdator(WidgetUpdator):
-    pass
+class AddUpdator():
+    def __init__(self, hk, req):
+        self.type = 'add'
+
+    def produce(self):
+        pass
+
+    def ifHasAggrate(self):
+        return False
 
 # 完全刷新型组件更新器
-class RefreshUpdator(WidgetUpdator):
-    pass
+class AllUpdator():
+    def __init__(self, hk, req):
+        self.type = 'all'
+        self.hk = hk
+        self.req = req
 
+    def produce(self):
+        producer = DrawDataProducer(self.hk)
+        data    = producer.produce(self.req)
+        return {'type': self.type, 'data': data}
 
-
-
-
-  
 
 
 

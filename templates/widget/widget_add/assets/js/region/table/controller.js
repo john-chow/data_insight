@@ -22,7 +22,7 @@ define([
 				showTableView = new TableRegion.TableView({
 					collection: collection
 				});
-				showTableView.on("show:new-table", function(){
+				showTableView.on("show:table-dialog", function(){
 					DataInsightManager.dialogRegion.trigger("show:dialog-table-manage", collection);
 	       		});
 			}
@@ -30,21 +30,26 @@ define([
 				showTableView = new TableRegion.TableView({
 					collection: new (Backbone.Collection.extend({}))
 				});
-				showTableView.on("show:new-table", function(){
+				showTableView.on("show:table-dialog", function(){
 					DataInsightManager.dialogRegion.trigger("show:dialog-new-table");
 				});
 			}
 
 			/*
+			* 为避免嵌套，以下事件均绑定到dialogRegion，而不是View
+			* 防止重复绑定
+			*/
+			DataInsightManager.dialogRegion.off();
+
+			/*
 			* 显示field
 			*/
-			showTableView.on("change:table", function(tableName){
-	          	DataInsightManager.execute("showField", tableName);
+			DataInsightManager.dialogRegion.on("change:fields", function(fields){
+	          	DataInsightManager.execute("showField", fields);
 	       	});
 
 			/*
 			* 打开新建数据表模态框
-			* 为避免嵌套，以下事件均绑定到dialogRegion，而不是View
 			*/
 			DataInsightManager.dialogRegion.on("show:dialog-new-table", function(){
 	        	var newTableView = new TableRegion.newTableDialog();
@@ -79,6 +84,9 @@ define([
 		        var connectDbView = new TableRegion.connectDbDialog({
 		        	model: connectModel
 		        });
+		        DataInsightManager.dialogRegion.on("connect:error", function(){
+					connectDbView.triggerMethod("form:connect:error");
+				});
 				DataInsightManager.dialogRegion.show(connectDbView);
 		    });
 
@@ -92,7 +100,6 @@ define([
 						for(var i =0;i<response.length;i++){
 					    	response[i].id = (i+1);
 					    	response[i].selected = false;
-					    	response[i].index = 0;
 					    	response[i].choosed = false;
 					    }
 						DataInsightManager.dialogRegion.trigger("show:dialog-table-manage", collection);
@@ -104,10 +111,10 @@ define([
 		    });
 
 		    /*
-			* 根据填入数据库账号密码连接数据库，成功返回collection
+			* 根据填入数据库账号密码连接数据库，成功返回表名
 			*/
 		    DataInsightManager.dialogRegion.on("connect:get-data", function(model, options){
-				model.save(options, {
+				if(!model.save(options, {
 					success: function(model, response, options){
                         if (response.succ) {
                             var respData = response.data;
@@ -117,18 +124,20 @@ define([
                             		'id': 			(i+1),
                             		'selected': 	false,
                             		'choosed': 		false,
-                            		'index': 		0,
                             	}
                             }
                             var collection = DataInsightManager.request("table:entities", respData);
                             DataInsightManager.dialogRegion.trigger("show:dialog-table-manage", collection);
-                        } else {
                         }
-					},
-					error: function(model, response, options){
-						console.log("连接失败");
-					},
-				});
+                        else{
+                            DataInsightManager.dialogRegion.trigger("connect:error");
+							console.log("连接失败");
+                        }
+					}
+				})){
+					DataInsightManager.dialogRegion.trigger("connect:error");
+					console.log("连接失败");
+				}
 			});
 				
 			/*
@@ -145,10 +154,54 @@ define([
 		    });
 
 		    /*
+			* 传送已经选择的表名到后台，返回fields
+			*/
+		    DataInsightManager.dialogRegion.on("pass:selected-table", function(selectedModelList){
+		    	var selectedNameList=[], i, j, backDataList, tempData;
+		    	for(i =0; i<selectedModelList.length; i++){
+		    		selectedNameList[i] = selectedModelList[i].attributes.tableName;
+		    	}
+		    	$.ajax({
+		             	type: "POST",
+		             	cache: false,
+		             	async: false,
+		             	url: "/connect/table/",
+		             	data: {
+		             		'table': JSON.stringify(selectedNameList)
+		            	},
+		            	dataType: "json",
+		            	success: function(data){
+		            		if(data.succ)
+		            			backDataList = JSON.parse(data.data);
+		                }
+		        });
+		        //把数据放入model
+		        for(i=0 ; i<backDataList.length; i++){
+		        	var selectedModelList = collection.where({selected:true});
+		        	tempData = [];
+		        	for(j=0 ; j<backDataList[i].fields.length; j++){
+		        			tempData[j]={
+		        				"fieldName": backDataList[i].fields[j],
+		        				"type": backDataList[i].types[j],
+		        				"nickName": backDataList[i].nicknames[j]
+		        			}
+		        	}
+		        	if(i==0 && !collection.findWhere({"choosed":true})){
+		        		selectedModelList[i].set({"choosed": true, "fields": tempData});
+		        	}
+		        	else{
+		        		selectedModelList[i].set({"fields": tempData});
+		        	}
+		        }
+
+		        DataInsightManager.dialogRegion.trigger("change:fields", collection.findWhere({"choosed":true}).get("fields"));
+		        DataInsightManager.dialogRegion.$el.modal("hide");
+		    });
+
+		    /*
 			* 显示数据表
 			*/
 		    DataInsightManager.dialogRegion.on("table:list", function(collection){
-		    	DataInsightManager.dialogRegion.$el.modal("hide");
 		    	DataInsightManager.trigger('table:list', collection);
 		    });
 

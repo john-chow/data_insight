@@ -361,43 +361,43 @@ class EChartManager():
         pass
 
     def get_echart(self, shape=u'bar'):
-        if u'table' == shape: 
+        if 'table' == shape: 
             return Table()
 
-        elif u'bar' == shape: 
+        elif 'bar' == shape: 
             return Bar()
 
-        elif u's_bar' == shape:
+        elif 's_bar' == shape:
             return Bar()
 
-        elif u'placehold_bar' == shape:
+        elif 'placehold_bar' == shape:
             return Bar()
 
-        elif u'line' == shape:
+        elif 'line' == shape:
             return Line()
 
-        elif u's_line' == shape:
+        elif 's_line' == shape:
             return Line()
 
-        elif u'area' == shape:
+        elif 'area' == shape:
             return Area()
 
-        elif u's_area' == shape:
+        elif 's_area' == shape:
             return Area()
 
-        elif u'scatter' == shape:
+        elif 'scatter' == shape:
             return Scatter()
 
-        elif u'pie' == shape:
+        elif 'pie' == shape:
             return Pie()
 
-        elif u'radar' == shape:
+        elif 'radar' == shape:
             return Radar()
         
-        elif u'china_map' == shape:
+        elif 'china_map' == shape:
             return ChinaMap()
 
-        elif u'world_map' == shape:
+        elif 'world_map' == shape:
             return WorldMap()
 
         else:

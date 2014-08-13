@@ -28,7 +28,8 @@ define([
 
     	//设置area的高度
     	//$("#design_region").height((leaveHeight-$("#switch_region").outerHeight())*0.3);
-    	$("#show_region").height((leaveHeight-$("#switch_region").outerHeight())*0.7);
+        //console.log(leaveHeight+"___"+$("#switch_region").outerHeight(true)+"___"+$("#design_region").outerHeight());
+    	$("#show_region").height(leaveHeight-$("#switch_region").outerHeight(true)-162-10-2-2);
 
         //设置table_template_content的高度
         variable = $("#table_region").outerHeight()-$("#table_template_header").outerHeight()
