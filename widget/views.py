@@ -243,19 +243,34 @@ def widgetShow(request, widget_id):
     获得该widget的图像数据
     """
     try:
-        widget_model    = WidgetModel.objects.select_related().get(pk = widget_id)
-        req_data        = widget_model.restoreReqDataDict()
+        model = WidgetModel.objects.select_related().get(pk = widget_id)
+        hk = model.m_external_db.m_hk
+        producer = DrawDataProducer(self.hk)
+        data = producer.produce(self.req)
+    except WidgetModel.DoesNotExist:
+        return HttpResponse({'succ': False, 'msg': 'xxxxxxxxxxxx'})
+    except ExternalDbModel.DoesNotExist:
+        return HttpResponse({'succ': False, 'msg': 'yyyyyyyyyyyy'})
+    else:
+        return MyHttpJsonResponse({'succ': True, 'widget_id': widget_id, 'data': data})
+
+
+'''
+    try:
+        model    = WidgetModel.objects.select_related().get(pk = widget_id)
+        req_data        = model.restoreReqDataDict()
         skin_id         = request.GET.get('skin_id')
     except WidgetModel.DoesNotExist:
         return HttpResponse({'succ': False, 'msg': 'xxxxxxxxxxxx'})
     except ExternalDbModel.DoesNotExist:
         return HttpResponse({'succ': False, 'msg': 'yyyyyyyyyyyy'})
     else:
-        hk              = widget_model.m_external_db.m_hk
+        hk              = model.m_external_db.m_hk
         st              = SqlExecutorMgr.stRestore(hk)
-        map(lambda x: st.reflect(x), json.loads(widget_model.m_table))
+        map(lambda x: st.reflect(x), json.loads(model.m_table))
         image_data      = genWidgetImageData(req_data, hk)
         return MyHttpJsonResponse({'succ': True, 'widget_id':widget_id, 'data': image_data})
+'''
 
 
 @require_http_methods(['GET'])
