@@ -47,7 +47,8 @@ var data = DataInsightManager.module("TableRegion",
           DataInsightManager.dialogRegion.trigger('pass:selected-table', selectedModelList);
         }
         else{
-          DataInsightManager.dialogRegion.trigger("change:fields");
+          DataInsightManager.dialogRegion.trigger("change:fields", []);
+          DataInsightManager.dialogRegion.$el.modal("hide");
         }
       },
 
