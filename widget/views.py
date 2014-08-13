@@ -26,6 +26,37 @@ import pdb
 
 
 @login_required
+def handleOperate(request, widget_id = None):
+    hk = request.session.get('hk')
+    try:
+        widget = Entity(hk, widget_id) if widget_id else Entity(hk)
+        template = '' if widget_id else ''
+        if 'POST' == request.method:
+            req_data = json.loads(request.POST.get('data', '{}'))
+            widget.parse(req_data)
+            succ, code = widget.validate()
+            if not succ:
+                return MyHttpJsonResponse({'succ': succ, 'msg': code})
+            widget.save()
+            return MyHttpJsonResponse({'succ': True, 'wiId': widget.pk, \
+                                        'msg': '保存成功'})
+        else:
+            widget.show()
+            return render_to_response('add.html', {}, context)
+    except DatabaseError, e:
+        logger.error(e[0])
+        return MyHttpJsonResponse({'succ': False \
+                                    , 'msg': '无法保存到数据库'})
+    except ExternalDbModel.DoesNotExist, e:
+        return MyHttpJsonResponse({'succ': False \
+                                    , 'msg': 'xxxxxxxxxxxx'})
+    except Exception, e:
+        return MyHttpJsonResponse({'succ': False \
+                                    , 'msg': 'xxxxxxxxxxxx'})
+
+
+
+@login_required
 @require_http_methods(['GET'])
 def widgetList(request, template_name):
     """
@@ -55,51 +86,40 @@ def widgetCreate(request):
     """
     if 'POST' == request.method:
         req_data = json.loads(request.POST.get('data', '{}'))
-
-        [tables, graph, x, y, mapping, snapshot] \
-            = map(lambda i: req_data.get(i), \
-                [Protocol.Table, Protocol.Graph, Protocol.Xaxis, Protocol.Yaxis, \
-                Protocol.Mapping, Protocol.Snapshot])
-
-        color = mapping.get(Protocol.Color)
-        size = mapping.get(Protocol.Size)
-
-        try:
-            tables = json.dumps(tables)
-        except ValueError, e:
-            return MyHttpJsonResponse({'succ': False, 'msg': 'arguments error'})
-
         hk = request.session.get('hk')
-        external_conn = ExternalDbModel.objects.get(pk = hk)
-
         try:
-            widget = WidgetModel.objects.create( 
-                m_name='组件', m_table = tables, m_x=x, m_y=y, \
-                m_color = color, m_size = size, m_graph = graph, \
-                m_external_db = external_conn, m_pic = snapshot  \
-            )
+            widget = Entity(hk)
+            widget.parse(req_data)
+            succ, code = widget.validate()
+            if not succ:
+                return MyHttpJsonResponse({'succ': succ, 'msg': code})
+            widget.save()
         except DatabaseError, e:
             logger.error(e[0])
             return MyHttpJsonResponse({'succ': False   \
                                         , 'msg': '无法保存到数据库'})
+        except ExternalDbModel.DoesNotExist, e:
+            return MyHttpJsonResponse({'succ': False \
+                                        , 'msg': 'xxxxxxxxxxxx'})
+        except Exception, e:
+            return MyHttpJsonResponse({'succ': False \
+                                        , 'msg': 'xxxxxxxxxxxx'})
         else:
-            saveStyleArgs(request, widget)
-
-        return MyHttpJsonResponse({'succ': True, 'wiId': widget.pk, \
-                                    'msg': '保存成功'})
+            return MyHttpJsonResponse({'succ': True, 'wiId': widget.pk, \
+                                        'msg': '保存成功'})
     else:
-        hk      = request.session.get(u'hk')
-        st      = SqlExecutorMgr.stRestore(hk)
-
-        tables  = request.session.get('tables')
-
-        context = RequestContext(request)
-        dict = {'content': json.dumps({'tables': tables})}
-        return render_to_response('add.html', dict, context)
-
-
-def saveStyleArgs(request, widget_model = None):
-    pass
+        hk = request.session.get('hk')
+        try:
+            widget = Entity(hk)
+            widget.show()
+        except ExternalDbModel.DoesNotExist, e:
+            return MyHttpJsonResponse({'succ': False \
+                                        , 'msg': 'xxxxxxxxxxxx'})
+        except Exception, e:
+            return MyHttpJsonResponse({'succ': False \
+                                        , 'msg': 'xxxxxxxxxxxx'})
+        else:
+            return render_to_response('add.html', {}, context)
 
 
 
@@ -152,36 +172,44 @@ def batachOp(request, op):
 
 @login_required
 def widgetEdit(request, widget_id, template_name):
-    """
-    组件编辑
-    """
-    logger.debug("function widgetEdit() is called")
-
-    if u'POST' == request.method:
-        req_data = json.loads(request.POST.get('data', '{}'))
-        
-        [x, y, color, size, graph, tables, image] \
-            = map(lambda arg: req_data.get(arg, u''), \
-                    ['x', 'y', 'color', 'size', 'graph', 'tables', 'image'])
-
+    if 'POST' == request.method:
+        req = json.loads(request.POST.get('data', '{}'))
+        hk = request.session.get('hk')
         try:
-            tables = json.dumps(tables)
-            WidgetModel.objects.filter(pk = widget_id) \
-                                .update(m_x = x, m_y = y, m_color = color, \
-                                        m_size = size, m_graph = graph, \
-                                        m_table = tables, \
-                                        m_pic = image)
-        except ValueError, e:
-            return MyHttpJsonResponse({'succ': False, 'msg': 'arguments error'})
+            widget = Entity(hk, widget_id)
+            widget.parse(req)
+            succ, code = widget.validate()
+            if not succ:
+                return MyHttpJsonResponse({'succ': succ, 'msg': code})
+            widget.save()
+        except DatabaseError, e:
+            logger.error(e[0])
+            return MyHttpJsonResponse({'succ': False   \
+                                        , 'msg': '无法保存到数据库'})
+        except ExternalDbModel.DoesNotExist, e:
+            return MyHttpJsonResponse({'succ': False \
+                                        , 'msg': 'xxxxxxxxxxxx'})
         except Exception, e:
-            return MyHttpJsonResponse({'succ': False, 'msg': '异常情况'})
+            return MyHttpJsonResponse({'succ': False \
+                                        , 'msg': 'xxxxxxxxxxxx'})
         else:
-            return MyHttpJsonResponse({'succ': True, 'msg': '修改成功'})
-
+            return MyHttpJsonResponse({'succ': True, 'wiId': widget.id, \
+                                        'msg': '保存成功'})
     else:
-        context = RequestContext(request)
-
-        widget = get_object_or_404(WidgetModel, pk = widget_id)
+        hk = request.session.get('hk')
+        try:
+            widget = Entity(hk)
+            widget.show()
+        except ExternalDbModel.DoesNotExist, e:
+            return MyHttpJsonResponse({'succ': False \
+                                        , 'msg': 'xxxxxxxxxxxx'})
+        except Exception, e:
+            return MyHttpJsonResponse({'succ': False \
+                                        , 'msg': 'xxxxxxxxxxxx'})
+        else:
+            return render_to_response( \
+                'widget/widget_add/add.html', {'widget_id': widget.id}, context \
+            )
 
         '''
         request.session['widget_id'] = widget_id
@@ -207,9 +235,6 @@ def widgetEdit(request, widget_id, template_name):
         return render_to_response(template_name, data, context)
         '''
 
-        return render_to_response( \
-            'widget/widget_add/add.html', {'widget_id': widget_id}, context \
-        )
 
 
 @require_http_methods(['GET'])
@@ -311,6 +336,10 @@ def handleUpdate(request, wi_id):
     data['succ'] = True
     return MyHttpJsonResponse(data)
 
+
+
+def operate(request):
+    pass
 
 
 
@@ -666,6 +695,59 @@ def widgetAdd(request):
 
 
 
+########################################
+## 处理组件请求 
+#########################################
+class Entity():
+    def __init__(self, hk, id = None):
+        self.id = id or None
+        self.hk = hk
+        self.conn = ExternalDbModel.objects.get(pk = hk)
+
+    def parse(self, req):
+        [self.graph, self.x, self.y, self.mapping, self.snapshot] \
+            = map(lambda i: req.get(i), \
+                [Protocol.Graph, Protocol.Xaxis, Protocol.Yaxis, \
+                Protocol.Mapping, Protocol.Snapshot])
+
+        self.color = mapping.get(Protocol.Color)
+        self.size = mapping.get(Protocol.Size)
+
+    def validate(self):
+        if not self.graph:
+            succ, code = False, -1
+        elif (not self.x) and (not self.y):
+            succ, code = False, -1
+        else:
+            succ, code = True, 0
+
+        return succ, code
+
+    def save(self):
+        if self.id:
+            WidgetModel.objects.filter(pk = self.id) \
+                        .update(m_x = self.x, m_y = self.y, \
+                                m_color = self.color, m_size = self.size, \
+                                m_graph = self.graph, m_pic = self.snapshot)
+        else:
+            widget = WidgetModel.objects.create( 
+                m_name = '组件', m_x = self.x, m_y = self.y, \
+                m_color = self.color, m_size = self.size, \
+                m_graph = self.graph, m_external_db = self.conn, \
+                m_pic = self.snapshot  \
+            )
+            self.id = widget.pk
+
+    def show(self):
+        if self.id:
+            st = SqlExecutorMgr.stRestore(self.hk)
+            pass
+
+
+
+########################################
+## 处理绘图
+#########################################
 class DrawDataProducer():
     def __init__(self, hk):
         self.st = SqlExecutorMgr.stRestore(hk)
@@ -809,6 +891,11 @@ class FactorHandler():
         return self.groups
 
 
+
+
+########################################
+## 处理定时更新
+#########################################
 class UpdateHandler():
     def __init__(self, wi_id):
         self.widget = WidgetModel.objects.get(pk = wi_id)
