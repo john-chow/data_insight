@@ -8,14 +8,14 @@ define([
         ShowRegion.Controller = function() {
             var self = this;
             self.entrance = DataInsightManager.request("entrance:entity");
-            self.showController = DataInsightManager.request("show:entity");
+            self.showModel = DataInsightManager.request("show:entity");
             self.showView = new ShowRegion.Board();
             DataInsightManager.showRegion.show(self.showView, {preventDestroy: true});
 
-            DataInsightManager.commands.setHandler("widget:save", function() {
+            self.showModel.on("snapshot:take", function(defer) {
                 var snapshot = self.showView.getSnapshot();
-                self.showController.trigger("snapshot:take", snapshot)
-            });
+                self.showModel.finishSnapshot(snapshot, defer)
+            })
 
             DataInsightManager.commands.setHandler("widget:back", function() {
             });

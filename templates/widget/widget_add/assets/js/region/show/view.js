@@ -14,19 +14,22 @@ define([
 
             initialize:     function() {
                 this.drawerMgr = new DrawManager();
+                this.ec = null;
             },
 
             draw:           function(data) {
-                this.drawerMgr.run(this.el, data)
+                this.drawerMgr.run(this.el, data);
+                this.ec = this.drawerMgr.getEc()
             },
 
             clear:          function() {
-                var ec = this.drawerMgr.getEc();
-                ec && ec.clear()
+                this.ec && this.ec.clear()
             },
 
             getSnapshot:    function() {
-                var zr = this.drawerMgr.getEc().getZrender();
+                if (!this.ec)       return ''
+
+                var zr = this.ec.getZrender();
                 var snapshot = zr.toDataURL("image/png");
                 return snapshot
             }

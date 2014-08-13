@@ -16,8 +16,15 @@ define([
 
             merge:              function() {
                 var data = {};
+                var operate = function(m) {
+                    return function() {
+                        data = _.extend(data, m.toJSON());
+                    } 
+                };
+
                 $.each(this.list, function(i, m) {
-                    data = _.extend(data, m.toJSON())
+                    if (m.ready)    m.ready().done(operate(m))
+                    else            operate(m)()
                 })
                 return data
             },
@@ -80,7 +87,7 @@ define([
 
                 Entities.on("design:initial", $.proxy(this.onReqWidgetData, this));
                 DataInsightManager.commands.setHandler(
-                    "widget:save", $.proxy(this.save, this)
+                    "widget:save", $.proxy(this.onSave, this)
                 );
             },
 
@@ -90,18 +97,19 @@ define([
                 concreteModel.listen && concreteModel.listen(changeEvent)
             },
 
-            save:           function() {
+            onSave:           function() {
                 var data = this.merge();
                 this.save(data, {
-                    success:    function(m, resp) {
+                    wait:       true
+                    , success:    function(m, resp) {
                     }
                 });
             },
 
             merge:          function() {
-                var drawData = this.drawModel.merge();
-                var additionalData = this.additionalModel.merge();
-                return _.extend(drawData, additionalData)
+                var drawData = this.get("draw").merge();
+                var additionalData = this.get("additional").merge();
+                return _.extend({}, drawData, additionalData)
             },
 
             parse:              function() {
