@@ -74,7 +74,7 @@ define([
         Entities.EntranceFascade = Backbone.Model.extend({
         	url:                function() {
                 if (window.widgetId)       
-                    return "/widget/edit/"
+                    return "/widget/update/" + window.widgetId
                 else        
                     return "/widget/create/"
             },

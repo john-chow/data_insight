@@ -82,6 +82,13 @@ class WidgetModel(ElementModel):
                 Protocol.Color:         eval(self.m_color)
                 , Protocol.Size:        eval(self.m_size)
             }
+            , Protocol.Refresh:     self.m_refresh
+            , Protocol.Style:       self.m_skin
+            , Protocol.IsPublish:   self.m_status
+            , Protocol.Color:       self.m_color
+            , Protocol.Size:        self.m_size
+            , Protocol.WidgetName:  self.m_name
+            , 'filter':             []
         }
 
 

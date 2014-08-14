@@ -30,7 +30,6 @@ def handleOperate(request, widget_id = None):
     hk = request.session.get('hk')
     try:
         entity = Entity(hk, widget_id) if widget_id else Entity(hk)
-        template = '' if widget_id else ''
         if 'POST' == request.method:
             req_data = json.loads(request.POST.get('data', '{}'))
             succ, code = entity.parse(req_data)
@@ -40,8 +39,14 @@ def handleOperate(request, widget_id = None):
             return MyHttpJsonResponse({'succ': True, 'wiId': entity.id, \
                                         'msg': '保存成功'})
         else:
-            entity.show()
-            return render_to_response('add.html', {}, context)
+            # 区分是拿页面还是拿内容
+            if request.is_ajax():
+                info = entity.display()
+                return MyHttpJsonResponse({'succ': True, 'data': info})
+            else:
+                context = RequestContext(request)
+                dict = {'widget_id': widget_id} if widget_id else {}
+                return render_to_response('widget/widget_add/add.html', dict, context)
     except DatabaseError, e:
         logger.error(e[0])
         return MyHttpJsonResponse({'succ': False \
@@ -77,49 +82,6 @@ def widgetList(request, template_name):
         "allCount": len(widgetList)
     }
     return render_to_response(template_name, data, context)
-
-
-@login_required
-def widgetCreate(request):
-    """
-    组件创建
-    """
-    if 'POST' == request.method:
-        req_data = json.loads(request.POST.get('data', '{}'))
-        hk = request.session.get('hk')
-        try:
-            widget = Entity(hk)
-            succ, code = widget.parse(req_data)
-            if not succ:
-                return MyHttpJsonResponse({'succ': succ, 'msg': code})
-            widget.save()
-        except DatabaseError, e:
-            logger.error(e[0])
-            return MyHttpJsonResponse({'succ': False   \
-                                        , 'msg': '无法保存到数据库'})
-        except ExternalDbModel.DoesNotExist, e:
-            return MyHttpJsonResponse({'succ': False \
-                                        , 'msg': 'xxxxxxxxxxxx'})
-        except Exception, e:
-            return MyHttpJsonResponse({'succ': False \
-                                        , 'msg': 'xxxxxxxxxxxx'})
-        else:
-            return MyHttpJsonResponse({'succ': True, 'wiId': widget.pk, \
-                                        'msg': '保存成功'})
-    else:
-        hk = request.session.get('hk')
-        try:
-            widget = Entity(hk)
-            widget.show()
-        except ExternalDbModel.DoesNotExist, e:
-            return MyHttpJsonResponse({'succ': False \
-                                        , 'msg': 'xxxxxxxxxxxx'})
-        except Exception, e:
-            return MyHttpJsonResponse({'succ': False \
-                                        , 'msg': 'xxxxxxxxxxxx'})
-        else:
-            return render_to_response('add.html', {}, context)
-
 
 
 @login_required
@@ -169,73 +131,6 @@ def batachOp(request, op):
     return HttpResponseRedirect(u'/widget/batch?page='+page)
 
 
-@login_required
-def widgetEdit(request, widget_id, template_name):
-    if 'POST' == request.method:
-        req = json.loads(request.POST.get('data', '{}'))
-        hk = request.session.get('hk')
-        try:
-            widget = Entity(hk, widget_id)
-            widget.parse(req)
-            succ, code = widget.validate()
-            if not succ:
-                return MyHttpJsonResponse({'succ': succ, 'msg': code})
-            widget.save()
-        except DatabaseError, e:
-            logger.error(e[0])
-            return MyHttpJsonResponse({'succ': False   \
-                                        , 'msg': '无法保存到数据库'})
-        except ExternalDbModel.DoesNotExist, e:
-            return MyHttpJsonResponse({'succ': False \
-                                        , 'msg': 'xxxxxxxxxxxx'})
-        except Exception, e:
-            return MyHttpJsonResponse({'succ': False \
-                                        , 'msg': 'xxxxxxxxxxxx'})
-        else:
-            return MyHttpJsonResponse({'succ': True, 'wiId': widget.id, \
-                                        'msg': '保存成功'})
-    else:
-        hk = request.session.get('hk')
-        try:
-            widget = Entity(hk)
-            widget.show()
-        except ExternalDbModel.DoesNotExist, e:
-            return MyHttpJsonResponse({'succ': False \
-                                        , 'msg': 'xxxxxxxxxxxx'})
-        except Exception, e:
-            return MyHttpJsonResponse({'succ': False \
-                                        , 'msg': 'xxxxxxxxxxxx'})
-        else:
-            return render_to_response( \
-                'widget/widget_add/add.html', {'widget_id': widget.id}, context \
-            )
-
-        '''
-        request.session['widget_id'] = widget_id
-
-        # 有没有直接把Model里面全部属性转换成dict的办法？ 
-        req_data = widget_model.restoreReqDataDict()
-        aid_data    = widget_model.restoreAidData()
-
-        # 删掉空值的属性
-        to_del_key = []
-        for key in req_data:
-            if not req_data[key]:
-                to_del_key.append(key)
-
-        for key in to_del_key:
-            del req_data[key]
-
-        data = {
-            'id':           widget_id
-            , 'content':    json.dumps(req_data)
-            , 'aid':        json.dumps(aid_data)
-        }
-        return render_to_response(template_name, data, context)
-        '''
-
-
-
 @require_http_methods(['GET'])
 def widgetShow(request, widget_id):
     """ 
@@ -272,44 +167,6 @@ def widgetShow(request, widget_id):
 '''
 
 
-@require_http_methods(['GET'])
-@login_required
-def fetch(request, widget_id):
-    """
-    获取场景的数据
-    """
-    try:
-        widget = WidgetModel.objects.get(pk = widget_id)
-    except WidgetModel.DoesNotExist, e:
-        return HttpResponse({'succ': False})
-
-    data = widget.restore()
-    return MyHttpJsonResponse({'succ': True, 'data': data})
-
-
-
-@require_http_methods(['POST'])
-def saveDrawAuxInfo(request):
-    """
-    保存组件图形的辅助信息，如名字，是否更新，皮肤
-    """
-    info_data = json.loads(request.POST.get('data'))
-    wi_id, name, skin_id, update_info = map(lambda x: info_data.get(x), \
-                                        ['id', 'name', 'skin_id', 'update_info'])
-    if not wi_id:
-        return MyHttpJsonResponse({'succ': False})
-
-    if_update, update_period = True, update_info.period \
-                                        if update_info else False, 0
-
-    WidgetModel.objects.filter(pk = wi_id).update( \
-        m_name = name, m_skin = skin_id, m_if_update = if_update, \
-        m_update_period = update_period \
-    )
-
-    return MyHttpJsonResponse({'succ': True})
-
-
 @require_http_methods(['POST'])
 def handleDraw(request):
     """
@@ -338,23 +195,17 @@ def handleDraw(request):
 
 
 @require_http_methods(['GET'])
-def handleUpdate(request, wi_id):
+def handleRefresh(request, wi_id):
     """
     处理对组件的更新请求
     """
-    handler = UpdateHandler(wi_id)
-    if not handler.checkUpdatable():
+    handler = RefreshHandler(wi_id)
+    if not handler.checkRefreshable():
         return MyHttpJsonResponse({'succ': False, 'msg': 'xxxx'})
 
     data = handler.handle()
     data['succ'] = True
     return MyHttpJsonResponse(data)
-
-
-
-def operate(request):
-    pass
-
 
 
 @require_http_methods(['POST'])
@@ -776,10 +627,14 @@ class Entity():
         return True
 
 
-    def show(self):
+    def display(self):
         if self.id:
-            st = SqlExecutorMgr.stRestore(self.hk)
-            pass
+            widget = WidgetModel.objects.get(pk = self.id)
+            data = widget.restore()
+        else:
+            data = {}
+
+        return data
 
 
 
@@ -934,39 +789,39 @@ class FactorHandler():
 ########################################
 ## 处理定时更新
 #########################################
-class UpdateHandler():
+class RefreshHandler():
     def __init__(self, wi_id):
         self.widget = WidgetModel.objects.get(pk = wi_id)
         self.hk = self.widget.getConn().pk
         self.st = SqlExecutorMgr.stRestore(self.hk)
         self.processor = None
 
-    def checkUpdatable():
+    def checkRefreshable(self):
         return self.widget.m_if_update
 
-    def chooseUpdator(self):
+    def chooseRefresher(self):
         req = self.widget.restoreReqDataDict()
         self.fh = FactorHandler(req)
         time_num = len(self.fh.filterTimeFactors())
         if time_num > 0:
-            return AddUpdator(self.hk, req)
+            return AddRefresher(self.hk, req)
         else:
-            return AllUpdator(self.hk, req)
+            return AllRefresher(self.hk, req)
 
-    def setUpdator(self, obj):
-        self.updator = obj
+    def setRefresher(self, obj):
+        self.refresher = obj
 
     def getUpdator(self):
-        return self.updator
+        return self.refresher
 
     def handle(self):
-        self.setUpdator(self.chooseUpdator())
-        self.updator.produce()
+        self.setRefresher(self.chooseRefresher())
+        self.refresher.produce()
 
 
 
 # 补充型组件更新器
-class AddUpdator():
+class AddRefresher():
     def __init__(self, hk, req):
         self.type = 'add'
 
@@ -977,7 +832,7 @@ class AddUpdator():
         return False
 
 # 完全刷新型组件更新器
-class AllUpdator():
+class AllRefresher():
     def __init__(self, hk, req):
         self.type = 'all'
         self.hk = hk

@@ -190,7 +190,7 @@ define([
 			listenChange: function(){
 				var self = this;
 				//编辑状态
-				if(window.wigetId){
+				if(window.widgetId){
 					//确保从后台抓取完数据后才监听属性改变事件，确保不会做无谓的触发
 					$.when(this.fecthFromWidget()).done(function(){
 						//只要模型的属性改变便通知widget模型改变属性
