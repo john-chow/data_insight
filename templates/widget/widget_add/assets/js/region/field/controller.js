@@ -10,7 +10,7 @@ define([
 	var data = DataInsightManager.module("FieldRegion", function(FieldRegion, DataInsightManager,
 	Backbone, Marionette, $, _){
 		FieldRegion.Controller = {
-			ListFields: function(fields){
+			ListFields: function(fields, tableName){
 
 			//获取数据
 			var fieldsCollection = DataInsightManager.request("field:entities",fields);
@@ -51,7 +51,10 @@ define([
 					$.ajax({
 		             	type: "POST",
 		             	url: "/XXX",
-		             	data: JSON.stringify(dataList),
+		             	data: {
+		             		"tableName":tableName,
+		             		"fields": JSON.stringify(dataList),
+		             	},
 		            	dataType: "json",
 		            	success: function(data){
 		            		DataInsightManager.dialogRegion.$el.modal("hide");
