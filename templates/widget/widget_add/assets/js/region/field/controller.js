@@ -52,7 +52,7 @@ define([
 		             	type: "POST",
 		             	url: "/XXX",
 		             	data: {
-		             		"tableName":tableName;
+		             		"tableName":tableName,
 		             		"fields": JSON.stringify(dataList),
 		             	},
 		            	dataType: "json",
