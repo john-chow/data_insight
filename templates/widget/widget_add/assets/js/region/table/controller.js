@@ -183,7 +183,8 @@ define([
 		        		tempData[j]={
 		        			"fieldName": backDataList[i].fields[j],
 		        			"type": backDataList[i].types[j],
-		        			"nickName": backDataList[i].nicknames[j]
+		        			"nickName": backDataList[i].nicknames[j],
+		        			"id": j
 		        		}
 		        	}
 		        	if(i==0 && !collection.findWhere({"choosed":true})){

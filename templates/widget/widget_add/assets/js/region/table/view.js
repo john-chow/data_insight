@@ -37,6 +37,7 @@ var data = DataInsightManager.module("TableRegion",
         //设置高度
         variable = DataInsightManager.tableRegion.$el.outerHeight()-this.$("#table_template_header").outerHeight()
         this.$("#table_template_content").height(variable);
+
         //三种不同情况下显示数据表（无数据，有数据有选中表，有数据无选中表）
         selectedModelList = this.collection.where({selected:true});
         if(selectedModelList.length > 0){
@@ -63,9 +64,11 @@ var data = DataInsightManager.module("TableRegion",
         var id = $(e.target).attr("data-id");
         DataInsightManager.dialogRegion.trigger('model:set', this.collection.get(id), {"choosed":true});
 
-        var fields = this.collection.get(id).get("fields");
+        var model = this.collection.get(id)
+        var fields = model.get("fields");
+        var tableName = model.get("tableName");
 
-        DataInsightManager.dialogRegion.trigger("change:fields", fields);
+        DataInsightManager.dialogRegion.trigger("change:fields", fields, tableName);
       },
 
     });
