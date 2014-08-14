@@ -10,7 +10,7 @@
 		Entities.importFileForm = Backbone.Model.extend({
 			urlRoot: "import_file_form",
 			defaults: {
-				"flie": 	"",
+				"file": 	"",
 				"type": 	"",
 				"attr": 	"",
 				"code": 	"",
