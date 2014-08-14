@@ -13,10 +13,11 @@ from django_sse.redisqueue import send_event
 
 from widget.forms import ConnDbForm
 from widget.models import ExternalDbModel
+from widget.factor import FactorCreator, EXPRESS_FACTOR_KEYS_TUPLE
 from connect.models import FieldsInfoModel
 from connect.file import Text, Excel
 from connect.sqltool import SqlExecutorMgr, SqlExecutor
-from common.tool import MyHttpJsonResponse
+from common.tool import MyHttpJsonResponse, logExcInfo
 from common.log import logger
 from common.head import DEFAULT_DB_INFO, ConnNamedtuple, ConnArgsList
 import common.protocol as Protocol
@@ -213,6 +214,31 @@ def handleField(request):
             data.append(each_data)
 
         return MyHttpJsonResponse({'succ': True, 'data': json.dumps(data)})
+
+
+@login_required
+@require_http_methods(['GET'])
+def handleDistinct(request):
+    req = json.loads(request.GET.get(Protocol.FilterColumn))
+    info = map(lambda x: (x, req.get(x)), EXPRESS_FACTOR_KEYS_TUPLE)
+    factor = FactorCreator.make(**dict(info))
+
+    try:
+        hk  = request.session.get('hk')
+        st  = SqlExecutorMgr.stRestore(hk)
+        sql_obj = st.getSwither().cvtDistinct(factor)
+        data = st.execute(sql_obj).fetchall()
+        result = zip(*data)[0]
+    except ExternalDbModel.DoesNotExist, e:
+        logExcInfo()
+        resp = {'succ': False, 'msg': 'yyyyyyyyy'}
+    except Exception, e:
+        logExcInfo()
+        resp = {'succ': False, 'msg': 'xxxxxxxxx'}
+    else:
+        resp = {'succ': True, 'data': result}
+    finally:
+        return MyHttpJsonResponse(resp)
 
 
 

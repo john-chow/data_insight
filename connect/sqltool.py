@@ -241,6 +241,18 @@ class SqlRelation():
         return sql_obj
 
 
+    def cvtFactor(self, factor):
+        tablename, columnname, kind, funcname = factor.extract()
+        table           = self.storage.getTable(tablename)
+        if not table.c.has_key(columnname):
+            msg = 'can''t recongnize column name of {0}'.format(columnname)
+            logger.error(msg)
+            raise Exception(msg)
+
+        col_obj = table.c.get(columnname)
+        return col_obj
+
+
     def cvtSelect(self, selects):
         '''
         转换sql语句中select后字段part
@@ -344,6 +356,12 @@ class SqlRelation():
             raise Exception('unknown time type')
 
         return tc
+
+
+    def cvtDistinct(self, factor):
+        select = self.makeSelectSql([factor])
+        sql_obj = select.distinct()
+        return sql_obj
 
 
     def cvtFunc(self, func_str):
