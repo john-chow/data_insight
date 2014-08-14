@@ -14,7 +14,7 @@ from django.views.decorators.http import require_http_methods
 from django.http import Http404
 from django.views.decorators.csrf import csrf_exempt
 
-from widget.models import WidgetModel, ExternalDbModel
+from widget.models import WidgetModel, ExternalDbModel, REFRESH_CHOICES
 from widget.echart import EChartManager
 from widget.factor import ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE
 from connect.sqltool import SqlExecutorMgr, SqlObjReader
@@ -33,8 +33,7 @@ def handleOperate(request, widget_id = None):
         template = '' if widget_id else ''
         if 'POST' == request.method:
             req_data = json.loads(request.POST.get('data', '{}'))
-            entity.parse(req_data)
-            succ, code = entity.validate()
+            succ, code = entity.parse(req_data)
             if not succ:
                 return MyHttpJsonResponse({'succ': succ, 'msg': code})
             entity.save()
@@ -90,8 +89,7 @@ def widgetCreate(request):
         hk = request.session.get('hk')
         try:
             widget = Entity(hk)
-            widget.parse(req_data)
-            succ, code = widget.validate()
+            succ, code = widget.parse(req_data)
             if not succ:
                 return MyHttpJsonResponse({'succ': succ, 'msg': code})
             widget.save()
@@ -719,40 +717,64 @@ class Entity():
         self.id = id or None
         self.hk = hk
         self.conn = ExternalDbModel.objects.get(pk = hk)
+        self.validated = False
 
     def parse(self, req):
-        [self.graph, self.x, self.y, mapping, self.snapshot] \
+        [self.graph, self.x, self.y, mapping, self.snapshot, self.name, \
+                                        self.skin, self.refresh, publish] \
             = map(lambda i: req.get(i), \
                 [Protocol.Graph, Protocol.Xaxis, Protocol.Yaxis, \
-                Protocol.Mapping, Protocol.Snapshot])
+                Protocol.Mapping, Protocol.Snapshot, Protocol.WidgetName, Protocol.Style, \
+                Protocol.Refresh, Protocol.IsPublish])
 
         self.color = mapping.get(Protocol.Color)
         self.size = mapping.get(Protocol.Size)
+        self.publish = True if 'true' == publish else False
+
+        return self.validate()
+
 
     def validate(self):
         if not self.graph:
             succ, code = False, -1
         elif (not self.x) and (not self.y):
-            succ, code = False, -1
+            succ, code = False, -2
+        elif not self.name:
+            succ, code = False, -3
+        elif not self.refresh in REFRESH_CHOICES:
+            succ, oode = False, -4
+        elif not isinstance(self.publish, bool):
+            succ, code = False, -5
         else:
             succ, code = True, 0
+            self.validated = True
 
         return succ, code
 
+
     def save(self):
+        pair = {
+            'm_name':                 self.name
+            , 'm_x':                  self.x
+            , 'm_y':                  self.y
+            , 'm_color':              self.color
+            , 'm_size':               self.size
+            , 'm_graph':              self.graph
+            , 'm_external_db':        self.conn
+            , 'm_pic':                self.snapshot
+            , 'm_refresh':            self.refresh 
+            , 'm_status':             self.publish
+            , 'm_skin':               self.skin
+        }
+
         if self.id:
-            WidgetModel.objects.filter(pk = self.id) \
-                        .update(m_x = self.x, m_y = self.y, \
-                                m_color = self.color, m_size = self.size, \
-                                m_graph = self.graph, m_pic = self.snapshot)
+            WidgetModel.objects.filter(pk = self.id).update(**pair)
         else:
-            widget = WidgetModel.objects.create( 
-                m_name = '组件', m_x = self.x, m_y = self.y, \
-                m_color = self.color, m_size = self.size, \
-                m_graph = self.graph, m_external_db = self.conn, \
-                m_pic = self.snapshot  \
-            )
+            widget = WidgetModel.objects.create(**pair)
             self.id = widget.pk
+
+        return True
+
 
     def show(self):
         if self.id:

@@ -102,6 +102,16 @@ define([
                 this.save(data, {
                     wait:       true
                     , success:    function(m, resp) {
+/*
+                        $.ajax('/connect/field/', {
+                            type:       'GET'
+                            , dataType: 'json'
+                            , data:     {
+                                'aa':   true,
+                                'bb':   123
+                            }
+                        })
+*/
                     }
                 });
             },
