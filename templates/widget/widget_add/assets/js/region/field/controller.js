@@ -50,7 +50,7 @@ define([
 					//ajax上传数据
 					$.ajax({
 		             	type: "POST",
-		             	url: "/XXX",
+		             	url: "/connect/field/",
 		             	data: {
 		             		"tableName":tableName,
 		             		"fields": JSON.stringify(dataList),

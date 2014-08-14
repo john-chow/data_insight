@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import simplejson as json
 from widget.models import ExternalDbModel
 
 # Create your models here.
@@ -24,5 +25,5 @@ class FieldsInfoModel(models.Model):
         return json.loads(self.m_nicknames)
 
     class meta:
-        db_table = 'fieldsInfo'
+        db_table = 'fields_info'
 

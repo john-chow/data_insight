@@ -159,30 +159,33 @@ def handleField(request):
     user = request.user
 
     if 'POST' == request.method:
-        table = request.POST.get('table')
-        if not table:
+        tablename = request.POST.get('tableName')
+        fields = json.loads(request.POST.get('fields'))
+        if not tablename:
             return MyHttpJsonResponse({'succ': False, 'msg': 'yyyyy'})
-
-        post_data = request.POST.get('data')
-        data = json.loads(post_data)
-
-        types, nicknames = {}, {}
-        for item in data:
-            fieldname = item[Protocol.FieldName]
-            types[fieldname] = item[Protocol.FieldType]
-            nicknames[fieldname] = item[Protocol.FieldNickname]
+        if not fields or 0 == len(fields):
+            return MyHttpJsonResponse({'succ': True})
 
         try:
-            obj, created = FieldsInfoModel.objects.get_or_create( \
-                m_user = user, m_conn = conn, m_table = table \
+            model, created = FieldsInfoModel.objects.get_or_create( \
+                m_user = user, m_conn = conn, m_table = tablename \
             )
-            obj.m_types = json.dumps(types)
-            obj.m_nicknames = json.dumps(nicknames)
-            obj.save()
+
+            types = json.loads(model.m_types) if model.m_types else {}
+            nicknames = json.loads(model.m_nicknames) if model.m_nicknames else {}
+            for item in fields:
+                fieldname = item[Protocol.FieldName]
+                types[fieldname] = item[Protocol.FieldType]
+                nicknames[fieldname] = item[Protocol.FieldNickname]
+
+                model.m_types = json.dumps(types)
+                model.m_nicknames = json.dumps(nicknames)
+                model.save()
+
         except Exception, e:
             return MyHttpJsonResponse({'succ': False, 'msg': 'xxxxx'})
 
-        return MyHttpJsonResponse({'succ': True, 'msg': 'xxxxxxxxx'})
+        return MyHttpJsonResponse({'succ': True})
 
     else:
         tables_str = request.GET.get('tables')
@@ -192,16 +195,16 @@ def handleField(request):
 
         data = []
         for t in tables:
-            obj = FieldsInfoModel.objects.filter( \
+            model = FieldsInfoModel.objects.get( \
                 m_user = user, m_conn = conn, m_table = t \
             )
 
-            if obj:
-                types_dict = obj.getTypesDict()
-                nicknames_dict = obj.getNicknamesDict()
-            else:
-                types_dict = st.statFieldsType(t)
-                nicknames_dict = dict(zip(types_dict.keys(), [''] * len(types_dict)))
+            types_dict = st.statFieldsType(t)
+            nicknames_dict = dict(zip(types_dict.keys(), [''] * len(types_dict)))
+
+            if model:
+                types_dict.update(model.getTypesDict())
+                nicknames_dict.update(model.getNicknamesDict())
 
             fields_list     = types_dict.keys()
             types_list      = types_dict.values()
