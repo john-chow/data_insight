@@ -65,6 +65,13 @@ Mapping = 'mapping'
 
 
 
+'''
+过滤器
+'''
+
+FilterColumn = 'field'
+
+
 
 
 
