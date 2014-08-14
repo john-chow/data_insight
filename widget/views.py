@@ -29,19 +29,19 @@ import pdb
 def handleOperate(request, widget_id = None):
     hk = request.session.get('hk')
     try:
-        widget = Entity(hk, widget_id) if widget_id else Entity(hk)
+        entity = Entity(hk, widget_id) if widget_id else Entity(hk)
         template = '' if widget_id else ''
         if 'POST' == request.method:
             req_data = json.loads(request.POST.get('data', '{}'))
-            widget.parse(req_data)
-            succ, code = widget.validate()
+            entity.parse(req_data)
+            succ, code = entity.validate()
             if not succ:
                 return MyHttpJsonResponse({'succ': succ, 'msg': code})
-            widget.save()
-            return MyHttpJsonResponse({'succ': True, 'wiId': widget.pk, \
+            entity.save()
+            return MyHttpJsonResponse({'succ': True, 'wiId': entity.id, \
                                         'msg': '保存成功'})
         else:
-            widget.show()
+            entity.show()
             return render_to_response('add.html', {}, context)
     except DatabaseError, e:
         logger.error(e[0])
@@ -51,6 +51,7 @@ def handleOperate(request, widget_id = None):
         return MyHttpJsonResponse({'succ': False \
                                     , 'msg': 'xxxxxxxxxxxx'})
     except Exception, e:
+        logExcInfo()
         return MyHttpJsonResponse({'succ': False \
                                     , 'msg': 'xxxxxxxxxxxx'})
 
@@ -720,7 +721,7 @@ class Entity():
         self.conn = ExternalDbModel.objects.get(pk = hk)
 
     def parse(self, req):
-        [self.graph, self.x, self.y, self.mapping, self.snapshot] \
+        [self.graph, self.x, self.y, mapping, self.snapshot] \
             = map(lambda i: req.get(i), \
                 [Protocol.Graph, Protocol.Xaxis, Protocol.Yaxis, \
                 Protocol.Mapping, Protocol.Snapshot])

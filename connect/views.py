@@ -115,35 +115,6 @@ def handleTable(request):
                                     'data': json.dumps(tables_list)} )
 
 
-
-#@require_http_methods(['GET'])
-def handleColumn(request):
-    """
-    获取数据表信息
-    """
-    logger.debug("function handleColumn() is called")
-
-    hk = request.session.get('hk')
-    if not hk:
-        return MyHttpJsonResponse(  \
-            {'succ': False, 'msg': 'Connect db first'}   \
-        )
-
-    try:
-        st = SqlExecutorMgr.stRestore(hk)
-    except Exception, e:
-        return MyHttpJsonResponse(  \
-            {'succ': False, 'msg': 'Connect db first'}   \
-        )
-
-    tables = json.loads(request.GET.get('tables'))
-    tables_info_list = st.getTablesInfo(tables)
-
-    res_dict = {u'succ': True, u'data': tables_info_list}
-    return MyHttpJsonResponse(res_dict)
-
-
-
 @login_required
 def handleField(request):
     """
@@ -195,14 +166,15 @@ def handleField(request):
 
         data = []
         for t in tables:
-            model = FieldsInfoModel.objects.get( \
+            models = FieldsInfoModel.objects.filter( \
                 m_user = user, m_conn = conn, m_table = t \
             )
 
             types_dict = st.statFieldsType(t)
             nicknames_dict = dict(zip(types_dict.keys(), [''] * len(types_dict)))
 
-            if model:
+            if len(models) > 0 :
+                model = models[0]
                 types_dict.update(model.getTypesDict())
                 nicknames_dict.update(model.getNicknamesDict())
 

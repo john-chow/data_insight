@@ -7,6 +7,4 @@ urlpatterns = patterns('',
     url(r'^field/$',         views.handleField),
     url(r'^file/$',          views.uploadFile),
     url(r'^distinct/$',      views.handleDistinct),
-
-    url(r'^column/$',        views.handleColumn),
 )

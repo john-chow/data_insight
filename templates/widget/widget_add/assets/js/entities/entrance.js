@@ -102,12 +102,6 @@ define([
                 this.save(data, {
                     wait:       true
                     , success:    function(m, resp) {
-                        $.ajax('/connect/distinct/', {
-                            type:   'GET'
-                            , dataType:  'json'
-                            , data:  {
-                            }
-                        })
                     }
                 });
             },
