@@ -807,6 +807,7 @@
 
     var defaults = {
         namespace: '',
+        rate: 1,//缩放比例
         widget_selector: 'li',
         widget_margins: [10, 10],
         widget_base_dimensions: [400, 225],
@@ -3519,8 +3520,8 @@
             var r = this.get_highest_occupied_cell().row;
             height = r * this.min_widget_height;
         }
-
-        this.container_height = height;
+        //这里修改乘以缩放比例
+        this.container_height = height * this.options.rate;
         this.$el.css('height', this.container_height);
         return this;
     };
@@ -3540,7 +3541,8 @@
             this.cols);
 
         cols = Math.min(max_cols, Math.max(cols, this.options.min_cols));
-        this.container_width = cols * this.min_widget_width;
+        //这里修改乘以缩放比例
+        this.container_width = cols * this.min_widget_width * this.options.rate;
         this.$el.css('width', this.container_width);
         return this;
     };
@@ -3565,6 +3567,8 @@
         opts || (opts = {});
         opts.cols || (opts.cols = this.cols);
         opts.rows || (opts.rows = this.rows);
+        //外部加入，缩放比例
+        opts.rate || (opts.rate = this.options.rate);
         opts.namespace || (opts.namespace = this.options.namespace);
         opts.widget_base_dimensions ||
             (opts.widget_base_dimensions = this.options.widget_base_dimensions);
@@ -3589,7 +3593,7 @@
             styles += (opts.namespace + ' [data-col="'+ (i + 1) + '"] { left:' +
                 ((i * opts.widget_base_dimensions[0]) +
                 (i * opts.widget_margins[0]) +
-                ((i + 1) * opts.widget_margins[0])) + 'px; }\n');
+                ((i + 1) * opts.widget_margins[0])) * opts.rate + 'px; }\n');
         }
 
         /* generate CSS styles for rows */
@@ -3597,19 +3601,19 @@
             styles += (opts.namespace + ' [data-row="' + (i + 1) + '"] { top:' +
                 ((i * opts.widget_base_dimensions[1]) +
                 (i * opts.widget_margins[1]) +
-                ((i + 1) * opts.widget_margins[1]) ) + 'px; }\n');
+                ((i + 1) * opts.widget_margins[1]) ) * opts.rate + 'px; }\n');
         }
 
         for (var y = 1; y <= opts.rows; y++) {
             styles += (opts.namespace + ' [data-sizey="' + y + '"] { height:' +
                 (y * opts.widget_base_dimensions[1] +
-                (y - 1) * (opts.widget_margins[1] * 2)) + 'px; }\n');
+                (y - 1) * (opts.widget_margins[1] * 2)) * opts.rate + 'px; }\n');
         }
 
         for (var x = 1; x <= max_size_x; x++) {
             styles += (opts.namespace + ' [data-sizex="' + x + '"] { width:' +
                 (x * opts.widget_base_dimensions[0] +
-                (x - 1) * (opts.widget_margins[0] * 2)) + 'px; }\n');
+                (x - 1) * (opts.widget_margins[0] * 2)) * opts.rate + 'px; }\n');
         }
 
         return this.add_style_tag(styles);

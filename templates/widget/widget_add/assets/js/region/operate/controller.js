@@ -2,7 +2,7 @@ define([
     'region/operate/view'
 ], function() {
 	DataInsightManager.module("OperateRegion"
-        , function(ShowRegion, DataInsightManager, Backbone, Marionette, $, _) {
+        , function(OperateRegion, DataInsightManager, Backbone, Marionette, $, _) {
 
         OperateRegion.Controller = function() {
             this.commandView = new OperateRegion.Command();

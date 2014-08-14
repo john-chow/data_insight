@@ -1,9 +1,9 @@
 # --*-- coding: utf-8 --*--
 '''
 本文件是用SqlAlchemy实现用Factor对象到数据库操作的转换过程
-PysqlAgent实现用SqlAlchemy代理数据库操作的接口
+SqlExecutor实现用SqlAlchemy代理数据库操作的接口
 SqlRelation实现由数据库及数据表到SqlAlchemy对象的映射模型
-PysqlAgent和SqlRelation是聚合关系
+SqlExecutor和SqlRelation是聚合关系
 '''
 
 
@@ -23,7 +23,7 @@ import common.protocol as Protocol
 import pdb
 
 
-class PysqlAgentManager(): 
+class SqlExecutorMgr(): 
     HK_ST_MAP   = {}
 
     @classmethod
@@ -34,7 +34,7 @@ class PysqlAgentManager():
         if hk in cls.HK_ST_MAP:
             st = cls.HK_ST_MAP.get(hk)
         else:
-            st = PysqlAgent(hk)
+            st = SqlExecutor(hk)
 
         return st
 
@@ -44,7 +44,7 @@ class PysqlAgentManager():
 
     @staticmethod
     def stCreate():
-        st = PysqlAgent()
+        st = SqlExecutor()
         return st
 
 
@@ -52,7 +52,7 @@ class PysqlAgentManager():
 '''
 实现由外部输入Factor对象转换为Sql过程
 '''
-class PysqlAgent():
+class SqlExecutor():
     def __init__(self, hk = None):
         self.cnt = ''
         self.engine = {}
@@ -241,6 +241,18 @@ class SqlRelation():
         return sql_obj
 
 
+    def cvtFactor(self, factor):
+        tablename, columnname, kind, funcname = factor.extract()
+        table           = self.storage.getTable(tablename)
+        if not table.c.has_key(columnname):
+            msg = 'can''t recongnize column name of {0}'.format(columnname)
+            logger.error(msg)
+            raise Exception(msg)
+
+        col_obj = table.c.get(columnname)
+        return col_obj
+
+
     def cvtSelect(self, selects):
         '''
         转换sql语句中select后字段part
@@ -256,9 +268,9 @@ class SqlRelation():
 
             sel_obj = table.c.get(c_str)
 
-            if 2 == int(kind):
+            if Protocol.TimeType == kind:
                 sel_obj = self.cvtTimeColumn(sel_obj, cmd)
-            elif 0 == int(kind) and Protocol.NoneFunc != cmd:
+            elif Protocol.NumericType == kind and Protocol.NoneFunc != cmd:
                 f       = self.cvtFunc(cmd)
                 sel_obj = f(sel_obj)
 
@@ -275,7 +287,7 @@ class SqlRelation():
         for factor in groups:
             tablename, c_str, kind_str, cmd_str  \
                     = map(lambda x: factor.getProperty(x), \
-                            [Protocol.Table, Protocol.Attr, Protocol.Kind, Protocol.Cmd])
+                            [Protocol.Table, Protocol.Attr, Protocol.Kind, Protocol.Func])
             table   = self.storage.getTable(tablename)
             if not table.c.has_key(c_str):
                 raise Exception(u'can''t recongnize column name of {0}' \
@@ -283,7 +295,7 @@ class SqlRelation():
 
             col_obj = table.c.get(c_str)
 
-            if 2 == kind_str:
+            if Protocol.TimeType == kind_str:
                 # 如果是时间列，那么需要额外处理
                 grp_obj = self.cvtTimeColumn(col_obj, cmd_str)
             else:
@@ -344,6 +356,12 @@ class SqlRelation():
             raise Exception('unknown time type')
 
         return tc
+
+
+    def cvtDistinct(self, factor):
+        select = self.makeSelectSql([factor])
+        sql_obj = select.distinct()
+        return sql_obj
 
 
     def cvtFunc(self, func_str):

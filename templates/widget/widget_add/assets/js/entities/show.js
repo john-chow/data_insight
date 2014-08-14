@@ -7,11 +7,22 @@ define([
         Entities.Show = Backbone.Model.extend({
             initialize:     function() {
                 Entities.entranceFascade.register("additional", this);
-                this.on("snapshot:take", _.bind(this.onTakeSnapshot, this))
             },
 
-            onTakeSnapshot:     function(snapshot) {
-                this.set("snapshot", snapshot)
+            ready:           function() {
+                // 从startSnapshot开始，到finishSnapshot结束
+                return $.when(this.startSnapshot())
+            },
+
+            startSnapshot:      function() {
+                var defer = $.Deferred();
+                this.trigger("snapshot:take", defer);
+                return defer
+            },
+
+            finishSnapshot:     function(snapshot, defer) {
+                this.set("snapshot", snapshot);
+                defer.resolve()
             }
         });
 

@@ -19,7 +19,7 @@ define([
 					this.graph = DataInsightManager.request("graph:entity");
 					this.filter = DataInsightManager.request("filter:entity");
 					this.property = DataInsightManager.request("property:entity");
-
+					///////////////////graph///////////////////////
 					this.graphView = new DesignRegion.Graph({
 						model: this.graph
 					});
@@ -42,10 +42,15 @@ define([
 						});
 						DataInsightManager.dialogRegion.show(dialogYView);
 					})
-					
+					//////////////////////filter///////////////////////
 					this.filterView = new DesignRegion.Filter({
 						model : this.filter
 					});
+					//监听重绘,比如切换过滤器的时候就要重绘
+					this.filter.on("filter:rerender", function(){
+						this.filterView.render();
+					}, this);
+					/////////////////////property////////////////////////
 					this.propertyView = new DesignRegion.Property({
 						model: this.property
 					})

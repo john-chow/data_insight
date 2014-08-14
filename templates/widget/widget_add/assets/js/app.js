@@ -28,6 +28,7 @@ define([
 	'region/table/route',
 	'region/field/route',
 	"region/switch/route",
+	"region/operate/route",
 	"csrf",
 	'tool'
 ], function ($, JqueryUi, json, _, Backbone, Marionette, dialog, tableRoute, filedRoute, switchRoute) {

@@ -1,7 +1,13 @@
 define([
 "echarts"
+, "echarts/chart/bar"
+, "echarts/chart/line"
+, "echarts/chart/scatter"
+, "echarts/chart/pie"
+, "echarts/chart/radar"
+, "echarts/chart/table"
 , "tool"
-], function(echart, _tools) {
+], function(echart) {
 
 
 /////////////////////////////////////////////////////////////////////

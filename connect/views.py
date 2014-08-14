@@ -13,10 +13,11 @@ from django_sse.redisqueue import send_event
 
 from widget.forms import ConnDbForm
 from widget.models import ExternalDbModel
+from widget.factor import FactorCreator, EXPRESS_FACTOR_KEYS_TUPLE
 from connect.models import FieldsInfoModel
 from connect.file import Text, Excel
-from connect.sqltool import PysqlAgentManager, PysqlAgent
-from common.tool import MyHttpJsonResponse
+from connect.sqltool import SqlExecutorMgr, SqlExecutor
+from common.tool import MyHttpJsonResponse, logExcInfo
 from common.log import logger
 from common.head import DEFAULT_DB_INFO, ConnNamedtuple, ConnArgsList
 import common.protocol as Protocol
@@ -38,7 +39,7 @@ def connectDb(nt):
         return False, 'xxxxxxxxxx'
 
     hk  = genConnHk(nt)
-    st = PysqlAgentManager.stCreate()
+    st = SqlExecutorMgr.stCreate()
     succ, msg = st.connDb(nt)
     return succ, msg, hk, st
 
@@ -61,7 +62,7 @@ def handleConn(request):
 
         if succ:
             request.session['hk'] = hk
-            PysqlAgentManager.stStore(hk, st)
+            SqlExecutorMgr.stStore(hk, st)
 
             ExternalDbModel.objects.get_or_create(pk = hk, \
                 m_kind = conn_nt.kind, m_user = conn_nt.user, m_pwd = conn_nt.pwd, \
@@ -91,7 +92,7 @@ def handleTable(request):
         chosen_tables = json.loads(tables_str)
 
         hk  = request.session.get('hk')
-        st  = PysqlAgentManager.stRestore(hk)
+        st  = SqlExecutorMgr.stRestore(hk)
         tables_list = st.listTables()
 
         # 注意传多个来怎么办
@@ -107,7 +108,7 @@ def handleTable(request):
             return HttpResponse(res_dict, content_type='application/json')
     else:
         hk  = request.session.get('hk')
-        st  = PysqlAgentManager.stRestore(hk)
+        st  = SqlExecutorMgr.stRestore(hk)
         tables_list = st.listTables()
 
         return MyHttpJsonResponse( {'succ': True, \
@@ -129,7 +130,7 @@ def handleColumn(request):
         )
 
     try:
-        st = PysqlAgentManager.stRestore(hk)
+        st = SqlExecutorMgr.stRestore(hk)
     except Exception, e:
         return MyHttpJsonResponse(  \
             {'succ': False, 'msg': 'Connect db first'}   \
@@ -149,7 +150,7 @@ def handleField(request):
     处理自定义数据表请求
     """
     hk = request.session.get('hk')
-    st = PysqlAgentManager.stRestore(hk)
+    st = SqlExecutorMgr.stRestore(hk)
     try:
         conn = ExternalDbModel.objects.get(pk = hk)
     except ExternalDbModel.DoesNotExist, e:
@@ -215,13 +216,38 @@ def handleField(request):
         return MyHttpJsonResponse({'succ': True, 'data': json.dumps(data)})
 
 
+@login_required
+@require_http_methods(['GET'])
+def handleDistinct(request):
+    req = json.loads(request.GET.get(Protocol.FilterColumn))
+    info = map(lambda x: (x, req.get(x)), EXPRESS_FACTOR_KEYS_TUPLE)
+    factor = FactorCreator.make(**dict(info))
+
+    try:
+        hk  = request.session.get('hk')
+        st  = SqlExecutorMgr.stRestore(hk)
+        sql_obj = st.getSwither().cvtDistinct(factor)
+        data = st.execute(sql_obj).fetchall()
+        result = zip(*data)[0]
+    except ExternalDbModel.DoesNotExist, e:
+        logExcInfo()
+        resp = {'succ': False, 'msg': 'yyyyyyyyy'}
+    except Exception, e:
+        logExcInfo()
+        resp = {'succ': False, 'msg': 'xxxxxxxxx'}
+    else:
+        resp = {'succ': True, 'data': result}
+    finally:
+        return MyHttpJsonResponse(resp)
+
+
 
 @login_required
 #这个接口需要前端配合，具体需要上传内容看本函数中代码即可
 def uploadFile(request):
     if 'POST' == request.method:
         f   = request.FILES['file']
-        st  = PysqlAgent()
+        st  = SqlExecutor()
         st.connDb(**DEFAULT_DB_INFO)
         file_name = f.name.split('.')[0]
         if 'excel' != request.POST.get('type'):
@@ -249,6 +275,13 @@ def pushToClient(request):
     send_event('myevent', 'xxxxxxx', channel = 'foo')
     return HttpResponse('zzzzz')
 
-
+@login_required
+def getFiledValues(request):
+    """
+    获取列的所有值（不重复）
+    """
+    table, column = map(lambda x: request.Post.get(x),\
+                        ("table", "column"))
+    
 
 

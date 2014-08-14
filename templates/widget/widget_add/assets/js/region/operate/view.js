@@ -1,5 +1,5 @@
 define([
-    "text!region/operate/template/buttons"
+    "text!region/operate/template/strip.html"
 ], function(buttonsHtml) {
     
 	DataInsightManager.module("OperateRegion"

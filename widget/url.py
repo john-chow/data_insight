@@ -9,8 +9,11 @@ urlpatterns = patterns('',
 	url(r'^list/$', 			views.widgetList ,{'template_name': 'widget/list.html'}),
 	url(r'^batch/$',			views.widgetList ,{'template_name': 'widget/batch.html'}),
 
-	url(r'^create/$', 			views.widgetCreate),
-	url(r'^edit/(\w+)/$', 		views.widgetEdit,{'template_name': 'add.html'}, name='edit'),
+	url(r'^create/$', 			views.handleOperate),
+	url(r'^edit/(\w+)/$', 		views.handleOperate),
+
+	#url(r'^create/$', 			views.widgetCreate),
+	#url(r'^edit/(\w+)/$', 		views.widgetEdit,{'template_name': 'add.html'}, name='edit'),
 	url(r'^show/(\w+)/$', 		views.widgetShow),
 	url(r'^fetch/$', 		    views.fetch),
 

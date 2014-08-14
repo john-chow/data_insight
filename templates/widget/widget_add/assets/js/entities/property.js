@@ -9,7 +9,7 @@ define([
 		Entities.Property = Backbone.Model.extend({
 			defaults: {
 				name: "组件",
-				title: '标题',
+				title: '组件',
 				style: "default",
 				autoRefresh: "1h",
 				isPublish: "true",//组件是否发布
@@ -83,6 +83,9 @@ define([
                 }, this);
                 this.on("title:change", function(title){
                 	this.set("title", title, {silent : true});//不触发change事件
+                	this.set("name", title, {silent : true});
+                	//通知switch model修改名字
+                	Entities.trigger("name:change", title);
                 }, this);
 			}
 		});

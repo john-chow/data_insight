@@ -477,7 +477,7 @@
       var success = options.success;
       options.success = function(resp) {
         // Ensure attributes are restored during synchronous saves.
-        model.attributes = attributes;
+        model.attributes = attributes;        
         var serverAttrs = model.parse(resp, options);
         if (options.wait) serverAttrs = _.extend(attrs || {}, serverAttrs);
         if (_.isObject(serverAttrs) && !model.set(serverAttrs, options)) {
@@ -497,7 +497,8 @@
       if (method === 'patch') options.attrs = attrs;
 
       options = options || {};
-      options.data = {'data': JSON.stringify(this.toJSON())};  // 周钲然增加
+      //options.data = {'data': JSON.stringify(this.toJSON())};  // 周钲然增加
+      options.data = {'data': JSON.stringify(attrs)};  // 周钲然增加
       xhr = this.sync(method, this, options);
 
       // Restore attributes.

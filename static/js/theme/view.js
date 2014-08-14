@@ -169,7 +169,8 @@
 					console.log(namespace);
 					var $gridster = $gridsterEl.gridster({
 						namespace: namespace,
-				        widget_base_dimensions: [unitWidth, unitHeight],           //[57,51]面积大小
+						rate: rate,
+				        widget_base_dimensions: [50, 50],           //[57,51]面积大小
 				        widget_margins: [1, 1],                       //margin大小
 				    }).data('gridster');
 					//禁止gridster拖拽

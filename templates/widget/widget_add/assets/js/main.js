@@ -21,6 +21,13 @@ requirejs.config({
 	        "csrf": 			"lib/csrf",
 	        "minicolors":		"lib/jquery.minicolors",
 	        "echarts": 		    "lib/src/echarts-original"
+	        , "echarts/chart/bar": 		"lib/src/echarts-original"
+	        , "echarts/chart/line": 	"lib/src/echarts-original"
+	        , "echarts/chart/scatter": 	"lib/src/echarts-original"
+	        , "echarts/chart/pie": 		"lib/src/echarts-original"
+	        , "echarts/chart/radar": 	"lib/src/echarts-original"
+	        , "echarts/chart/table": 	"lib/src/echarts-original"
+	        , "echarts/chart/map": 		"lib/src/echarts-original-map"
     },
 
     //添加依赖关系
