@@ -170,6 +170,13 @@ var data = DataInsightManager.module("TableRegion",
         "click .import-file-commit": "managetableFunction",
       }, 
       managetableFunction: function(){
+      	if(this.$("#importfile").val() == ""){
+      		$(".import-file-tip").show();
+      		setTimeout(function(){
+      			$(".import-file-tip").fadeOut();
+      		}, 3000);
+      		return ;
+      	}
         this.$(".import-file-commit").html("导入中...");
         this.$(".import-file-commit").css("cursor","wait");
         var options={

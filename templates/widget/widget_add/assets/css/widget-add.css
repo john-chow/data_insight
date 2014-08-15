@@ -655,3 +655,10 @@ border: 1px solid #CAD8B7;
 	padding: 0 30px;
 	font-size: 16px;
 }
+
+.import-file-tip {
+	float: left;
+	font-size: 16px;
+	display: none;
+	color: rgb(196, 61, 71);
+}
