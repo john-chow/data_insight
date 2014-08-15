@@ -4,7 +4,7 @@ from widget import views
 urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     url(r'^create/$',           views.handleOperate),
-	url(r'^edit/(\w+)/$', 		views.handleOperate),
+	url(r'^edit/(\w+)/$', 		views.handleOperate, name = 'edit'),
 	url(r'^update/(\w+)/$', 	views.handleOperate),
 
     url(r'^$', 					views.widgetList ,{'template_name': 'widget/list.html'}),
