@@ -19,8 +19,8 @@ from widget.echart import EChartManager
 from widget.factor import ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE
 from connect.sqltool import SqlExecutorMgr, SqlObjReader
 from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb, cleanDataFromDb
-import common.protocol as Protocol
 from common.log import logger
+import common.protocol as Protocol
 
 import pdb
 
@@ -53,7 +53,7 @@ def handleOperate(request, widget_id = None):
                                     , 'msg': '无法保存到数据库'})
     except ExternalDbModel.DoesNotExist, e:
         return MyHttpJsonResponse({'succ': False \
-                                    , 'msg': 'xxxxxxxxxxxx'})
+                                    , 'msg': '请重新连接数据库'})
     except Exception, e:
         logExcInfo()
         return MyHttpJsonResponse({'succ': False \
@@ -565,10 +565,9 @@ def widgetAdd(request):
 #########################################
 class Entity():
     def __init__(self, hk, id = None):
-        self.id = id or None
-        self.hk = hk
-        self.conn = ExternalDbModel.objects.get(pk = hk)
+        self.id = id
         self.validated = False
+        self.hk = hk
 
     def parse(self, req):
         [self.graph, self.x, self.y, mapping, self.snapshot, self.name, \
@@ -611,7 +610,6 @@ class Entity():
             , 'm_color':              self.color
             , 'm_size':               self.size
             , 'm_graph':              self.graph
-            , 'm_external_db':        self.conn
             , 'm_pic':                self.snapshot
             , 'm_refresh':            self.refresh 
             , 'm_status':             self.publish
@@ -621,8 +619,11 @@ class Entity():
         if self.id:
             WidgetModel.objects.filter(pk = self.id).update(**pair)
         else:
+            conn = ExternalDbModel.objects.get(pk = hk)
+            pair = pair.update({'m_external_db': conn})
             widget = WidgetModel.objects.create(**pair)
             self.id = widget.pk
+
 
         return True
 
