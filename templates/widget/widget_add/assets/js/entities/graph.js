@@ -77,7 +77,7 @@ define([
 					this.trigger("change");//触发change事件;
 				}, this);
 
-                Entities.entranceFascade.register("draw", this, "graph:change")
+                Entities.entAPI.setRelation("draw", this, "graph:change")
 				
 				//添加x轴被拖进来的元素
 				this.on("x:add", function(xItem){
@@ -141,25 +141,30 @@ define([
 			 * 
 			*/
 			fecthFromWidget: function(){
+/*
 				var defer = $.Deferred();
 				//通知widget模型去后台fetch数据，并且代替执行回调函数,同时将jquery的deferred参数传过去
 				Entities.trigger("design:initial", {
 					"func" : $.proxy(this.handlerData, this),
 					"arg"  :defer
 				});
-				return defer.promise();
+*/
+                var self = this;
+                $.when(Entities.entAPI.getWidgetData()).done(function(resp) {
+                    self.handlerData(resp)
+                })
+				//return defer.promise();
 			},
 			/**
 			 * 通知wiget模型去后台fetch数据后代理执行的函数,这里只是初始化工作
 			 * data:后台返回数据， defer:jquery deferred对象，其实从上面的方法传过去然后又递过来的
 			 * 说明:defer.resolve方法将defer状态设置为成功状态
 			 */
-			handlerData: function(data, defer){
+			handlerData: function(data){
 				this.set("graph", data.graph);
 				this.set("x", data.x);
 				this.set("y", data.y);
 				this.set("mapping", data.mapping);
-				defer.resolve();
 			},
 			/**
 			 * 获取图表类型对于的映射字段列表

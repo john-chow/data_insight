@@ -17,7 +17,7 @@ define([
 			initialize: function(){
 				var self = this;
 				this.listenChange();
-                Entities.entranceFascade.register("additional", this, "property:change");
+                Entities.entAPI.setRelation("additional", this, "property:change");
                 this.listenPropertyChange();
 			},
 			/**
@@ -26,24 +26,21 @@ define([
 			 * return jquery deferrd的promise()方法，确保defer对象无法从外部改变
 			 */
 			fecthFromWidget: function(){
-				var defer = $.Deferred();
-				Entities.trigger("graph:initial", {
-					"func" : $.proxy(this.handlerData, this),
-					"arg" : defer
-				});
-				return defer.promise();
+                var self = this;
+                $.when(Entities.entAPI.getWidgetData()).done(function(resp) {
+                    self.handlerData(resp)
+                })
 			},
 			/**
 			 * 通知wiget模型去后台fetch数据后代理执行的函数
 			 * data:后台返回的response， defer：fetchFromWidget函数里面的jquery deferred
 			 */
-			handlerData: function(data, defer){
+			handlerData: function(data){
 				this.set("name", data.name);
 				this.set("title", data.title);
 				this.set("style", data.style);
 				this.set("autoRefresh", data.autoRefresh);
-				this.set("isPublish", isPublish);
-				defer.resolve();
+				this.set("isPublish", data.isPublish);
 			},
 			/**
 			*说明：如果是编辑状态，则在抓取完后台数据后再监听change事件,否则直接监听

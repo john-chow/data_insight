@@ -7,7 +7,7 @@ define([
 
         ShowRegion.Controller = function() {
             var self = this;
-            self.entrance = DataInsightManager.request("entrance:entity");
+            self.entranceModel = DataInsightManager.request("entrance:entity");
             self.showModel = DataInsightManager.request("show:entity");
             self.showView = new ShowRegion.Board();
             DataInsightManager.showRegion.show(self.showView, {preventDestroy: true});
@@ -33,7 +33,14 @@ define([
 
             DataInsightManager.commands.setHandler("style:change", function(style) {
                 self.showModel.changeStyle(style)
-            })
+            });
+
+            DataInsightManager.commands.setHandler("widget:save", function() {
+                var snapshot = self.showView.getSnapshot();
+                self.showModel.setSnapshot(snapshot);
+
+                self.entranceModel.toSave()
+            });
         }
 
         ShowRegion.Controller.prototype.showShowView    = function() {

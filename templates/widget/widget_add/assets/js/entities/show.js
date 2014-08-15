@@ -6,7 +6,7 @@ define([
 
         Entities.Show = Backbone.Model.extend({
             initialize:     function() {
-                Entities.entranceFascade.register("additional", this);
+                Entities.entAPI.setRelation("additional", this, null);
             },
 
             ready:           function() {
@@ -23,6 +23,10 @@ define([
             finishSnapshot:     function(snapshot, defer) {
                 this.set("snapshot", snapshot);
                 defer.resolve()
+            },
+
+            setSnapshot:        function(snapshot) {
+                this.set("snapshot", snapshot)
             }
         });
 

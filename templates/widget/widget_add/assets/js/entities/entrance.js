@@ -10,27 +10,34 @@ define([
          * 聚合外部Model，自己不存任何实质数据
          */
         Entities.BaseEntrance = Backbone.Model.extend({
-            initialize:          function() {
-                this.list   = [];
+            defaults:       {
+                'list':     []
             },
-
+    
             merge:              function() {
                 var data = {};
+
+/*
                 var operate = function(m) {
                     return function() {
                         data = _.extend(data, m.toJSON());
                     } 
                 };
+*/
 
-                $.each(this.list, function(i, m) {
+                $.each(this.get('list'), function(i, m) {
+                    data = _.extend(data, m.toJSON())
+/*
                     if (m.ready)    m.ready().done(operate(m))
                     else            operate(m)()
+*/
                 })
                 return data
             },
 
-            register:           function(model) {
-                this.list.push(model)
+            register:           function(model, eventname) {
+                this.get('list').push(model);
+                this.listen && this.listen(eventname)
             },
 
             // 此函数作用，本model不把服务器返回值设为属性
@@ -66,7 +73,6 @@ define([
          */
         Entities.AdditionalEntrance = Entities.BaseEntrance.extend({
             initialize:         function() {
-                this.on
             }
         });
 
@@ -89,18 +95,19 @@ define([
                 });
 
                 Entities.on("design:initial", $.proxy(this.onReqWidgetData, this));
+/*
                 DataInsightManager.commands.setHandler(
                     "widget:save", $.proxy(this.onSave, this)
                 );
+*/
             },
 
-            register:       function(kind, model, changeEvent) {
+            classify:       function(kind, model, changeEvent) {
                 var concreteModel = this.get(kind);
-                concreteModel.register(model);
-                concreteModel.listen && concreteModel.listen(changeEvent)
+                concreteModel.register(model, changeEvent);
             },
 
-            onSave:           function() {
+            toSave:           function() {
                 var data = this.merge();
                 this.save(data, {
                     wait:       true
@@ -136,6 +143,34 @@ define([
             }
             return Entities.entranceFascade
         })()
+
+
+        // Entities内部接口
+        Entities.entAPI = {
+            setRelation:            function(kind, model, changeEvent) {
+                Entities.entranceFascade.classify(kind, model, changeEvent)
+            }
+            , getWidgetData:      function() {
+                var defer = $.Deferred();
+                Entities.entranceFascade.fetch({
+                    success:    function(m, resp) { defer.resolve(resp.data) }
+                    , error:      function() {defer.reject(undefined)}
+                })
+                return defer.promise()
+            }
+        };
+
+        // 全局接口
+        var API = {
+            getEntranceEntity:      function() {        
+                return Entities.entranceFascade
+            }
+        };
+
+
+		DataInsightManager.reqres.setHandler("entrance:entity", function(){
+            return API.getEntranceEntity();
+		});
 
     })
 })
