@@ -20,12 +20,27 @@ jQuery.extend({
 
 		return jQuery('#' + frameId).get(0);			
     },
+
     createUploadForm: function(id,fileElementId,data,fileElement)
 	{
 		//create form	
 		var formId = 'jUploadForm' + id;
 		var fileId = 'jUploadFile' + id;
 		var form = jQuery('<form  action="" method="POST" name="' + formId + '" id="' + formId + '" enctype="multipart/form-data"></form>');	
+		var cookieValue = null, csrftoken = "csrftoken";
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                if (cookie.substring(0, csrftoken.length + 1) == (csrftoken + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(csrftoken.length + 1));
+                    break;
+                }
+            }
+        }
+
+        jQuery('<input type="hidden" name="csrfmiddlewaretoken" value="' + cookieValue + '" />').appendTo(form);
+
 		if(data)
 		{
 			for(var i in data)

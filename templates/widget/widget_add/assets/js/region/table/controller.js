@@ -106,7 +106,7 @@ define([
 					},
 				});*/
 		        $.ajaxFileUpload({
-			        url: '/import/file',
+			        url: '/connect/file/',
 			        secureuri: false,
 			        type: "post",
 			        data: options,
