@@ -89,6 +89,7 @@ class WidgetModel(ElementModel):
             , Protocol.Size:        self.m_size
             , Protocol.WidgetName:  self.m_name
             , 'filter':             []
+            , 'hk':                 self.m_external_db.getPk()
         }
 
 
@@ -126,6 +127,9 @@ class ExternalDbModel(models.Model):
             ip = self.m_ip,   port = self.m_port, db = self.m_db   \
         )
         return hash(cnt)
+
+    def getPk(self):
+        return self.m_hk
 
     class Meta:
         db_table = 'externaldb'
