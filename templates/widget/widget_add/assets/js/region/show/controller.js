@@ -30,6 +30,10 @@ define([
                 if (resp.succ)      self.showView.draw(resp.data)
                 else                self.showView.clear()
             });
+
+            DataInsightManager.commands.setHandler("style:change", function(style) {
+                self.showModel.changeStyle(style)
+            })
         }
 
         ShowRegion.Controller.prototype.showShowView    = function() {

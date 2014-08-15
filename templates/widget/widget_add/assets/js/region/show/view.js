@@ -32,6 +32,10 @@ define([
                 var zr = this.ec.getZrender();
                 var snapshot = zr.toDataURL("image/png");
                 return snapshot
+            },
+        
+            changeStyle:    function(style) {
+                this.ec.setTheme(style)
             }
         });
     })
