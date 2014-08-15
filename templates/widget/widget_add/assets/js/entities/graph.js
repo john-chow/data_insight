@@ -155,10 +155,10 @@ define([
 			 * 说明:defer.resolve方法将defer状态设置为成功状态
 			 */
 			handlerData: function(data, defer){
-				this.graph = data.graph;
-				this.x = data.x;
-				this.y = data.y;
-				this.mapping = data.mapping;
+				this.set("graph", data.graph);
+				this.set("x", data.x);
+				this.set("y", data.y);
+				this.set("mapping", data.mapping);
 				defer.resolve();
 			},
 			/**
@@ -193,13 +193,13 @@ define([
 				if(window.widgetId){
 					//确保从后台抓取完数据后才监听属性改变事件，确保不会做无谓的触发
 					$.when(this.fecthFromWidget()).done(function(){
-						//只要模型的属性改变便通知widget模型改变属性
 						self.on("change", function(){
 							//通知入口model图表类型改变
 							Entities.trigger("graph:change", this.toJSON());
 							//通知视图重画
 							self.trigger("graph:change");
-						}, this);
+						}, self);
+						self.trigger("change");
 					});
 					return true;
 				}

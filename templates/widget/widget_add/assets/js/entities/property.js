@@ -38,11 +38,11 @@ define([
 			 * data:后台返回的response， defer：fetchFromWidget函数里面的jquery deferred
 			 */
 			handlerData: function(data, defer){
-				this.name = data.name;
-				this.title = data.title;
-				this.style = data.style;
-				this.autoRefresh = data.autoRefresh;
-				this.isPublish = data.isPublish;
+				this.set("name", data.name);
+				this.set("title", data.title);
+				this.set("style", data.style);
+				this.set("autoRefresh", data.autoRefresh);
+				this.set("isPublish", isPublish);
 				defer.resolve();
 			},
 			/**
@@ -58,7 +58,9 @@ define([
 						//只要模型的属性改变便通知widget模型改变属性
 						self.on("change", function(){
 							Entities.trigger("property:change", this.toJSON());
-						}, this);
+						}, self);
+						//拉完数据要通知model发生了change事件
+						self.trigger("change");
 					});
 					return true;
 				}

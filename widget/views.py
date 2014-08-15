@@ -180,7 +180,7 @@ def handleDraw(request):
     if not rsu[0]:
         return MyHttpJsonResponse({'succ': False, 'msg': rsu[1]})
 
-    hk       = request.session['hk']
+    hk       = request.session.get('hk')
     try:
         producer = DrawDataProducer(hk)
         data    = producer.produce(req_data)

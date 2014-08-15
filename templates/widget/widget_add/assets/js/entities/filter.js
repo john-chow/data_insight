@@ -25,8 +25,9 @@ define([
 		
 		Entities.Filter = Backbone.Model.extend({
 			defaults: {
-				fileds: [],//过滤器列表,形式[{table: xxx, name: xxx},{table: xxx, name: xxx}],table为表名，name为字段名
+				fields: [],//过滤器列表,形式[{table: xxx, name: xxx},{table: xxx, name: xxx}],table为表名，name为字段名
 				values: [],//过滤器的值,元素师过滤器辅助类集合的集合
+				operate: 'include',//选中/排除/>/</>=/<=/[]
 				whichColumn: 0//选中的过滤器下标,默认选中第一个
 			},
 			push: function(arg, val) {
