@@ -194,6 +194,16 @@ def calcStrFormula(left, operator, right):
     return eval(formula)
 
 
+def resolveBackboneReq(request, type):
+    if 'POST' == type:
+        req = request.POST
+    else:
+        req = request.GET
+
+    return json.loads(req.get('data'))
+
+
+
 def isSublist(a, b):
     for i in a:
         if i not in b:

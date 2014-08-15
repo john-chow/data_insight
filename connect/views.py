@@ -17,7 +17,7 @@ from widget.factor import FactorCreator, EXPRESS_FACTOR_KEYS_TUPLE
 from connect.models import FieldsInfoModel
 from connect.file import Text, Excel
 from connect.sqltool import SqlExecutorMgr, SqlExecutor
-from common.tool import MyHttpJsonResponse, logExcInfo
+from common.tool import MyHttpJsonResponse, logExcInfo, resolveBackboneReq
 from common.log import logger
 from common.head import DEFAULT_DB_INFO, ConnNamedtuple, ConnArgsList
 import common.protocol as Protocol
@@ -48,8 +48,6 @@ def handleConn(request):
     """
     连接数据库
     """
-    logger.warning("function handleConn() is called")
-
     if 'POST' == request.method:
         post_data = json.loads(request.POST.get('data'))
         if not post_data:
@@ -219,27 +217,31 @@ def handleDistinct(request):
 
 @login_required
 #这个接口需要前端配合，具体需要上传内容看本函数中代码即可
+@require_http_methods(['POST'])
 def uploadFile(request):
-    if 'POST' == request.method:
-        f   = request.FILES['file']
-        st  = SqlExecutor()
-        st.connDb(**DEFAULT_DB_INFO)
-        file_name = f.name.split('.')[0]
-        if 'excel' != request.POST.get('type'):
-            #sheets  = request.POST.getlist('sheets')
-            Excel(f, file_name).reflectToTables(st)
-            #sheets  = ['Sheet1', 'Sheet2']
-            #Excel(f, file_name).reflectToTables(st, sheets)
-        else:
-            spliter  = request.POST.get('spliter')
-            spliter  = ','
-            tx = Text(st, f, file_name)
-            tx.setSpliter(spliter)
-            tx.reflectToTable()
-        return MyHttpJsonResponse({'succ': True})
+    req = resolveBackboneReq(request, 'POST')
+    f   = request.FILES['file']
+    st  = SqlExecutor()
+    st.connDb(**DEFAULT_DB_INFO)
+    file_name = f.name.split('.')[0]
+    if 'excel' != req.get('type'):
+        #sheets  = req.getlist('sheets')
+        Excel(f, file_name).reflectToTables(st)
+        #sheets  = ['Sheet1', 'Sheet2']
+        #Excel(f, file_name).reflectToTables(st, sheets)
+    else:
+        spliter  = req.get('spliter')
+        spliter  = ','
+        tx = Text(st, f, file_name)
+        tx.setSpliter(spliter)
+        tx.reflectToTable()
+    return MyHttpJsonResponse({'succ': True})
+
+    '''
     else:
         context = RequestContext(request)
         return render_to_response('connect/upload.html', context)
+    '''
 
 
 def pushToClient(request):
