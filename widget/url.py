@@ -3,19 +3,15 @@ from widget import views
 
 urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
-    url(r'^add/$', 				views.widgetAdd),
+    url(r'^create/$',           views.handleOperate),
+	url(r'^edit/(\w+)/$', 		views.handleOperate),
+	url(r'^update/(\w+)/$', 	views.handleOperate),
 
     url(r'^$', 					views.widgetList ,{'template_name': 'widget/list.html'}),
 	url(r'^list/$', 			views.widgetList ,{'template_name': 'widget/list.html'}),
 	url(r'^batch/$',			views.widgetList ,{'template_name': 'widget/batch.html'}),
 
-	url(r'^create/$', 			views.handleOperate),
-	url(r'^edit/(\w+)/$', 		views.handleOperate),
-
-	#url(r'^create/$', 			views.widgetCreate),
-	#url(r'^edit/(\w+)/$', 		views.widgetEdit,{'template_name': 'add.html'}, name='edit'),
 	url(r'^show/(\w+)/$', 		views.widgetShow),
-	url(r'^fetch/$', 		    views.fetch),
 
 	url(r'^distr/$', 			views.widgetOp, {'op': 'dis'}),
 	url(r'^delete/$', 			views.widgetOp, {'op': 'delete'}),
@@ -25,10 +21,8 @@ urlpatterns = patterns('',
 	url(r'^batch/delete/$',		views.batachOp, {'op': 'delete'} ),
 
 	url(r'^draw/$', 			views.handleDraw),
-    url(r'^update/(\d+)$',      views.handleUpdate),
+    url(r'^refresh/(\d+)$',      views.handleRefresh),
     url(r'^draw/timely/(\d+)$',      views.reqTimelyData),
     
     url(r'^viewList/$',         views.widgetList ,{'template_name': 'widget/view_list.html'}),
-    url(r'^view/(\d+)/$',       views.widgetEdit ,{'template_name': 'widget/view.html'}, \
-                                                                                name="view"),
 )

@@ -10,7 +10,7 @@ define([
 	var data = DataInsightManager.module("FieldRegion", function(FieldRegion, DataInsightManager,
 	Backbone, Marionette, $, _){
 		FieldRegion.Controller = {
-			ListFields: function(fields){
+			ListFields: function(fields, tableName){
 
 			//获取数据
 			var fieldsCollection = DataInsightManager.request("field:entities",fields);
@@ -30,16 +30,17 @@ define([
 
 				fieldManageView.on("change:field-attributes",function(options){
 					//解析数据
-					var i, temp, j = -1, dataList = [],
+				if(tableName){
+					var i, temp, j = -1, dataList = [], flag,
 					arrList = options.split("&");
 					for(i = 0; i<arrList.length ; i++){
 						temp = arrList[i].split("=");
-						if(i%4==0){
+						if(i%5==0){
 							if(temp[1]=="1"){
 								dataList[++j] = {};
 							}
 							else{
-								i=i+3;
+								i=i+4;
 							}
 						}
 						else{
@@ -50,14 +51,33 @@ define([
 					//ajax上传数据
 					$.ajax({
 		             	type: "POST",
-		             	url: "/XXX",
-		             	data: JSON.stringify(dataList),
+		             	cache: false,
+		             	async: false,
+		             	url: "/connect/field/",
+		             	data: {
+		             		"tableName":tableName,
+		             		"fields": JSON.stringify(dataList),
+		             	},
 		            	dataType: "json",
 		            	success: function(data){
-		            		DataInsightManager.dialogRegion.$el.modal("hide");
-							//DataInsightManager.trigger('showField', tableName);
+		            		flag = data.succ
 		                }
 		          	});
+
+		          	//如果成功，重新加载field页面
+		          	if(flag){
+		          		for(i = 0 ; i<dataList.length ; i++){
+		          			var id = dataList[i].id;
+		          			fieldsCollection.get(id).set(dataList[i]);
+		          		}
+		          		DataInsightManager.trigger("showField", fieldsCollection.models, tableName);
+		          		DataInsightManager.dialogRegion.$el.modal("hide");
+		          	}
+		         }
+		         else{
+		         	DataInsightManager.dialogRegion.$el.modal("hide");
+		         }
+
 				});
 				DataInsightManager.dialogRegion.show(fieldManageView);
 			});

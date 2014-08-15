@@ -10,6 +10,7 @@ define([
             },
 
             ready:           function() {
+                // 从startSnapshot开始，到finishSnapshot结束
                 return $.when(this.startSnapshot())
             },
 

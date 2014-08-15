@@ -16,6 +16,9 @@
 #
 ########################################
 
+# 组件名字
+WidgetName = 'name'
+
 # 所在轴字段名称
 Axis = 'axis'
 
@@ -62,7 +65,24 @@ Size = 'size'
 # 选择器封装
 Mapping = 'mapping'
 
+# 样式
+Style = 'style'
 
+# 自动更新
+Refresh = 'autoRefresh'
+
+# 发布情况
+IsPublish = 'isPublish'
+
+
+
+
+
+'''
+过滤器
+'''
+
+FilterColumn = 'field'
 
 
 

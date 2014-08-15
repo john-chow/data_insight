@@ -29,6 +29,14 @@ define([
 
             deflateClicked:  function() {
                 this.trigger("deflate:clicked")
+            },
+
+            onShowMessage: function(message) {
+            	var self = this;
+            	this.$("#widget_operate_tip").show().find(".bg-primary").html(message);
+            	setTimeout(function(){
+					self.$("#widget_operate_tip").fadeOut("slow");
+            	}, 5000)
             }
         })
     })

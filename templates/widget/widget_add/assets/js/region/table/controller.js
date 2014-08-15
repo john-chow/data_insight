@@ -44,8 +44,8 @@ define([
 			/*
 			* 显示field
 			*/
-			DataInsightManager.dialogRegion.on("change:fields", function(fields){
-	          	DataInsightManager.execute("showField", fields);
+			DataInsightManager.dialogRegion.on("change:fields", function(fields, tableName){
+	          	DataInsightManager.execute("showField", fields, tableName);
 	       	});
 
 			/*
@@ -180,11 +180,12 @@ define([
 		        	var selectedModelList = collection.where({selected:true});
 		        	tempData = [];
 		        	for(j=0 ; j<backDataList[i].fields.length; j++){
-		        			tempData[j]={
-		        				"fieldName": backDataList[i].fields[j],
-		        				"type": backDataList[i].types[j],
-		        				"nickName": backDataList[i].nicknames[j]
-		        			}
+		        		tempData[j]={
+		        			"fieldName": backDataList[i].fields[j],
+		        			"type": backDataList[i].types[j],
+		        			"nickName": backDataList[i].nicknames[j],
+		        			"id": j
+		        		}
 		        	}
 		        	if(i==0 && !collection.findWhere({"choosed":true})){
 		        		selectedModelList[i].set({"choosed": true, "fields": tempData});
@@ -193,8 +194,8 @@ define([
 		        		selectedModelList[i].set({"fields": tempData});
 		        	}
 		        }
-
-		        DataInsightManager.dialogRegion.trigger("change:fields", collection.findWhere({"choosed":true}).get("fields"));
+		        tempData = collection.findWhere({"choosed":true});
+		        DataInsightManager.dialogRegion.trigger("change:fields", tempData.get("fields"), tempData.get("tableName"));
 		        DataInsightManager.dialogRegion.$el.modal("hide");
 		    });
 

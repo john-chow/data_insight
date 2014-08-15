@@ -630,3 +630,28 @@ border: 1px solid #CAD8B7;
 }
 /* end show region */
 
+#operate_region {
+	position:relative;
+}
+
+#widget_operate_button {
+	position:absolute;
+	right:20px;
+}
+
+#widget_operate_button .btn {
+	margin: 5px 3px;
+	padding: 3px 35px;
+}
+
+#widget_operate_tip {
+	text-align:center;
+	display:none;
+}
+
+#widget_operate_tip span {
+	line-height: 40px;
+	display: inline-block;
+	padding: 0 30px;
+	font-size: 16px;
+}

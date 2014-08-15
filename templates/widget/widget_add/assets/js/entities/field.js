@@ -13,6 +13,7 @@ var data = DataInsightManager.module("Entities",
         fieldName: "",
         type: "",
         nickName: "",
+        id: "",
       }
     });
 

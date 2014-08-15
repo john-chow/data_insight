@@ -11,6 +11,8 @@ import common.protocol as Protocol
 import pdb
 # Create your models here.
 
+REFRESH_CHOICES = ['no', '10s', '30s', '1m', '5m', '1h']
+
 class WidgetModel(ElementModel):
     """
     场景类，继承ElementModel
@@ -35,8 +37,7 @@ class WidgetModel(ElementModel):
     )
     m_graph         = models.CharField(max_length = 16, choices = GRAPH_CHOICES, \
                                         db_column='graph')               
-    m_if_update     = models.BooleanField(db_column = 'ifupdate', default = False)
-    m_update_period = models.IntegerField(db_column = 'period', default = 0)
+    m_refresh       = models.CharField(max_length = 8, default = 'No')
     m_skin          = models.CharField(db_column = 'skin', max_length = 16, \
                                         default = 'default')
     m_pic           = models.TextField(db_column='snapshot')
@@ -54,13 +55,6 @@ class WidgetModel(ElementModel):
             , Protocol.Size:    self.m_size 
             , Protocol.Graph:   self.m_graph 
             , 'table':          self.m_table
-        }
-
-    def restoreAidData(self):
-        return {
-            'name':         self.m_name
-            , 'ifupdate':   self.m_if_update
-            , 'period':     self.m_update_period
         }
 
     def hasAggreate(self):
@@ -88,6 +82,13 @@ class WidgetModel(ElementModel):
                 Protocol.Color:         eval(self.m_color)
                 , Protocol.Size:        eval(self.m_size)
             }
+            , Protocol.Refresh:     self.m_refresh
+            , Protocol.Style:       self.m_skin
+            , Protocol.IsPublish:   self.m_status
+            , Protocol.Color:       self.m_color
+            , Protocol.Size:        self.m_size
+            , Protocol.WidgetName:  self.m_name
+            , 'filter':             []
         }
 
 

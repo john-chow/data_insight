@@ -10,17 +10,17 @@ define([
 
 	  //定义接口
 	  var API = {
-	    listFields: function(fields){
-	      FieldRegion.Controller.ListFields(fields);
+	    listFields: function(fields, tableName){
+	      FieldRegion.Controller.ListFields(fields, tableName);
 	    }
 	  };
 
-	  DataInsightManager.commands.setHandler("showField", function(fields){
-		  API.listFields(fields);
+	  DataInsightManager.commands.setHandler("showField", function(fields, tableName){
+		  API.listFields(fields, tableName);
 	  });
 
-	  DataInsightManager.on("showField", function(fields){
-		  API.listFields(fields);
+	  DataInsightManager.on("showField", function(fields, tableName){
+		  API.listFields(fields, tableName);
 	  });
 	});
 
