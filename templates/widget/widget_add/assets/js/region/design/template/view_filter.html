@@ -2,7 +2,7 @@
 	<div class="row">
 		<div class="col-md-3 col-sm-3">
 			<p class="filter-label">过滤器: <a class="pull-right" href="#">清空所有过滤器</a></p>
-			<ul class="myfilter"> 
+			<ul class="myfilter dragging-custom"> 
 			<%_.each(columns, function(column, index){%>
 				<li><%=column.name%></li>
 			<%})%>
@@ -10,7 +10,7 @@
 		</div>
 		<div class="col-md-4 col-sm-4 col-offset-1">
 			<p class="filter-label">列值:</p> 
-			<ul class="myfilter"> 
+			<ul class="myfilter-values"> 
 			<% if(columns.length > 0)
 			 _.each(columns[whichColumn].values, function(value, index){%>
 				<li><%=value.get('value')%>columns[whichColumn].name&nbsp;<input type="check" name="isSelect" <% if(value.get('isSelect')) {%>checked="checked"<%}%>/></li>
@@ -26,7 +26,7 @@
 				</select>
 			<a class="pull-right" href="#">清空</a>
 			</p>
-			<ul class="myfilter"> 
+			<ul class="myfilter-select-or-not"> 
 			<% if(columns.length > 0)
 			 _.each(columns[whichColumn].values, function(value, index){%>
 				<li> <% if(value.get('isSelect')) {%>value.get('value')<%}%></li>

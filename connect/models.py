@@ -24,5 +24,5 @@ class FieldsInfoModel(models.Model):
         return json.loads(self.m_nicknames)
 
     class meta:
-        db_table = 'fieldsInfo'
+        db_table = 'fields_info'
 

@@ -23,10 +23,11 @@ define([
 				var self = this;
 				this.$el.find(".myfilter").droppable({
 					drop: function(event, ui){
+						//字段名
 						var fieldName = ui.helper.data("filedname");
 						//通知model获取fieldName字段的所有值的集合
 						self.model.trigger("fetch:field:values", {
-								column: fieldName, table: $(".table-item-choosed").data("table")
+								name: fieldName, table: $(".table-item-choosed").data("table"),
 							});
 						}
 				});
