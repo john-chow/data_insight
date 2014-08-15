@@ -2,40 +2,47 @@
 	<div class="row">
 		<div class="col-md-3 col-sm-3">
 			<p class="filter-label">过滤器: <a class="pull-right" href="#">清空所有过滤器</a></p>
-			<ul class="myfilter"> 
-			<%_.each(columns, function(column, index){%>
-				<li><%=column.name%></li>
+			<ul class="myfilter dragging-custom"> 
+			<%_.each(fields, function(field, index){%>
+				<li><%=field.name%></li>
 			<%})%>
 			</ul>
 		</div>
 		<div class="col-md-4 col-sm-4 col-offset-1">
 			<p class="filter-label">列值:</p> 
-			<ul class="myfilter"> 
-			<% if(columns.length > 0)
-			 _.each(columns[whichColumn].values, function(value, index){%>
-				<li><%=value.get('value')%>columns[whichColumn].name&nbsp;<input type="check" name="isSelect" <% if(value.get('isSelect')) {%>checked="checked"<%}%>/></li>
-			<%})%>
+			<ul class="myfilter-values"> 
+			<% if(values.length > 0){
+				 _.each(values[whichColumn].get('inValues'), function(value, index){%>
+					<li><%=value%>&nbsp;<input type="check" checked/></li>
+				<%})
+				 _.each(values[whichColumn].get('exValues'), function(value, index){%>
+					<li><%=value%>&nbsp;<input type="check"/></li>
+				<%})
+			}%>
 			</ul>
 		</div>
 		
 		<div class="col-md-3 col-sm-3 col-offset-1">
 			<p class="filter-label">
 				<select name="filter">
-					<option>选中</option>
-					<option>排除</option>
+					<option value="include">选中</option>
+					<option value="exclude">排除</option>
 				</select>
 			<a class="pull-right" href="#">清空</a>
 			</p>
-			<ul class="myfilter"> 
-			<% if(columns.length > 0)
-			 _.each(columns[whichColumn].values, function(value, index){%>
-				<li> <% if(value.get('isSelect')) {%>value.get('value')<%}%></li>
-			<%})%>
+			<ul class="myfilter-select-or-not"> 
+			<% if(values.length > 0){
+				if(operate == "include"){
+					 _.each(values[whichColumn].get('inValues'), function(value, index){%>
+						<li> <%= value%></li>
+						<%})
+				}else{
+					 _.each(values[whichColumn].get('exValues'), function(value, index){%>
+						<li> <%=value%></li>
+					<%})
+				}
+			}%> 
 			</ul>
 		</div>
-		
-		
-		
-		
 	</div>
 </script>

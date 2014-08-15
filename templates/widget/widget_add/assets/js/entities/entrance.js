@@ -74,7 +74,7 @@ define([
         Entities.EntranceFascade = Backbone.Model.extend({
         	url:                function() {
                 if (window.widgetId)       
-                    return "/widget/edit/"
+                    return "/widget/update/" + window.widgetId
                 else        
                     return "/widget/create/"
             },
@@ -102,6 +102,16 @@ define([
                 this.save(data, {
                     wait:       true
                     , success:    function(m, resp) {
+/*
+                        $.ajax('/connect/field/', {
+                            type:       'GET'
+                            , dataType: 'json'
+                            , data:     {
+                                'aa':   true,
+                                'bb':   123
+                            }
+                        })
+*/
                     }
                 });
             },
