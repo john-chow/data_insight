@@ -16,21 +16,8 @@ define([
     
             merge:              function() {
                 var data = {};
-
-/*
-                var operate = function(m) {
-                    return function() {
-                        data = _.extend(data, m.toJSON());
-                    } 
-                };
-*/
-
                 $.each(this.get('list'), function(i, m) {
                     data = _.extend(data, m.toJSON())
-/*
-                    if (m.ready)    m.ready().done(operate(m))
-                    else            operate(m)()
-*/
                 })
                 return data
             },

@@ -9,24 +9,12 @@ define([
                 Entities.entAPI.setRelation("additional", this, null);
             },
 
-            ready:           function() {
-                // 从startSnapshot开始，到finishSnapshot结束
-                return $.when(this.startSnapshot())
-            },
-
-            startSnapshot:      function() {
-                var defer = $.Deferred();
-                this.trigger("snapshot:take", defer);
-                return defer
-            },
-
-            finishSnapshot:     function(snapshot, defer) {
-                this.set("snapshot", snapshot);
-                defer.resolve()
-            },
-
             setSnapshot:        function(snapshot) {
                 this.set("snapshot", snapshot)
+            },
+
+            getSnapshot:        function() {
+                this.get("snapshot")
             }
         });
 

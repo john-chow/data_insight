@@ -36,7 +36,7 @@ define([
             });
 
             DataInsightManager.commands.setHandler("widget:save", function() {
-                var snapshot = self.showView.getSnapshot();
+                var snapshot = self.showView.takeSnapshot();
                 self.showModel.setSnapshot(snapshot);
 
                 self.entranceModel.toSave()

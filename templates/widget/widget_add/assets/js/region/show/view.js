@@ -26,7 +26,7 @@ define([
                 this.ec && this.ec.clear()
             },
 
-            getSnapshot:    function() {
+            takeSnapshot:    function() {
                 if (!this.ec)       return ''
 
                 var zr = this.ec.getZrender();
