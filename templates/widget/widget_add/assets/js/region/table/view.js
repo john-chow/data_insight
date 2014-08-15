@@ -173,12 +173,11 @@ var data = DataInsightManager.module("TableRegion",
         this.$(".import-file-commit").html("导入中...");
         this.$(".import-file-commit").css("cursor","wait");
         var options={
-          "file":   this.$("#import_file_name").val(),
           "type":   this.$("#import_file_type").val(),
           "attr":   this.$("#import_file_attr").val(),
           "code":   this.$("#import_file_code").val()
         }
-        DataInsightManager.dialogRegion.trigger('import:db-file', this.model, options);
+        DataInsightManager.dialogRegion.trigger('import:db-file', options);
       },
     });
 

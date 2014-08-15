@@ -17,6 +17,7 @@ requirejs.config({
 	        "spin":				"lib/spin",
 	        "spin-jquery":		"lib/spin.jquery",
 	        "bootstrap":		"lib/bootstrap",
+	        "ajaxfileupload": 	"lib/ajaxfileupload",
 	        "tool": 			"common/tool",
 	        "csrf": 			"lib/csrf",
 	        "minicolors":		"lib/jquery.minicolors",
