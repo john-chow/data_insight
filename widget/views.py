@@ -625,8 +625,8 @@ class Entity():
         if self.id:
             WidgetModel.objects.filter(pk = self.id).update(**pair)
         else:
-            conn = ExternalDbModel.objects.get(pk = hk)
-            pair = pair.update({'m_external_db': conn})
+            conn = ExternalDbModel.objects.get(pk = self.hk)
+            pair.update({'m_external_db': conn})
             widget = WidgetModel.objects.create(**pair)
             self.id = widget.pk
 
