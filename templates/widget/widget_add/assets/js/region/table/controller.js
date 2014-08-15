@@ -90,7 +90,7 @@ define([
 		    /*
 			* 将导入文件信息传到后台，让后台读取
 			*/
-		    DataInsightManager.dialogRegion.on("import:db-file", function(model, options){
+		    DataInsightManager.dialogRegion.on("import:db-file", function(options){
 			   	/*model.save(options, {
 					success: function(model, response, options){
 						var collection = DataInsightManager.request("table:entities", response);
