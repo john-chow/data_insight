@@ -10,9 +10,11 @@ define([
 		 * 过滤器辅助类
 		 */
 		Entities.filterAssist = Backbone.Model.extend({
+			url: "/connect/distinct/" ,
 			defaults: {
-				value: "",//字段的某个值
-				isSelect: false//是否选中，默认不选中
+				filed: {},//形式{table: xxx, name: xxx},字段名和表名的键值对
+				inValues: [],//字段值中选中的值
+				exValues: []//字段值中排除的值
 			},
 		})
 		/**
@@ -20,7 +22,6 @@ define([
 		 */
 		Entities.filterAssists = Backbone.Collection.extend({
 			model: Entities.filterAssist,
-			url:"/db/"
 		})
 		
 		Entities.Filter = Backbone.Model.extend({
@@ -29,7 +30,6 @@ define([
 				columns: [],//过滤器列表,里面的元素是{name: column_name, values: '过滤器辅助类集合'}
 				whichColumn: 0//选中的过滤器下标,默认选中第一个
 			},
-			url: "/db/" ,
 			push: function(arg, val) {
 			    var arr = _.clone(this.get(arg));
 			    arr.push(val);
@@ -45,20 +45,20 @@ define([
 					var columnsNumber = this.get("columns").length;
 					//新加过滤器（新加字段）
 					this.push("columns", {
-						name: data.column,
+						name: data.name,
 						values: new Entities.filterAssists()
 					});
-					var newColumns = this.get("columns")[columnsNumber];
+					var filterAssists = this.get("columns")[columnsNumber].values;
 					//后台抓取新加的过滤器的所有不重复的值的集合（即是某个字段的所有值集合）
-					newColumns.fetch({
-						data: data,
-						type: "post",
+					filterAssists.fetch({
+						data: {filed: data},
+						type: "get",
 						/**
-						 * 需要后台返回的数据格式为[{column_name:xxx, [{column_value:xxx, isSelect:t|f}, {column_value:xxx, isSelect: t|f}]},
-						 * 							{column_name:xxx, [{column_value:xxx, isSelect:t|f}, {column_value:xxx, isSelect: t|f}]},...]
+						 * 需要后台返回的数据格式为[{column_value:xxx, isSelect:t|f}, {column_value:xxx, isSelect: t|f},
+						 * 							{column_value:xxx, isSelect:t|f}, {column_value:xxx, isSelect: t|f},...]
 						 */
 						success: function(collection, respose){
-							self.set("whichColumn", columnsNumber), {silent: true};
+							self.set("whichColumn", columnsNumber, {silent: true});
 							//通知视图重新绘画,展现选中的过滤器值（选中的字段的所有值）
 							self.trigger("filter:rerender");
 						}
