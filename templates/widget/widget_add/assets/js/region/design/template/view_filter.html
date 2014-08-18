@@ -9,38 +9,44 @@
 			</ul>
 		</div>
 		<div class="col-md-5 col-sm-5">
-			<p class="filter-label">列值:</p> 
-			<ul class="myfilter-values clearfix"> 
-			<% if(values.length > 0){
-				 _.each(values[whichColumn].get('values'), function(value, index){%>
-				 <%if(operate == "include"){
-					if(values[whichColumn].get('inValues').in_array(value))%>
-				 		<li><%=value%>&nbsp;<input type="checkbox" value="<%=value%>" checked/></li>
-				 	<%else%>
-						<li><%=value%>&nbsp;<input type="checkbox" value="<%=value%>"/></li>
-				<%}else{
-					if(values[whichColumn].get('exValues').in_array(value))%>
-				 		<li><%=value%>&nbsp;<input type="checkbox" value="<%=value%>" checked/></li>
-				 	<%else%>
-						<li><%=value%>&nbsp;<input type="checkbox" value="<%=value%>"/></li>
-				<%}
-				 })
-					
-			}%>
-			</ul>
+			<%if(filters.length == 0 || filters[whichColumn].kind == "N"){%>
+				<p class="filter-label">列值:</p> 
+				<ul class="myfilter-values clearfix"> 
+				<% if(values.length > 0){
+					 _.each(values[whichColumn].get('values'), function(value, index){%>
+					 <%if(operators[whichColumn] == "include"){
+						if(values[whichColumn].get('inValues').in_array(value))%>
+					 		<li><%=value%>&nbsp;<input type="checkbox" value="<%=value%>" checked/></li>
+					 	<%else%>
+							<li><%=value%>&nbsp;<input type="checkbox" value="<%=value%>"/></li>
+					<%}else{
+						if(values[whichColumn].get('exValues').in_array(value))%>
+					 		<li><%=value%>&nbsp;<input type="checkbox" value="<%=value%>" checked/></li>
+					 	<%else%>
+							<li><%=value%>&nbsp;<input type="checkbox" value="<%=value%>"/></li>
+					<%}
+					 })
+						
+				}%>
+				</ul>
+			<%}else if(filters[whichColumn].kind == "F"){%>
+				<p class="filter-label">大于:</p> 
+				<input type="text" class="myfilter-range" name="lowRange" id="lowRange"/>
+			<%}%>
 		</div>
 		
 		<div class="col-md-5 col-sm-5">
+		<%if(filters.length == 0 || filters[whichColumn].kind == "N"){%>
 			<p class="filter-label">
-				<select class="select-or-not">
-					<option value="include">选中</option>
-					<option value="exclude">排除</option>
-				</select>
+			<select class="select-or-not">
+				<option value="include">选中</option>
+				<option value="exclude">排除</option>
+			</select>
 			<a class="pull-right clear-select" href="#">清空</a>
 			</p>
 			<ul class="myfilter-select-or-not"> 
 			<% if(values.length > 0){
-				if(operate == "include"){
+				if(operators[whichColumn] == "include"){
 					 _.each(values[whichColumn].get('inValues'), function(value, index){%>
 						<li data-value="<%= value%>"> [<%= value%>]</li>
 						<%})
@@ -51,6 +57,10 @@
 				}
 			}%> 
 			</ul>
+		<%} else if(filters[whichColumn].kind == "F"){%>
+			<p class="filter-label">小于:</p> 
+			<input type="text" class="myfilter-range" name="hightRange" id="hightRange"/>
+		<%}%>
 		</div>
 	</div>
 </script>

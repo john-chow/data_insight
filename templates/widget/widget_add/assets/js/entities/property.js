@@ -36,11 +36,11 @@ define([
 			 * data:后台返回的response， defer：fetchFromWidget函数里面的jquery deferred
 			 */
 			handlerData: function(data){
-				this.set("name", data.name);
-				this.set("title", data.title);
-				this.set("style", data.style);
-				this.set("autoRefresh", data.autoRefresh);
-				this.set("isPublish", data.isPublish);
+				this.set("name", data.name, {silent: true});
+				this.set("title", data.title, {silent: true});
+				this.set("style", data.style, {silent: true});
+				this.set("autoRefresh", data.autoRefresh, {silent: true});
+				this.set("isPublish", data.isPublish, {silent: true});
 			},
 			/**
 			*说明：如果是编辑状态，则在抓取完后台数据后再监听change事件,否则直接监听
@@ -49,7 +49,7 @@ define([
 			listenChange: function(){
 				var self = this;
 				//编辑状态
-				if(window.widgetId){
+				if(window.widgetId && !window.newArea){
 					//确保从后台抓取完数据后才监听属性改变事件，确保不会做无谓的触发
 					$.when(this.fecthFromWidget()).done(function(){
 						//只要模型的属性改变便通知widget模型改变属性
@@ -59,6 +59,7 @@ define([
 						//拉完数据要通知model发生了change事件
 						self.trigger("change");
 					});
+					window.newArea = true;//防止在编辑的状态下，新建组件会从编辑的组件那里获取数据
 					return true;
 				}
 				//创建状态，忽略抓取数据和触发property:change的顺序，在property模型改变的时候立即触发property:change事件
@@ -72,12 +73,12 @@ define([
 			 */
 			listenPropertyChange: function(){
                 this.on("style:change", function(style){
-                	this.set("style", style);//触发change事件
+                	this.set("style", style, {silent : true});//不触发change事件
                 	//通知入口model主题改变
                 	Entities.trigger("style:change", this.toJSON());
                 }, this);
                 this.on("autoRefresh:change", function(autoRefresh){
-                	this.set("autoRefresh", autoRefresh);//触发change事件
+                	this.set("autoRefresh", autoRefresh, {silent : true});//不触发change事件
                 	//通知入口model更新周期改变
                 	Entities.trigger("autoRefresh:change", this.toJSON());
                 }, this);

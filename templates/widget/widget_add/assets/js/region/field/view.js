@@ -35,7 +35,7 @@ var data = DataInsightManager.module("FieldRegion",
           cursor: "default",
           helper: function( event ) {
             return $( "<li class='dragging-field-item' data-filedname='" + $(this).data("filedname")
-            		+"'>"+ $(this).html()+"</li>" );
+            		+"' data-axisitem='" + JSON.stringify($(this).data("axisitem")) + "'>"+ $(this).html()+"</li>" );
           },
           //所有的回调函数(start, stop, drag)接受两个参数: 浏览器事件和ui对象
           start: function(event,ui) {
