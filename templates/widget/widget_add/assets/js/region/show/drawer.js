@@ -23,11 +23,15 @@ define([
 		this.now_drawer				= null;
         this.updator                = new Updator();
 
+        this.init   =   function(place) {
+            this.ec     = echart.init(place);
+        };
+
         // 对外提供的(重新)开始绘图接口
 		this.run	=				function(place, resp, dynamicObj) {
-            var type    = resp.type;
-            this.ec     = echart.init(place);
+            if(!this.ec)        this.ec = echart.init(place)
 
+            var type = resp.type;
 			switch(type) {
 				case "map":	 	
 					this.now_drawer = new MapDrawer();
@@ -173,25 +177,6 @@ define([
             var data = optionData || this.optionCloned;
             this.ec.setOption(data)
 		};
-
-/*
-        // 主要的控制样式部分
-        this.styleChart     =   function(style) {
-            var self = this;
-            self.optionCloned["backgroundColor"] =      style["backgroundColor"];
-
-            $.each(["color", "title", "dataRange", "toolbox"
-                    , "tooltip", "dataZoom", "legend", "grid"], function(i, c) {
-                // _hide是要求移除此项的标记
-                if(style[c] && style[c]["_hide"])   delete self.optionCloned[c]
-                $.extend(self.optionCloned[c], style[c])
-            })
-
-            $.each(this.optionCloned["series"], function(i, ss) {
-                $.extend(ss, style["se"])
-            })
-        };
-*/
 
         this.styleLegend    =   function(lgStyle) {
         };

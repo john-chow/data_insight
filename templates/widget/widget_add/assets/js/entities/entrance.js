@@ -60,6 +60,48 @@ define([
         });
 
 
+
+        /* 
+         * 图表辅助类
+         */
+        Entities.AdditionalEntrance = Entities.BaseEntrance.extend({
+            initialize:         function() {
+                this.interval = null;
+                _.bindAll(this, "changeRefresh", "changeStyle", "onEditWidget")
+            },
+
+            listen:         function(name) {
+                Entities.on(name, this.onEditWidget);
+                Entities.on("autoRefresh:change", this.changeRefresh);
+                Entities.on("style:change", this.changeStyle)
+            },
+
+            onEditWidget:       function(data) {
+                if("0" != data.autoRefresh)     this.changeRefresh(data)
+                if("default" != data.style)     this.changeStyle(data)
+            },
+
+            changeRefresh:    function(data) {
+                var timesec = cvtToTime(data.autoRefresh);
+                var self = this;
+                if (timesec > 0) {
+                    self.interval && clearInterval(self.interval);
+                    self.interval = setInterval(function() {
+                        self.trigger("refresh:notice")
+                    }, timesec)
+                } else {
+                    clearInterval(self.interval);
+                    self.interval = null
+                }
+            },
+
+            changeStyle:        function(data) {
+                DataInsightManager.commands.execute("style:try", data.style)
+            }
+        });
+
+
+
         /*
          * 图表更新类
          */
@@ -79,40 +121,6 @@ define([
             }
         });
 
-
-
-        /* 
-         * 图表辅助类
-         */
-        Entities.AdditionalEntrance = Entities.BaseEntrance.extend({
-            initialize:         function() {
-                this.interval = null;
-                _.bindAll(this, "refreshChange", "styleChange")
-            },
-
-            listen:         function() {
-                Entities.on("autoRefresh:change", this.refreshChange);
-                Entities.on("style:change", this.styleChange)
-            },
-
-            refreshChange:    function(data) {
-                var timesec = cvtToTime(data.autoRefresh);
-                var self = this;
-                if (timesec > 0) {
-                    self.interval && clearInterval(self.interval);
-                    self.interval = setInterval(function() {
-                        self.trigger("refresh:notice")
-                    }, timesec)
-                } else {
-                    clearInterval(self.interval);
-                    self.interval = null
-                }
-            },
-
-            styleChange:        function(data) {
-                DataInsightManager.commands.execute("style:try", data.style)
-            }
-        });
 
 
         /*
