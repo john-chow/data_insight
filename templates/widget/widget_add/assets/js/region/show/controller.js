@@ -32,7 +32,7 @@ define([
             });
 
             DataInsightManager.commands.setHandler("style:try", function(style) {
-                self.showModel.changeStyle(style)
+                self.showView.tryStyle(style)
             });
 
             DataInsightManager.commands.setHandler("widget:save", function() {

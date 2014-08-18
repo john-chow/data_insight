@@ -109,8 +109,8 @@ define([
                 }
             },
 
-            styleChange:        function(style) {
-                DataInsightManager.commands.execute("style:try", style)
+            styleChange:        function(data) {
+                DataInsightManager.commands.execute("style:try", data.style)
             }
         });
 
@@ -121,7 +121,7 @@ define([
         Entities.EntranceFascade = Backbone.Model.extend({
         	url:                function() {
                 if (window.widgetId)       
-                    return "/widget/update/" + window.widgetId
+                    return "/widget/update/" + window.widgetId + "/"
                 else        
                     return "/widget/create/"
             },
@@ -159,7 +159,7 @@ define([
 
             merge:          function() {
                 var drawData = this.drawEntrance.merge();
-                var additionalData = this.adtEntrance().merge();
+                var additionalData = this.adtEntrance.merge();
                 return _.extend({}, drawData, additionalData)
             },
 

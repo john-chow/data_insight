@@ -34,7 +34,7 @@ define([
                 return snapshot
             },
         
-            changeStyle:    function(style) {
+            tryStyle:       function(style) {
                 this.ec.setTheme(style)
             }
         });
