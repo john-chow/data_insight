@@ -136,35 +136,16 @@ define([
 			},
 			/**
 			 * 抓取数据，这里触发widget模型去后台抓取数据
-			 * 备注：触发wiget模型抓取数据的时候，传了代理执行的回调函数和defer对象过去
-			 * return jquery deferrd的promise()方法，确保defer对象无法从外部改变
 			 * 
 			*/
 			fecthFromWidget: function(){
-/*
-				var defer = $.Deferred();
-				//通知widget模型去后台fetch数据，并且代替执行回调函数,同时将jquery的deferred参数传过去
-				Entities.trigger("design:initial", {
-					"func" : $.proxy(this.handlerData, this),
-					"arg"  :defer
-				});
-*/
                 var self = this;
                 $.when(Entities.entAPI.getWidgetData()).done(function(resp) {
-                    self.handlerData(resp)
+                	self.set("graph", resp.graph, {silent: true});
+                	self.set("x", resp.x, {silent: true});
+                	self.set("y", resp.y, {silent: true});
+                	self.set("mapping", resp.mapping, {silent: true});
                 })
-				//return defer.promise();
-			},
-			/**
-			 * 通知wiget模型去后台fetch数据后代理执行的函数,这里只是初始化工作
-			 * data:后台返回数据， defer:jquery deferred对象，其实从上面的方法传过去然后又递过来的
-			 * 说明:defer.resolve方法将defer状态设置为成功状态
-			 */
-			handlerData: function(data){
-				this.set("graph", data.graph);
-				this.set("x", data.x);
-				this.set("y", data.y);
-				this.set("mapping", data.mapping);
 			},
 			/**
 			 * 获取图表类型对于的映射字段列表
@@ -195,7 +176,7 @@ define([
 			listenChange: function(){
 				var self = this;
 				//编辑状态
-				if(window.widgetId){
+				if(window.widgetId && !window.newArea){
 					//确保从后台抓取完数据后才监听属性改变事件，确保不会做无谓的触发
 					$.when(this.fecthFromWidget()).done(function(){
 						self.on("change", function(){
@@ -206,6 +187,7 @@ define([
 						}, self);
 						self.trigger("change");
 					});
+					window.newArea = true;//防止在编辑的状态下，新建组件会从编辑的组件那里获取数据
 					return true;
 				}
 				//创建状态，忽略抓取数据和触发graph:change的顺序，在graph模型改变的时候立即触发garph:change事件

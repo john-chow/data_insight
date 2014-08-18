@@ -31,11 +31,11 @@ define([
 				//当字段拖到过滤器的时候触发
 				this.$el.find(".myfilter").droppable({
 					drop: function(event, ui){
-						//字段名
-						var fieldName = ui.helper.data("filedname");
+						var axisItem = ui.helper.data("axisitem");
 						//通知model获取fieldName字段的所有值的集合
 						self.model.trigger("fetch:field:values", {
-								name: fieldName, table: $(".table-item-choosed").data("table"),
+								name: axisItem.name, table: axisItem.table,
+								kind: axisItem.kind
 							});
 						}
 				});
@@ -54,8 +54,10 @@ define([
 				});
 				//当操作改变的时候触发
 				this.$el.find(".select-or-not").on("change", function(){
-					//通知model值是选中还是排除
-					self.model.trigger("operate:change", $(this).val());
+					if(this.$el.find(".myfilter-select-or-not li").length > 0){
+						//通知model值是选中还是排除
+						self.model.trigger("operate:change", $(this).val());
+					}
 				});
 				
 				//当清空选中的时候触发
@@ -92,7 +94,7 @@ define([
 				//当删除选中过滤器的时候触发
 				this.$el.find(".myfilter>li>b").on("click", function(){
 					var whichFilter = $(this).parent().index();
-					$(this).parent().remove();
+					//$(this).parent().remove();
 					//通知model删除选中过滤器
 					self.model.trigger("filter:remove", whichFilter);
 				});
@@ -265,7 +267,7 @@ define([
 					update: function(event,ui) { //这个事件在用户停止排序并且DOM节点位置发生改变时出发.
 						
 					},
-					receive: function(event,ui) { //这个时间在一个已连接的sortable接收到来自另一个列表的元素时触发.
+					receive: function(event,ui) { //这个事件在一个已连接的sortable接收到来自另一个列表的元素时触发.
 						//判断x轴还是y轴的标志
 						var axis = $(this).attr("id") == "x_sortable" ? "x" : "y";
 						//坐标某个元素的序列化

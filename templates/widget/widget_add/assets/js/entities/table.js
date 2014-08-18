@@ -27,14 +27,50 @@ var data = DataInsightManager.module("Entities",
 
     //定义接口
     var API = {
+      tables: 	null,
+
       getTableEntities: function(data){
-        var tables = new Entities.TableCollection(data)
-        return tables;
+      	if(data){
+        	this.tables = new Entities.TableCollection(data);
+        }
+        else{
+        	this.tables = new Entities.TableCollection();
+	        this.tables.fetch({
+	        	type: "get",
+	        	cache: false,
+		        async: false,
+	        	data: {
+	        		"widgetId":widgetId,
+	        	},
+				success: function(collection, respose){
+				},
+	        })
+        }
+
+        return this.tables;
       },
+
+      getTableInfoData: function(){
+        	var selectModels = this.tables.where({"selected":true});
+        	var chooseModel = this.tables.findWhere({"choosed":true}) || selectModels[0];
+        	var tableNameList = [];
+        	for(var i=0;i<selectModels.length;i++){
+        		tableNameList[i] = selectModels[i].attributes.tableName;
+        	}
+        	return {
+        		"selectNames": tableNameList,
+        		"chooseName": chooseModel.attributes.tableName,
+        	}
+    	}
     };
 
+    //通过数据集合获取table集合
     DataInsightManager.reqres.setHandler("table:entities", function(data){
       return API.getTableEntities(data);
+    });
+
+    DataInsightManager.reqres.setHandler("table:infoData", function(){
+      return API.getTableInfoData();
     });
 
   });
