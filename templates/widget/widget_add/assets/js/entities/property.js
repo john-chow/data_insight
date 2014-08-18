@@ -27,20 +27,16 @@ define([
 			 */
 			fecthFromWidget: function(){
                 var self = this;
+                var defer = $.Deferred();
                 $.when(Entities.entAPI.getWidgetData()).done(function(resp) {
-                    self.handlerData(resp)
+                	self.set("name", data.name, {silent: true});
+                	self.set("title", data.title, {silent: true});
+                	self.set("style", data.style, {silent: true});
+                	self.set("autoRefresh", data.autoRefresh, {silent: true});
+                	self.set("isPublish", data.isPublish, {silent: true});
+                    defer.resolve();
                 })
-			},
-			/**
-			 * 通知wiget模型去后台fetch数据后代理执行的函数
-			 * data:后台返回的response， defer：fetchFromWidget函数里面的jquery deferred
-			 */
-			handlerData: function(data){
-				this.set("name", data.name, {silent: true});
-				this.set("title", data.title, {silent: true});
-				this.set("style", data.style, {silent: true});
-				this.set("autoRefresh", data.autoRefresh, {silent: true});
-				this.set("isPublish", data.isPublish, {silent: true});
+                return defer.promise();
 			},
 			/**
 			*说明：如果是编辑状态，则在抓取完后台数据后再监听change事件,否则直接监听

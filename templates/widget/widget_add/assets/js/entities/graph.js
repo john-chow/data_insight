@@ -140,12 +140,15 @@ define([
 			*/
 			fecthFromWidget: function(){
                 var self = this;
+                var defer = $.Deferred();
                 $.when(Entities.entAPI.getWidgetData()).done(function(resp) {
                 	self.set("graph", resp.graph, {silent: true});
                 	self.set("x", resp.x, {silent: true});
                 	self.set("y", resp.y, {silent: true});
                 	self.set("mapping", resp.mapping, {silent: true});
+                	defer.resolve();
                 })
+                return defer.promise();
 			},
 			/**
 			 * 获取图表类型对于的映射字段列表
