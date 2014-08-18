@@ -5,8 +5,8 @@
 define([
 	'entities/table',
 	'entities/connectDbForm',
-	'entities/importFileForm',
-	'region/table/view'
+	'region/table/view',
+	'ajaxfileupload'
 ], function (v) {
 
 	var data = DataInsightManager.module("TableRegion", function(TableRegion, DataInsightManager,
@@ -68,10 +68,7 @@ define([
 			* 打开导入文件模态框
 			*/
 		    DataInsightManager.dialogRegion.on("show:dialog-import-file", function(){
-		    	var importFileModel = DataInsightManager.request("import-file:entity");
-		        var importFileView = new TableRegion.importFileDialog({
-		        	model:importFileModel
-		        });
+		        var importFileView = new TableRegion.importFileDialog();
 				DataInsightManager.dialogRegion.show(importFileView);
 		    });
 
@@ -93,8 +90,8 @@ define([
 		    /*
 			* 将导入文件信息传到后台，让后台读取
 			*/
-		    DataInsightManager.dialogRegion.on("import:db-file", function(model, options){
-			   	model.save(options, {
+		    DataInsightManager.dialogRegion.on("import:db-file", function(options){
+			   	/*model.save(options, {
 					success: function(model, response, options){
 						var collection = DataInsightManager.request("table:entities", response);
 						for(var i =0;i<response.length;i++){
@@ -107,7 +104,21 @@ define([
 					error: function(model, response, options){
 						console.log("连接失败");
 					},
-				});
+				});*/
+		        $.ajaxFileUpload({
+			        url: '/connect/file/',
+			        secureuri: false,
+			        type: "post",
+			        data: options,
+			        fileElementId: 'importfile',
+			        dataType: 'json',
+			        success: function (data) {
+			            alert(data.msg);
+			        },
+			        error: function (data) {
+			            alert("error");
+			        }
+			    });
 		    });
 
 		    /*

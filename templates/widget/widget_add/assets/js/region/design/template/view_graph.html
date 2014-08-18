@@ -28,6 +28,32 @@
 							<b data-toggle="dropdown" class="glyphicon glyphicon-plus-sign dropdown-toggle"></b> 
 							<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 								<li class="coordinate-edit"><a data-yItem='<%=JSON.stringify(yItem)%>' href="#"><i class="glyphicon glyphicon-edit"></i>&nbsp;编辑</a></li>
+								<li class="coordinate-filter coordinate-hover">
+									<a href="#"><i class="glyphicon glyphicon-play"></i>&nbsp;计算</a>
+									<ul class="dropdown-menu">
+							          	<li value="none" class="active">
+							          		<a tabindex="-1" href="#">无</a>
+							          	</li>
+										<li value="sum">
+											<a tabindex="-1" href="#">求和</a>
+										</li>
+										<li value="count">
+											<a tabindex="-1" href="#">统计个数</a>
+										</li>
+										<li value="mean">
+											<a tabindex="-1" href="#">平均值</a>
+										</li>
+										<li value="max">
+											<a tabindex="-1" href="#">最大值</a>
+										</li>
+										<li value="min">
+											<a tabindex="-1" href="#">最小值</a>
+										</li>
+										<li value="median">
+											<a tabindex="-1" href="#">中位值</a>
+										</li>
+							        </ul>
+								</li>
 								<li class="coordinate-filter"><a href="#"><i class="glyphicon glyphicon-filter"></i>&nbsp;筛选</a></li>
 								<li class="coordinate-remove"><a data-yItem='<%=JSON.stringify(yItem)%>' href="#"><i class="glyphicon glyphicon-remove"></i>&nbsp;移除</a></li>
 							</ul>
@@ -45,6 +71,32 @@
 							<b data-toggle="dropdown" class="glyphicon glyphicon-plus-sign dropdown-toggle"></b>
 							<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 								<li class="coordinate-edit"><a  data-xItem='<%=JSON.stringify(xItem)%>' href="#"><i class="glyphicon glyphicon-edit"></i>&nbsp;编辑</a></li>
+								<li class="coordinate-filter">
+									<a href="#"><i class="glyphicon glyphicon-play"></i>&nbsp;筛选</a>
+									<ul class="dropdown-menu">
+							          	<li value="none" class="active">
+							          		<a tabindex="-1" href="#">无</a>
+							          	</li>
+										<li value="sum">
+											<a tabindex="-1" href="#">求和</a>
+										</li>
+										<li value="count">
+											<a tabindex="-1" href="#">统计个数</a>
+										</li>
+										<li value="mean">
+											<a tabindex="-1" href="#">平均值</a>
+										</li>
+										<li value="max">
+											<a tabindex="-1" href="#">最大值</a>
+										</li>
+										<li value="min">
+											<a tabindex="-1" href="#">最小值</a>
+										</li>
+										<li value="median">
+											<a tabindex="-1" href="#">中位值</a>
+										</li>
+							        </ul>
+								</li>
 								<li class="coordinate-filter"><a href="#"><i class="glyphicon glyphicon-filter"></i>&nbsp;筛选</a></li>
 								<li class="coordinate-remove"><a data-xItem='<%=JSON.stringify(xItem)%>' href="#"><i class="glyphicon glyphicon-remove"></i>&nbsp;移除</a></li>
 							</ul>

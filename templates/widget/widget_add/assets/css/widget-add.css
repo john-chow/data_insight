@@ -708,3 +708,23 @@ border: 1px solid #CAD8B7;
 	padding: 0 30px;
 	font-size: 16px;
 }
+
+.import-file-tip {
+	float: left;
+	font-size: 16px;
+	display: none;
+	color: rgb(196, 61, 71);
+}
+
+.coordinate-filter {
+	position:relative;
+}
+
+.coordinate-filter ul {
+	top: -8px;
+	left: 158px;
+}
+
+.coordinate-hover:hover ul {
+	display:block;
+}

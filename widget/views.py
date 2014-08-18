@@ -29,7 +29,7 @@ import pdb
 def handleOperate(request, widget_id = None):
     hk = request.session.get('hk')
     try:
-        entity = Entity(hk, widget_id) if widget_id else Entity(hk)
+        entity = Entity(hk, widget_id)
         if 'POST' == request.method:
             req_data = json.loads(request.POST.get('data', '{}'))
             succ, code = entity.parse(req_data)
@@ -42,6 +42,10 @@ def handleOperate(request, widget_id = None):
             # 区分是拿页面还是拿内容
             if request.is_ajax():
                 info = entity.display()
+
+                # 这个本该引导用户自己去连接数据库，TBD
+                request.session['hk'] = info['hk']
+
                 return MyHttpJsonResponse({'succ': True, 'data': info})
             else:
                 context = RequestContext(request)
@@ -54,6 +58,9 @@ def handleOperate(request, widget_id = None):
     except ExternalDbModel.DoesNotExist, e:
         return MyHttpJsonResponse({'succ': False \
                                     , 'msg': '请重新连接数据库'})
+    except WidgetModel.DoesNotExist, e:
+        return MyHttpJsonResponse({'succ': False \
+                                    , 'msg': '组件已经被删除'})
     except Exception, e:
         logExcInfo()
         return MyHttpJsonResponse({'succ': False \
@@ -172,7 +179,6 @@ def handleDraw(request):
     """
     获取能画出chart的数据
     """
-    logger.debug("function handleDraw() is called")
     req_data = json.loads(request.POST.get('data', '{}'), 
                                 object_pairs_hook=OrderedDict)
 
@@ -180,7 +186,7 @@ def handleDraw(request):
     if not rsu[0]:
         return MyHttpJsonResponse({'succ': False, 'msg': rsu[1]})
 
-    hk       = request.session.get('hk')
+    hk = request.session.get('hk')
     try:
         producer = DrawDataProducer(hk)
         data    = producer.produce(req_data)
@@ -619,18 +625,17 @@ class Entity():
         if self.id:
             WidgetModel.objects.filter(pk = self.id).update(**pair)
         else:
-            conn = ExternalDbModel.objects.get(pk = hk)
-            pair = pair.update({'m_external_db': conn})
+            conn = ExternalDbModel.objects.get(pk = self.hk)
+            pair.update({'m_external_db': conn})
             widget = WidgetModel.objects.create(**pair)
             self.id = widget.pk
-
 
         return True
 
 
     def display(self):
         if self.id:
-            widget = WidgetModel.objects.get(pk = self.id)
+            widget = WidgetModel.objects.select_related().get(pk = self.id)
             data = widget.restore()
         else:
             data = {}

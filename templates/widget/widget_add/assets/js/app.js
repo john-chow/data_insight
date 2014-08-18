@@ -27,6 +27,7 @@ define([
 	'common/dialog',
 	'region/table/route',
 	'region/field/route',
+	"region/show/route",
 	"region/switch/route",
 	"region/operate/route",
 	"csrf",

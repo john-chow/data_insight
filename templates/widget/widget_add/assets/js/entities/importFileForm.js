@@ -8,7 +8,7 @@
 	    function(Entities, DataInsightManager, Backbone, Marionette, $, _){
 
 		Entities.importFileForm = Backbone.Model.extend({
-			urlRoot: "import_file_form",
+			urlRoot: "/connect/file/",
 			defaults: {
 				"file": 	"",
 				"type": 	"",

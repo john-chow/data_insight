@@ -29,7 +29,7 @@ class SqlExecutorMgr():
     @classmethod
     def stRestore(cls, hk):
         if not hk:
-            return False
+            return None
 
         if hk in cls.HK_ST_MAP:
             st = cls.HK_ST_MAP.get(hk)
@@ -68,7 +68,7 @@ class SqlExecutor():
             self.restore(hk)
 
 
-    def active(self):
+    def updateStatus(self):
         """
         激活对象
         """
@@ -119,7 +119,7 @@ class SqlExecutor():
         )
 
         self.cnt    = cnt
-        if self.active():
+        if self.updateStatus():
             return True, ''
         else:
             return False, ''
@@ -193,7 +193,7 @@ class SqlExecutor():
         metadata = MetaData()
         t = Table(name, metadata, *cols)
         metadata.create_all(self.engine)
-        self.register(name, t)
+        self.getStorage().register(name, t)
         return t
 
 

@@ -45,7 +45,7 @@ define([
 				var self = this;
 				//创建状态，忽略抓取数据和触发filter:change的顺序，在filter模型改变的时候立即触发filter:change事件
 				this.listenChange();
-				Entities.entranceFascade.register("draw", this, "filter:change");
+				Entities.entAPI.setRelation("draw", this, 'filter:change');
 				//监听获取某个字段的所有值
 				this.on("fetch:field:values", function(data){
 					var columnsNumber = this.get("values").length;
