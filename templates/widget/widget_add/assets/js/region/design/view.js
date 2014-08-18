@@ -18,9 +18,17 @@ define([
 				this.model.on("filter:change", function(){
 					this.render();
 				}, this);
+				
 			},
 			onShow: function(){
 				var self = this;
+			},
+			onRender: function(){
+				var self = this;
+				var whichColumn = this.model.get("whichColumn") + 1;
+				//this.$el.find(".myfilter li:nth-child(" + whichColumn +")").addClass("select-filter");
+				$(".myfilter li:nth-child(" + whichColumn +")").addClass("select-filter");
+				//当字段拖到过滤器的时候触发
 				this.$el.find(".myfilter").droppable({
 					drop: function(event, ui){
 						//字段名
@@ -30,6 +38,63 @@ define([
 								name: fieldName, table: $(".table-item-choosed").data("table"),
 							});
 						}
+				});
+				//监听选中过滤器中的值
+				this.$el.find(".myfilter-values input[type=checkbox]").click(function(){
+					if($(this).prop("checked")){
+						//通知model选中过滤器的某个值
+						self.model.trigger("filter:select", $(this).val());
+						$("<li data-value='" + $(this).val() +"'>[" + $(this).val() +"]</li>").appendTo(self.$el.find(".myfilter-select-or-not"));
+					}else{
+						//通知model取消选中过滤器的某个值
+						self.model.trigger("filter:notselect", $(this).val());
+						self.$el.find(".myfilter-select-or-not li:contains('[" + $(this).val() +"]')").remove();
+					}
+					
+				});
+				//当操作改变的时候触发
+				this.$el.find(".select-or-not").on("change", function(){
+					//通知model值是选中还是排除
+					self.model.trigger("operate:change", $(this).val());
+				});
+				
+				//当清空选中的时候触发
+				this.$el.find(".clear-select").on("click", function(){
+					if(self.$el.find(".myfilter-select-or-not li").length > 0){
+						//通知model清空选中的值
+						self.model.trigger("values:clear");
+						self.$el.find(".myfilter-select-or-not li").remove();
+						self.$el.find(".myfilter-values li input[type=checkbox]").prop("checked", false);
+					}
+				})
+				
+				//当点击清空所有的过滤器的时候触发
+				this.$el.find(".clear-filters").on("click", function(){
+					if(self.$el.find(".myfilter li").length > 0){
+						//通知model清空所有的过滤器
+						self.model.trigger("filters:clear");
+						self.$el.find(".myfilter li").remove();
+						self.$el.find(".myfilter-select-or-not li").remove();
+						self.$el.find(".myfilter-values li").remove();
+					}
+				})
+				
+				//选中某个过滤器时候触发
+				this.$el.find(".myfilter>li").on("click", function(){
+					var whichFilter = $(this).index();
+					if(whichFilter != self.model.get("whichColumn")){
+						//通知model选中过滤器
+						self.model.trigger("select:filter", whichFilter);
+					}
+					
+				})
+				
+				//当删除选中过滤器的时候触发
+				this.$el.find(".myfilter>li>b").on("click", function(){
+					var whichFilter = $(this).parent().index();
+					$(this).parent().remove();
+					//通知model删除选中过滤器
+					self.model.trigger("filter:remove", whichFilter);
 				});
 			}
 		})
@@ -42,7 +107,9 @@ define([
 				//显示值
 				$("[name=style]").val(this.model.get("style"));
 				$("[name=autoRefresh]").val(this.model.get("autoRefresh"));
-				$("[name=isPublish]").val(this.model.get("isPublish"));
+				$("[name=isPublish]").val(this.model.get("isPublish").toString());
+				//name和title一样
+				$("[name=title]").val(this.model.get("name"));
 				
 				this.whenChange();
 			},
@@ -212,7 +279,7 @@ define([
 						//计算类型(对应关系:{N:数值变量,F:因子变量,D:时间变量,G:地理变量,T:逻辑变量})
 						var kind = axisItem.kind;
 						//字段所属数据表
-						var table = $(".table-item-choosed").data("table");
+						var table = axisItem.table;
 						var addXItem = {
 								name: name,	title: title,
 								calcFunc: calcFunc, table : table,

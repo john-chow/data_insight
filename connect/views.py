@@ -19,7 +19,7 @@ from connect.file import Text, Excel
 from connect.sqltool import SqlExecutorMgr, SqlExecutor
 from common.tool import MyHttpJsonResponse, logExcInfo, resolveBackboneReq
 from common.log import logger
-from common.head import DEFAULT_DB_INFO, ConnNamedtuple, ConnArgsList
+from common.head import ConnNamedtuple, ConnArgsList, DEFAULT_DB
 import common.protocol as Protocol
 
 import pdb
@@ -209,39 +209,32 @@ def handleDistinct(request):
         logExcInfo()
         resp = {'succ': False, 'msg': 'xxxxxxxxx'}
     else:
-        resp = {'succ': True, 'data': result}
+        resp = {'values': result}
     finally:
         return MyHttpJsonResponse(resp)
-
 
 
 @login_required
 #这个接口需要前端配合，具体需要上传内容看本函数中代码即可
 @require_http_methods(['POST'])
 def uploadFile(request):
-    req = resolveBackboneReq(request, 'POST')
+    post = request.POST
     f   = request.FILES['file']
     st  = SqlExecutor()
-    st.connDb(**DEFAULT_DB_INFO)
-    file_name = f.name.split('.')[0]
-    if 'excel' != req.get('type'):
-        #sheets  = req.getlist('sheets')
-        Excel(f, file_name).reflectToTables(st)
+    st.connDb(DEFAULT_DB)
+    filename = f.name.split('.')[0]
+    if 'excel' == post.get('type'):
+        #sheets  = post.getlist('sheets')
+        Excel(f, filename).reflectToTables(st)
         #sheets  = ['Sheet1', 'Sheet2']
-        #Excel(f, file_name).reflectToTables(st, sheets)
+        #Excel(f, filename).reflectToTables(st, sheets)
     else:
-        spliter  = req.get('spliter')
+        spliter  = post.get('spliter')
         spliter  = ','
-        tx = Text(st, f, file_name)
+        tx = Text(st, f, filename)
         tx.setSpliter(spliter)
         tx.reflectToTable()
     return MyHttpJsonResponse({'succ': True})
-
-    '''
-    else:
-        context = RequestContext(request)
-        return render_to_response('connect/upload.html', context)
-    '''
 
 
 def pushToClient(request):
@@ -251,14 +244,5 @@ def pushToClient(request):
     logger.warning('123414')
     send_event('myevent', 'xxxxxxx', channel = 'foo')
     return HttpResponse('zzzzz')
-
-@login_required
-def getFiledValues(request):
-    """
-    获取列的所有值（不重复）
-    """
-    table, column = map(lambda x: request.Post.get(x),\
-                        ("table", "column"))
-    
 
 

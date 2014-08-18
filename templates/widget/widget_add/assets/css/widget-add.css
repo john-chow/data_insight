@@ -490,11 +490,22 @@ padding: 12px 0px;
 	cursor: pointer;
 }
 .feature>span:hover{
-	border: 1px solid #ebccd1;
+border: 1px solid #5A97BF;
+}
+.feature>span:hover>b{
+	visibility: visible;
 }
 .feature>span>b{
+	visibility: hidden;
 	float:right;
 	margin-right: 7px;
+	margin-top: 2px;
+	width: 14px;
+	height: 14px;
+}
+
+.feature>span>b:hover{
+	color: #447595;
 }
 .feature-item label{
 	line-height: 3;
@@ -585,6 +596,48 @@ border: 1px solid #CAD8B7;
 	border: 1px solid #ccc;
 	overflow-y: auto;
 	margin-bottom: 13px;
+	list-style: none;
+}
+.myfilter{
+	padding-left: 5px;
+}
+.myfilter li{
+	background: rgb(183, 219, 250);
+	float: left;
+	width: 95%;
+	padding: 0 7px 2px 14px;
+	margin-right: 10px;
+	margin-top: 5px;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border: 1px solid rgb(183, 219, 250);
+}
+.myfilter li.select-filter{
+	background: #AFC6E5;
+	border: 1px solid #447595;
+}
+.myfilter li>b{
+	float: right;
+	visibility: hidden;
+	width: 14px;
+	height: 14px;
+	margin-top: 4px;
+}
+.myfilter li:hover{
+	border-color: #5A97BF;
+}
+.myfilter li:hover>b{
+	visibility: visible;
+	cursor: pointer;
+}
+.myfilter-values,.myfilter-select-or-not{
+	padding: 0;
+}
+.myfilter-values li,.myfilter-select-or-not li{
+	list-style: none;
+	float: left;
+	padding: 0px 15px;
 }
 /* end design«¯”Úcss */
 /* begin switch region */

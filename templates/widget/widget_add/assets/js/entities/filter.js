@@ -10,30 +10,36 @@ define([
 		 * 过滤器辅助类
 		 */
 		Entities.filterAssist = Backbone.Model.extend({
+			url: "/connect/distinct/" ,
+			push: function(arg, val) {
+			    var arr = _.clone(this.get(arg));
+			    arr.push(val);
+			    this.set(arg, arr);
+			},
 			defaults: {
 				inValues: [],//字段值中选中的值
-				exValues: []//字段值中排除的值
+				exValues: [],//字段值中排除的值
+				values: []//所有的值
 			},
 		})
 		/**
 		 * 过滤器辅助类集合
 		 */
 		Entities.filterAssists = Backbone.Collection.extend({
-			url: "/connect/distinct/" ,
 			model: Entities.filterAssist,
 		})
 		
 		Entities.Filter = Backbone.Model.extend({
 			defaults: {
-				fields: [],//过滤器列表,形式[{table: xxx, name: xxx},{table: xxx, name: xxx}],table为表名，name为字段名
-				values: [],//过滤器的值,元素师过滤器辅助类集合的集合
+				filters: [],//过滤器列表,形式[{table: xxx, name: xxx, kind: xxx},{table: xxx, name: xxx, kind: xxx}],table为表名，name为字段名
+				values: [],//过滤器的值,元素是过滤器辅助类
 				operate: 'include',//选中/排除/>/</>=/<=/[]
 				whichColumn: 0//选中的过滤器下标,默认选中第一个
 			},
-			push: function(arg, val) {
+			push: function(arg, val, options) {
 			    var arr = _.clone(this.get(arg));
 			    arr.push(val);
-			    this.set(arg, arr);
+			    this.set(arg, arr, options);
 			},
 			initialize: function(){
 				var self = this;
@@ -42,46 +48,105 @@ define([
 				Entities.entAPI.setRelation("draw", this, 'filter:change');
 				//监听获取某个字段的所有值
 				this.on("fetch:field:values", function(data){
-					var columnsNumber = this.get("columns").length;
-					//新加过滤器（新加字段）
-					this.push("values", new Entities.filterAssists());
-					var filterAssists = this.get("values")[columnsNumber].values;
+					var columnsNumber = this.get("values").length;
+					//新加过滤器（新加字段）,这里不让触发change事件，等到后台拿到数据后手动通知视图重绘
+					this.push("filters", {table: data.table, name: data.name}, {silent: true});
+					this.push("values", new Entities.filterAssist(), {silent: true});
+					var filterAssist = this.get("values")[columnsNumber];
 					//后台抓取新加的过滤器的所有不重复的值的集合（即是某个字段的所有值集合）
-					filterAssists.fetch({
-						data: {filed: data},
-						type: "get",
+					filterAssist.fetch({
+						data: {field: 	JSON.stringify(data)},
 						/**
-						 * 需要后台返回的数据格式为[{inValues: [xxx,xxx,....], exValues: [xxx,xxx,....]},{inValues: [xxx,xxx,....], exValues: [xxx,xxx,....]}]
+						 * 需要后台返回的数据格式为[{values: [xxx,xxx,....]},{values: [xxx,xxx,....]}]
 						 */
-						success: function(collection, respose){
+						success: function(model, respose){
 							self.set("whichColumn", columnsNumber, {silent: true});
 							//通知视图重新绘画,展现选中的过滤器值（选中的字段的所有值）
 							self.trigger("filter:rerender");
 						}
 					});
+				});
+				//监听选中过滤器的某个值
+				this.on("filter:select", function(value){
+					//选中
+					if(this.get("operate") == "include"){
+						this.get("values")[this.get("whichColumn")].push("inValues", value);
+					}
+					//排除
+					else if(this.get("operate") == "exclude"){
+						this.get("values")[this.get("whichColumn")].push("exValues", value);
+					}
+					//通知入口model过滤器改变
+					Entities.trigger("filter:change", this.toJSON());
+				})
+				//监听取消选中过滤器的某个值
+				this.on("filter:notselect", function(value){
+					//选中
+					if(this.get("operate") == "include"){
+						this.get("values")[this.get("whichColumn")].get("inValues").remove(value);
+					}
+					//排除
+					else if(this.get("operate") == "exclude"){
+						this.get("values")[this.get("whichColumn")].get("exValues").remove(value);
+					}
+					//通知入口model过滤器改变
+					Entities.trigger("filter:change", this.toJSON());
+				})
+				
+				//监听操作改变
+				this.on("operate:change", function(operate){
+					//之前排除，现在选中的情况
+					if(operate == "include"){
+						var beforeExValues = this.get("values")[this.get("whichColumn")].get("exValues");
+						this.get("values")[this.get("whichColumn")].set("inValues", beforeExValues);
+						this.get("values")[this.get("whichColumn")].set("exValues", []);
+					}else if(operate == "exclude"){//之前选中，现在排除的情况
+						var beforeInValues = this.get("values")[this.get("whichColumn")].get("inValues");
+						this.get("values")[this.get("whichColumn")].set("exValues", beforeInValues);
+						this.get("values")[this.get("whichColumn")].set("inValues", []);
+					}
+					this.set("operate", operate, {silent: true});
+					//通知入口model过滤器操作改变
+					Entities.trigger("filter:change", this.toJSON());
+				});
+				
+				//监听清空所有的过滤器
+				this.on("filters:clear", function(){
+					this.set("values", [], {silent: true});
+					this.set("filters", [], {silent: true});
+					//通知入口model过滤器清空
+					Entities.trigger("filter:change", this.toJSON());
+				})
+				
+				//监听清空选中的值
+				this.on("values:clear", function(){
+					if(this.get("operate") == "include"){
+						//清空选中值
+						this.get("values")[this.get("whichColumn")].set("inValues", []);
+					}else if(this.get("operate") == "exclude"){
+						//清空排除值
+						this.get("values")[this.get("whichColumn")].set("exValues", []);
+					}
+					//通知入口model过滤器清空了选中的值
+					Entities.trigger("filter:change", this.toJSON());
+				})
+				
+				//监听选中过滤器
+				this.on("select:filter", function(whichFilter){
+					this.set("whichColumn", whichFilter, {silent: true});
+					this.trigger("filter:rerender");
+				})
+				
+				//监听删除过滤器
+				this.on("filter:remove", function(whichFilter){
+					var removeValue = this.get("values")[whichFilter];
+					var removeFilter = this.get("filters")[whichFilter];
+					this.get("values").remove(removeValue);
+					this.get("filters").remove(removeFilter);
+					//通知入口model删除过滤器
+					Entities.trigger("filter:change", this.toJSON());
 				})
 
-			},
-			/**
-			 * 获取字段的所有值集合
-			 * @prame data的形式{column:xxxx,table:xxxx}
-			 */
-			fetchFiledValues: function(data){
-				//通知入口model获取指定的字段的所有值的集合，字段和表名在data中
-				Entities.trigger("fetch:field:values", {
-					"func": $.proxy(this.handlerFetcFiledVals, this),
-					"arg" : data
-					
-				});
-			},
-			/**
-			 * 入口model代理执行的函数，当获取完指定字段的所有值后执行
-			 * @parme data,字段的所有值的集合; defer, jquery Deferred对象
-			 */
-			handlerFetcFiledVals: function(data, defer){
-				this.values = data;//不用model的set方法
-				defer.resolve();
-                Entities.entranceFascade.register("draw", this, "filter:change")
 			},
 			/**
 			 * 抓取数据，这里触发widget模型去后台抓取数据
@@ -133,8 +198,8 @@ define([
 						self.on("change", function(){
 							Entities.trigger("filter:change", this.toJSON());
 							//通知视图重绘
-							//this.trigger("filter:change");
-						}, this);
+							this.trigger("filter:rerender");;
+						}, self);
 					});
 					return true;
 				}
@@ -142,7 +207,7 @@ define([
 				this.on("change", function(){
 					Entities.trigger("filter:change", this.toJSON());
 					//通知视图重绘
-					//this.trigger("filter:change");
+					self.trigger("filter:rerender");
 				}, this);
 				return false;
 			}

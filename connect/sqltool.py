@@ -193,7 +193,7 @@ class SqlExecutor():
         metadata = MetaData()
         t = Table(name, metadata, *cols)
         metadata.create_all(self.engine)
-        self.register(name, t)
+        self.getStorage().register(name, t)
         return t
 
 

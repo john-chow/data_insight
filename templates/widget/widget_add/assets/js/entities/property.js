@@ -16,7 +16,7 @@ define([
 			},
 			initialize: function(){
 				var self = this;
-				this.listenChange();
+				//this.listenChange();
                 Entities.entAPI.setRelation("additional", this, "property:change");
                 this.listenPropertyChange();
 			},
@@ -73,9 +73,13 @@ define([
 			listenPropertyChange: function(){
                 this.on("style:change", function(style){
                 	this.set("style", style);//触发change事件
+                	//通知入口model主题改变
+                	Entities.trigger("style:change", this.toJSON());
                 }, this);
                 this.on("autoRefresh:change", function(autoRefresh){
                 	this.set("autoRefresh", autoRefresh);//触发change事件
+                	//通知入口model更新周期改变
+                	Entities.trigger("autoRefresh:change", this.toJSON());
                 }, this);
                 this.on("isPublish:change", function(isPublish){
                 	this.set("isPublish", isPublish, {silent : true});//不触发change事件

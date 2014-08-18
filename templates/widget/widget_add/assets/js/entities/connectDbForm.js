@@ -12,9 +12,9 @@
 			defaults: {
 				"ip": 		"127.0.0.1",
 				"port": 	"5432",
-				"db": 		"test",
+				"db": 		"data_insight",
 				"user": 	"postgres",
-				"pwd": 		"",
+				"pwd": 		"123456",
 				"kind": 	"",
 			},
 			validate: function(attrs, options) {
