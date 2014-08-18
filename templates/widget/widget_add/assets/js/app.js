@@ -18,20 +18,21 @@
 	'tool'
 ], function ($, JqueryUi, json, _, Backbone, Marionette, dialog, tableRoute, fieldRoute) {*/
 define([
-	'jquery',
-	'jquery-ui',
-	'json2',
-	'underscore',
-	'backbone',
-	'marionette',
-	'common/dialog',
-	'region/table/route',
-	'region/field/route',
-	"region/show/route",
-	"region/switch/route",
-	"region/operate/route",
-	"csrf",
-	'tool'
+	'jquery'
+    , 'jquery-ui'
+    , 'json2'
+    , 'underscore'
+    , 'backbone'
+    , 'marionette'
+    , 'common/dialog'
+    , 'region/table/route'
+    , 'region/field/route'
+    , "region/show/route"
+    , "region/switch/route"
+    , "region/operate/route"
+    , "csrf"
+    , 'tool'
+	, 'common/mapping'
 ], function ($, JqueryUi, json, _, Backbone, Marionette, dialog, tableRoute, filedRoute, switchRoute) {
 
     // 设置ajax的content-type默认为application/x-www-form-urlencoded

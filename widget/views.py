@@ -205,13 +205,16 @@ def handleRefresh(request, wi_id):
     """
     处理对组件的更新请求
     """
-    handler = RefreshHandler(wi_id)
-    if not handler.checkRefreshable():
-        return MyHttpJsonResponse({'succ': False, 'msg': 'xxxx'})
-
-    data = handler.handle()
-    data['succ'] = True
-    return MyHttpJsonResponse(data)
+    try:
+        handler = RefreshHandler(wi_id)
+        if not handler.checkRefreshable():
+            return MyHttpJsonResponse({'succ': False, 'msg': 'xxxx'})
+        data = handler.handle()
+    except Exception, e:
+        logExcInfo()
+        return MyHttpJsonResponse({'succ': False})
+    else:
+        return MyHttpJsonResponse(data)
 
 
 @require_http_methods(['POST'])
@@ -776,7 +779,7 @@ class FactorHandler():
             self.extract()
 
         factors = [factor for factor in self.msns \
-                    if 'T' == factor.getProperty(Protocol.Type)]
+                    if Protocol.TimeType == factor.getProperty(Protocol.Kind)]
         return factors
 
 
@@ -791,7 +794,6 @@ class FactorHandler():
 
 
 
-
 ########################################
 ## 处理定时更新
 #########################################
@@ -803,7 +805,8 @@ class RefreshHandler():
         self.processor = None
 
     def checkRefreshable(self):
-        return self.widget.m_if_update
+        refresh = self.widget.m_refresh 
+        return (refresh != 'No')
 
     def chooseRefresher(self):
         req = self.widget.restoreReqDataDict()
@@ -822,7 +825,9 @@ class RefreshHandler():
 
     def handle(self):
         self.setRefresher(self.chooseRefresher())
-        self.refresher.produce()
+        data = self.refresher.produce()
+        data['succ'] = True
+        return data
 
 
 

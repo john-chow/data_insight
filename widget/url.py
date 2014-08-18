@@ -21,8 +21,7 @@ urlpatterns = patterns('',
 	url(r'^batch/delete/$',		views.batachOp, {'op': 'delete'} ),
 
 	url(r'^draw/$', 			views.handleDraw),
-    url(r'^refresh/(\d+)$',      views.handleRefresh),
-    url(r'^draw/timely/(\d+)$',      views.reqTimelyData),
+    url(r'^refresh/(\d+)/$',    views.handleRefresh),
     
     url(r'^viewList/$',         views.widgetList ,{'template_name': 'widget/view_list.html'}),
 )
