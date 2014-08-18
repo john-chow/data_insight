@@ -35,6 +35,7 @@ var data = DataInsightManager.module("Entities",
         }
         else{
         	this.tables = new Entities.TableCollection();
+/*
 	        this.tables.fetch({
 	        	type: "get",
 	        	cache: false,
@@ -45,6 +46,7 @@ var data = DataInsightManager.module("Entities",
 				success: function(collection, respose){
 				},
 	        })
+*/
         }
 
         return this.tables;
