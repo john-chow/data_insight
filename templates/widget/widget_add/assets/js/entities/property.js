@@ -16,7 +16,7 @@ define([
 			},
 			initialize: function(){
 				var self = this;
-				this.listenChange();
+				//this.listenChange();
                 Entities.entranceFascade.register("additional", this, "property:change");
                 this.listenPropertyChange();
 			},
@@ -27,7 +27,7 @@ define([
 			 */
 			fecthFromWidget: function(){
 				var defer = $.Deferred();
-				Entities.trigger("graph:initial", {
+				Entities.trigger("design:initial", {
 					"func" : $.proxy(this.handlerData, this),
 					"arg" : defer
 				});
@@ -42,7 +42,7 @@ define([
 				this.set("title", data.title);
 				this.set("style", data.style);
 				this.set("autoRefresh", data.autoRefresh);
-				this.set("isPublish", isPublish);
+				this.set("isPublish", data.isPublish);
 				defer.resolve();
 			},
 			/**
@@ -76,9 +76,13 @@ define([
 			listenPropertyChange: function(){
                 this.on("style:change", function(style){
                 	this.set("style", style);//触发change事件
+                	//通知入口model主题改变
+                	Entities.trigger("style:change", this.toJSON());
                 }, this);
                 this.on("autoRefresh:change", function(autoRefresh){
                 	this.set("autoRefresh", autoRefresh);//触发change事件
+                	//通知入口model更新周期改变
+                	Entities.trigger("autoRefresh:change", this.toJSON());
                 }, this);
                 this.on("isPublish:change", function(isPublish){
                 	this.set("isPublish", isPublish, {silent : true});//不触发change事件

@@ -81,14 +81,14 @@ define([
 				
 				//添加x轴被拖进来的元素
 				this.on("x:add", function(xItem){
-					this.push("x", xItem);
-					this.trigger("change");//触发change事件
+					this.push("x", xItem);//会触发change事件
+					//this.trigger("change");//触发change事件
 				}, this);
 				
 				//添加y轴被拖进来的元素
 				this.on("y:add", function(yItem){
-					this.push("y", yItem);
-					this.trigger("change");//触发change事件
+					this.push("y", yItem);//会触发change事件
+					//this.trigger("change");//触发change事件
 				}, this);
 				
 				//监听通过模态框修改x轴属性的变化,因为是垮model的所以绑定在Entities上
@@ -194,7 +194,7 @@ define([
 					//确保从后台抓取完数据后才监听属性改变事件，确保不会做无谓的触发
 					$.when(this.fecthFromWidget()).done(function(){
 						self.on("change", function(){
-							//通知入口model图表类型改变
+							//通知入口model图表发生改变
 							Entities.trigger("graph:change", this.toJSON());
 							//通知视图重画
 							self.trigger("graph:change");
@@ -205,7 +205,7 @@ define([
 				}
 				//创建状态，忽略抓取数据和触发graph:change的顺序，在graph模型改变的时候立即触发garph:change事件
 				this.on("change", function(){
-					//通知入口model图表类型改变
+					//通知入口model图表发生改变
 					Entities.trigger("graph:change", this.toJSON());
 					//通知视图重画
 					self.trigger("graph:change");

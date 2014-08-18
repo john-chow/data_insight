@@ -211,7 +211,7 @@ def handleDistinct(request):
         logExcInfo()
         resp = {'succ': False, 'msg': 'xxxxxxxxx'}
     else:
-        resp = {'succ': True, 'data': result}
+        resp = {'values': result}
     finally:
         return MyHttpJsonResponse(resp)
 
@@ -249,14 +249,5 @@ def pushToClient(request):
     logger.warning('123414')
     send_event('myevent', 'xxxxxxx', channel = 'foo')
     return HttpResponse('zzzzz')
-
-@login_required
-def getFiledValues(request):
-    """
-    获取列的所有值（不重复）
-    """
-    table, column = map(lambda x: request.Post.get(x),\
-                        ("table", "column"))
-    
 
 

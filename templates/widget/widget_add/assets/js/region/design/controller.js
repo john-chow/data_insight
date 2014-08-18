@@ -78,15 +78,26 @@ define([
 					this.designView.on("show:design:content", function(whichView){
 						if(!whichView || whichView == "graph"){//显示图表视图
 							$("#design-filter,#design-property").hide();
-							this.designView.designGraphRegion.show(this.graphView);
+							if(!this.designView.designGraphRegion){
+								this.designView.designGraphRegion.show(this.graphView);
+								this.designView.designGraphRegion.showed = true;
+							}
+							
 							$("#design-graph").show();
 						}else if(whichView == "filter"){//显示过滤器视图
 							$("#design-graph,#design-property").hide();
-							this.designView.designFilterRegion.show(this.filterView);
+							if(!this.designView.designFilterRegion.showed){
+								this.designView.designFilterRegion.show(this.filterView);
+								this.designView.designFilterRegion.showed = true;
+							}
+								
 							$("#design-filter").show();
 						}else{//显示属性视图
 							$("#design-graph,#design-filter").hide();
-							this.designView.designPropertyRegion.show(this.propertyView);
+							if(!this.designView.designPropertyRegion.showed){
+								this.designView.designPropertyRegion.show(this.propertyView);
+								this.designView.designPropertyRegion.showed = true;
+							}
 							$("#design-property").show();
 						}
 					}, this);
