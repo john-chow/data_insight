@@ -4,10 +4,12 @@
 	<% _.each(items, function(item){ %>
         <li class="field-item" data-id ="<%= item.id %>" id="filed_<%=item.fieldName%>" data-filedname="<%=item.fieldName%>" data-axisitem='{"table":"<%=$(".table-item-choosed").data("table")%>" ,"name": "<%= item.fieldName%>", "kind": "<%=item.type%>"}'> 
         	<% if(item.nickName == "") { %>
-        		<%= item.type %>&nbsp;<%= item.fieldName %>
+        		<span class="badge"><%= item.type %></span>
+        		&nbsp;<%= item.fieldName %>
         	<% } %>
         	<% if(item.nickName !== "") { %>
-        		<%= item.type %>&nbsp;<%= item.nickName %>
+        		<span class="badge"><%= item.type %></span>
+        		&nbsp;<%= item.nickName %>
         	<% } %>
         </li>
     <% }); %>

@@ -211,7 +211,7 @@ var data = DataInsightManager.module("TableRegion",
       	this.$(".table-manage-commit").html("加载中...");
         this.$(".table-manage-commit").css("cursor","wait");
         var self = this;
-        this.$("[name='manageCheckbox']").each(function(){
+        this.$(".manageCheckbox").each(function(){
           var model = self.collection.get($(this).attr("data-id"));
           if($(this).attr("checked")){
             DataInsightManager.dialogRegion.trigger('model:set', model, {"selected":true});
@@ -224,20 +224,20 @@ var data = DataInsightManager.module("TableRegion",
       },
 
       toggleCheckedFunction: function(ev){
-    			if($(ev.currentTarget).find("input").attr("checked")) {
-    				$(ev.currentTarget).find("input").removeAttr("checked"); 
-    			}
-    			else {
-    				$(ev.currentTarget).find("input").attr("checked",true).prop('checked',true); 
-    			}
+    	if($(ev.currentTarget).find("input").attr("checked")) {
+    		$(ev.currentTarget).find("input").removeAttr("checked"); 
+    	}
+    	else {
+    		$(ev.currentTarget).find("input").attr("checked",true).prop('checked',true); 
+    	}
       },
 
       selectAllFunction: function(){
-        this.$("[name='manageCheckbox']").attr("checked",'true').prop('checked',true);
+        this.$(".manageCheckbox").attr("checked",'true').prop('checked',true);
       },
 
       selectNoneFunction: function(){
-        this.$("[name='manageCheckbox']").removeAttr("checked");
+        this.$(".manageCheckbox").removeAttr("checked");
       },
 			
     });

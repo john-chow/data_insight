@@ -18,10 +18,13 @@ define([
 			* 新建View，分两情况,一种是有数据，一种无数据
 			*/
 			var showTableView;
-			if(collection){
+			if(collection || widgetId){
+				if(!collection)
+					collection = DataInsightManager.request("table:entities");
 				showTableView = new TableRegion.TableView({
 					collection: collection
 				});
+				var abc = DataInsightManager.request("table:infoData");
 				showTableView.on("show:table-dialog", function(){
 					DataInsightManager.dialogRegion.trigger("show:dialog-table-manage", collection);
 	       		});
