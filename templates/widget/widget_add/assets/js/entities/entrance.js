@@ -2,6 +2,7 @@ define([
     'entities/graph'
     , 'entities/filter'
     , 'entities/property'
+    , 'common/mapping'
 ], function () {
     DataInsightManager.module("Entities"
         , function(Entities, DataInsightManager, Backbone, Marionette, $, _) {
@@ -38,13 +39,17 @@ define([
          * 图表形成类
          */
         Entities.DrawEntrance = Entities.BaseEntrance.extend({
-            url:                "/widget/draw/",
+            url:                 "/widget/draw/",
 
-            listen:             function(name) {
-                Entities.on(name, $.proxy(this.onChange, this));
+            initialize:         function() {
+                _.bindAll(this, "reqRedraw")
             },
 
-            onChange:               function() {
+            listen:             function(name) {
+                Entities.on(name, this.reqRedraw);
+            },
+
+            reqRedraw:             function() {
                 var data = this.merge();
                 this.save(data, {
                     success:  function(m, resp) {
@@ -55,13 +60,67 @@ define([
         });
 
 
+
         /* 
          * 图表辅助类
          */
         Entities.AdditionalEntrance = Entities.BaseEntrance.extend({
             initialize:         function() {
+                this.interval = null;
+                _.bindAll(this, "changeRefresh", "changeStyle", "onEditWidget")
+            },
+
+            listen:         function(name) {
+                Entities.on(name, this.onEditWidget);
+                Entities.on("autoRefresh:change", this.changeRefresh);
+                Entities.on("style:change", this.changeStyle)
+            },
+
+            onEditWidget:       function(data) {
+                if("0" != data.autoRefresh)     this.changeRefresh(data)
+                if("default" != data.style)     this.changeStyle(data)
+            },
+
+            changeRefresh:    function(data) {
+                var timesec = cvtToTime(data.autoRefresh);
+                var self = this;
+                if (timesec > 0) {
+                    self.interval && clearInterval(self.interval);
+                    self.interval = setInterval(function() {
+                        self.trigger("refresh:notice")
+                    }, timesec)
+                } else {
+                    clearInterval(self.interval);
+                    self.interval = null
+                }
+            },
+
+            changeStyle:        function(data) {
+                DataInsightManager.commands.execute("style:try", data.style)
             }
         });
+
+
+
+        /*
+         * 图表更新类
+         */
+        Entities.RefreshEntrance = Backbone.Model.extend({
+            url:        "/widget/refresh/" + window.widgetId + "/",
+
+            initialize:     function() {
+                _.bindAll(this, "reqRefresh")
+            },
+
+            reqRefresh:       function() {
+                this.fetch({
+                    success:  function(m, resp) {
+                        DataInsightManager.commands.execute("board:draw", resp)
+                    }
+                })
+            }
+        });
+
 
 
         /*
@@ -70,7 +129,7 @@ define([
         Entities.EntranceFascade = Backbone.Model.extend({
         	url:                function() {
                 if (window.widgetId)       
-                    return "/widget/update/" + window.widgetId
+                    return "/widget/update/" + window.widgetId + "/"
                 else        
                     return "/widget/create/"
             },
@@ -79,14 +138,17 @@ define([
                 this.set({
                     "draw":             new Entities.DrawEntrance
                     , "additional":     new Entities.AdditionalEntrance
+                    , "refresh":        new Entities.RefreshEntrance
                 });
 
-                Entities.on("design:initial", $.proxy(this.onReqWidgetData, this));
-/*
-                DataInsightManager.commands.setHandler(
-                    "widget:save", $.proxy(this.onSave, this)
+                this.drawEntrance = this.get("draw");
+                this.adtEntrance = this.get("additional");
+                this.refreshEntrance = this.get("refresh");
+                this.adtEntrance.on(
+                    "refresh:notice", this.refreshEntrance.reqRefresh
                 );
-*/
+
+                Entities.on("design:initial", $.proxy(this.onReqWidgetData, this));
             },
 
             classify:       function(kind, model, changeEvent) {
@@ -104,8 +166,8 @@ define([
             },
 
             merge:          function() {
-                var drawData = this.get("draw").merge();
-                var additionalData = this.get("additional").merge();
+                var drawData = this.drawEntrance.merge();
+                var additionalData = this.adtEntrance.merge();
                 return _.extend({}, drawData, additionalData)
             },
 

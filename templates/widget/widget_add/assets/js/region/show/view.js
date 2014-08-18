@@ -14,12 +14,15 @@ define([
 
             initialize:     function() {
                 this.drawerMgr = new DrawManager();
-                this.ec = null;
+            },
+
+            onShow:         function() {
+                this.drawerMgr.init(this.el);
+                this.ec = this.drawerMgr.getEc()
             },
 
             draw:           function(data) {
                 this.drawerMgr.run(this.el, data);
-                this.ec = this.drawerMgr.getEc()
             },
 
             clear:          function() {
@@ -34,7 +37,7 @@ define([
                 return snapshot
             },
         
-            changeStyle:    function(style) {
+            tryStyle:       function(style) {
                 this.ec.setTheme(style)
             }
         });

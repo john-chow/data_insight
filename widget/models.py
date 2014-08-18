@@ -50,7 +50,7 @@ class WidgetModel(ElementModel):
         return { 
             Protocol.Xaxis:     eval(self.m_x) if self.m_x else self.m_x 
             , Protocol.Yaxis:   eval(self.m_y) if self.m_y else self.m_y
-            , 'tables':         json.loads(self.m_table) 
+            #, 'tables':         json.loads(self.m_table) 
             , Protocol.Color:   eval(self.m_color) if self.m_color else self.m_color 
             , Protocol.Size:    self.m_size 
             , Protocol.Graph:   self.m_graph 

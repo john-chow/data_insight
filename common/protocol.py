@@ -23,8 +23,12 @@ WidgetName = 'name'
 Axis = 'axis'
 
 # 该元素的值类别字段的名称
-# 0表示是数字列，1表示是文字列，2表示是时间列
 Kind = 'kind'
+
+# 数据字段类型的种类
+TimeType    = 'T'
+NumericType = 'N'
+FactorType  = 'F'
 
 # 数据表名称
 Table = 'table'
@@ -108,14 +112,6 @@ FilterColumn = 'field'
 
 # 统一的日期时间格式
 DatetimeFormat = '%Y-%m-%d %H:%M:%S'
-
-
-''' 
-数据字段类型
-'''
-TimeType    = 'T'
-NumericType = 'N'
-FactorType  = 'F'
 
 
 '''

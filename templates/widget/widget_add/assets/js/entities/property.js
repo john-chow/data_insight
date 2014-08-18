@@ -16,7 +16,7 @@ define([
 			},
 			initialize: function(){
 				var self = this;
-				//this.listenChange();
+				this.listenChange();
                 Entities.entAPI.setRelation("additional", this, "property:change");
                 this.listenPropertyChange();
 			},

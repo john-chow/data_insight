@@ -31,8 +31,8 @@ define([
                 else                self.showView.clear()
             });
 
-            DataInsightManager.commands.setHandler("style:change", function(style) {
-                self.showModel.changeStyle(style)
+            DataInsightManager.commands.setHandler("style:try", function(style) {
+                self.showView.tryStyle(style)
             });
 
             DataInsightManager.commands.setHandler("widget:save", function() {
