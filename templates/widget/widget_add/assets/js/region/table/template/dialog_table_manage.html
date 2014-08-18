@@ -10,7 +10,7 @@
       <p id="table_manage_new"><a href="#">新建数据表</a></p>
       <ul id="table_manage_ul">
       <% _.each(items, function(item){ %>
-           <li><input data-id="<%= item.id %>" name="manageCheckbox" type="checkbox" <% if(item.selected) { %> checked="true" <% } %> /><%= item.tableName %></li>
+           <li><input data-id="<%= item.id %>" class="manageCheckbox" type="checkbox" <% if(item.selected) { %> checked="true" <% } %> /><%= item.tableName %></li>
       <% }); %>
       </ul>
       </div>
