@@ -146,8 +146,8 @@ def widgetShow(request, widget_id):
     try:
         model = WidgetModel.objects.select_related().get(pk = widget_id)
         hk = model.m_external_db.m_hk
-        producer = DrawDataProducer(self.hk)
-        data = producer.produce(self.req)
+        producer = DrawDataProducer(hk)
+        data = producer.produce(model.restoreReqDataDict())
     except WidgetModel.DoesNotExist:
         return HttpResponse({'succ': False, 'msg': 'xxxxxxxxxxxx'})
     except ExternalDbModel.DoesNotExist:
