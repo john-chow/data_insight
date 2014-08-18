@@ -31,7 +31,7 @@
 				</ul>
 			<%}else if(filters[whichColumn].kind == "F"){%>
 				<p class="filter-label">大于:</p> 
-				<input type="text" class="myfilter-range" name="lowRange" id="lowRange"/>
+				<input type="text" value="<%=ranges[whichColumn][0]%>" class="myfilter-range" name="lowRange" id="lowRange"/>
 			<%}%>
 		</div>
 		
@@ -59,7 +59,7 @@
 			</ul>
 		<%} else if(filters[whichColumn].kind == "F"){%>
 			<p class="filter-label">小于:</p> 
-			<input type="text" class="myfilter-range" name="hightRange" id="hightRange"/>
+			<input type="text" value="<%=ranges[whichColumn][1]%>" class="myfilter-range" name="hightRange" id="hightRange"/>
 		<%}%>
 		</div>
 	</div>
