@@ -74,6 +74,9 @@ define([
 							}
 						});
 					}else if(data.kind == "F"){//如果是因子变量
+						this.push("ranges", ["",""]);
+						this.push("values", null, {silent: true});
+						this.push("operators", null);
 						self.trigger("filter:rerender");
 					}
 				});
