@@ -183,7 +183,12 @@ define([
 			 */
 			fetchFromWidget: function(){
 				var defer = $.Deferred();
+				var self = this;
 				$.when(Entities.entAPI.getWidgetData()).done(function(resp) {
+					self.set("values", resp.values);
+					self.set("operators", resp.operators);
+					self.set("filters", resp.filters);
+					self.set("whichColum", 0);
                     defer.resolve();
                 })
 				return defer.promise();

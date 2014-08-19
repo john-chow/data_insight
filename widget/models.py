@@ -92,7 +92,6 @@ class WidgetModel(ElementModel):
             , Protocol.Size:        self.m_size
             , Protocol.WidgetName:  self.m_name
             , 'filter':             []
-            , 'hk':                 self.m_external_db.getPk()
         }
 
     def restoreUsedTables(self):

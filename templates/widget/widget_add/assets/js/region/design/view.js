@@ -413,17 +413,17 @@ define([
 				
 			},
 			switchGraphTab: function(e){
-				$(".active").removeClass("active");
+				$(".tab .active").removeClass("active");
 				$(e.target).addClass("active");
 				this.trigger("show:design:content", "graph");
 			},
 			switchFilterTab: function(e){
-				$(".active").removeClass("active");
+				$(".tab .active").removeClass("active");
 				$(e.target).addClass("active");
 				this.trigger("show:design:content", "filter");
 			},
 			switchPropertyTab: function(e){
-				$(".active").removeClass("active");
+				$(".tab .active").removeClass("active");
 				$(e.target).addClass("active");
 				this.trigger("show:design:content", "property");
 			},

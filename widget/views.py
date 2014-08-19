@@ -28,9 +28,10 @@ import pdb
 @login_required
 def handleOperate(request, widget_id = None):
     try:
+        entity = ExistedHandler(widget_id) if widget_id else NewHandler()
         if 'POST' == request.method:
             hk = request.session.get('hk')
-            entity = Entity(hk, widget_id)
+            entity.setHk(hk)
             req_data = json.loads(request.POST.get('data', '{}'))
             succ, code = entity.parse(req_data)
             if not succ:
@@ -41,11 +42,10 @@ def handleOperate(request, widget_id = None):
         else:
             # 区分是拿页面还是拿内容
             if request.is_ajax():
-                entity = Entity(hk, widget_id)
                 info = entity.display()
 
                 # 这个本该引导用户自己去连接数据库，TBD
-                request.session['hk'] = info['hk']
+                request.session['hk'] = entity.getHk()
 
                 return MyHttpJsonResponse({'succ': True, 'data': info})
             else:
@@ -584,11 +584,12 @@ def widgetAdd(request):
 ########################################
 ## 处理组件请求 
 #########################################
-class Entity():
-    def __init__(self, hk, id = None):
+class WidgetHandler():
+    def __init__(self, id = None):
         self.id = id
+        self.model = WidgetModel.objects.get(pk = id) \
+                                            if self.id else None
         self.validated = False
-        self.hk = hk
 
     def parse(self, req):
         [self.graph, self.x, self.y, mapping, self.snapshot, self.name, \
@@ -623,7 +624,7 @@ class Entity():
         return succ, code
 
 
-    def save(self):
+    def takeout(self):
         pair = {
             'm_name':                 self.name
             , 'm_x':                  self.x
@@ -637,25 +638,54 @@ class Entity():
             , 'm_skin':               self.skin
         }
 
-        if self.id:
-            WidgetModel.objects.filter(pk = self.id).update(**pair)
-        else:
-            conn = ExternalDbModel.objects.get(pk = self.hk)
-            pair.update({'m_external_db': conn})
-            widget = WidgetModel.objects.create(**pair)
-            self.id = widget.pk
-
         return True
 
 
     def display(self):
-        if self.id:
-            widget = WidgetModel.objects.select_related().get(pk = self.id)
-            data = widget.restore()
+        if self.model:
+            data = self.model.restore()
         else:
             data = {}
 
         return data
+
+
+
+class ExistedHandler(WidgetHandler):
+    def __init__(self, id):
+        self.model = WidgetModel.objects.get(pk = id)
+
+    def save(self):
+        pair = WidgetHandler.takeout()
+        self.model.save(**pair)
+
+    def display(self):
+        data = self.model.restore()
+        return data
+
+    def getHk(self):
+        hk = self.model.getConn().getHk()
+        return hk
+
+
+class NewHandler(WidgetHandler):
+    def __init__(self):
+        self.model = None
+        self.hk = None
+
+    def save(self):
+        pair = WidgetHandler.takeout()
+        conn = ExternalDbModel.objects.get(pk = self.hk)
+        pair.update({'m_external_db': conn})
+        self.model = WidgetModel.objects.create(**pair)
+        self.id = self.model.pk
+
+    def display(self):
+        return {}
+
+    def setHk(self, hk):
+        self.hk = hk
+
 
 
 
