@@ -61,20 +61,16 @@ define([
 	        						self.designControllerList.push(desingeController);
 		        					var switchEntity = DataInsightManager.request("switch:entity");
 		        					switchEntity.set("name",  desingeController.property.get("name"));
-		        					
-		        					
-		        					var showController = new DataInsightManager.ShowRegion.Controller();
-		        					showController.showShowView();
-		        					
-		        					self.showControllerList.push(showController);
-		        					
-		        					
 		        					self.collection.add(switchEntity);
-		        					
 		        					self.switchViews.collection = self.collection;
 		        					//显示工作簿
 		        					DataInsightManager.switchRegion.show(self.switchViews);
 	        					})
+	        					
+	        					var showController = new DataInsightManager.ShowRegion.Controller();
+	        					showController.showShowView();
+	        					
+	        					self.showControllerList.push(showController);
 	        				},
 	        				/**
 	        				 * 切换工作簿
