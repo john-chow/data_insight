@@ -92,6 +92,13 @@ class WidgetModel(ElementModel):
             , 'hk':                 self.m_external_db.getPk()
         }
 
+    def restoreUsedTables(self):
+        items = [eval(item) for item in \
+                    (self.m_x, self.m_y, self.m_color, self.m_size)]
+        flat_items = [i for ii in items for i in ii]
+        tables = map(lambda i: i.get('table'), flat_items)
+        return list(set(tables))
+
 
     class Meta:
         db_table = 'widgets'
