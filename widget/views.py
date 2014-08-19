@@ -27,10 +27,10 @@ import pdb
 
 @login_required
 def handleOperate(request, widget_id = None):
-    hk = request.session.get('hk')
     try:
-        entity = Entity(hk, widget_id)
         if 'POST' == request.method:
+            hk = request.session.get('hk')
+            entity = Entity(hk, widget_id)
             req_data = json.loads(request.POST.get('data', '{}'))
             succ, code = entity.parse(req_data)
             if not succ:
@@ -41,6 +41,7 @@ def handleOperate(request, widget_id = None):
         else:
             # 区分是拿页面还是拿内容
             if request.is_ajax():
+                entity = Entity(hk, widget_id)
                 info = entity.display()
 
                 # 这个本该引导用户自己去连接数据库，TBD
@@ -156,24 +157,6 @@ def widgetShow(request, widget_id):
         return MyHttpJsonResponse({'succ': True, 'widget_id': widget_id, 'data': data})
 
 
-'''
-    try:
-        model    = WidgetModel.objects.select_related().get(pk = widget_id)
-        req_data        = model.restoreReqDataDict()
-        skin_id         = request.GET.get('skin_id')
-    except WidgetModel.DoesNotExist:
-        return HttpResponse({'succ': False, 'msg': 'xxxxxxxxxxxx'})
-    except ExternalDbModel.DoesNotExist:
-        return HttpResponse({'succ': False, 'msg': 'yyyyyyyyyyyy'})
-    else:
-        hk              = model.m_external_db.m_hk
-        st              = SqlExecutorMgr.stRestore(hk)
-        map(lambda x: st.reflect(x), json.loads(model.m_table))
-        image_data      = genWidgetImageData(req_data, hk)
-        return MyHttpJsonResponse({'succ': True, 'widget_id':widget_id, 'data': image_data})
-'''
-
-
 @require_http_methods(['POST'])
 def handleDraw(request):
     """
@@ -220,15 +203,13 @@ def handleRefresh(request, wi_id):
 @require_http_methods(['GET'])
 def handleUsedTable(request, wi_id):
     try:
-        model = WidgetModel.objects.select_related().get(pk = wi_id)
-        hk = model.getConn().getPk()
-        st = SqlExecutorMgr.stRestore(hk)
+        st = getStById(wi_id)
         used = model.restoreUsedTables()
         all = st.listTables()
     except ExternalDbModel.DoesNotExist, e:
-        return MyHttpJsonResponse({'succ': True})
+        return MyHttpJsonResponse({'succ': False})
     except WidgetModel.DoesNotExist, e:
-        return MyHttpJsonResponse({'succ': True})
+        return MyHttpJsonResponse({'succ': False})
     except Exception, e:
         logExcInfo()
         return MyHttpJsonResponse({'succ': False})
@@ -238,6 +219,14 @@ def handleUsedTable(request, wi_id):
             , 'all':        all
             , 'selected':   used
         })
+
+
+def getStById(self, id):
+    model = WidgetModel.objects.select_related().get(pk = id)
+    hk = model.getConn().getPk()
+    st = SqlExecutorMgr.stRestore(hk)
+    return st
+
 
 
 @require_http_methods(['POST'])
