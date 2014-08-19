@@ -15,8 +15,9 @@ $(function(){
 	// 点击新建组件时弹出模态框
 	$('#button_new_widget').on('click', function(ev) {
 		//$("#conn_db_form").html("");
-		$("#db_link_modal").modal("show");
-		$("#modal_choose_db").show();
+		//$("#db_link_modal").modal("show");
+		//$("#modal_choose_db").show();
+		window.location = "/widget/create";
 
 	});
 
