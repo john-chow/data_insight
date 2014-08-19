@@ -144,7 +144,8 @@ var data = DataInsightManager.module("TableRegion",
             "port":   this.$("#connect_port").val(),
             "db":     this.$("#connect_db").val(),
             "user":   this.$("#connect_user").val(),
-            "pwd":    this.$("#connect_pwd").val()
+            "pwd":    this.$("#connect_pwd").val(),
+            "kind":   this.$("#connect_kind").val()
         };
         this.$(".connect-db-commit").html("连接中...");
         this.$(".connect-db-commit").css("cursor","wait");
