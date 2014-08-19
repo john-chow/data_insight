@@ -170,6 +170,7 @@
 						rate: rate,
 				        widget_base_dimensions: [50, 50],           //[57,51]面积大小
 				        widget_margins: [1, 1],                       //margin大小
+				        avoid_overlapped_widgets: false
 				    }).data('gridster');
 					//禁止gridster拖拽
 					$gridster.disable();

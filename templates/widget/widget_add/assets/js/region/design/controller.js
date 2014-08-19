@@ -9,6 +9,7 @@ define([
 			Backbone, Marionette, $, _){
 		
 		DesignRegion.Controller = function(){
+			var defer = $.Deferred();
 			
 			var obj = {
 				/*
@@ -16,45 +17,56 @@ define([
 				 */
 				initialize: function(){
 					var self = this;
-					this.graph = DataInsightManager.request("graph:entity");
-					this.filter = DataInsightManager.request("filter:entity");
-					this.property = DataInsightManager.request("property:entity");
+					var fetchGraph = DataInsightManager.request("graph:entity");
+					var fetchFilter = DataInsightManager.request("filter:entity");
+					var fetchProperty = DataInsightManager.request("property:entity");
 					///////////////////graph///////////////////////
-					this.graphView = new DesignRegion.Graph({
-						model: this.graph
-					});
-					//监听编辑x轴元素的事件
-					this.graphView.on("x:edit", function(xItem){
-						var axisX = DataInsightManager.request("axis:entity");
-						axisX.set(xItem);
-						var dialogXView = new DesignRegion.DialogX({
-							model: axisX
+					$.when(fetchGraph).done(function(graph){
+						self.graph = graph;
+						self.graphView = new DesignRegion.Graph({
+							model: graph
 						});
-						DataInsightManager.dialogRegion.show(dialogXView);
+						//监听编辑x轴元素的事件
+						self.graphView.on("x:edit", function(xItem){
+							var axisX = DataInsightManager.request("axis:entity");
+							axisX.set(xItem);
+							var dialogXView = new DesignRegion.DialogX({
+								model: axisX
+							});
+							DataInsightManager.dialogRegion.show(dialogXView);
+						})
+						
+						//监听编辑y轴元素的事件
+						self.graphView.on("y:edit", function(yItem){
+							var axisY = DataInsightManager.request("axis:entity");
+							axisY.set(yItem);
+							var dialogYView = new DesignRegion.DialogY({
+								model: axisY
+							});
+							DataInsightManager.dialogRegion.show(dialogYView);
+						})
+						
+						//////////////////////filter///////////////////////
+						$.when(fetchFilter).done(function(filter){
+							self.filter = filter;
+							self.filterView = new DesignRegion.Filter({
+								model : filter
+							});
+							//监听重绘,比如切换过滤器的时候就要重绘
+							self.filter.on("filter:rerender", function(){
+								this.filterView.render();
+							}, self);
+							/////////////////////property////////////////////////
+							$.when(fetchProperty).done(function(property){
+								self.property = property;
+								self.propertyView = new DesignRegion.Property({
+									model: property
+								})
+								defer.resolve(self);
+							})
+							
+						})
 					})
-					
-					//监听编辑y轴元素的事件
-					this.graphView.on("y:edit", function(yItem){
-						var axisY = DataInsightManager.request("axis:entity");
-						axisY.set(yItem);
-						var dialogYView = new DesignRegion.DialogY({
-							model: axisY
-						});
-						DataInsightManager.dialogRegion.show(dialogYView);
-					})
-					//////////////////////filter///////////////////////
-					this.filterView = new DesignRegion.Filter({
-						model : this.filter
-					});
-					//监听重绘,比如切换过滤器的时候就要重绘
-					this.filter.on("filter:rerender", function(){
-						this.filterView.render();
-					}, this);
-					/////////////////////property////////////////////////
-					this.propertyView = new DesignRegion.Property({
-						model: this.property
-					})
-					
 					//this.showDesingView();
 				},
 				/*
@@ -112,7 +124,7 @@ define([
 				
 			}
 			obj.initialize();
-			return obj;
+			return defer.promise();
 		}
 	});
 	

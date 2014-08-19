@@ -25,6 +25,7 @@ define([
 	        					 */
 	        					//监听新建工作区
 	        					this.switchViews.on("switch:new", function(){
+	        						window.newArea = true;//防止在编辑的时候新建工作区会从编辑的组件中获取数据
 	        						this.newArea();
 	        					}, this);
 	        					this.switchViews.on("switch:remove", function(i){
@@ -53,19 +54,27 @@ define([
 	        				 * 新建工作簿(组件)
 	        				 */
 	        				newArea: function(){
-	        					var desingeController = new DataInsightManager.DesignRegion.Controller();
-	        					var showController = new DataInsightManager.ShowRegion.Controller();
-	        					desingeController.showDesingView();
-	        					showController.showShowView();
-	        					this.designControllerList.push(desingeController);
-	        					this.showControllerList.push(showController);
-	        					var switchEntity = DataInsightManager.request("switch:entity");
-	        					switchEntity.set("name",  desingeController.property.get("name"));
-	        					this.collection.add(switchEntity);
-	        					
-	        					this.switchViews.collection = this.collection;
-	        					//显示工作簿
-	        					DataInsightManager.switchRegion.show(this.switchViews);
+	        					var self = this;
+	        					var fetchDesingeController = new DataInsightManager.DesignRegion.Controller();
+	        					$.when(fetchDesingeController).done(function(desingeController){
+	        						desingeController.showDesingView();
+	        						self.designControllerList.push(desingeController);
+		        					var switchEntity = DataInsightManager.request("switch:entity");
+		        					switchEntity.set("name",  desingeController.property.get("name"));
+		        					
+		        					
+		        					var showController = new DataInsightManager.ShowRegion.Controller();
+		        					showController.showShowView();
+		        					
+		        					self.showControllerList.push(showController);
+		        					
+		        					
+		        					self.collection.add(switchEntity);
+		        					
+		        					self.switchViews.collection = self.collection;
+		        					//显示工作簿
+		        					DataInsightManager.switchRegion.show(self.switchViews);
+	        					})
 	        				},
 	        				/**
 	        				 * 切换工作簿
