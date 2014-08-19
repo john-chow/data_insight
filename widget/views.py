@@ -217,6 +217,29 @@ def handleRefresh(request, wi_id):
         return MyHttpJsonResponse(data)
 
 
+@require_http_methods(['GET'])
+def handleUsedTable(request, wi_id):
+    try:
+        model = WidgetModel.objects.select_related().get(pk = wi_id)
+        hk = model.getConn().getPk()
+        st = SqlExecutorMgr.stRestore(hk)
+        used = model.restoreUsedTables()
+        all = st.listTables()
+    except ExternalDbModel.DoesNotExist, e:
+        return MyHttpJsonResponse({'succ': True})
+    except WidgetModel.DoesNotExist, e:
+        return MyHttpJsonResponse({'succ': True})
+    except Exception, e:
+        logExcInfo()
+        return MyHttpJsonResponse({'succ': False})
+    else:
+        return MyHttpJsonResponse({ \
+            'succ':         True
+            , 'all':        all
+            , 'selected':   used
+        })
+
+
 @require_http_methods(['POST'])
 def reqTimelyData(request, wi_id):
     '''

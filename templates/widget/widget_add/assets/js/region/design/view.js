@@ -54,7 +54,7 @@ define([
 				});
 				//当操作改变的时候触发
 				this.$el.find(".select-or-not").on("change", function(){
-					if(this.$el.find(".myfilter-select-or-not li").length > 0){
+					if(self.$el.find(".myfilter-select-or-not li").length > 0){
 						//通知model值是选中还是排除
 						self.model.trigger("operate:change", $(this).val());
 					}
@@ -98,6 +98,32 @@ define([
 					//通知model删除选中过滤器
 					self.model.trigger("filter:remove", whichFilter);
 				});
+				
+				//监听过滤器是数值变量的时候输入最大最小值的输入
+				this.$el.find("#lowRange").on("change", function(){
+					var lowRange = $(this).val();
+					if(!Number(lowRange)|| !lowRange) {
+						$(this).val("");
+						return;
+					}
+					//通知model获取数值变量过滤器的下限
+					self.model.trigger("lowRange:add", lowRange);
+				})
+				this.$el.find("#hightRange").on("change", function(){
+					var heightRange = $(this).val();
+					if(!heightRange || !Number(heightRange)){
+						$(this).val("");
+						return;
+					}
+					var lowRange = self.$el.find("#lowRange").val();
+					if(lowRange && Number(heightRange) < Number(lowRange)){
+						$(this).val("");
+						//alert("最大值不能小于最小值");
+						return;
+					}
+					//通知model获取数值变量过滤器的下限
+					self.model.trigger("hightRange:add", heightRange);
+				})
 			}
 		})
 		

@@ -21,7 +21,7 @@ var data = DataInsightManager.module("Entities",
 
     //定义Table集合
     Entities.TableCollection = Backbone.Collection.extend({
-      url: "/tables",
+      url: "/widget/usedtb/" + window.widgetId + "/",
       model: Entities.Table,
     });
 

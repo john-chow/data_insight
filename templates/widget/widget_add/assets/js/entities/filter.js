@@ -32,10 +32,8 @@ define([
 		Entities.Filter = Backbone.Model.extend({
 			defaults: {
 				filters: [],//过滤器列表,形式[{table: xxx, name: xxx, kind: xxx},{table: xxx, name: xxx, kind: xxx}],table为表名，name为字段名, kind为数值类型
-				values: [],//过滤器的值,元素是过滤器辅助类
-				operators: [],//操作，有include和exclude，分别表示选中和排除
-				ranges: [],//范围，数值变量的时候选择区间，元素是两个元素的数组，如[1,2],表示选中的过滤器是数值型的而且范围在1和2之间的
-				operate: 'include',//选中/排除/>/</>=/<=/[]
+				values: [],//过滤器的值或者过滤器的范围,元素是过滤器辅助类或者[最小值,最大值]
+				operators: [],//操作，有include/exclude/bt,对应为选中/排除/区间
 				whichColumn: 0//选中的过滤器下标,默认选中第一个
 			},
 			push: function(arg, val, options) {
@@ -46,7 +44,7 @@ define([
 			initialize: function(){
 				var self = this;
 				//创建状态，忽略抓取数据和触发filter:change的顺序，在filter模型改变的时候立即触发filter:change事件
-				this.listenChange();
+				//this.listenChange();
 				Entities.entAPI.setRelation("draw", this, 'filter:change');
 				//监听获取某个字段的所有值
 				this.on("fetch:field:values", function(data){
@@ -56,8 +54,9 @@ define([
 						table: data.table, name: data.name,
 						kind: data.kind
 						}, {silent: true});
-					//如果是数值变量，则到后台抓取所有的数据
-					if(data.kind == 'N'){
+					this.set("whichColumn", columnsNumber, {silent: true});
+					//如果是因子变量，则到后台抓取所有的数据
+					if(data.kind == 'F'){
 						this.push("values", new Entities.filterAssist(), {silent: true});
 						this.push("operators", "include");
 						var filterAssist = this.get("values")[columnsNumber];
@@ -73,10 +72,9 @@ define([
 								self.trigger("filter:rerender");
 							}
 						});
-					}else if(data.kind == "F"){//如果是因子变量
-						this.push("ranges", ["",""]);
-						this.push("values", null, {silent: true});
-						this.push("operators", null);
+					}else if(data.kind == "N"){//如果是数值变量
+						this.push("values", ["",""], {silent: true});
+						this.push("operators", "bt");
 						self.trigger("filter:rerender");
 					}
 				});
@@ -130,6 +128,7 @@ define([
 				this.on("filters:clear", function(){
 					this.set("values", [], {silent: true});
 					this.set("filters", [], {silent: true});
+					this.set("whichColumn", 0);
 					//通知入口model过滤器清空
 					Entities.trigger("filter:change", this.toJSON());
 				})
@@ -159,8 +158,22 @@ define([
 					var removeFilter = this.get("filters")[whichFilter];
 					this.get("values").remove(removeValue);
 					this.get("filters").remove(removeFilter);
+					this.set("whichColumn", 0);
 					this.trigger("filter:rerender");
 					//通知入口model删除过滤器
+					Entities.trigger("filter:change", this.toJSON());
+				})
+				
+				//监听获取数值变量过滤器的最低值
+				this.on("lowRange:add", function(lowRange){
+					this.get("values")[this.get("whichColumn")][0] = lowRange;
+					//通知入口model输入因子变量过滤器的下限
+					Entities.trigger("filter:change", this.toJSON());
+				})
+				//监听获取数值变量过滤器的最高值
+				this.on("hightRange:add", function(hightRange){
+					this.get("values")[this.get("whichColumn")][1] = hightRange;
+					//通知入口model输入因子变量过滤器的下限
 					Entities.trigger("filter:change", this.toJSON());
 				})
 
@@ -170,10 +183,9 @@ define([
 			 */
 			fetchFromWidget: function(){
 				var defer = $.Deferred();
-				Entities.trigger("design:initial", { 
-					"func": $.proxy(this.handlerData, this),
-					"arg" : defer
-				});
+				$.when(Entities.entAPI.getWidgetData()).done(function(resp) {
+                    defer.resolve();
+                })
 				return defer.promise();
 			},
 			/**
@@ -207,7 +219,7 @@ define([
 			 */
 			listenChange: function(){
 				var self = this;
-				//编辑状态
+				/*//编辑状态
 				if(window.widgetId && !window.newArea){
 					//确保从后台抓取完数据后才监听属性改变事件，确保不会做无谓的触发
 					$.when(this.fetchFromWidget()).done(function(){
@@ -215,12 +227,12 @@ define([
 						self.on("change", function(){
 							Entities.trigger("filter:change", this.toJSON());
 							//通知视图重绘
-							this.trigger("filter:rerender");;
+							this.trigger("filter:rerender");
 						}, self);
 					});
 					window.newArea = true;//防止在编辑的状态下，新建组件会从编辑的组件那里获取数据
 					return true;
-				}
+				}*/
 				//创建状态
 				this.on("change", function(){
 					Entities.trigger("filter:change", this.toJSON());
@@ -236,9 +248,21 @@ define([
 		 */
 		var API = {
 				getFilterEntity: function(){
+					var defer = $.Deferred()
 					var filterEntity = new Entities.Filter();
+					if(window.widgetId && !window.newArea){
+						$.when(filterEntity.fetchFromWidget()).done(function(){
+							defer.resolve(filterEntity);
+							filterEntity.listenChange();
+							//恢复完数据主动触发change事件
+							filterEntity.trigger("change");
+						})
+					}else{
+						defer.resolve(filterEntity);
+						filterEntity.listenChange();
+					}
 					//filterEntity.fetchFromWidget();
-					return filterEntity;
+					return defer.promise();
 				}
 		}
 		

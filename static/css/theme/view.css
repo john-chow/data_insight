@@ -80,9 +80,10 @@ html,body{
 }
 
 #box {
-  height: 530px;
+  height: inherit;
   background-color: white;
   box-shadow: 1px 1px 18px #292929;
+  min-height: 500px;
 }
 #slider-viewport{
 	height: 650px; 

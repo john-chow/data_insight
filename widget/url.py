@@ -22,6 +22,7 @@ urlpatterns = patterns('',
 
 	url(r'^draw/$', 			views.handleDraw),
     url(r'^refresh/(\d+)/$',    views.handleRefresh),
+    url(r'^usedtb/(\d+)/$',     views.handleUsedTable),
     
     url(r'^viewList/$',         views.widgetList ,{'template_name': 'widget/view_list.html'}),
 )
