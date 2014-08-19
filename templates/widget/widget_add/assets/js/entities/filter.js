@@ -55,8 +55,8 @@ define([
 						kind: data.kind
 						}, {silent: true});
 					this.set("whichColumn", columnsNumber, {silent: true});
-					//如果是数值变量，则到后台抓取所有的数据
-					if(data.kind == 'N'){
+					//如果是因子变量，则到后台抓取所有的数据
+					if(data.kind == 'F'){
 						this.push("values", new Entities.filterAssist(), {silent: true});
 						this.push("operators", "include");
 						var filterAssist = this.get("values")[columnsNumber];
@@ -72,7 +72,7 @@ define([
 								self.trigger("filter:rerender");
 							}
 						});
-					}else if(data.kind == "F"){//如果是因子变量
+					}else if(data.kind == "N"){//如果是数值变量
 						this.push("values", ["",""], {silent: true});
 						this.push("operators", "bt");
 						self.trigger("filter:rerender");
@@ -164,13 +164,13 @@ define([
 					Entities.trigger("filter:change", this.toJSON());
 				})
 				
-				//监听获取因子变量过滤器的最低值
+				//监听获取数值变量过滤器的最低值
 				this.on("lowRange:add", function(lowRange){
 					this.get("values")[this.get("whichColumn")][0] = lowRange;
 					//通知入口model输入因子变量过滤器的下限
 					Entities.trigger("filter:change", this.toJSON());
 				})
-				//监听获取因子变量过滤器的最高值
+				//监听获取数值变量过滤器的最高值
 				this.on("hightRange:add", function(hightRange){
 					this.get("values")[this.get("whichColumn")][1] = hightRange;
 					//通知入口model输入因子变量过滤器的下限

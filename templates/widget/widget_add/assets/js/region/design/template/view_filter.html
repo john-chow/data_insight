@@ -9,7 +9,7 @@
 			</ul>
 		</div>
 		<div class="col-md-5 col-sm-5">
-			<%if(filters.length == 0 || filters[whichColumn].kind == "N"){%>
+			<%if(filters.length == 0 || filters[whichColumn].kind == "F"){%>
 				<p class="filter-label">列值:</p> 
 				<ul class="myfilter-values clearfix"> 
 				<% if(values.length > 0){
@@ -29,14 +29,14 @@
 						
 				}%>
 				</ul>
-			<%}else if(filters[whichColumn].kind == "F"){%>
+			<%}else if(filters[whichColumn].kind == "N"){%>
 				<p class="filter-label">大于:</p> 
 				<input type="text" value="<%=values[whichColumn][0]%>" class="myfilter-range" name="lowRange" id="lowRange"/>
 			<%}%>
 		</div>
 		
 		<div class="col-md-5 col-sm-5">
-		<%if(filters.length == 0 || filters[whichColumn].kind == "N"){%>
+		<%if(filters.length == 0 || filters[whichColumn].kind == "F"){%>
 			<p class="filter-label">
 			<select class="select-or-not">
 				<option value="include">选中</option>
@@ -57,7 +57,7 @@
 				}
 			}%> 
 			</ul>
-		<%} else if(filters[whichColumn].kind == "F"){%>
+		<%} else if(filters[whichColumn].kind == "N"){%>
 			<p class="filter-label">小于:</p> 
 			<input type="text" value="<%=values[whichColumn][1]%>" class="myfilter-range" name="hightRange" id="hightRange"/>
 		<%}%>

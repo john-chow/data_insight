@@ -99,14 +99,14 @@ define([
 					self.model.trigger("filter:remove", whichFilter);
 				});
 				
-				//监听过滤器是因子变量的时候输入最大最小值的输入
+				//监听过滤器是数值变量的时候输入最大最小值的输入
 				this.$el.find("#lowRange").on("change", function(){
 					var lowRange = $(this).val();
 					if(!Number(lowRange)|| !lowRange) {
 						$(this).val("");
 						return;
 					}
-					//通知model获取因子变量过滤器的下限
+					//通知model获取数值变量过滤器的下限
 					self.model.trigger("lowRange:add", lowRange);
 				})
 				this.$el.find("#hightRange").on("change", function(){
@@ -121,7 +121,7 @@ define([
 						//alert("最大值不能小于最小值");
 						return;
 					}
-					//通知model获取因子变量过滤器的下限
+					//通知model获取数值变量过滤器的下限
 					self.model.trigger("hightRange:add", heightRange);
 				})
 			}
