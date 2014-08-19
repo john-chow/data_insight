@@ -54,7 +54,7 @@ def handleConn(request):
             return MyHttpJsonResponse({'succ': False, 'msg': 'xxxxx'})
 
         conn_list = map(lambda x: post_data.get(x), ConnArgsList)
-        conn_list[-1] = 'postgres'
+        #conn_list[-1] = 'postgres'
         conn_nt = ConnNamedtuple(*conn_list)
         succ, msg, hk, st = connectDb(conn_nt)
 
