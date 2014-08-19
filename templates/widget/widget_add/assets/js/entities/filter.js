@@ -170,10 +170,9 @@ define([
 			 */
 			fetchFromWidget: function(){
 				var defer = $.Deferred();
-				Entities.trigger("design:initial", { 
-					"func": $.proxy(this.handlerData, this),
-					"arg" : defer
-				});
+				$.when(Entities.entAPI.getWidgetData()).done(function(resp) {
+                    defer.resolve();
+                })
 				return defer.promise();
 			},
 			/**
