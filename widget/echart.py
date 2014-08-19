@@ -188,7 +188,7 @@ class Scatter(EChart):
     def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
         # 条件是至少2个数字列
         numeric_factor_list = [f for f in (msu_factor_list + msn_factor_list) \
-                                    if 0 == f.getProperty(Protocol.Kind)]
+                                if Protocol.NumericType == f.getProperty(Protocol.Kind)]
         if len(numeric_factor_list) < 2:
             raise Exception(u'cant draw scatter')
 
