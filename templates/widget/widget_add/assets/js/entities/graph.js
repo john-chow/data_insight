@@ -55,7 +55,7 @@ define([
 					};
 				this.graph = this.get("graph");
 				this.getMaping();
-				this.listenChange();
+				//this.listenChange();
 				//当图表类型改变的时候，触发事件，修改图表右边的视图
 				this.on("graphType:change", function(graph){
 					this.graph = graph;
@@ -142,10 +142,10 @@ define([
                 var self = this;
                 var defer = $.Deferred();
                 $.when(Entities.entAPI.getWidgetData()).done(function(resp) {
-                	self.set("graph", resp.graph, {silent: true});
-                	self.set("x", resp.x, {silent: true});
-                	self.set("y", resp.y, {silent: true});
-                	self.set("mapping", resp.mapping, {silent: true});
+                	self.set("graph", resp.graph);
+                	self.set("x", resp.x);
+                	self.set("y", resp.y);
+                	self.set("mapping", resp.mapping);
                 	defer.resolve();
                 })
                 return defer.promise();
@@ -179,7 +179,7 @@ define([
 			listenChange: function(){
 				var self = this;
 				//编辑状态
-				if(window.widgetId && !window.newArea){
+				/*if(window.widgetId && !window.newArea){
 					//确保从后台抓取完数据后才监听属性改变事件，确保不会做无谓的触发
 					$.when(this.fecthFromWidget()).done(function(){
 						self.on("change", function(){
@@ -192,7 +192,7 @@ define([
 					});
 					window.newArea = true;//防止在编辑的状态下，新建组件会从编辑的组件那里获取数据
 					return true;
-				}
+				}*/
 				//创建状态，忽略抓取数据和触发graph:change的顺序，在graph模型改变的时候立即触发garph:change事件
 				this.on("change", function(){
 					//通知入口model图表发生改变
@@ -210,26 +210,24 @@ define([
 		 */
 		var API = {
 			 getGraphEntity: function(){
+				 var defer = $.Deferred()
 				 var id = window.widgetId;//TODO 这里获取后台传过来的id，如果是新建则为空
-				 var graphEntity = new Entities.Graph();
-				 return graphEntity;
-				 /*var defer = $.Deferred();
-				 if(!id){
-					defer.resolve(graphEntity);
-					 graphEntity.fetch({ 
-						 data: {id: id},
-						 success: function(model){
-							 //如果是编辑组件的话，则设置deferred为成功状态
-							 defer.resolve(model);
-						 }
-					 });
+				 //window.newArea为true的时候说明是新建工作区，则不会到后台请求数据,这个值在switch的controller触发switch:new事件 的时候赋值为true
+				 if(id && !window.newArea){
+					 var graphEntity = new Entities.Graph();
+					 $.when(graphEntity.fecthFromWidget()).done(function(){
+						 defer.resolve(graphEntity);
+						 graphEntity.listenChange();
+						 //恢复完值后主动触发change事件，以便画图
+						 graphEntity.trigger("change");
+					 })
 				 }else{
-					 //如果是新建组件的话，则设置deferred为失败状态
-					 defer.reject(graphEntity);
+					 var graphEntity = new Entities.Graph();
+					 defer.resolve(graphEntity);
+					 graphEntity.listenChange();
 				 }
-			     var promise = defer.promise();
-			     return promise;*/
-				 
+				
+				 return defer.promise();
 			 },
 		}
 		

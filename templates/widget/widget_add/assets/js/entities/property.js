@@ -16,9 +16,9 @@ define([
 			},
 			initialize: function(){
 				var self = this;
-				this.listenChange();
+				//this.listenChange();
                 Entities.entAPI.setRelation("additional", this, "property:change");
-                this.listenPropertyChange();
+                //this.listenPropertyChange();
 			},
 			/**
 			 * 抓取数据，这里触发widget模型去后台抓取数据
@@ -29,11 +29,11 @@ define([
                 var self = this;
                 var defer = $.Deferred();
                 $.when(Entities.entAPI.getWidgetData()).done(function(resp) {
-                	self.set("name", data.name, {silent: true});
-                	self.set("title", data.title, {silent: true});
-                	self.set("style", data.style, {silent: true});
-                	self.set("autoRefresh", data.autoRefresh, {silent: true});
-                	self.set("isPublish", data.isPublish, {silent: true});
+                	self.set("name", resp.name, {silent: true});
+                	self.set("title", resp.title, {silent: true});
+                	self.set("style", resp.style, {silent: true});
+                	self.set("autoRefresh", resp.autoRefresh, {silent: true});
+                	self.set("isPublish", resp.isPublish, {silent: true});
                     defer.resolve();
                 })
                 return defer.promise();
@@ -45,7 +45,7 @@ define([
 			listenChange: function(){
 				var self = this;
 				//编辑状态
-				if(window.widgetId && !window.newArea){
+				if(window.widgetId){
 					//确保从后台抓取完数据后才监听属性改变事件，确保不会做无谓的触发
 					$.when(this.fecthFromWidget()).done(function(){
 						//只要模型的属性改变便通知widget模型改变属性
@@ -95,8 +95,19 @@ define([
 		 */
 		var API = {
 			getPropertyEntity: function(){
+				var defer = $.Deferred();
 				var propertyEntity = new Entities.Property();
-				return propertyEntity;
+				if(window.widgetId && !window.newArea){
+					$.when(propertyEntity.fecthFromWidget()).done(function(){
+						defer.resolve(propertyEntity);
+						propertyEntity.listenPropertyChange();
+						propertyEntity.trigger("change");
+					})
+				}else{
+					defer.resolve(propertyEntity);
+					propertyEntity.listenPropertyChange();
+				}
+				return defer.promise();
 			}
 		}
 		

@@ -123,6 +123,9 @@
 					//场景类
 					this.model = options.model;
 					this.$box = $("#box");
+					var height = document.body.clientHeight - $("#header").outerHeight() - $("#necker").outerHeight() - 70;
+					this.$box.outerHeight(height);
+					$(".scene-list-thumbnail").outerHeight(height);
 					//this.render();
 				},
 				render: function(){
@@ -149,8 +152,8 @@
 					
 					////////////////等比例缩放,gridster////////////////////
 					var rate = 1, 
-						width    = self.$box.width() - 50,
-						height   = self.$box.height() - 50;				
+						width    = self.$box.width(),
+						height   = self.$box.height() - 30;				
 					var image = new Image();
 					image.src = this.model.src;
 					var sceneWidth = image.width,
@@ -171,7 +174,9 @@
 						namespace: namespace,
 						rate: rate,
 				        widget_base_dimensions: [50, 50],           //[57,51]面积大小
-				        widget_margins: [1, 1],                       //margin大小
+				        widget_margins: [1, 1], //margin大小
+				        avoid_overlapped_widgets: false,
+				        extra_cols: 2
 				    }).data('gridster');
 					//禁止gridster拖拽
 					$gridster.disable();

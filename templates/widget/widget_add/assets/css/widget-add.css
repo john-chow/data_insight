@@ -429,6 +429,11 @@ body {
 	background: url(../img/scatter.png) -16px 2px;
 }
 
+.chart-table{
+	width: 160px;
+	height: 100px;
+	background: url(../img/table.png)
+}
 .design-column, .design-row {
 	height: 27px;
 	background-color: white;
