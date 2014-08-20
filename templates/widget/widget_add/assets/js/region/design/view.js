@@ -255,6 +255,22 @@ define([
 					});
 				})
 				
+				//在x轴或者y轴元素过多的时候会出现纵滚动条，对每个x/y轴元素点击出现下拉框的时候，控制位置
+				this.$el.find("#x_sortable > li > b").each(function(){
+					$(this).click(function(){
+						var left = $(this).offset().left - 90;
+						var top = $(this).offset().top + 18;
+						$(this).next().css({left: left, top: top})
+					})
+				})
+				this.$el.find("#y_sortable > li > b").each(function(){
+					$(this).click(function(){
+						var left = $(this).offset().left - 90;
+						var top = $(this).offset().top + 18;
+						$(this).next().css({left: left, top: top})
+					})
+				})
+				
 				//如果字段(filed)已经被拖入到x或者y轴中，则禁止filed区域对应的字段不让拖拽
 				/*$.each(this.model.get("x"), function(index, value){
 					self.disableFiledDrage(value.name);

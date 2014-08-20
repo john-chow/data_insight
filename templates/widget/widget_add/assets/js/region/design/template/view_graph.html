@@ -36,24 +36,43 @@
 							          	<li value="none" class="active">
 							          		<a tabindex="-1" href="#">无</a>
 							          	</li>
-										<li value="sum">
-											<a tabindex="-1" href="#">求和</a>
-										</li>
-										<li value="count">
-											<a tabindex="-1" href="#">统计个数</a>
-										</li>
-										<li value="mean">
-											<a tabindex="-1" href="#">平均值</a>
-										</li>
-										<li value="max">
-											<a tabindex="-1" href="#">最大值</a>
-										</li>
-										<li value="min">
-											<a tabindex="-1" href="#">最小值</a>
-										</li>
-										<li value="median">
-											<a tabindex="-1" href="#">中位值</a>
-										</li>
+							          	<% if(yItem.kind == 'T'){%>
+							          		<li value="year">
+												<a tabindex="-1" href="#">年</a>
+											</li>
+											<li value="month">
+												<a tabindex="-1" href="#">月</a>
+											</li>
+											<li value="day">
+												<a tabindex="-1" href="#">日</a>
+											</li>
+											<li value=hour">
+												<a tabindex="-1" href="#">小时</a>
+											</li>
+											<li value="minute">
+												<a tabindex="-1" href="#">分钟</a>
+											</li>
+							          	<%}else{%>
+							          		<li value="sum">
+												<a tabindex="-1" href="#">求和</a>
+											</li>
+											<li value="count">
+												<a tabindex="-1" href="#">统计个数</a>
+											</li>
+											<li value="mean">
+												<a tabindex="-1" href="#">平均值</a>
+											</li>
+											<li value="max">
+												<a tabindex="-1" href="#">最大值</a>
+											</li>
+											<li value="min">
+												<a tabindex="-1" href="#">最小值</a>
+											</li>
+											<li value="median">
+												<a tabindex="-1" href="#">中位值</a>
+											</li>
+							          	
+							          	<%}%>
 							        </ul>
 								</li>
 								<li class="coordinate-filter"><a href="#"><i class="glyphicon glyphicon-filter"></i>&nbsp;筛选</a></li>
@@ -81,24 +100,43 @@
 							          	<li value="none" class="active">
 							          		<a tabindex="-1" href="#">无</a>
 							          	</li>
-										<li value="sum">
-											<a tabindex="-1" href="#">求和</a>
-										</li>
-										<li value="count">
-											<a tabindex="-1" href="#">统计个数</a>
-										</li>
-										<li value="mean">
-											<a tabindex="-1" href="#">平均值</a>
-										</li>
-										<li value="max">
-											<a tabindex="-1" href="#">最大值</a>
-										</li>
-										<li value="min">
-											<a tabindex="-1" href="#">最小值</a>
-										</li>
-										<li value="median">
-											<a tabindex="-1" href="#">中位值</a>
-										</li>
+							          	<% if(xItem.kind == 'T'){%>
+							          		<li value="year">
+												<a tabindex="-1" href="#">年</a>
+											</li>
+											<li value="month">
+												<a tabindex="-1" href="#">月</a>
+											</li>
+											<li value="day">
+												<a tabindex="-1" href="#">日</a>
+											</li>
+											<li value=hour">
+												<a tabindex="-1" href="#">小时</a>
+											</li>
+											<li value="minute">
+												<a tabindex="-1" href="#">分钟</a>
+											</li>
+							          	<%}else{%>
+							          		<li value="sum">
+												<a tabindex="-1" href="#">求和</a>
+											</li>
+											<li value="count">
+												<a tabindex="-1" href="#">统计个数</a>
+											</li>
+											<li value="mean">
+												<a tabindex="-1" href="#">平均值</a>
+											</li>
+											<li value="max">
+												<a tabindex="-1" href="#">最大值</a>
+											</li>
+											<li value="min">
+												<a tabindex="-1" href="#">最小值</a>
+											</li>
+											<li value="median">
+												<a tabindex="-1" href="#">中位值</a>
+											</li>
+							          	
+							          	<%}%>
 							        </ul>
 								</li>
 								<li class="coordinate-filter"><a href="#"><i class="glyphicon glyphicon-filter"></i>&nbsp;筛选</a></li>
