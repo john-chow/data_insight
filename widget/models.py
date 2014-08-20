@@ -91,7 +91,9 @@ class WidgetModel(ElementModel):
             , Protocol.Color:       self.m_color
             , Protocol.Size:        self.m_size
             , Protocol.WidgetName:  self.m_name
-            , 'filter':             []
+            , 'filters':            []
+            , 'values':             []
+            , 'operators':          []
         }
 
     def restoreUsedTables(self):
