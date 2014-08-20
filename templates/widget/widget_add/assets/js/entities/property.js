@@ -16,7 +16,7 @@ define([
 			},
 			initialize: function(){
 				var self = this;
-				//this.listenChange();
+				this.listenChange();
                 Entities.entAPI.setRelation("additional", this, "property:change");
                 //this.listenPropertyChange();
 			},
@@ -43,7 +43,7 @@ define([
 			*return ture对应编辑状态，false对应创建状态
 			*/
 			listenChange: function(){
-				var self = this;
+				/*var self = this;
 				//编辑状态
 				if(window.widgetId){
 					//确保从后台抓取完数据后才监听属性改变事件，确保不会做无谓的触发
@@ -57,7 +57,7 @@ define([
 					});
 					window.newArea = true;//防止在编辑的状态下，新建组件会从编辑的组件那里获取数据
 					return true;
-				}
+				}*/
 				//创建状态，忽略抓取数据和触发property:change的顺序，在property模型改变的时候立即触发property:change事件
 				this.on("change", function(){
 					Entities.trigger("property:change", this.toJSON());
@@ -69,14 +69,14 @@ define([
 			 */
 			listenPropertyChange: function(){
                 this.on("style:change", function(style){
-                	this.set("style", style, {silent : true});//不触发change事件
+                	this.set("style", style);//触发change事件
                 	//通知入口model主题改变
-                	Entities.trigger("style:change", this.toJSON());
+                	//Entities.trigger("style:change", this.toJSON());
                 }, this);
                 this.on("autoRefresh:change", function(autoRefresh){
-                	this.set("autoRefresh", autoRefresh, {silent : true});//不触发change事件
+                	this.set("autoRefresh", autoRefresh);//触发change事件
                 	//通知入口model更新周期改变
-                	Entities.trigger("autoRefresh:change", this.toJSON());
+                	//Entities.trigger("autoRefresh:change", this.toJSON());
                 }, this);
                 this.on("isPublish:change", function(isPublish){
                 	this.set("isPublish", isPublish, {silent : true});//不触发change事件
