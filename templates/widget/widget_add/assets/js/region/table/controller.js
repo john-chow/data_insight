@@ -24,7 +24,6 @@ define([
 				showTableView = new TableRegion.TableView({
 					collection: collection
 				});
-				//var abc = DataInsightManager.request("table:infoData");
 				showTableView.on("show:table-dialog", function(){
 					DataInsightManager.dialogRegion.trigger("show:dialog-table-manage", collection);
 	       		});

@@ -46,6 +46,9 @@ class WidgetModel(ElementModel):
     def getConn(self):
         return self.m_external_db
 
+    def getConnPk(self):
+        return self.m_external_db.getConnPk()
+
     def restoreReqDataDict(self):
         return { 
             Protocol.Xaxis:     eval(self.m_x) if self.m_x else self.m_x 
@@ -89,7 +92,6 @@ class WidgetModel(ElementModel):
             , Protocol.Size:        self.m_size
             , Protocol.WidgetName:  self.m_name
             , 'filter':             []
-            , 'hk':                 self.m_external_db.getPk()
         }
 
     def restoreUsedTables(self):
