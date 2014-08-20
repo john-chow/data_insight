@@ -42,8 +42,10 @@ def handleOperate(request, widget_id = None):
         else:
             # 区分是拿页面还是拿内容
             if request.is_ajax():
-                info = entity.display()
+                if not widget_id:
+                    return MyHttpJsonResponse({'succ': False})
 
+                info = entity.display()
                 # 这个本该引导用户自己去连接数据库，TBD
                 request.session['hk'] = entity.getHk()
 
@@ -203,7 +205,9 @@ def handleRefresh(request, wi_id):
 @require_http_methods(['GET'])
 def handleUsedTable(request, wi_id):
     try:
-        st = getStById(wi_id)
+        model = WidgetModel.objects.select_related().get(pk = wi_id)
+        hk = model.getConn().getPk()
+        st = SqlExecutorMgr.stRestore(hk)
         used = model.restoreUsedTables()
         all = st.listTables()
     except ExternalDbModel.DoesNotExist, e:
@@ -220,12 +224,6 @@ def handleUsedTable(request, wi_id):
             , 'selected':   used
         })
 
-
-def getStById(self, id):
-    model = WidgetModel.objects.select_related().get(pk = id)
-    hk = model.getConn().getPk()
-    st = SqlExecutorMgr.stRestore(hk)
-    return st
 
 
 
@@ -664,7 +662,7 @@ class ExistedHandler(WidgetHandler):
         return data
 
     def getHk(self):
-        hk = self.model.getConn().getHk()
+        hk = self.model.getConn().getPk()
         return hk
 
 
