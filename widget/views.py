@@ -582,7 +582,7 @@ def widgetAdd(request):
 ########################################
 ## 处理组件请求 
 #########################################
-class WidgetHandler():
+class WidgetHandler(object):
     def __init__(self, id = None):
         self.id = id
         self.model = WidgetModel.objects.get(pk = id) \
@@ -636,7 +636,7 @@ class WidgetHandler():
             , 'm_skin':               self.skin
         }
 
-        return True
+        return pair
 
 
     def display(self):
@@ -651,19 +651,23 @@ class WidgetHandler():
 
 class ExistedHandler(WidgetHandler):
     def __init__(self, id):
+        self.id = id
         self.model = WidgetModel.objects.get(pk = id)
+        self.hk = self.model.getConn().getPk()
 
     def save(self):
-        pair = WidgetHandler.takeout()
-        self.model.save(**pair)
+        pair = super(ExistedHandler, self).takeout()
+        WidgetModel.objects.filter(pk = self.id).update(**pair)
 
     def display(self):
         data = self.model.restore()
         return data
 
     def getHk(self):
-        hk = self.model.getConn().getPk()
-        return hk
+        return self.hk
+
+    def setHk(self, hk):
+        pass
 
 
 class NewHandler(WidgetHandler):
@@ -672,7 +676,7 @@ class NewHandler(WidgetHandler):
         self.hk = None
 
     def save(self):
-        pair = WidgetHandler.takeout()
+        pair = super(NewHandler, self).takeout()
         conn = ExternalDbModel.objects.get(pk = self.hk)
         pair.update({'m_external_db': conn})
         self.model = WidgetModel.objects.create(**pair)
@@ -683,6 +687,9 @@ class NewHandler(WidgetHandler):
 
     def setHk(self, hk):
         self.hk = hk
+
+    def getHk(self):
+        return self.hk
 
 
 
