@@ -154,10 +154,9 @@ define([
 				
 				//监听删除过滤器
 				this.on("filter:remove", function(whichFilter){
-					var removeValue = this.get("values")[whichFilter];
-					var removeFilter = this.get("filters")[whichFilter];
-					this.get("values").remove(removeValue);
-					this.get("filters").remove(removeFilter);
+					this.get("values").del(whichFilter);
+					this.get("filters").del(whichFilter);
+					this.get("operators").del(whichFilter);
 					this.set("whichColumn", 0);
 					this.trigger("filter:rerender");
 					//通知入口model删除过滤器

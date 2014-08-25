@@ -82,6 +82,22 @@ Array.prototype.remove = function(val) {
     return cloned;
 };  
 
+/**
+ * 删除数值指定下标的元素
+ * @param index:下标
+ * @returns {Boolean}
+ */
+Array.prototype.del=function(index){
+	if(isNaN(index)||index>=this.length){
+		return false;         
+	}          
+	for(var i=0,n=0;i<this.length;i++){
+		if(this[i]!=this[index]){
+			this[n++]=this[i];       
+			}        
+		}          
+	this.length-=1;    
+};
 
 function cloneObject(obj) {
     var objClone;
