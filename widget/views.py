@@ -744,6 +744,7 @@ class DrawDataProducer():
 class FactorHandler():
     def __init__(self, req):
         self.extract(req)
+        self.extractFilter(req)
 
 
     def extract(self, req):
@@ -752,7 +753,7 @@ class FactorHandler():
         '''
         [col_kind_attr_list, row_kind_attr_list] = \
                 map( lambda i: req.get(i, []), \
-                        ('x', 'y') \
+                        (Protocol.xAxis, Protocol.yAxis) \
                     ) 
 
         # 获取轴上属性Factor对象
@@ -792,6 +793,20 @@ class FactorHandler():
         return 
 
 
+    def extractFilter(self, req):
+        filters = req.get(Protocol.Filter)
+
+        for item in filters:
+            [left_raw, op, right_raw] = map(lambda x: item.get(x), ( \
+                    Protocol.Filter.Attr, Protocol.Filter.Operator, Protocol.Filter.Values \
+                ))
+            left = FactorCreator.make(left_raw)
+            right = FactorCreator.make(right_raw)
+            clause = Clause(left, right, op)
+            self.filters.append(clause)
+        return 
+
+
     def mapToSqlPart(self):
         """
         按照对所处select语句中的位置部分
@@ -819,7 +834,9 @@ class FactorHandler():
         return {
             'selects':          selects
             , 'groups':         groups
+            , 'filters':        self.filters
         }
+
 
     def filterTimeFactors(self):
         if not self.extracted:

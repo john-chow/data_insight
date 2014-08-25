@@ -26,7 +26,7 @@ import pdb
 
 
 def genConnHk(nt):
-    str = u'{kind}_{ip}_{port}_{db}_{user}_{pwd}'
+    str = '{kind}_{ip}_{port}_{db}_{user}_{pwd}'
     cnt = str.format(   \
         kind = nt.kind, user = nt.user, pwd = nt.pwd, \
         ip = nt.ip,   port = nt.port, db = nt.db   \

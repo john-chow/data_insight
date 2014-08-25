@@ -98,6 +98,30 @@ class Factor():
             return self.num
 
 
+'''
+一个值的基础类
+'''
+class OneValueFactor(Factor):
+    def __init__(self, value):
+        self.value = value
+
+
+'''
+一系列值的基础类
+'''
+class SeriesFactor(Factor):
+    def __init__(self, values):
+        self.values = values
+
+
+'''
+一个范围的值
+'''
+class RangeFactor(Factor):
+    def __init__(self, low, high):
+        self.low = low
+        self.high = high
+
 
 class ElementFactor(Factor):
     def __init__(self, **kwargs):
@@ -199,6 +223,21 @@ class NumericFactor(Factor):
 
 
 OPERATOR_LIST = ['<', '>', '<>', '<=', '>=', '==']
+
+
+'''
+封装表达式
+'''
+class Clause():
+    def __init__(self, left, right, op, overplus):
+        self.left = FactorCreator.make(left)
+        self.right = FactorCreator.make(right)
+        self.op = op
+        self.overplus = overplus
+
+    def extract(self):
+        return self.left, self.right, self.op, self.overplus
+
 
 
 '''

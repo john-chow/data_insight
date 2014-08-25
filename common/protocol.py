@@ -88,6 +88,12 @@ IsPublish = 'isPublish'
 
 FilterColumn = 'field'
 
+Filter = {
+    'Operator':     ''
+    , 'Values':     ''
+    , 'Overplus':   ''
+}
+
 
 
 
@@ -126,6 +132,16 @@ FieldNickname = 'nickName'
 
 
 FieldName = 'fieldName'
+
+
+Join = {
+    'Kind':             'kind'
+    , 'Left':           'left'
+    , 'Right':          'right'
+}
+
+
+
 
 
 

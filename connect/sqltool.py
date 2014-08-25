@@ -223,7 +223,7 @@ class SqlRelation():
     def __init__(self, storage):
         self.storage = storage
 
-    def makeSelectSql(self, selects, filter = [], groups = [], **kwargs):
+    def makeSelectSql(self, selects, filters = [], groups = [], **kwargs):
         '''
         制作select形式的sql语句
         '''
@@ -231,9 +231,12 @@ class SqlRelation():
             raise Exception('no selected content')
 
         select_part  = self.cvtSelect(selects)
+        filter_part = [self.cvtFilter(ft) for ft in filters]
         group_part  = self.cvtGroup(groups)
 
         sql_obj = select(select_part)
+        if filter_part:
+            sql_obj = sql_obj.where(and_(*filter_part))
         if group_part:
             sql_obj = sql_obj.group_by(*group_part)
 
@@ -251,6 +254,48 @@ class SqlRelation():
 
         col_obj = table.c.get(columnname)
         return col_obj
+
+
+    def cvtClause(self, lf, rf, op):
+        lobj, robj = self.cvtFactor(lf), self.cvtFactor(rf)
+        if '>' == op:
+            return lobj > robj
+        elif 'bw' == op:
+            low, high = rf.values()
+            return between(lobj, low, high)
+        elif 'in' == op:
+            values = rf.values()
+            return lobj.in_(values)
+
+
+    def cvtElementFactor(self, factor):
+        pass
+
+    def cvtOneValueFactor(self, factor):
+        return factor.value()
+
+    def cvtSeriesValuesFactor(self, factor):
+        series = factor.values()
+        return in(series)
+
+    def cvtRangeValuesFactor(self, factor):
+        low, high = factor.values()
+        return 
+
+
+    def cvtFilter(self, clause):
+        expr = self.cvtFilter(clause)
+
+        left, right, op, overplus = clause.extract()
+        left, right = self.cvtFactor(left), self.cvtFactor(right)
+        if '>' == op:
+            return (left > right + overplus)
+        elif '<' == op:
+            return (left < right + overplus)
+        elif '==' == op:
+            return (left < right + overplus)
+        elif '>/' == op:
+            return (left > right * (1+overplus))
 
 
     def cvtSelect(self, selects):
@@ -316,25 +361,30 @@ class SqlRelation():
         '''
         pass
 
-    def cvtJoin(self, joins):
-        join_style  = joins[u'style']
 
-        # 连接至少需要2个表
-        if len(joins[u'data']) < 2:
+    def cvtJoin(self, joins):
+        kind = joins.get(Protocol.Join.Kind)
+        relations = joins.get(Protocol.Join.Related)
+
+        if not kind:
+            return None
+        if not relations or len(relations) < 1:
             return None
 
-        for idx, j_unit in enumerate(joins[u'data']):
-            tablename, c_str = j_unit.get(u'table'), j_unit.get(u'column')
-            table   = self.storage.getTable(tablename)
-            column  = getattr(table.c, c_str)
+        for idx, item in enumerate(relations):
+            left_tname = item.get(Protocol.Join.Left.Table)
+            right_tname = item.get(Protocol.Join.Right.Table)
+            left_cname = item.get(Protocol.Join.Left.Attr)
+            right_cname = item.get(Protocol.Join.Right.Attr)
 
-            if 0 == idx:
-                my_join       = table
-                prev_column     = getattr(table.c, c_str)
-            else:
-                my_join = my_join.join(table, prev_column == column)
+            left_table = self.storage.getTable(left_tname)
+            right_table = self.storage.getTable(right_tname)
+            left_column = getattr(left_table.c, left_cname)
+            right_column = getattr(right_table.c, right_cname)
 
-        return my_join
+            myjoin = left_table.join(right_table, left_column = right_column)
+
+        return myjoin
 
 
     def cvtTimeColumn(self, col_obj, time_str):
@@ -365,15 +415,15 @@ class SqlRelation():
 
 
     def cvtFunc(self, func_str):
-        if u'sum'   == func_str:
+        if 'sum'   == func_str:
             f   = func.sum
-        elif u'count'   == func_str:
+        elif 'count'   == func_str:
             f   = func.count
-        elif u'avg' == func_str:
+        elif 'avg' == func_str:
             f   = func.avg
-        elif u'max'    == func_str:
+        elif 'max'    == func_str:
             f   =   func.max
-        elif u'min'    == func_str:
+        elif 'min'    == func_str:
             f   =   func.min
         else:
             logger.err('unknow func str, {0}', func_str)
