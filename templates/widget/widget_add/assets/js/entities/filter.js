@@ -52,7 +52,7 @@ define([
 					//新加过滤器（新加字段）,这里不让触发change事件，等到后台拿到数据后手动通知视图重绘
 					this.push("filters", {
 						table: data.table, name: data.name,
-						kind: data.kind
+						kind: data.kind,   calcFunc: data.calcFunc
 						}, {silent: true});
 					this.set("whichColumn", columnsNumber, {silent: true});
 					//如果是因子变量，则到后台抓取所有的数据
@@ -160,6 +160,13 @@ define([
 					this.get("filters").remove(removeFilter);
 					this.set("whichColumn", 0);
 					this.trigger("filter:rerender");
+					//通知入口model删除过滤器
+					Entities.trigger("filter:change", this.toJSON());
+				})
+				
+				//监听改变过滤器计算方式的改变
+				this.on("calcFunc:change", function(data){
+					this.get("filters")[data.whichFilter].calcFunc = data.calcFunc;
 					//通知入口model删除过滤器
 					Entities.trigger("filter:change", this.toJSON());
 				})

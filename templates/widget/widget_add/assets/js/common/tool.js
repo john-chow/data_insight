@@ -114,4 +114,29 @@ Array.prototype.in_array = function(e) {
     var r = new RegExp(this.S+e+this.S);  
     return (r.test(this.S+this.join(this.S)+this.S));  
 }; 
+/**
+ * 截取字符串的长度
+ * @param str 源字符串
+ * @param length 要截取的长度,以中文为标准,一般一个中文字符占的宽度是两个英文字符的宽度
+ */
+function textcut(str, length){
+	var num = 0;
+	var cutLength = 0;
+	for(var i = 0; i < str.length; i++){
+		var ch = str.charAt(i);
+		var reg = new RegExp("[\\u4E00-\\u9FFF]+", "g");
+		if(reg.test(ch)){
+			num+=2;
+		}else{
+			num++;
+		}
+		if(num < 2 * length){
+			cutLength++;
+		}
+	}
+	if(num > 2 * length){
+		return str.substr(0, cutLength) + "..";
+	}
+	return str;
+}
 

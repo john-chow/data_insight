@@ -10,36 +10,6 @@
 		<label>标&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题:</label>
 			<input name="x_title" type="text" value="<%=title%>"/>
 		</div>
-		<div class="axis-param">
-			<label>数据变量:</label>
-			<select name="x_type">
-				<option value="F">因子变量(F)</option>
-				<option value="N">数值变量(N)</option>
-				<option value="T">时间变量(T)</option>
-				<option value="G">地理变量(G)</option>
-				<option value="L">逻辑变量(L)</option>
-			</select>
-		</div>
-		<div class="axis-param">
-			<label>计算类型:</label>
-			<select name="x_calcFunc">
-			<option value="none">无(NONE)</option>
-			<%if(kind == 'T'){%>
-				<option value="year">年(YEAR)</option>
-				<option value="month">月(MONTH)</option>
-				<option value="day">日(DAY)</option>
-				<option value="hour">小时(HOUR)</option>
-				<option value="minute">分钟(MINUTE)</option>
-			<%}else{%>
-				<option value="sum">求和(SUM)</option>
-				<option value="count">统计个数(COUNT)</option>
-				<option value="mean">平均值(MEAN)</option>
-				<option value="max">最大值(MAX)</option>
-				<option value="min">最小值(MIN)</option>
-				<option value="median">中位值(MEIDAN)</option>
-			<%}%>
-			</select>
-		</div>
       </div>
 	 <div class="modal-footer">
 	 	<button type="button" id="save-setting" data-dismiss="modal" class="btn btn-primary">保存</button>

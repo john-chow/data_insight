@@ -28,21 +28,7 @@ define([
 	        						window.newArea = true;//防止在编辑的时候新建工作区会从编辑的组件中获取数据
 	        						this.newArea();
 	        					}, this);
-	        					this.switchViews.on("switch:remove", function(i){
-	        						//删除前,选中隔壁的工作区
-	        						if(i > 0){
-	        							//this.switchArea(i - 1);
-	        							$(".workbook").get(i-1).click();
-	        						}else if(i == 0){
-	        							//this.switchArea(i + 1);
-	        							$(".workbook").get(i+1).click();
-	        						}
-	        						var removeDesignController = this.designControllerList[i];
-	        						this.designControllerList.remove(removeDesignController);
-	        						var removeShowController = this.showControllerList[i];
-	        						this.showControllerList.remove(removeShowController);
-	        						this.collection.remove(this.collection.at(i));
-	        					}, this);
+	        					
 	        					//监听切换工作区,有前缀childview说明触发该事件的是孩子view
 	        					this.switchViews.on("childview:area:switch", function(childView, i){
 	        						this.switchArea(i);
