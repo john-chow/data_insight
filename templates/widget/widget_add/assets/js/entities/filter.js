@@ -58,7 +58,7 @@ define([
 					//如果是因子变量，则到后台抓取所有的数据
 					if(data.kind == 'F'){
 						this.push("values", new Entities.filterAssist(), {silent: true});
-						this.push("operators", "include");
+						this.push("operators", "include", {silent: true});
 						var filterAssist = this.get("values")[columnsNumber];
 						//后台抓取新加的过滤器的所有不重复的值的集合（即是某个字段的所有值集合）
 						filterAssist.fetch({
@@ -74,7 +74,7 @@ define([
 						});
 					}else if(data.kind == "N"){//如果是数值变量
 						this.push("values", ["",""], {silent: true});
-						this.push("operators", "bt");
+						this.push("operators", "bt", {silent: true});
 						self.trigger("filter:rerender");
 					}
 				});
