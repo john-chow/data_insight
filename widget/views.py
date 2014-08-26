@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from widget.models import WidgetModel, ExternalDbModel, REFRESH_CHOICES
 from widget.echart import EChartManager
-from widget.factor import FactorCreator, ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE, Clause
+from widget.factor import FactorCreator, ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE, ClauseCreator
 from connect.sqltool import SqlExecutorMgr, SqlObjReader
 from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb, cleanDataFromDb
 from common.log import logger
@@ -716,6 +716,8 @@ class DrawDataProducer():
         clean_data_db = cleanDataFromDb(data_db)
         strf_data_db = strfDataAfterFetchDb(clean_data_db)
 
+        pdb.set_trace()
+
         result = self.decorate(
             strf_data_db, self.fh.getMsus(), self.fh.getMsns(), 
             self.fh.getGroups()
@@ -782,7 +784,7 @@ class FactorHandler():
                 ))
             lfactor = FactorCreator.make(left)
             rfactor = FactorCreator.make(right)
-            clause = Clause(lfactor, rfactor, op, None)
+            clause = ClauseCreator.make(lfactor, rfactor, op, None)
             filter_factors.append(clause)
 
 

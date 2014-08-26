@@ -7,6 +7,7 @@ Factor类:
 import ast
 import re
 from numbers import Number
+from collections import namedtuple
 
 from common.tool import isSublist
 from common.log import logger
@@ -42,6 +43,10 @@ class FactorCreator():
         elif isinstance(kwargs, dict) \
                 and isSublist(kwargs.keys(), list(EXPRESS_FACTOR_KEYS_TUPLE)):
             return ElementFactor(**kwargs)
+        elif isinstance(kwargs, dict) \
+                and isSublist(kwargs.keys(), ['type', 'length']):
+            type, length = kwargs['type'], kwargs['length']
+            return TimeFactor(type, length)
         else:
             raise Exception('uuuuuuuuuu')
 
@@ -151,6 +156,15 @@ class RangeFactor(Factor):
         return self.low, self.high
 
 
+class TimeFactor(Factor):
+    def __init__(self, type, number):
+        self.type = type
+        self.number = number
+
+    def value(self):
+        return self.type, self.number
+
+
 class ElementFactor(Factor):
     def __init__(self, **kwargs):
         map(lambda x: setattr(self, x, kwargs[x]), \
@@ -254,6 +268,21 @@ OPERATOR_LIST = ['<', '>', '<>', '<=', '>=', '==']
 '''
 封装表达式
 '''
+class ClauseCreator():
+    @classmethod
+    def make(cls, lfactor, rfactor, op, overplus):
+        if op in ['>', '>=']:
+            return CalcClause(lfactor, rfactor, op, overplus)
+        elif op in ['in', 'ex']:
+            return SeriesClause(lfactor, rfactor, op, overplus)
+        elif op in ['bw']:
+            return SeriesClause(lfactor, rfactor, op, overplus)
+        elif op in ['last', 'next']:
+            return TimeClause(lfactor, rfactor, op, overplus)
+        else:
+            pass
+
+
 class Clause():
     def __init__(self, lfactor, rfactor, op, overplus):
         self.left = lfactor
@@ -261,8 +290,24 @@ class Clause():
         self.op = op
         self.overplus = overplus
 
-    def extract(self):
-        return self.left, self.right, self.op, self.overplus
+    def getLeft(self):
+        return self.left
+
+    def getRight(self):
+        return self.right
+
+
+class CalcClause(Clause):
+    pass
+
+class SeriesClause(Clause):
+    pass
+
+class RangeClause(Clause):
+    pass
+
+class TimeClause(Clause):
+    pass
 
 
 

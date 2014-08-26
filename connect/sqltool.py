@@ -11,10 +11,12 @@ import sys
 
 from sqlalchemy import create_engine, inspect, Table, MetaData, types, \
                         func, select, extract, Column, engine
+from sqlalchemy.sql.functions import current_date
 from sqlalchemy import *
 
 from widget.models import ExternalDbModel
-from widget.factor import ElementFactor, OneValueFactor, SeriesFactor, RangeFactor
+from widget.factor import ElementFactor, OneValueFactor, SeriesFactor, RangeFactor, \
+        CalcClause, SeriesClause, RangeClause, TimeClause
 from common.log import logger
 from common.head import ConnNamedtuple
 from common.tool import logExcInfo
@@ -257,28 +259,61 @@ class SqlRelation():
             raise Exception(msg)
 
         col_obj = table.c.get(columnname)
+        #return col_obj
+
+        if funcname in ['year', 'month', 'date']:
+            col_obj = self.cvtTimeColumn(col_obj, funcname)
+
         return col_obj
 
 
     def cvtClause(self, clause):
-        lf, rf, op, overplus = clause.extract()
-        lexpr = self.cvtElementFactor(lf)
-        if '>' == op:
+        lfactor, rfactor = clause.getLeft(), clause.getRight()
+        pdb.set_trace()
+        if isinstance(clause, CalcClause):
+            lexpr = self.cvtElementFactor(lf)
             rexpr = rf.value()
-            return lexpr > 5
-        elif 'bw' == op:
+            return lexpr > rexpr
+        elif isinstance(clause, SeriesClause):
+            lexpr = self.cvtElementFactor(lf)
             low, high = rf.value()
             return between(lexpr, low, high)
-        elif 'in' == op:
+        elif isinstance(clause, RangeFactor):
+            lexpr = self.cvtElementFactor(lf)
             values = rf.value()
             return lexpr.in_(values)
+        elif isinstance(clause, TimeClause):
+            type, number = rfactor.value()
+            return self.cvtLastPeriod(lfactor, type, number)
+        else:
+            pass
 
 
     def cvtFilters(self, clauses):
         units = [self.cvtClause(item) for item in clauses]
         expr = and_(*units) if len(units) > 1 else units[0]
-        pdb.set_trace()
         return expr
+
+    def cvtLastPeriod(self, factor, type, length):
+        obj = self.cvtElementFactor(factor)
+        pdb.set_trace()
+        if 'year' == type:
+            year_obj = self.cvtTimeColumn(obj, 'year')
+            return (year_obj > extract('year', current_date(type_ = types.Date)) - length)
+        elif 'month' == type:
+            year_obj = self.cvtTimeColumn(obj, 'year')
+            month_obj = self.cvtTimeColumn(obj, 'month')
+            year_dist, month_dist = length / 12, length % 12
+
+            return and_( \
+                year_obj >= (extract('year', current_date(type_ = types.Date)) - year_dist - 1) \
+                , month_obj > ((extract('month', current_date(type_ = types.Date)) - month_dist + 12) % 12) \
+            )
+
+        elif 'day' == type:
+            pass
+        else:
+            pass
 
 
     def cvtSelect(self, selects):
