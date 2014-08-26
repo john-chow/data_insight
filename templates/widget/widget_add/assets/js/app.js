@@ -33,6 +33,7 @@ define([
     , "csrf"
     , 'tool'
 	, 'common/mapping'
+	, 'common/test'
 ], function ($, JqueryUi, json, _, Backbone, Marionette, dialog, tableRoute, filedRoute, switchRoute) {
 
     // 设置ajax的content-type默认为application/x-www-form-urlencoded

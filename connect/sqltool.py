@@ -14,7 +14,7 @@ from sqlalchemy import create_engine, inspect, Table, MetaData, types, \
 from sqlalchemy import *
 
 from widget.models import ExternalDbModel
-from widget.factor import ElementFactor
+from widget.factor import ElementFactor, OneValueFactor, SeriesFactor, RangeFactor
 from common.log import logger
 from common.head import ConnNamedtuple
 from common.tool import logExcInfo
@@ -230,21 +230,25 @@ class SqlRelation():
         if not selects or len(selects) <= 0:
             raise Exception('no selected content')
 
-        select_part  = self.cvtSelect(selects)
-        filter_part = self.cvtFilters(filters)
-        group_part  = self.cvtGroup(groups)
+        select_part = self.cvtSelect(selects)
+        s = select(select_part)
 
-        sql_obj = select(select_part)
-        if filter_part:
-            sql_obj = sql_obj.where(filter_part)
-        if group_part:
-            sql_obj = sql_obj.group_by(*group_part)
+        if filters:
+            filter_part = self.cvtFilters(filters)
+            s = s.where(filter_part)
 
-        logger.info('{0}'.format(str(sql_obj)))
-        return sql_obj
+        if groups:
+            group_part = self.cvtGroup(groups)
+            s = s.group_by(*group_part)
+
+        logger.info(s.compile(compile_kwargs={"literal_binds": True}))
+        return s
 
 
-    def cvtFactor(self, factor):
+    def cvtElementFactor(self, factor):
+        if not isinstance(factor, ElementFactor):
+            pass
+
         tablename, columnname, kind, funcname = factor.extract()
         table           = self.storage.getTable(tablename)
         if not table.c.has_key(columnname):
@@ -258,21 +262,22 @@ class SqlRelation():
 
     def cvtClause(self, clause):
         lf, rf, op, overplus = clause.extract()
-        lobj = self.cvtFactor(lf)
+        lexpr = self.cvtElementFactor(lf)
         if '>' == op:
-            robj = self.cvtFactor(rf)
-            return lobj > robj
+            rexpr = rf.value()
+            return lexpr > 5
         elif 'bw' == op:
-            low, high = rf.values()
-            return between(lobj, low, high)
+            low, high = rf.value()
+            return between(lexpr, low, high)
         elif 'in' == op:
-            values = rf.values()
-            return lobj.in_(values)
+            values = rf.value()
+            return lexpr.in_(values)
 
 
     def cvtFilters(self, clauses):
         units = [self.cvtClause(item) for item in clauses]
-        expr = and_(*units)
+        expr = and_(*units) if len(units) > 1 else units[0]
+        pdb.set_trace()
         return expr
 
 

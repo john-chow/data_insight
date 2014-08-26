@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from widget.models import WidgetModel, ExternalDbModel, REFRESH_CHOICES
 from widget.echart import EChartManager
-from widget.factor import ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE
+from widget.factor import FactorCreator, ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE, Clause
 from connect.sqltool import SqlExecutorMgr, SqlObjReader
 from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb, cleanDataFromDb
 from common.log import logger
@@ -223,7 +223,6 @@ def handleUsedTable(request, wi_id):
             , 'all':        all
             , 'selected':   used
         })
-
 
 
 
@@ -716,6 +715,7 @@ class DrawDataProducer():
         data_db = self.st.execute(sql_obj).fetchall()
         clean_data_db = cleanDataFromDb(data_db)
         strf_data_db = strfDataAfterFetchDb(clean_data_db)
+        pdb.set_trace()
 
         result = self.decorate(
             strf_data_db, self.fh.getMsus(), self.fh.getMsns(), 
@@ -743,6 +743,7 @@ class DrawDataProducer():
 
 class FactorHandler():
     def __init__(self, req):
+        self.msns, self.msus, self.filters = [], [], []
         self.extract(req)
         self.extractFilter(req)
 
@@ -753,7 +754,7 @@ class FactorHandler():
         '''
         [col_kind_attr_list, row_kind_attr_list] = \
                 map( lambda i: req.get(i, []), \
-                        (Protocol.xAxis, Protocol.yAxis) \
+                        (Protocol.Xaxis, Protocol.Yaxis) \
                     ) 
 
         # 获取轴上属性Factor对象
@@ -794,15 +795,15 @@ class FactorHandler():
 
 
     def extractFilter(self, req):
-        filters = req.get(Protocol.Filter)
+        filters = req.get('filter')
 
         for item in filters:
-            [left_raw, op, right_raw] = map(lambda x: item.get(x), ( \
-                    Protocol.Filter.Attr, Protocol.Filter.Operator, Protocol.Filter.Values \
+            [left, op, right] = map(lambda x: item.get(x), ( \
+                    'field', 'operator', 'value' \
                 ))
-            left = FactorCreator.make(left_raw)
-            right = FactorCreator.make(right_raw)
-            clause = Clause(left, right, op)
+            lfactor = FactorCreator.make(left)
+            rfactor = FactorCreator.make(right)
+            clause = Clause(lfactor, rfactor, op, None)
             self.filters.append(clause)
         return 
 

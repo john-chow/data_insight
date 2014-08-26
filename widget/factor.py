@@ -5,6 +5,7 @@ Factor类:
     也可以只是表达某个单纯的数字，比如 5
 """
 from common.tool import isSublist
+from numbers import Number
 import common.protocol as Protocol
 import ast
 import re
@@ -18,20 +19,27 @@ EXPRESS_FACTOR_KEYS_TUPLE = \
 
 class FactorCreator():
     @ classmethod
-    def make(cls, **kwargs):
+    def make(cls, kwargs):
         '''
         创建Factor对象
+        '''
+
         '''
         keys = kwargs.keys()
         if 'num' in keys:
             return NumericFactor(kwargs)
-        elif isSublist(list(EXPRESS_FACTOR_KEYS_TUPLE), keys):
-            return ElementFactor(**kwargs)
+        '''
+
+        if isinstance(kwargs, Number):
+            return OneValueFactor(kwargs)
         elif isinstance(kwargs, list) and '-' != kwargs[0]:
             return SeriesFactor(kwargs)
         elif isinstance(kwargs, list) and '-' == kwargs[0]:
             low, high = kwargs[1], kwargs[2]
             return RangeFactor(low, high)
+        elif isinstance(kwargs, dict) \
+                and isSublist(list(EXPRESS_FACTOR_KEYS_TUPLE), kwargs.keys()):
+            return ElementFactor(**kwargs)
         else:
             raise Exception('uuuuuuuuuu')
 
@@ -110,13 +118,21 @@ class OneValueFactor(Factor):
     def __init__(self, value):
         self.value = value
 
+    def value(self):
+        return self.value
+
 
 '''
 一系列值的基础类
 '''
 class SeriesFactor(Factor):
     def __init__(self, values):
+        if not isinstance(values, list):
+            pass
         self.values = values
+
+    def value(self):
+        return self.values
 
 
 '''
@@ -124,8 +140,13 @@ class SeriesFactor(Factor):
 '''
 class RangeFactor(Factor):
     def __init__(self, low, high):
+        if low > high:
+            pass
         self.low = low
         self.high = high
+
+    def value(self):
+        return self.low, self.high
 
 
 class ElementFactor(Factor):
@@ -234,9 +255,9 @@ OPERATOR_LIST = ['<', '>', '<>', '<=', '>=', '==']
 封装表达式
 '''
 class Clause():
-    def __init__(self, left, right, op, overplus):
-        self.left = FactorCreator.make(left)
-        self.right = FactorCreator.make(right)
+    def __init__(self, lfactor, rfactor, op, overplus):
+        self.left = lfactor
+        self.right = rfactor
         self.op = op
         self.overplus = overplus
 
