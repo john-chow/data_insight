@@ -194,7 +194,7 @@ def handleField(request):
 def handleDistinct(request):
     req = json.loads(request.GET.get(Protocol.FilterColumn))
     info = map(lambda x: (x, req.get(x)), EXPRESS_FACTOR_KEYS_TUPLE)
-    factor = FactorCreator.make(**dict(info))
+    factor = FactorCreator.make(dict(info))
 
     try:
         hk  = request.session.get('hk')

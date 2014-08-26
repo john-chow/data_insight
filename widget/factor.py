@@ -4,11 +4,13 @@ Factor类:
     主要是封装某个量的计算式，比如 'A表中销量列的总和';
     也可以只是表达某个单纯的数字，比如 5
 """
-from common.tool import isSublist
-from numbers import Number
-import common.protocol as Protocol
 import ast
 import re
+from numbers import Number
+
+from common.tool import isSublist
+from common.log import logger
+import common.protocol as Protocol
 
 import pdb
 
@@ -38,7 +40,7 @@ class FactorCreator():
             low, high = kwargs[1], kwargs[2]
             return RangeFactor(low, high)
         elif isinstance(kwargs, dict) \
-                and isSublist(list(EXPRESS_FACTOR_KEYS_TUPLE), kwargs.keys()):
+                and isSublist(kwargs.keys(), list(EXPRESS_FACTOR_KEYS_TUPLE)):
             return ElementFactor(**kwargs)
         else:
             raise Exception('uuuuuuuuuu')
@@ -154,7 +156,6 @@ class ElementFactor(Factor):
         map(lambda x: setattr(self, x, kwargs[x]), \
             EXPRESS_FACTOR_KEYS_TUPLE)
 
-
     def __str__(self):
         return str(self.extract())
 
@@ -168,13 +169,12 @@ class ElementFactor(Factor):
         self_tuple = tuple(self_list)
         return self_tuple
 
-
     def cvtToSqlVar(self):
         '''
         转换成sql里面的表达式
         '''
         # 注意判断属性的类型，是数字还是时间
-        if not self.cmd or 'rgl' == self.cmd:
+        if not self.cmd or Protocol.NoneFunc == self.cmd:
             return self.attr
         else:
             return  self.cmd + '(' + self.attr + ')'
