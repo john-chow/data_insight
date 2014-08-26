@@ -807,20 +807,6 @@ class FactorHandler():
         return 
 
 
-    def extractFilter(self, req):
-        filters = req.get('filter', [])
-
-        for item in filters:
-            [left, op, right] = map(lambda x: item.get(x), ( \
-                    'field', 'operator', 'value' \
-                ))
-            lfactor = FactorCreator.make(left)
-            rfactor = FactorCreator.make(right)
-            clause = Clause(lfactor, rfactor, op, None)
-            self.filters.append(clause)
-        return 
-
-
     def mapToSqlPart(self):
         """
         按照对所处select语句中的位置部分
