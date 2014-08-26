@@ -22,8 +22,8 @@ define([
                 , 'table':      'diamond'
                 , 'kind':       'N'
             }
-            , 'operator':   '>'
-            , 'value':      5
+            , 'operator':   'bw'
+            , 'value':      [5,6]
         }]
     };
 

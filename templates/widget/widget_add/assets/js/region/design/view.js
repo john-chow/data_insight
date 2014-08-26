@@ -25,9 +25,9 @@ define([
 			},
 			onRender: function(){
 				var self = this;
-				var whichColumn = this.model.get("whichColumn") + 1;
+				var whichFilter = this.model.get("whichFilter") + 1;
 				//this.$el.find(".myfilter li:nth-child(" + whichColumn +")").addClass("select-filter");
-				$(".myfilter li:nth-child(" + whichColumn +")").addClass("select-filter");
+				$(".myfilter li:nth-child(" + whichFilter +")").addClass("select-filter");
 				//当字段拖到过滤器的时候触发
 				this.$el.find(".myfilter").droppable({
 					drop: function(event, ui){
@@ -85,7 +85,7 @@ define([
 				//选中某个过滤器时候触发
 				this.$el.find(".myfilter>li").on("click", function(){
 					var whichFilter = $(this).index();
-					if(whichFilter != self.model.get("whichColumn")){
+					if(whichFilter != self.model.get("whichFilter")){
 						//通知model选中过滤器
 						self.model.trigger("select:filter", whichFilter);
 					}

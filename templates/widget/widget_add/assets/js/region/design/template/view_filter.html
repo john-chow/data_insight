@@ -5,9 +5,9 @@
 			<ul class="myfilter dragging-custom"> 
 			<%_.each(filters, function(filter, index){%>
 				<li class="filter-operate">
-					<%=filter.name%><b data-toggle="dropdown" class="glyphicon glyphicon-plus-sign dropdown-toggle"></b>
+					<%=filter.field.name%><b data-toggle="dropdown" class="glyphicon glyphicon-plus-sign dropdown-toggle"></b>
 					<ul class="dropdown-menu" role="menu">
-						<%if(filter.kind == "N"){%>
+						<%if(filter.field.kind == "N"){%>
 						<li class="filter-calcFunc">
 						<a href="#"><i class="glyphicon glyphicon-play"></i>&nbsp;计算</a>
 						<ul class="dropdown-menu" role="menu">
@@ -34,7 +34,7 @@
 							</li>
 						</ul>
 						</li>
-						<%}else if(filter.kind == "F"){%>
+						<%}else if(filter.field.kind == "F"){%>
 						<li class="filter-none-calcFunc">
 							<a href="#"><i class="glyphicon glyphicon-play"></i>&nbsp;计算</a>
 						<%}%>
@@ -45,57 +45,44 @@
 			</ul>
 		</div>
 		<div class="col-md-5 col-sm-5">
-			<%if(filters.length == 0 || filters[whichColumn].kind == "F"){%>
+			<%if(filters.length == 0 || filters[whichFilter].field.kind == "F"){%>
 				<p class="filter-label">列值:</p> 
 				<ul class="myfilter-values clearfix"> 
 				<% if(values.length > 0){
-					 _.each(values[whichColumn].get('values'), function(value, index){%>
-					 <%if(operators[whichColumn] == "include"){
-						if(values[whichColumn].get('inValues').in_array(value))%>
+					 _.each(values[whichFilter], function(value, index){
+						if(filters[whichFilter].value.in_array(value))%>
 					 		<li><%=value%>&nbsp;<input type="checkbox" value="<%=value%>" checked/></li>
 					 	<%else%>
 							<li><%=value%>&nbsp;<input type="checkbox" value="<%=value%>"/></li>
-					<%}else{
-						if(values[whichColumn].get('exValues').in_array(value))%>
-					 		<li><%=value%>&nbsp;<input type="checkbox" value="<%=value%>" checked/></li>
-					 	<%else%>
-							<li><%=value%>&nbsp;<input type="checkbox" value="<%=value%>"/></li>
-					<%}
-					 })
+					 <%})
 						
 				}%>
 				</ul>
-			<%}else if(filters[whichColumn].kind == "N"){%>
+			<%}else if(filters[whichFilter].field.kind == "N"){%>
 				<p class="filter-label">大于等于:</p> 
-				<input type="text" value="<%=values[whichColumn][0]%>" class="myfilter-range" name="lowRange" id="lowRange"/>
+				<input type="text" value="<%=filters[whichFilter].value[0]%>" class="myfilter-range" name="lowRange" id="lowRange"/>
 			<%}%>
 		</div>
 		
 		<div class="col-md-5 col-sm-5">
-		<%if(filters.length == 0 || filters[whichColumn].kind == "F"){%>
+		<%if(filters.length == 0 || filters[whichFilter].field.kind == "F"){%>
 			<p class="filter-label">
 			<select class="select-or-not">
-				<option value="include">选中</option>
-				<option value="exclude">排除</option>
+				<option value="in">选中</option>
+				<option value="not_in">排除</option>
 			</select>
 			<a class="pull-right clear-select" href="#">清空</a>
 			</p>
 			<ul class="myfilter-select-or-not"> 
-			<% if(values.length > 0){
-				if(operators[whichColumn] == "include"){
-					 _.each(values[whichColumn].get('inValues'), function(value, index){%>
-						<li data-value="<%= value%>"> [<%= value%>]</li>
-						<%})
-				}else{
-					 _.each(values[whichColumn].get('exValues'), function(value, index){%>
-						<li data-value="<%= value%>"> [<%=value%>]</li>
-					<%})
-				}
+			<% if(filters.length > 0 && filters[whichFilter].field.value.length > 0){
+				 _.each(filters[whichFilter].field.value, function(value, index){%>
+					<li data-value="<%= value%>"> [<%= value%>]</li>
+				<%})
 			}%> 
 			</ul>
-		<%} else if(filters[whichColumn].kind == "N"){%>
+		<%} else if(filters[whichFilter].field.kind == "N"){%>
 			<p class="filter-label">小于等于:</p> 
-			<input type="text" value="<%=values[whichColumn][1]%>" class="myfilter-range" name="hightRange" id="hightRange"/>
+			<input type="text" value="<%=filters[whichFilter].value[1]%>" class="myfilter-range" name="hightRange" id="hightRange"/>
 		<%}%>
 		</div>
 	</div>
