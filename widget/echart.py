@@ -59,20 +59,20 @@ class Bar_Line_Base(EChart):
         msu_len, msn_len, group_len = \
                 map(lambda x: len(x), (msu_factor_list, msn_factor_list, group_factor_list))
 
-        all_data = map( list, zip(*data_from_db) )
+        all_data = map(list, zip(*data_from_db))
 
         x_info_list, y_info_list = [], []
 
         # 必须要有1个度量和至多1个维度
         if msu_len != 1 or msn_len > 1:
-            raise Exception(u'cant draw {0}'.format(self.type))
+            raise Exception('cant draw {0}'.format(self.type))
 
         # 先看度量列表，确定所在轴
         _table, attr_name, attr_kind, attr_cmd = msu_factor_list[0].extract()
         attr_axis = msu_factor_list[0].getProperty(Protocol.Axis)
 
         msu_info_list = x_info_list if u'col' == attr_axis else y_info_list
-        msu_info_list.append({u'type': u'value'})
+        msu_info_list.append({'type': 'value'})
 
         # 再看维度列表
         if 1 == msn_len:
@@ -80,11 +80,11 @@ class Bar_Line_Base(EChart):
             _table, attr_name, attr_kind, attr_cmd = msn_factor_list[0].extract()
             attr_axis = msn_factor_list[0].getProperty(Protocol.Axis)
             msn_info_list = x_info_list if u'col' == attr_axis else y_info_list
-            msn_info_list.append({u'type': u'category', u'data': list(set(all_data[msn_idx]))})
+            msn_info_list.append({'type': 'category', 'data': list(set(all_data[msn_idx]))})
         elif 0 == msn_len:
             # measure所在轴的另一个轴就是mension
             msn_info_list = y_info_list if len(x_info_list) > 0 else x_info_list
-            msn_info_list.append({u'type': u'category', u'data': ['']})
+            msn_info_list.append({'type': 'category', 'data': ['']})
             
         legend_series_data = []
         # 最后看分组列表
@@ -101,9 +101,9 @@ class Bar_Line_Base(EChart):
             legend_series_data.append({'series': one_series_data})
 
         return {    
-            u'x': x_info_list   \
-            , u'y': y_info_list     \
-            , u'legend_series': legend_series_data
+            'x': x_info_list   \
+            , 'y': y_info_list     \
+            , 'legend_series': legend_series_data
         }
 
 

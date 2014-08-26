@@ -52,13 +52,13 @@ define([
 					//新加过滤器（新加字段）,这里不让触发change事件，等到后台拿到数据后手动通知视图重绘
 					this.push("filters", {
 						table: data.table, name: data.name,
-						kind: data.kind
+						kind: data.kind,   calcFunc: data.calcFunc
 						}, {silent: true});
 					this.set("whichColumn", columnsNumber, {silent: true});
 					//如果是因子变量，则到后台抓取所有的数据
 					if(data.kind == 'F'){
 						this.push("values", new Entities.filterAssist(), {silent: true});
-						this.push("operators", "include");
+						this.push("operators", "include", {silent: true});
 						var filterAssist = this.get("values")[columnsNumber];
 						//后台抓取新加的过滤器的所有不重复的值的集合（即是某个字段的所有值集合）
 						filterAssist.fetch({
@@ -74,7 +74,7 @@ define([
 						});
 					}else if(data.kind == "N"){//如果是数值变量
 						this.push("values", ["",""], {silent: true});
-						this.push("operators", "bt");
+						this.push("operators", "bt", {silent: true});
 						self.trigger("filter:rerender");
 					}
 				});
@@ -154,12 +154,18 @@ define([
 				
 				//监听删除过滤器
 				this.on("filter:remove", function(whichFilter){
-					var removeValue = this.get("values")[whichFilter];
-					var removeFilter = this.get("filters")[whichFilter];
-					this.get("values").remove(removeValue);
-					this.get("filters").remove(removeFilter);
+					this.get("values").del(whichFilter);
+					this.get("filters").del(whichFilter);
+					this.get("operators").del(whichFilter);
 					this.set("whichColumn", 0);
 					this.trigger("filter:rerender");
+					//通知入口model删除过滤器
+					Entities.trigger("filter:change", this.toJSON());
+				})
+				
+				//监听改变过滤器计算方式的改变
+				this.on("calcFunc:change", function(data){
+					this.get("filters")[data.whichFilter].calcFunc = data.calcFunc;
 					//通知入口model删除过滤器
 					Entities.trigger("filter:change", this.toJSON());
 				})

@@ -51,6 +51,9 @@ AvgFunc = 'avg'
 Xaxis = 'x'
 Yaxis = 'y'
 
+# 过滤
+Filter = 'filter'
+
 # 图表类型种类
 Graph = 'graph'
 

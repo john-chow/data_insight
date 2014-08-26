@@ -715,7 +715,6 @@ class DrawDataProducer():
         data_db = self.st.execute(sql_obj).fetchall()
         clean_data_db = cleanDataFromDb(data_db)
         strf_data_db = strfDataAfterFetchDb(clean_data_db)
-        pdb.set_trace()
 
         result = self.decorate(
             strf_data_db, self.fh.getMsus(), self.fh.getMsns(), 
@@ -745,7 +744,6 @@ class FactorHandler():
     def __init__(self, req):
         self.msns, self.msus, self.filters = [], [], []
         self.extract(req)
-        self.extractFilter(req)
 
 
     def extract(self, req):
@@ -775,8 +773,21 @@ class FactorHandler():
             tmp_factors.append(factor)
 
 
+        # 过滤条件部分
+        filter_factors = []
+        filters = req.get('filter', [])
+        for item in filters:
+            [left, op, right] = map(lambda x: item.get(x), ( \
+                    'field', 'operator', 'value' \
+                ))
+            lfactor = FactorCreator.make(left)
+            rfactor = FactorCreator.make(right)
+            clause = Clause(lfactor, rfactor, op, None)
+            filter_factors.append(clause)
+
+
         # 获取选择器上属性Factor对象
-        group_factor_list = []
+        group_factors = []
         color_dict = req.get(Protocol.Color)
         if color_dict:
             color_attr_table = color_dict.get(Protocol.Table, '')
@@ -785,17 +796,19 @@ class FactorHandler():
                                     (color_attr_table, color_attr_column, -1, '')))
             factor = ElementFactor(**color_dict)
             factor.setBelongToAxis('group')
-            group_factor_list.append(factor)
+            group_factors.append(factor)
+
 
         self.msus = msu_factors
         self.msns = msn_factors
-        self.groups = group_factor_list
+        self.filters = filter_factors
+        self.groups = group_factors
         self.extracted = True
         return 
 
 
     def extractFilter(self, req):
-        filters = req.get('filter')
+        filters = req.get('filter', [])
 
         for item in filters:
             [left, op, right] = map(lambda x: item.get(x), ( \
