@@ -32,10 +32,11 @@ define([
 				this.$el.find(".myfilter").droppable({
 					drop: function(event, ui){
 						var axisItem = ui.helper.data("axisitem");
+						axisItem.calFunc = axisItem.calFunc == undefined ? "none": axisItem.calFunc;
 						//通知model获取fieldName字段的所有值的集合
 						self.model.trigger("fetch:field:values", {
 								name: axisItem.name, table: axisItem.table,
-								kind: axisItem.kind
+								kind: axisItem.kind, calcFunc: axisItem.calFunc
 							});
 						}
 				});
@@ -92,12 +93,25 @@ define([
 				})
 				
 				//当删除选中过滤器的时候触发
-				this.$el.find(".myfilter>li>b").on("click", function(){
-					var whichFilter = $(this).parent().index();
+				this.$el.find(".myfilter>li>ul>li.filter-remove").on("click", function(){
+					var whichFilter = $(this).parent().parent().index();
 					//$(this).parent().remove();
 					//通知model删除选中过滤器
 					self.model.trigger("filter:remove", whichFilter);
 				});
+				
+				//当选中的过滤器选择了计算类型后出发
+				this.$el.find(".myfilter>li>ul>li.filter-calcFunc>ul>li").on("click", function(){
+					var whichFilter = $(this).parents(".filter-operate").index();
+					var calcFunc = $(this).data("calcfunc");
+					var data = {
+							whichFilter: whichFilter, calcFunc: calcFunc
+					}
+					//通知model删除选中过滤器
+					self.model.trigger("calcFunc:change", data);
+					//矫正显示的计算方式
+					self.correctShow(calcFunc, whichFilter);
+				})
 				
 				//监听过滤器是数值变量的时候输入最大最小值的输入
 				this.$el.find("#lowRange").on("change", function(){
@@ -124,6 +138,15 @@ define([
 					//通知model获取数值变量过滤器的下限
 					self.model.trigger("hightRange:add", heightRange);
 				})
+				
+			},
+			/**
+			 * 矫正显示的内容，使其与过滤器实际的值相吻合，比如数值变量的过滤器有个计算方式的属性，则显示的计算方式应该与实际的同步
+			 * @param calcFunc:选中的计算方式 whichFilter: 选中的过滤器
+			 */
+			correctShow: function(calcFunc, whichFilter){
+				this.$el.find(".filter-calcFunc >ul > li.active").removeClass("active");
+				this.$el.find(".filter-calcFunc >ul > li[data-calcfunc=" + calcFunc + "]").get(whichFilter).className = "active";
 			}
 		})
 		
@@ -271,6 +294,57 @@ define([
 					})
 				})
 				
+				
+				//监听x轴y轴中某元素点击进行某个计算的时候触发
+				this.$el.find("#x_sortable .coordinate-calcfunc > li").on("click", function(){
+					if($(this).hasClass("active")){
+						return
+					}
+						
+					var calcFunc = $(this).data("calcfunc");
+					var data = {
+							calcFunc: calcFunc, indexInXY: $(this).parents(".measure").index(),
+							whichAxis: "x"
+					}
+					self.model.trigger("calcFunc:change", data);
+				})
+				this.$el.find("#y_sortable .coordinate-calcfunc > li").on("click", function(){
+					if($(this).hasClass("active")){
+						return
+					}
+					var calcFunc = $(this).data("calcfunc");
+					var data = {
+							calcFunc: calcFunc, indexInXY: $(this).parents(".mension").index(),
+							whichAxis: "y"
+					}
+					self.model.trigger("calcFunc:change", data);
+				})
+				
+				//监听x轴y轴元素中，点击选择某个类型
+				this.$el.find("#x_sortable .coordinate-kind > li").on("click", function(){
+					if($(this).hasClass("active")){
+						return
+					}
+					var kind = $(this).data("kind");
+					var data = {
+							kind: kind, indexInXY: $(this).parents(".measure").index(),
+							whichAxis: "x"
+					}
+					self.model.trigger("kind:change", data);
+				})
+				this.$el.find("#y_sortable .coordinate-kind > li").on("click", function(){
+					if($(this).hasClass("active")){
+						return
+					}
+					var kind = $(this).data("kind");
+					var data = {
+							kind: kind, indexInXY: $(this).parents(".mension").index(),
+							whichAxis: "y"
+					}
+					self.model.trigger("kind:change", data);
+				})
+				
+				this.correctShow();
 				//如果字段(filed)已经被拖入到x或者y轴中，则禁止filed区域对应的字段不让拖拽
 				/*$.each(this.model.get("x"), function(index, value){
 					self.disableFiledDrage(value.name);
@@ -282,6 +356,32 @@ define([
 			//调用该view的render方法触发
 			onRender: function(){
 				this.onShow();
+			},
+			/**
+			 * 显示视图后校对显示的内容
+			 * 
+			 */
+			correctShow: function(){
+				var self = this;
+				//校对显示值
+				this.$el.find("#x_sortable .coordinate-calcfunc > li.active").removeClass("active");
+				this.$el.find("#y_sortable .coordinate-calcfunc > li.active").removeClass("active");
+				this.$el.find("#x_sortable .coordinate-kind > li.active").removeClass("active");
+				this.$el.find("#y_sortable .coordinate-kind > li.active").removeClass("active");
+				$.each(self.model.get("x"), function(i, axis){
+					self.$el.find("#x_sortable .coordinate-calcfunc > li[data-calcfunc=" + axis.calcFunc + "]").get(i).className = "active";
+					self.$el.find("#x_sortable .coordinate-kind > li[data-kind=" + axis.kind + "]")[i].className  = "active";
+					
+				})
+				
+				$.each(self.model.get("y"), function(i, axis){
+					self.$el.find("#y_sortable .coordinate-calcfunc > li[data-calcfunc=" + axis.calcFunc + "]")[i].className = "active";
+					self.$el.find("#y_sortable .coordinate-kind > li[data-kind=" + axis.kind + "]")[i].className = "active";
+				})
+				
+				this.$el.find(".axis-wapper").outerWidth(this.$el.find(".design-column").outerWidth() - 76);
+				
+				
 			},
 			/*
 			 * 设置x轴，y轴的排序拖拽,以及相应事件处理
@@ -457,21 +557,12 @@ define([
 				this.$el.find("#save-setting").click(function(){
 					var data = {
 							title: $("[name=x_title]").val(),
-							calcFunc: $("[name=x_calcFunc]").val(),
-							kind: $("[name=x_type]").val(),
 							axis: "x"
 					}
 					//触发axis:change事件，通知axis model更新
 					self.model.trigger("axis:change", data);
 				})
 			},
-			/*
-			 * 显示前核对要显示的信息
-			 */
-			onBeforeShow: function(){
-				this.$el.find("[name=x_calcFunc]").val(this.model.get("calcFunc"));
-				this.$el.find("[name=x_type]").val(this.model.get("kind"));
-			}
 		});
 		
 		//编辑y轴对应的模态框view
@@ -484,21 +575,12 @@ define([
 				this.$el.find("#save-setting").click(function(){
 					var data = {
 							title: $("[name=y_title]").val(),
-							calcFunc: $("[name=y_calcFunc]").val(),
-							kind: $("[name=y_type]").val(),
 							axis: "y"
 					}
 					//触发axis:change事件，通知axis model更新
 					self.model.trigger("axis:change", data);
 				})
 			},
-			/*
-			 * 显示前核对要显示的信息
-			 */
-			onBeforeShow: function(){
-				this.$el.find("[name=y_calcFunc]").val(this.model.get("calcFunc"));
-				this.$el.find("[name=y_type]").val(this.model.get("kind"));
-			}
 		})
 	})
 	return DesignRegionView;

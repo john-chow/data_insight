@@ -96,8 +96,6 @@ define([
 					$.each(self.get('x'), function(i, value){
 						if(value.name == data.name){
 							self.get('x')[i].title = data.title;
-							self.get('x')[i].calcFunc = data.calcFunc;
-							self.get('x')[i].kind = data.kind;
 							self.trigger("change");//触发change事件
 							//通知graph视图更新视图
 							//self.trigger("axis:change");
@@ -111,8 +109,6 @@ define([
 					$.each(self.get('y'), function(i, value){
 						if(value.name == data.name){
 							self.get('y')[i].title = data.title;
-							self.get('y')[i].calcFunc = data.calcFunc;
-							self.get('y')[i].kind = data.kind;
 							self.trigger("change");//触发change事件
 							//通知graph视图更新视图
 							//self.trigger("axis:change");
@@ -120,6 +116,30 @@ define([
 						}
 					})
 				});
+				
+				//监听重新选择了x轴y轴某个元素计算方式改变
+				this.on("calcFunc:change", function(data){
+					var indexInXY = data.indexInXY;
+					var calcFunc = data.calcFunc;
+					if(data.whichAxis == "x"){
+						this.get("x")[indexInXY].calcFunc = calcFunc;
+					}else{
+						this.get("y")[indexInXY].calcFunc = calcFunc;
+					}
+					this.trigger("change");//触发change事件
+				})
+				
+				//监听选择x轴y轴中某个元素类型的改变
+				this.on("kind:change", function(data){
+					var indexInXY = data.indexInXY;
+					var kind = data.kind;
+					if(data.whichAxis == "x"){
+						this.get("x")[indexInXY].kind = kind;
+					}else{
+						this.get("y")[indexInXY].kind = kind;
+					}
+					this.trigger("change");//触发change事件
+				})
 				
 				//监听将字段拖拽到图表类型对应的字段列表中的某个列表项中
 				this.on("mapping:add", function(data){

@@ -4,7 +4,43 @@
 			<p class="filter-label">过滤器: <a class="pull-right clear-filters" href="#">清空所有过滤器</a></p>
 			<ul class="myfilter dragging-custom"> 
 			<%_.each(filters, function(filter, index){%>
-				<li><%=filter.name%><b class="glyphicon glyphicon-remove"></b></li>
+				<li class="filter-operate">
+					<%=filter.name%><b data-toggle="dropdown" class="glyphicon glyphicon-plus-sign dropdown-toggle"></b>
+					<ul class="dropdown-menu" role="menu">
+						<%if(filter.kind == "N"){%>
+						<li class="filter-calcFunc">
+						<a href="#"><i class="glyphicon glyphicon-play"></i>&nbsp;计算</a>
+						<ul class="dropdown-menu" role="menu">
+							<li data-calcfunc="none" class="active">
+		          				<a href="#">无</a>
+		          			</li>
+							<li data-calcfunc="sum">
+								<a href="#">求和</a>
+							</li>
+							<li data-calcfunc="count">
+								<a href="#">统计个数</a>
+							</li>
+							<li data-calcfunc="mean">
+								<a href="#">平均值</a>
+							</li>
+							<li data-calcfunc="max">
+								<a href="#">最大值</a>
+							</li>
+							<li data-calcfunc="min">
+								<a href="#">最小值</a>
+							</li>
+							<li data-calcfunc="median">
+								<a href="#">中位值</a>
+							</li>
+						</ul>
+						</li>
+						<%}else if(filter.kind == "F"){%>
+						<li class="filter-none-calcFunc">
+							<a href="#"><i class="glyphicon glyphicon-play"></i>&nbsp;计算</a>
+						<%}%>
+						<li class="filter-remove"><a href="#"><i class="glyphicon glyphicon-remove">删除</i></a></li>
+					</ul>
+				</li>
 			<%})%>
 			</ul>
 		</div>

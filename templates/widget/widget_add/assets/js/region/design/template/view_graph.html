@@ -24,56 +24,79 @@
 				<div class="axis-wapper">
 				<ul id="y_sortable" ondragover="return false" class="connectedSortable clearfix ">
 					<% _.each(y, function(yItem, index){ %>
-   					 	<li class="mension" type="mension" data-axisitem='<%=JSON.stringify(yItem)%>'> 
-							<!--(<%=yItem.calcFunc%>)-->
-							&nbsp;<%= yItem.name %>
+   					 	<li title='<%="(" + yItem.calcFunc + ")" + yItem.name %>' class="mension" type="mension" data-axisitem='<%=JSON.stringify(yItem)%>'> 
+							<%if(yItem.calcFunc !== "none"){%>
+								<%= textcut("(" + yItem.calcFunc + ")" + yItem.name, 6) %>
+							<%}else{%>
+								<%= textcut(yItem.name, 6) %>
+							<%}%>
 							<b data-toggle="dropdown" class="glyphicon glyphicon-plus-sign dropdown-toggle"></b> 
 							<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-								<li class="coordinate-edit"><a data-yItem='<%=JSON.stringify(yItem)%>' href="#"><i class="glyphicon glyphicon-edit"></i>&nbsp;编辑</a></li>
-								<li class="coordinate-filter coordinate-hover">
+								<li class="coordinate-edit"><a data-yItem='<%=JSON.stringify(yItem)%>' href="#"><i class="glyphicon glyphicon-edit"></i>&nbsp;标题</a></li>
+								<li class="coordinate-calc coordinate-hover">
 									<a href="#"><i class="glyphicon glyphicon-play"></i>&nbsp;计算</a>
-									<ul class="dropdown-menu">
-							          	<li value="none" class="active">
-							          		<a tabindex="-1" href="#">无</a>
+									<ul class="dropdown-menu coordinate-calcfunc">
+							          	<li data-calcfunc="none" class="active">
+							          		<a href="#">无</a>
 							          	</li>
 							          	<% if(yItem.kind == 'T'){%>
-							          		<li value="year">
-												<a tabindex="-1" href="#">年</a>
+							          		<li data-calcfunc="year">
+												<a href="#">年</a>
 											</li>
-											<li value="month">
-												<a tabindex="-1" href="#">月</a>
+											<li data-calcfunc="month">
+												<a href="#">月</a>
 											</li>
-											<li value="day">
-												<a tabindex="-1" href="#">日</a>
+											<li data-calcfunc="day">
+												<a href="#">日</a>
 											</li>
-											<li value=hour">
-												<a tabindex="-1" href="#">小时</a>
+											<li data-calcfunc=hour">
+												<a href="#">小时</a>
 											</li>
-											<li value="minute">
-												<a tabindex="-1" href="#">分钟</a>
+											<li data-calcfunc="minute">
+												<a href="#">分钟</a>
 											</li>
 							          	<%}else{%>
-							          		<li value="sum">
-												<a tabindex="-1" href="#">求和</a>
+							          		<li data-calcfunc="sum">
+												<a href="#">求和</a>
 											</li>
-											<li value="count">
-												<a tabindex="-1" href="#">统计个数</a>
+											<li data-calcfunc="count">
+												<a href="#">统计个数</a>
 											</li>
-											<li value="mean">
-												<a tabindex="-1" href="#">平均值</a>
+											<li data-calcfunc="mean">
+												<a href="#">平均值</a>
 											</li>
-											<li value="max">
-												<a tabindex="-1" href="#">最大值</a>
+											<li data-calcfunc="max">
+												<a href="#">最大值</a>
 											</li>
-											<li value="min">
-												<a tabindex="-1" href="#">最小值</a>
+											<li data-calcfunc="min">
+												<a href="#">最小值</a>
 											</li>
-											<li value="median">
-												<a tabindex="-1" href="#">中位值</a>
+											<li data-calcfunc="median">
+												<a href="#">中位值</a>
 											</li>
 							          	
 							          	<%}%>
 							        </ul>
+								</li>
+								<li class="coordinate-kind coordinate-hover">
+									<a href="#" class=""><i class="glyphicon glyphicon-play"></i>&nbsp;类型</a>
+									<ul class="dropdown-menu coordinate-kind">
+										<li class="active" data-kind="F">
+											<a href="#">因子变量(F)</a>
+										</li>
+										<li data-kind="N">
+											<a href="#">数值变量(N)</a>
+										</li>
+										<li data-kind="T">
+											<a href="#">时间变量(T)</a>
+										</li>
+										<li data-kind="G">
+											<a href="#">地理变量(G)</a>
+										</li>
+										<li data-kind="L">
+											<a href="#">逻辑变量(L)</a>
+										</li>
+									</ul>
 								</li>
 								<li class="coordinate-filter"><a href="#"><i class="glyphicon glyphicon-filter"></i>&nbsp;筛选</a></li>
 								<li class="coordinate-remove"><a data-yItem='<%=JSON.stringify(yItem)%>' href="#"><i class="glyphicon glyphicon-remove"></i>&nbsp;移除</a></li>
@@ -88,56 +111,80 @@
 				<div class="axis-wapper">
 				<ul id="x_sortable" ondragover="return false" class="connectedSortable  clearfix">
 					<% _.each(x, function(xItem){ %>
-   					 	<li class="measure" type="measure" data-axisitem='<%=JSON.stringify(xItem)%>'> 
-							<!--(<%=xItem.calcFunc%>)&nbsp;-->
-							<%= xItem.name %>
+   					 	<li title='<%="(" + xItem.calcFunc + ")" + xItem.name %>' class="measure" type="measure" data-axisitem='<%=JSON.stringify(xItem)%>'> 
+							<%if(xItem.calcFunc !== "none"){%>
+								<%= textcut("(" + xItem.calcFunc + ")" + xItem.name, 6) %>
+							<%}else{%>
+								<%= textcut(xItem.name, 6) %>
+							<%}%>
+							
 							<b data-toggle="dropdown" class="glyphicon glyphicon-plus-sign dropdown-toggle"></b>
 							<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-								<li class="coordinate-edit"><a  data-xItem='<%=JSON.stringify(xItem)%>' href="#"><i class="glyphicon glyphicon-edit"></i>&nbsp;编辑</a></li>
-								<li class="coordinate-filter coordinate-hover">
+								<li class="coordinate-edit"><a  data-xItem='<%=JSON.stringify(xItem)%>' href="#"><i class="glyphicon glyphicon-edit"></i>&nbsp;标题</a></li>
+								<li class="coordinate-calc coordinate-hover">
 									<a href="#"><i class="glyphicon glyphicon-play"></i>&nbsp;计算</a>
-									<ul class="dropdown-menu">
-							          	<li value="none" class="active">
-							          		<a tabindex="-1" href="#">无</a>
+									<ul class="dropdown-menu coordinate-calcfunc">
+							          	<li data-calcfunc="none" class="active">
+							          		<a href="#">无</a>
 							          	</li>
 							          	<% if(xItem.kind == 'T'){%>
-							          		<li value="year">
-												<a tabindex="-1" href="#">年</a>
+							          		<li data-calcfunc="year">
+												<a href="#">年</a>
 											</li>
-											<li value="month">
-												<a tabindex="-1" href="#">月</a>
+											<li data-calcfunc="month">
+												<a href="#">月</a>
 											</li>
-											<li value="day">
-												<a tabindex="-1" href="#">日</a>
+											<li data-calcfunc="day">
+												<a href="#">日</a>
 											</li>
-											<li value=hour">
-												<a tabindex="-1" href="#">小时</a>
+											<li data-calcfunc=hour">
+												<a href="#">小时</a>
 											</li>
-											<li value="minute">
-												<a tabindex="-1" href="#">分钟</a>
+											<li data-calcfunc="minute">
+												<a href="#">分钟</a>
 											</li>
 							          	<%}else{%>
-							          		<li value="sum">
-												<a tabindex="-1" href="#">求和</a>
+							          		<li data-calcfunc="sum">
+												<a href="#">求和</a>
 											</li>
-											<li value="count">
-												<a tabindex="-1" href="#">统计个数</a>
+											<li data-calcfunc="count">
+												<a href="#">统计个数</a>
 											</li>
-											<li value="mean">
-												<a tabindex="-1" href="#">平均值</a>
+											<li data-calcfunc="mean">
+												<a href="#">平均值</a>
 											</li>
-											<li value="max">
-												<a tabindex="-1" href="#">最大值</a>
+											<li data-calcfunc="max">
+												<a href="#">最大值</a>
 											</li>
-											<li value="min">
-												<a tabindex="-1" href="#">最小值</a>
+											<li data-calcfunc="min">
+												<a href="#">最小值</a>
 											</li>
-											<li value="median">
-												<a tabindex="-1" href="#">中位值</a>
+											<li data-calcfunc="median">
+												<a href="#">中位值</a>
 											</li>
 							          	
 							          	<%}%>
 							        </ul>
+								</li>
+								<li class="coordinate-kind coordinate-hover">
+									<a href="#" class=""><i class="glyphicon glyphicon-play"></i>&nbsp;类型</a>
+									<ul class="dropdown-menu coordinate-kind">
+										<li class="active" data-kind="F">
+											<a href="#">因子变量(F)</a>
+										</li>
+										<li data-kind="N">
+											<a href="#">数值变量(N)</a>
+										</li>
+										<li data-kind="T">
+											<a href="#">时间变量(T)</a>
+										</li>
+										<li data-kind="G">
+											<a href="#">地理变量(G)</a>
+										</li>
+										<li data-kind="L">
+											<a href="#">逻辑变量(L)</a>
+										</li>
+									</ul>
 								</li>
 								<li class="coordinate-filter"><a href="#"><i class="glyphicon glyphicon-filter"></i>&nbsp;筛选</a></li>
 								<li class="coordinate-remove"><a data-xItem='<%=JSON.stringify(xItem)%>' href="#"><i class="glyphicon glyphicon-remove"></i>&nbsp;移除</a></li>

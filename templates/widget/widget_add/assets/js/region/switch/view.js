@@ -34,7 +34,6 @@ define([
 			childViewContainer: ".workbooks",
 			events: {
 				"click .new-workbook"    : "newWorkBook",
-				"click .remove-workbook" : "removeWorkBook"
 			},
 			onShow: function(){
 				console.log("show");
@@ -51,16 +50,6 @@ define([
 			newWorkBook: function(){
 				this.trigger("switch:new");
 			},
-			/**
-			 * 删除选中工作簿
-			 */
-			removeWorkBook: function(){
-				if($(".workbook").length == 1){
-					return;
-				}
-				this.trigger("switch:remove", $(".selected-workbook").index());
-				
-			}
 		})
 		
 	});
