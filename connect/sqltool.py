@@ -294,6 +294,7 @@ class SqlRelation():
         expr = and_(*units) if len(units) > 1 else units[0]
         return expr
 
+
     def cvtLastPeriod(self, factor, type, length):
         obj = self.cvtElementFactor(factor)
         pdb.set_trace()

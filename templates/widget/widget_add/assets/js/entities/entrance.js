@@ -18,9 +18,18 @@ define([
             merge:              function() {
                 var data = {};
                 $.each(this.get('list'), function(i, m) {
-                    data = _.extend(data, m.toJSON())
+                	try{
+                		/*
+                		* 由于过滤器的实体设计的attributes不是所有都是服务器所需要的数据，所以写了toJson方法
+                		* 其只json化服务器所需要的数据，即filters属性
+                		*/
+                		data = _.extend(data, m.toJson());
+                	}catch(e){
+                		data = _.extend(data, m.toJSON());
+                	}
+                   
                 })
-                return data
+                return data;
             },
 
             register:           function(model, eventname) {
