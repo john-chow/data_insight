@@ -199,7 +199,7 @@ def handleDistinct(request):
     try:
         hk  = request.session.get('hk')
         st  = SqlExecutorMgr.stRestore(hk)
-        sql_obj = st.getSwither().cvtDistinct(factor)
+        sql_obj = st.getSwither().makeSelectSql([factor], {'distinct': True})
         data = st.execute(sql_obj).fetchall()
         result = zip(*data)[0]
     except ExternalDbModel.DoesNotExist, e:

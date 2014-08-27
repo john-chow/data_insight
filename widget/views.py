@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from widget.models import WidgetModel, ExternalDbModel, REFRESH_CHOICES
 from widget.echart import EChartManager
-from widget.factor import FactorCreator, ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE, ClauseCreator
+from widget.factor import FactorFactory, Factor, Clause, EXPRESS_FACTOR_KEYS_TUPLE
 from connect.sqltool import SqlExecutorMgr, SqlObjReader
 from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb, cleanDataFromDb
 from common.log import logger
@@ -263,7 +263,7 @@ def reqTimelyData(request, wi_id):
                 , time_factor.getProperty(Protocol.Kind)
                 , 'max'
             )))
-            latest_time_obj = st.makeSelectSql([ElementFactor(**factor_dict)])
+            latest_time_obj = st.makeSelectSql([Factor(**factor_dict)])
             sql_obj = origin_sql_obj.where(time_column_obj == latest_time_obj)
 
         data_from_db = st.execute(sql_obj).fetchall()
@@ -412,7 +412,7 @@ def extractFactor(req_data):
     axis_factor_list = []
     for idx, col_element in enumerate(row_kind_attr_list + col_kind_attr_list):
         element_dict = {key:col_element[key] for key in EXPRESS_FACTOR_KEYS_TUPLE}
-        factor = ElementFactor(**element_dict)
+        factor = Factor(**element_dict)
         if idx < len(row_kind_attr_list):
             factor.setBelongToAxis('row')
         else:
@@ -429,7 +429,7 @@ def extractFactor(req_data):
         color_attr_column = color_dict.get('column', u'')
         color_dict = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
                                 (color_attr_table, color_attr_column, -1, u'')))
-        factor = ElementFactor(**color_dict)
+        factor = Factor(**color_dict)
         factor.setBelongToAxis('group')
         group_factor_list.append(factor)
 
@@ -782,9 +782,9 @@ class FactorHandler():
             [left, op, right] = map(lambda x: item.get(x), ( \
                     'field', 'operator', 'value' \
                 ))
-            lfactor = FactorCreator.make(left)
-            rfactor = FactorCreator.make(right)
-            clause = ClauseCreator.make(lfactor, rfactor, op, None)
+            lfactor = FactorFactory.make(left)
+            rfactor = FactorFactory.make(right)
+            clause = Clause.make(lfactor, rfactor, op, None)
             filter_factors.append(clause)
 
 

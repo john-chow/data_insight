@@ -20,11 +20,11 @@ EXPRESS_FACTOR_KEYS_TUPLE = \
         (Protocol.Table, Protocol.Attr, Protocol.Kind, Protocol.Func)
 
 
-class FactorCreator():
+class FactorFactory():
     @ classmethod
-    def make(cls, kwargs):
+    def make(cls, arg):
         '''
-        创建Factor对象
+        创建数据表示模型
         '''
 
         '''
@@ -33,20 +33,20 @@ class FactorCreator():
             return NumericFactor(kwargs)
         '''
 
-        if isinstance(kwargs, Number):
-            return OneValueFactor(kwargs)
-        elif isinstance(kwargs, list) and '-' != kwargs[0]:
-            return SeriesFactor(kwargs)
-        elif isinstance(kwargs, list) and '-' == kwargs[0]:
-            low, high = kwargs[1], kwargs[2]
-            return RangeFactor(low, high)
-        elif isinstance(kwargs, dict) \
-                and isSublist(kwargs.keys(), list(EXPRESS_FACTOR_KEYS_TUPLE)):
-            return ElementFactor(**kwargs)
-        elif isinstance(kwargs, dict) \
-                and isSublist(kwargs.keys(), ['type', 'length']):
-            type, length = kwargs['type'], kwargs['length']
-            return TimeFactor(type, length)
+        if isinstance(arg, Number):
+            return OneValue(arg)
+        elif isinstance(arg, list) and '-' != arg[0]:
+            return SeriesValue(arg)
+        elif isinstance(arg, list) and '-' == arg[0]:
+            low, high = arg[1], arg[2]
+            return RangeValue(low, high)
+        elif isinstance(arg, dict) \
+                and isSublist(arg.keys(), list(EXPRESS_FACTOR_KEYS_TUPLE)):
+            return Factor(**arg)
+        elif isinstance(arg, dict) \
+                and isSublist(arg.keys(), ['unit', 'length']):
+            unit, length = arg['unit'], arg['length']
+            return TimeFactor(unit, length)
         else:
             raise Exception('uuuuuuuuuu')
 
@@ -60,9 +60,9 @@ class FactorCreator():
         # 原型是tuple，证明是列对象；如果只是数值，那么就是数字对象
         if isinstance(factor_prototype, tuple):
             dict_factor = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, factor_prototype))
-            return FactorCreator.make(**dict_factor)
+            return FactorFactory.make(**dict_factor)
         else:
-            return FactorCreator.make(**{'num': factor_prototype})
+            return FactorFactory.make(**{'num': factor_prototype})
 
 
 class Factor():
@@ -121,16 +121,23 @@ class Factor():
 '''
 一个值的基础类
 '''
+OneValue = namedtuple('OneValue', ('value'))
+
+'''
 class OneValueFactor(Factor):
     def __init__(self, value):
         self.value = value
 
     def value(self):
         return self.value
+'''
 
 
 '''
 一系列值的基础类
+'''
+SeriesValue = namedtuple('SeriesValue', ('values'))
+
 '''
 class SeriesFactor(Factor):
     def __init__(self, values):
@@ -140,10 +147,14 @@ class SeriesFactor(Factor):
 
     def value(self):
         return self.values
+'''
 
 
 '''
 一个范围的值
+'''
+RangeValue = namedtuple('RangeValue', ('low', 'high'))
+
 '''
 class RangeFactor(Factor):
     def __init__(self, low, high):
@@ -154,8 +165,11 @@ class RangeFactor(Factor):
 
     def value(self):
         return self.low, self.high
+'''
 
+TimeValue = namedtuple('TimeValue', ('unit', 'number'))
 
+'''
 class TimeFactor(Factor):
     def __init__(self, type, number):
         self.type = type
@@ -163,9 +177,10 @@ class TimeFactor(Factor):
 
     def value(self):
         return self.type, self.number
+'''
 
 
-class ElementFactor(Factor):
+class Factor(Factor):
     def __init__(self, **kwargs):
         map(lambda x: setattr(self, x, kwargs[x]), \
             EXPRESS_FACTOR_KEYS_TUPLE)
@@ -268,6 +283,20 @@ OPERATOR_LIST = ['<', '>', '<>', '<=', '>=', '==']
 '''
 封装表达式
 '''
+class Clause():
+    def __init__(self, lfactor, rfactor, op, overplus):
+        self.left = lfactor
+        self.right = rfactor
+        self.op = op
+        self.overplus = overplus
+
+    def getLeft(self):
+        return self.left
+
+    def getRight(self):
+        return self.right
+
+'''
 class ClauseCreator():
     @classmethod
     def make(cls, lfactor, rfactor, op, overplus):
@@ -282,21 +311,6 @@ class ClauseCreator():
         else:
             pass
 
-
-class Clause():
-    def __init__(self, lfactor, rfactor, op, overplus):
-        self.left = lfactor
-        self.right = rfactor
-        self.op = op
-        self.overplus = overplus
-
-    def getLeft(self):
-        return self.left
-
-    def getRight(self):
-        return self.right
-
-
 class CalcClause(Clause):
     pass
 
@@ -308,30 +322,8 @@ class RangeClause(Clause):
 
 class TimeClause(Clause):
     pass
-
-
-
 '''
-封装列变量的值范围
-'''
-class FactorCalculation():
-    def __init__(self, lf, rf, oper):
-        if (not lf) or (not rf) or (not oper in OPERATOR_LIST):
-            raise Exception('yyyyyyyyyyyy')
-        self.lf = lf
-        self.rf = rf
-        self.oper = oper
 
-    def __str__(self):
-        '''
-        转换到字符串形式，如 sum(id) > 100
-        '''
-        # 注意要考虑lf类型，是数字还是时间.......
 
-    def cvtToSqlPart(self):
-        '''
-        转换到sql部分
-        '''
-        
 
 
