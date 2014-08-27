@@ -27,7 +27,6 @@ define([
 				var self = this;
 				var whichFilter = this.model.get("whichFilter") + 1;
 				//this.$el.find(".myfilter li:nth-child(" + whichColumn +")").addClass("select-filter");
-				$(".myfilter li:nth-child(" + whichFilter +")").addClass("select-filter");
 				//当字段拖到过滤器的时候触发
 				this.$el.find(".myfilter").droppable({
 					drop: function(event, ui){
@@ -44,21 +43,21 @@ define([
 				this.$el.find(".myfilter-values input[type=checkbox]").click(function(){
 					if($(this).prop("checked")){
 						//通知model选中过滤器的某个值
-						self.model.trigger("filter:select", $(this).val());
+						self.model.trigger("value:select", $(this).val());
 						$("<li data-value='" + $(this).val() +"'>[" + $(this).val() +"]</li>").appendTo(self.$el.find(".myfilter-select-or-not"));
 					}else{
 						//通知model取消选中过滤器的某个值
-						self.model.trigger("filter:notselect", $(this).val());
+						self.model.trigger("value:notselect", $(this).val());
 						self.$el.find(".myfilter-select-or-not li:contains('[" + $(this).val() +"]')").remove();
 					}
 					
 				});
 				//当操作改变的时候触发
 				this.$el.find(".select-or-not").on("change", function(){
-					if(self.$el.find(".myfilter-select-or-not li").length > 0){
+					//if(self.$el.find(".myfilter-select-or-not li").length > 0){
 						//通知model值是选中还是排除
 						self.model.trigger("operate:change", $(this).val());
-					}
+					//}
 				});
 				
 				//当清空选中的时候触发
@@ -100,17 +99,14 @@ define([
 					self.model.trigger("filter:remove", whichFilter);
 				});
 				
-				//当选中的过滤器选择了计算类型后出发
+				//当选中的过滤器选择了计算类型后触发
 				this.$el.find(".myfilter>li>ul>li.filter-calcFunc>ul>li").on("click", function(){
-					var whichFilter = $(this).parents(".filter-operate").index();
 					var calcFunc = $(this).data("calcfunc");
-					var data = {
-							whichFilter: whichFilter, calcFunc: calcFunc
-					}
-					//通知model删除选中过滤器
-					self.model.trigger("calcFunc:change", data);
-					//矫正显示的计算方式
-					self.correctShow(calcFunc, whichFilter);
+					//矫正显示选中的计算方式
+					self.$el.find(".filter-calcFunc >ul > li.active").removeClass("active");
+					$(this).addClass("active");
+					//通知model选中过滤器计算方式改变
+					self.model.trigger("calcFunc:change", calcFunc);
 				})
 				
 				//监听过滤器是数值变量的时候输入最大最小值的输入
@@ -138,15 +134,35 @@ define([
 					//通知model获取数值变量过滤器的下限
 					self.model.trigger("hightRange:add", heightRange);
 				})
-				
+				//矫正显示的计算方式
+				self.correctShow();
 			},
 			/**
 			 * 矫正显示的内容，使其与过滤器实际的值相吻合，比如数值变量的过滤器有个计算方式的属性，则显示的计算方式应该与实际的同步
-			 * @param calcFunc:选中的计算方式 whichFilter: 选中的过滤器
+			 * 
 			 */
-			correctShow: function(calcFunc, whichFilter){
-				this.$el.find(".filter-calcFunc >ul > li.active").removeClass("active");
-				this.$el.find(".filter-calcFunc >ul > li[data-calcfunc=" + calcFunc + "]").get(whichFilter).className = "active";
+			correctShow: function(){
+				try{
+					var whichFilter = this.model.get("whichFilter");
+					var $currentFilter = this.$el.find(".myfilter > li:nth-child(" + (whichFilter+1) +")").addClass("select-filter");
+					$(".myfilter").animate({scrollTop: $currentFilter.position().top}, 100);
+					var calcFunc = this.model.getCurrentFilter().field.calcFunc;
+					this.$el.find(".filter-calcFunc >ul > li.active").removeClass("active");
+					this.$el.find(".select-filter ul > li[data-calcfunc=" + calcFunc + "]").addClass("active");
+					this.$el.find(".select-or-not").val(this.model.getCurrentFilter().operator);
+				}catch(e){
+					console.log("初始化过滤器");
+				}
+				
+				//在x轴或者y轴元素过多的时候会出现纵滚动条，对每个x/y轴元素点击出现下拉框的时候，控制位置
+				this.$el.find(".filter-operate").each(function(){
+					$(this).children("b").click(function(){
+						var left = $(this).offset().left - 50;
+						var top = $(this).offset().top + 18;
+						$(this).next().css({left: left, top: top})
+					})
+				})
+				
 			}
 		})
 		
@@ -278,23 +294,6 @@ define([
 					});
 				})
 				
-				//在x轴或者y轴元素过多的时候会出现纵滚动条，对每个x/y轴元素点击出现下拉框的时候，控制位置
-				this.$el.find("#x_sortable > li > b").each(function(){
-					$(this).click(function(){
-						var left = $(this).offset().left - 90;
-						var top = $(this).offset().top + 18;
-						$(this).next().css({left: left, top: top})
-					})
-				})
-				this.$el.find("#y_sortable > li > b").each(function(){
-					$(this).click(function(){
-						var left = $(this).offset().left - 90;
-						var top = $(this).offset().top + 18;
-						$(this).next().css({left: left, top: top})
-					})
-				})
-				
-				
 				//监听x轴y轴中某元素点击进行某个计算的时候触发
 				this.$el.find("#x_sortable .coordinate-calcfunc > li").on("click", function(){
 					if($(this).hasClass("active")){
@@ -381,6 +380,21 @@ define([
 				
 				this.$el.find(".axis-wapper").outerWidth(this.$el.find(".design-column").outerWidth() - 76);
 				
+				//在x轴或者y轴元素过多的时候会出现纵滚动条，对每个x/y轴元素点击出现下拉框的时候，控制位置
+				this.$el.find("#x_sortable > li > b").each(function(){
+					$(this).click(function(){
+						var left = $(this).offset().left - 90;
+						var top = $(this).offset().top + 18;
+						$(this).next().css({left: left, top: top})
+					})
+				})
+				this.$el.find("#y_sortable > li > b").each(function(){
+					$(this).click(function(){
+						var left = $(this).offset().left - 90;
+						var top = $(this).offset().top + 18;
+						$(this).next().css({left: left, top: top})
+					})
+				})
 				
 			},
 			/*

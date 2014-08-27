@@ -21,6 +21,23 @@ define([
 			},
 		})
 		
+		/**
+		 * 真正的过滤器，提交给服务器的数据就放在这个model中
+		 */
+		Entities.BaseFilter = Backbone.Model.extend({
+			defaults: {
+				/*
+				 * 过滤器列表,元素格式{filed:{name:xxx,calcFunc:xxx,table:xxx,kind:xxx},operator: "bw|in|not_in", value: []}
+				 */
+				filters: [],
+				whichFilter: 0, //当前选中的过滤器
+				values: [],//目前只放入因子变量字段对应表中的所有值,元素是个数组
+			},
+		})
+		
+		/**
+		 * 用于和view打交道的过滤器
+		 */
 		Entities.Filter = Backbone.Model.extend({
 			defaults: {
 				/*
@@ -34,6 +51,30 @@ define([
 			    var arr = _.clone(this.get(arg));
 			    arr.push(val);
 			    this.set(arg, arr, options);
+			},
+			/*toJSON: function(options){
+				options = $.extend({}, options);
+				var toJsonAttibutes = [];
+				$.each(options, function(attribute, isToJson){
+					if(isToJson){
+						toJsonAttibutes.push(attribute);
+					}
+				})
+				var jsonObj = {}, self = this;
+				$.each(toJsonAttibutes, function(i, attribute){
+					eval("jsonObj." + attribute + "= self.attributes." + attribute);
+				})
+				if(Object.keys(jsonObj).length == 0){
+					return _.clone(this.attributes);
+				}else{
+					return _.clone(jsonObj);
+				}
+				
+			},*/
+			toJson: function(){
+				return _.clone({
+					filters: this.attributes.filters
+				})
 			},
 			initialize: function(){
 				var self = this;
@@ -70,48 +111,31 @@ define([
 						});
 					}else if(data.kind == "N"){//如果是数值变量
 						self.push("values", []);//放入空的
-						this.get("filters")[this.get("whichFilter")].operator = 'bw';
-						this.get("filters")[this.get("whichFilter")].value = ["", ""];
+						this.getCurrentFilter().operator = 'bw';
+						this.getCurrentFilter().value = ["", ""];
 						//通知视图重新绘画,展现选中的过滤器值
 						this.trigger("filter:rerender");
 					}
 				});
 				//监听选中过滤器的某个值
-				this.on("filter:select", function(operator){
-					this.get("filters")[this.get("whichFilters")].operator = operator;
+				this.on("value:select", function(value){
+					this.getCurrentFilter().value.push(value);
 					//通知入口model过滤器改变
-					Entities.trigger("filter:change", this.toJSON());
+					Entities.trigger("filter:change", this.toJson());
 				})
 				//监听取消选中过滤器的某个值
-				this.on("filter:notselect", function(value){
-					//选中
-					if(this.get("operators")[this.get("whichFilter")] == "include"){
-						this.get("values")[this.get("whichFilter")].get("inValues").remove(value);
-					}
-					//排除
-					else if(this.get("operators")[this.get("whichFilter")] == "exclude"){
-						this.get("values")[this.get("whichFilter")].get("exValues").remove(value);
-					}
+				this.on("value:notselect", function(value){
+					this.getCurrentFilter().value.remove(value);
 					//通知入口model过滤器改变
-					Entities.trigger("filter:change", this.toJSON());
+					Entities.trigger("filter:change", this.toJson());
 				})
 				
 				//监听操作改变
 				this.on("operate:change", function(operate){
-					if(this.get("filters").length > 0){
-						//之前排除，现在选中的情况
-						if(operate == "include"){
-							var beforeExValues = this.get("values")[this.get("whichFilter")].get("exValues");
-							this.get("values")[this.get("whichFilter")].set("inValues", beforeExValues);
-							this.get("values")[this.get("whichFilter")].set("exValues", []);
-						}else if(operate == "exclude"){//之前选中，现在排除的情况
-							var beforeInValues = this.get("values")[this.get("whichFilter")].get("inValues");
-							this.get("values")[this.get("whichFilter")].set("exValues", beforeInValues);
-							this.get("values")[this.get("whichFilter")].set("inValues", []);
-						}
-						this.get("operators")[this.get("whichFilter")] = operate;
+					this.getCurrentFilter().operator = operate;
+					if(this.getCurrentFilter().value.length > 0){
 						//通知入口model过滤器操作改变
-						Entities.trigger("filter:change", this.toJSON());
+						Entities.trigger("filter:change", this.toJson());
 					}
 				});
 				
@@ -121,20 +145,14 @@ define([
 					this.set("filters", [], {silent: true});
 					this.set("whichFilter", 0);
 					//通知入口model过滤器清空
-					Entities.trigger("filter:change", this.toJSON());
+					Entities.trigger("filter:change", this.toJson());
 				})
 				
 				//监听清空选中的值
 				this.on("values:clear", function(){
-					if(this.get("operators")[this.get("whichFilter")] == "include"){
-						//清空选中值
-						this.get("values")[this.get("whichFilter")].set("inValues", []);
-					}else if(this.get("operators")[this.get("whichFilter")] == "exclude"){
-						//清空排除值
-						this.get("values")[this.get("whichFilter")].set("exValues", []);
-					}
+					this.getCurrentFilter().value = [];
 					//通知入口model过滤器清空了选中的值
-					Entities.trigger("filter:change", this.toJSON());
+					Entities.trigger("filter:change", this.toJson());
 				})
 				
 				//监听选中过滤器
@@ -145,35 +163,40 @@ define([
 				
 				//监听删除过滤器
 				this.on("filter:remove", function(whichFilter){
+					//whichFilter是下标
 					this.get("values").del(whichFilter);
 					this.get("filters").del(whichFilter);
-					this.get("operators").del(whichFilter);
 					this.set("whichFilter", 0);
 					this.trigger("filter:rerender");
 					//通知入口model删除过滤器
-					Entities.trigger("filter:change", this.toJSON());
+					Entities.trigger("filter:change", this.toJson());
 				})
 				
 				//监听改变过滤器计算方式的改变
-				this.on("calcFunc:change", function(data){
-					this.get("filters")[data.whichFilter].calcFunc = data.calcFunc;
+				this.on("calcFunc:change", function(calcFunc){
+					this.getCurrentFilter().field.calcFunc = calcFunc;
 					//通知入口model删除过滤器
-					Entities.trigger("filter:change", this.toJSON());
+					Entities.trigger("filter:change", this.toJson());
 				})
 				
 				//监听获取数值变量过滤器的最低值
 				this.on("lowRange:add", function(lowRange){
-					this.get("filters")[this.get("whichFilter")].value[0] = lowRange;
+					this.getCurrentFilter().value[0] = lowRange;
 					//通知入口model输入因子变量过滤器的下限
-					Entities.trigger("filter:change", this.toJSON());
+					Entities.trigger("filter:change", this.toJson());
 				})
 				//监听获取数值变量过滤器的最高值
 				this.on("hightRange:add", function(hightRange){
-					this.get("filters")[this.get("whichFilter")].value[1] = hightRange;
+					this.getCurrentFilter().value[1] = hightRange;
 					//通知入口model输入因子变量过滤器的下限
-					Entities.trigger("filter:change", this.toJSON());
+					Entities.trigger("filter:change", this.toJson());
 				})
 
+			},
+			getCurrentFilter: function(){
+				if(this.get("filters").length > 0){
+					return this.get("filters")[this.get("whichFilter")];
+				}
 			},
 			/**
 			 * 抓取数据，这里触发widget模型去后台抓取数据

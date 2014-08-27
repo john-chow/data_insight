@@ -634,21 +634,24 @@ border: 1px solid #CAD8B7;
 	overflow-y: auto;
 	margin-bottom: 13px;
 	list-style: none;
+	position: relative;
 }
 .myfilter{
 	padding-left: 5px;
+	padding-bottom: 5px;
 }
 .myfilter>li{
 	background: rgb(183, 219, 250);
 	float: left;
-	width: 95%;
-	padding: 0 7px 2px 14px;
+	width: 90%;
+	padding: 0 4px 2px 14px;
 	margin-right: 10px;
 	margin-top: 5px;
 	border-radius: 3px;
 	-webkit-border-radius: 3px;
 	-moz-border-radius: 3px;
 	border: 1px solid rgb(183, 219, 250);
+	z-index: 100;
 }
 .myfilter>li.select-filter{
 	background: #AFC6E5;
@@ -656,7 +659,7 @@ border: 1px solid #CAD8B7;
 }
 .myfilter li>b{
 	float: right;
-	visibility: hidden;
+	opacity: .4;
 	width: 14px;
 	height: 14px;
 	margin-top: 4px;
@@ -664,8 +667,8 @@ border: 1px solid #CAD8B7;
 .myfilter li:hover{
 	border-color: #5A97BF;
 }
-.myfilter li:hover>b{
-	visibility: visible;
+.myfilter li>b:hover{
+	opacity: 1;
 	cursor: pointer;
 }
 .myfilter-values,.myfilter-select-or-not{

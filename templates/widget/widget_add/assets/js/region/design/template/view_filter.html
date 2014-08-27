@@ -35,7 +35,7 @@
 						</ul>
 						</li>
 						<%}else if(filter.field.kind == "F"){%>
-						<li class="filter-none-calcFunc">
+						<li class="filter-calcFunc filter-none-calcFunc">
 							<a href="#"><i class="glyphicon glyphicon-play"></i>&nbsp;计算</a>
 						<%}%>
 						<li class="filter-remove"><a href="#"><i class="glyphicon glyphicon-remove">删除</i></a></li>
@@ -74,8 +74,8 @@
 			<a class="pull-right clear-select" href="#">清空</a>
 			</p>
 			<ul class="myfilter-select-or-not"> 
-			<% if(filters.length > 0 && filters[whichFilter].field.value.length > 0){
-				 _.each(filters[whichFilter].field.value, function(value, index){%>
+			<% if(filters.length > 0 && filters[whichFilter].value.length > 0){
+				 _.each(filters[whichFilter].value, function(value, index){%>
 					<li data-value="<%= value%>"> [<%= value%>]</li>
 				<%})
 			}%> 
