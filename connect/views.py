@@ -13,7 +13,7 @@ from django_sse.redisqueue import send_event
 
 from widget.forms import ConnDbForm
 from widget.models import ExternalDbModel
-from widget.factor import FactorCreator, EXPRESS_FACTOR_KEYS_TUPLE
+from widget.factor import FactorFactory, EXPRESS_FACTOR_KEYS_TUPLE
 from connect.models import FieldsInfoModel
 from connect.file import Text, Excel
 from connect.sqltool import SqlExecutorMgr, SqlExecutor
@@ -194,12 +194,14 @@ def handleField(request):
 def handleDistinct(request):
     req = json.loads(request.GET.get(Protocol.FilterColumn))
     info = map(lambda x: (x, req.get(x)), EXPRESS_FACTOR_KEYS_TUPLE)
-    factor = FactorCreator.make(dict(info))
+    factor = FactorFactory.make(dict(info))
 
     try:
         hk  = request.session.get('hk')
         st  = SqlExecutorMgr.stRestore(hk)
-        sql_obj = st.getSwither().cvtDistinct(factor)
+        sql_obj = st.getSwither().makeSelectSql( \
+            [factor], [], [], distinct = True \
+        )
         data = st.execute(sql_obj).fetchall()
         result = zip(*data)[0]
     except ExternalDbModel.DoesNotExist, e:

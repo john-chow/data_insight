@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from widget.models import WidgetModel, ExternalDbModel, REFRESH_CHOICES
 from widget.echart import EChartManager
-from widget.factor import FactorCreator, ElementFactor, EXPRESS_FACTOR_KEYS_TUPLE, Clause
+from widget.factor import FactorFactory, Factor, Clause, EXPRESS_FACTOR_KEYS_TUPLE
 from connect.sqltool import SqlExecutorMgr, SqlObjReader
 from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb, cleanDataFromDb
 from common.log import logger
@@ -174,7 +174,7 @@ def handleDraw(request):
     hk = request.session.get('hk')
     try:
         producer = DrawDataProducer(hk)
-        data    = producer.produce(req_data)
+        data = producer.produce(req_data)
     except Exception, e:
         logger.debug("catch Exception: %s" % e)
         logExcInfo()
@@ -263,7 +263,7 @@ def reqTimelyData(request, wi_id):
                 , time_factor.getProperty(Protocol.Kind)
                 , 'max'
             )))
-            latest_time_obj = st.makeSelectSql([ElementFactor(**factor_dict)])
+            latest_time_obj = st.makeSelectSql([Factor(**factor_dict)])
             sql_obj = origin_sql_obj.where(time_column_obj == latest_time_obj)
 
         data_from_db = st.execute(sql_obj).fetchall()
@@ -412,7 +412,7 @@ def extractFactor(req_data):
     axis_factor_list = []
     for idx, col_element in enumerate(row_kind_attr_list + col_kind_attr_list):
         element_dict = {key:col_element[key] for key in EXPRESS_FACTOR_KEYS_TUPLE}
-        factor = ElementFactor(**element_dict)
+        factor = Factor(**element_dict)
         if idx < len(row_kind_attr_list):
             factor.setBelongToAxis('row')
         else:
@@ -429,7 +429,7 @@ def extractFactor(req_data):
         color_attr_column = color_dict.get('column', u'')
         color_dict = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
                                 (color_attr_table, color_attr_column, -1, u'')))
-        factor = ElementFactor(**color_dict)
+        factor = Factor(**color_dict)
         factor.setBelongToAxis('group')
         group_factor_list.append(factor)
 
@@ -759,7 +759,7 @@ class FactorHandler():
         msn_factors, msu_factors = [], []
         for idx, col_element in enumerate(row_kind_attr_list + col_kind_attr_list):
             element_dict = {key:col_element[key] for key in EXPRESS_FACTOR_KEYS_TUPLE}
-            factor = ElementFactor(**element_dict)
+            factor = Factor(**element_dict)
             if idx < len(row_kind_attr_list):
                 factor.setBelongToAxis('row')
             else:
@@ -775,13 +775,13 @@ class FactorHandler():
 
         # 过滤条件部分
         filter_factors = []
-        filters = req.get('filter', [])
+        filters = req.get('filters', [])
         for item in filters:
             [left, op, right] = map(lambda x: item.get(x), ( \
                     'field', 'operator', 'value' \
                 ))
-            lfactor = FactorCreator.make(left)
-            rfactor = FactorCreator.make(right)
+            lfactor = FactorFactory.make(left)
+            rfactor = FactorFactory.make(right, op)
             clause = Clause(lfactor, rfactor, op, None)
             filter_factors.append(clause)
 
@@ -794,7 +794,7 @@ class FactorHandler():
             color_attr_column = color_dict.get(Protocol.Attr, '')
             color_dict = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
                                     (color_attr_table, color_attr_column, -1, '')))
-            factor = ElementFactor(**color_dict)
+            factor = Factor(**color_dict)
             factor.setBelongToAxis('group')
             group_factors.append(factor)
 

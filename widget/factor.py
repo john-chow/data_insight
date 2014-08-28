@@ -7,6 +7,7 @@ Factor类:
 import ast
 import re
 from numbers import Number
+from collections import namedtuple
 
 from common.tool import isSublist
 from common.log import logger
@@ -19,11 +20,11 @@ EXPRESS_FACTOR_KEYS_TUPLE = \
         (Protocol.Table, Protocol.Attr, Protocol.Kind, Protocol.Func)
 
 
-class FactorCreator():
+class FactorFactory():
     @ classmethod
-    def make(cls, kwargs):
+    def make(cls, arg, op = None):
         '''
-        创建Factor对象
+        创建数据表示模型
         '''
 
         '''
@@ -32,16 +33,22 @@ class FactorCreator():
             return NumericFactor(kwargs)
         '''
 
-        if isinstance(kwargs, Number):
-            return OneValueFactor(kwargs)
-        elif isinstance(kwargs, list) and '-' != kwargs[0]:
-            return SeriesFactor(kwargs)
-        elif isinstance(kwargs, list) and '-' == kwargs[0]:
-            low, high = kwargs[1], kwargs[2]
-            return RangeFactor(low, high)
-        elif isinstance(kwargs, dict) \
-                and isSublist(kwargs.keys(), list(EXPRESS_FACTOR_KEYS_TUPLE)):
-            return ElementFactor(**kwargs)
+        if isinstance(arg, Number):
+            return OneValue(arg)
+        elif isinstance(arg, list) and 'in' == op:
+            return SeriesValue(arg)
+        elif isinstance(arg, list) and 'bw' == op:
+            v1, v2 = arg
+            low = float(v1) if v1 else None
+            high = float(v2) if v2 else None
+            return RangeValue(low, high)
+        elif isinstance(arg, dict) \
+                and isSublist(arg.keys(), list(EXPRESS_FACTOR_KEYS_TUPLE)):
+            return Factor(**arg)
+        elif isinstance(arg, dict) \
+                and isSublist(arg.keys(), ['unit', 'length']):
+            unit, length = arg['unit'], arg['length']
+            return TimeValue(unit, length)
         else:
             raise Exception('uuuuuuuuuu')
 
@@ -55,9 +62,9 @@ class FactorCreator():
         # 原型是tuple，证明是列对象；如果只是数值，那么就是数字对象
         if isinstance(factor_prototype, tuple):
             dict_factor = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, factor_prototype))
-            return FactorCreator.make(**dict_factor)
+            return FactorFactory.make(**dict_factor)
         else:
-            return FactorCreator.make(**{'num': factor_prototype})
+            return FactorFactory.make(**{'num': factor_prototype})
 
 
 class Factor():
@@ -113,45 +120,14 @@ class Factor():
             return self.num
 
 
-'''
-一个值的基础类
-'''
-class OneValueFactor(Factor):
-    def __init__(self, value):
-        self.value = value
-
-    def value(self):
-        return self.value
+OneValue    = namedtuple('OneValue', ('value'))
+SeriesValue = namedtuple('SeriesValue', ('values'))
+RangeValue  = namedtuple('RangeValue', ('low', 'high'))
+TimeValue   = namedtuple('TimeValue', ('unit', 'number'))
 
 
-'''
-一系列值的基础类
-'''
-class SeriesFactor(Factor):
-    def __init__(self, values):
-        if not isinstance(values, list):
-            pass
-        self.values = values
 
-    def value(self):
-        return self.values
-
-
-'''
-一个范围的值
-'''
-class RangeFactor(Factor):
-    def __init__(self, low, high):
-        if low > high:
-            pass
-        self.low = low
-        self.high = high
-
-    def value(self):
-        return self.low, self.high
-
-
-class ElementFactor(Factor):
+class Factor(Factor):
     def __init__(self, **kwargs):
         map(lambda x: setattr(self, x, kwargs[x]), \
             EXPRESS_FACTOR_KEYS_TUPLE)
@@ -261,32 +237,10 @@ class Clause():
         self.op = op
         self.overplus = overplus
 
-    def extract(self):
-        return self.left, self.right, self.op, self.overplus
+    def getLeft(self):
+        return self.left
 
-
-
-'''
-封装列变量的值范围
-'''
-class FactorCalculation():
-    def __init__(self, lf, rf, oper):
-        if (not lf) or (not rf) or (not oper in OPERATOR_LIST):
-            raise Exception('yyyyyyyyyyyy')
-        self.lf = lf
-        self.rf = rf
-        self.oper = oper
-
-    def __str__(self):
-        '''
-        转换到字符串形式，如 sum(id) > 100
-        '''
-        # 注意要考虑lf类型，是数字还是时间.......
-
-    def cvtToSqlPart(self):
-        '''
-        转换到sql部分
-        '''
-        
+    def getRight(self):
+        return self.right
 
 

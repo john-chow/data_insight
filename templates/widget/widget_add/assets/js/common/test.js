@@ -4,26 +4,26 @@ define([
     var data = {
         'graph':        'bar'
         , 'x':          [{
-            'name':         'color'
+            'name':         '地区'
             , 'calcFunc':   'none'
-            , 'table':      'diamond'
+            , 'table':      '信用卡'
             , 'kind':       'F'
         }]
         , 'y':          [{
-            'name':         'x'
+            'name':         '消费交易'
             , 'calcFunc':   'sum'
-            , 'table':      'diamond'
+            , 'table':      '信用卡'
             , 'kind':       'N'
         }]
         , 'filter':     [{
             'field':        {
-                'name':         'y'
+                'name':         '消费交易'
                 , 'calcFunc':   'none'
-                , 'table':      'diamond'
+                , 'table':      '信用卡'
                 , 'kind':       'N'
             }
-            , 'operator':   'bw'
-            , 'value':      [5,6]
+            , 'operator':   '>'
+            , 'value':      110
         }]
     };
 

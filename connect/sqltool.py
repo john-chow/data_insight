@@ -2,8 +2,8 @@
 '''
 本文件是用SqlAlchemy实现用Factor对象到数据库操作的转换过程
 SqlExecutor实现用SqlAlchemy代理数据库操作的接口
-SqlRelation实现由数据库及数据表到SqlAlchemy对象的映射模型
-SqlExecutor和SqlRelation是聚合关系
+Convertor实现由数据库及数据表到SqlAlchemy对象的映射模型
+SqlExecutor和Convertor是聚合关系
 '''
 
 
@@ -11,10 +11,11 @@ import sys
 
 from sqlalchemy import create_engine, inspect, Table, MetaData, types, \
                         func, select, extract, Column, engine
+from sqlalchemy.sql.functions import current_date
 from sqlalchemy import *
 
 from widget.models import ExternalDbModel
-from widget.factor import ElementFactor, OneValueFactor, SeriesFactor, RangeFactor
+from widget.factor import Factor, OneValue, SeriesValue, RangeValue, TimeValue
 from common.log import logger
 from common.head import ConnNamedtuple
 from common.tool import logExcInfo
@@ -60,9 +61,9 @@ class SqlExecutor():
         self.insp = None
         self.rf = {}     
 
-        # 聚合SqlRelation，用来存储和实现
+        # 聚合Convertor，用来存储和实现
         self.storage = Storage()
-        self.sql_relation = SqlRelation(self.storage)
+        self.sql_relation = Convertor(self.storage)
 
         if hk:
             self.restore(hk)
@@ -113,7 +114,7 @@ class SqlExecutor():
         """
         连接数据库
         """
-        cnt = u'{kind}://{user}:{pwd}@{host}:{port}/{db}'.format(   \
+        cnt = '{kind}://{user}:{pwd}@{host}:{port}/{db}'.format(   \
             kind = conn_nt.kind, user = conn_nt.user, pwd = conn_nt.pwd, \
             host = conn_nt.ip, port = conn_nt.port, db = conn_nt.db   \
         )
@@ -156,10 +157,10 @@ class SqlExecutor():
                     dm_list.append(i['name'])
 
             tables_info_list.append({
-                u'name':    t
-                , u'dm':    dm_list
-                , u'tm':    tm_list
-                , u'me':    me_list
+                'name':    t
+                , 'dm':    dm_list
+                , 'tm':    tm_list
+                , 'me':    me_list
             })
 
         return tables_info_list
@@ -219,7 +220,7 @@ class SqlExecutor():
 '''
 实现数据库对象到SqlAlchemy对象的映射
 '''
-class SqlRelation():
+class Convertor():
     def __init__(self, storage):
         self.storage = storage
 
@@ -231,53 +232,74 @@ class SqlRelation():
             raise Exception('no selected content')
 
         select_part = self.cvtSelect(selects)
-        s = select(select_part)
+        sql_obj = select(select_part)
 
         if filters:
-            filter_part = self.cvtFilters(filters)
-            s = s.where(filter_part)
+            where_part = self.cvtWhere(filters)
+            sql_obj = sql_obj.where(where_part)
 
         if groups:
             group_part = self.cvtGroup(groups)
-            s = s.group_by(*group_part)
+            sql_obj = sql_obj.group_by(*group_part)
 
-        logger.info(s.compile(compile_kwargs={"literal_binds": True}))
-        return s
+        if kwargs.get('distinct'):
+            sql_obj = sql_obj.distinct()
+
+        logger.info(sql_obj.compile(compile_kwargs={"literal_binds": True}))
+        return sql_obj
 
 
-    def cvtElementFactor(self, factor):
-        if not isinstance(factor, ElementFactor):
+    def cvtFactor(self, factor):
+        if not isinstance(factor, Factor):
             pass
 
-        tablename, columnname, kind, funcname = factor.extract()
-        table           = self.storage.getTable(tablename)
-        if not table.c.has_key(columnname):
-            msg = 'can''t recongnize column name of {0}'.format(columnname)
+        tablename, colname, kind, funcname = factor.extract()
+        table = self.storage.getTable(tablename)
+        if not table.c.has_key(colname):
+            msg = 'can''t recongnize column name of {0}'.format(colname)
             logger.error(msg)
             raise Exception(msg)
 
-        col_obj = table.c.get(columnname)
-        return col_obj
+        obj = table.c.get(colname)
+
+        if Protocol.TimeType == kind:
+            obj = self.cvtTimeField(obj, funcname)
+        elif Protocol.NumericType == kind and Protocol.NoneFunc != funcname:
+            f = self.cvtFunc(funcname)
+            obj = f(obj)
+
+        return obj
 
 
     def cvtClause(self, clause):
-        lf, rf, op, overplus = clause.extract()
-        lexpr = self.cvtElementFactor(lf)
-        if '>' == op:
-            rexpr = rf.value()
-            return lexpr > 5
-        elif 'bw' == op:
-            low, high = rf.value()
-            return between(lexpr, low, high)
-        elif 'in' == op:
-            values = rf.value()
+        lfactor, rfactor = clause.getLeft(), clause.getRight()
+        if isinstance(rfactor, OneValue):
+            lexpr = self.cvtFactor(lfactor)
+            rexpr = rfactor.value
+            return lexpr > rexpr
+        elif isinstance(rfactor, RangeValue):
+            lexpr = self.cvtFactor(lfactor)
+            low, high = rfactor.low, rfactor.high
+            if not low:
+                return lexpr < high
+            elif not high:
+                return lexpr > low
+            else:
+                return between(lexpr, low, high)
+        elif isinstance(rfactor, SeriesValue):
+            lexpr = self.cvtFactor(lfactor)
+            values = rfactor.values
             return lexpr.in_(values)
+        elif isinstance(rfactor, TimeValue):
+            unit, number = rfactor.unit, rfactor.number
+            return self.cvtLastPeriod(lfactor, unit, number)
+        else:
+            pass
 
 
-    def cvtFilters(self, clauses):
+    def cvtWhere(self, clauses):
         units = [self.cvtClause(item) for item in clauses]
         expr = and_(*units) if len(units) > 1 else units[0]
-        pdb.set_trace()
         return expr
 
 
@@ -285,64 +307,39 @@ class SqlRelation():
         '''
         转换sql语句中select后字段part
         '''
-        sel_list    = []
-        for factor in selects:
-            tablename, c_str, kind, cmd = factor.extract()
-            table           = self.storage.getTable(tablename)
-            if not table.c.has_key(c_str):
-                msg = u'can''t recongnize column name of {0}'.format(c_str)
-                logger.error(msg)
-                raise Exception(msg)
-
-            sel_obj = table.c.get(c_str)
-
-            if Protocol.TimeType == kind:
-                sel_obj = self.cvtTimeColumn(sel_obj, cmd)
-            elif Protocol.NumericType == kind and Protocol.NoneFunc != cmd:
-                f       = self.cvtFunc(cmd)
-                sel_obj = f(sel_obj)
-
-            sel_list.append(sel_obj)
-
-        return sel_list
+        return [self.cvtFactor(factor) for factor in selects]
 
 
     def cvtGroup(self, groups):
         '''
         转换sql语句中group by后字段part
         '''
-        group_list  = []
-        for factor in groups:
-            tablename, c_str, kind_str, cmd_str  \
-                    = map(lambda x: factor.getProperty(x), \
-                            [Protocol.Table, Protocol.Attr, Protocol.Kind, Protocol.Func])
-            table   = self.storage.getTable(tablename)
-            if not table.c.has_key(c_str):
-                raise Exception(u'can''t recongnize column name of {0}' \
-                                    .format(c_str))
-
-            col_obj = table.c.get(c_str)
-
-            if Protocol.TimeType == kind_str:
-                # 如果是时间列，那么需要额外处理
-                grp_obj = self.cvtTimeColumn(col_obj, cmd_str)
-            else:
-                grp_obj = col_obj
-
-
-            group_list.append(grp_obj)
-
-        if 0 < len(group_list):
-            return tuple(group_list)
-        else:
-            return None
+        return [self.cvtFactor(factor) for factor in groups]
 
     
-    def cvtOrderByPart(self):
+    def cvtOrderBy(self):
         '''
         转换sql语句中order by后字段part
         '''
         pass
+
+
+    def cvtFunc(self, funcname):
+        if 'sum'   == funcname:
+            f   = func.sum
+        elif 'count'   == funcname:
+            f   = func.count
+        elif 'avg' == funcname:
+            f   = func.avg
+        elif 'max'    == funcname:
+            f   =   func.max
+        elif 'min'    == funcname:
+            f   =   func.min
+        else:
+            logger.err('unknow func str, {0}', funcname)
+            return False
+
+        return f
 
 
     def cvtJoin(self, joins):
@@ -370,49 +367,41 @@ class SqlRelation():
         return myjoin
 
 
-    def cvtTimeColumn(self, col_obj, time_str):
-        if 'year'       == time_str:
-            tc  =   extract('year', col_obj)
-        elif 'month'    == time_str:
-            tc  =   extract('month', col_obj)
-        elif 'day'      == time_str:
-            tc  =   extract('day', col_obj)
-        elif 'hour'     == time_str:
-            tc  =   extract('hour', col_obj)
-        elif 'raw'      == time_str:
-            tc  =   col_obj    
-        elif 'max' == time_str or 'min' == time_str:
-            f  =   self.cvtFunc(time_str)
-            tc  = f(col_obj)
+    def cvtTimeField(self, obj, time_type):
+        if 'year'       == time_type:
+            tc  =   extract('year', obj)
+        elif 'month'    == time_type:
+            tc  =   extract('month', obj)
+        elif 'day'      == time_type:
+            tc  =   extract('day', obj)
+        elif 'hour'     == time_type:
+            tc  =   extract('hour', obj)
         else:
-            logger.error(sys.exc_info())
-            raise Exception('unknown time type')
+            logger.warning(sys.exc_info())
+            tc = obj
 
         return tc
 
 
-    def cvtDistinct(self, factor):
-        select = self.makeSelectSql([factor])
-        sql_obj = select.distinct()
-        return sql_obj
+    def cvtLastPeriod(self, factor, unit, length):
+        obj = self.cvtFactor(factor)
+        if 'year' == unit:
+            year_obj = self.cvtTimeField(obj, 'year')
+            return (year_obj > extract('year', current_date(type_ = types.Date)) - length)
+        elif 'month' == unit:
+            year_obj = self.cvtTimeField(obj, 'year')
+            month_obj = self.cvtTimeField(obj, 'month')
+            year_dist, month_dist = length / 12, length % 12
 
+            return and_( \
+                year_obj >= (extract('year', current_date(type_ = types.Date)) - year_dist - 1) \
+                , month_obj > ((extract('month', current_date(type_ = types.Date)) - month_dist + 12) % 12) \
+            )
 
-    def cvtFunc(self, func_str):
-        if 'sum'   == func_str:
-            f   = func.sum
-        elif 'count'   == func_str:
-            f   = func.count
-        elif 'avg' == func_str:
-            f   = func.avg
-        elif 'max'    == func_str:
-            f   =   func.max
-        elif 'min'    == func_str:
-            f   =   func.min
+        elif 'day' == unit:
+            pass
         else:
-            logger.err('unknow func str, {0}', func_str)
-            return False
-
-        return f
+            pass
 
 
 
