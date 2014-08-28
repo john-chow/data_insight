@@ -12,12 +12,11 @@ import pdb
 # Create your models here.
 class EventModel(models.Model):
     m_name            = models.CharField(max_length = 20, db_column = 'name')
-    m_table           = models.CharField(max_length = 20, db_column = 'table')
-    m_operator        = models.CharField(max_length = 10, db_column = 'oper')
-    m_left_factor     = models.CharField(max_length = 50, db_column = 'lf')
-    m_right_factor    = models.CharField(max_length = 50, db_column = 'rf')
-    m_warning_kind    = models.IntegerField(db_column = 'wk')
-    m_user            = models.ForeignKey(settings.AUTH_USER_MODEL)
+    m_left_factor     = models.CharField(max_length = 50, db_column = 'object')
+    m_operator        = models.CharField(max_length = 10, db_column = 'operator')
+    m_right_factor    = models.CharField(max_length = 50, db_column = 'threshold')
+    m_alarm_kind      = models.IntegerField(db_column = 'alarm')
+    m_creator         = models.ForeignKey(settings.AUTH_USER_MODEL)
     m_conn_db         = models.ForeignKey(ExternalDbModel)
 
     def getLRFactor(self, l_r):

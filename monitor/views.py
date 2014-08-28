@@ -37,7 +37,7 @@ def pollWarning():
     warnings = WarningModel.objects.filter(m_if_notify = False)
     for warning in warnings:
         event       = warning.m_event
-        user_name   = warning.m_event.m_user.username
+        user_name   = warning.m_event.m_creator.username
         result      = warning.m_result
         pushToClient(event.m_name, user_name, result)
 
@@ -59,38 +59,34 @@ def getConnDbByReq(request):
     return conn_db
 
 
-def makeEventKwargs(request):
+def makeEventKwargs(content):
     '''
     构建事件对象
     '''
     # 必须要提供事件名字以及相应表达式
-    name, table, col, kind, func, operator, num = \
-            map(lambda x: request.POST.get(x), \
-                ('name', 'table', 'col', 'kind', 'cmd', 'oper', 'num'))
+    name, field, operator, value, alarm_kind = \
+            map(lambda x: content.get(x), \
+                ('name', 'field', 'operator', 'value', 'alarm'))
 
-    if not name or not table or not col:
-        raise Exception('xxxxxxxxxxxx')
+    '''
+    table, colname, kind, func = map(lambda x: field.get(x), \
+                ('table', 'name', 'kind', 'cmd')
+    '''
 
     # 为用户输入数据建模过程
     try:
-        lf  = FactorFactory().make(table = table, attr = col, kind = kind, cmd = func)
-        rf  = FactorFactory().make(num = num)
+        lfactor  = FactorFactory().make(field)
+        rfactor  = FactorFactory().make(value, operator)
     except Exception, e:
         logExcInfo()
         raise Exception('xxxxxxxxxxxx')
 
-    user    = request.user
-    conn_db = getConnDbByReq(request)
-
     return {
         'm_name'            : name,     
-        'm_table'           : table, 
-        'm_left_factor'     : str(lf), 
-        'm_right_factor'    : str(rf), 
+        'm_left_factor'     : str(lfactor), 
+        'm_right_factor'    : str(rfactor), 
         'm_operator'        : operator, 
-        'm_warning_kind'    : kind,  
-        'm_conn_db'         : conn_db, 
-        'm_user'            : user 
+        'm_alarm_kind'      : alarm_kind,  
     }
 
 
@@ -101,10 +97,16 @@ def eventCreate(request):
     '''
     新建事件
     '''
+    content = json.loads(request.POST.get('data'))
+    hk = request.session.get('hk')
+    user = request.user
     try:
         # 保存事件记录
         # 先保存主要是为了获得pk，从而在触发器实现中，方便保存外键关系
-        kwargs = makeEventKwargs(request)
+        pair = makeEventKwargs(content)
+        conn = ExternalDbModel.objects.get(pk = hk)
+        kwargs = dict(pair, m_creator = user, m_conn_db = conn)
+
         ev = EventModel.objects.create(**kwargs)
 
         # 用触发器机制实现监控机制
@@ -129,7 +131,7 @@ def eventModify(request, ev_id):
     '''
     try:
         ev = EventModel.objects.get(pk = ev_id)
-        if ev.m_user != request.user:
+        if ev.m_creator != request.user:
             return MyHttpJsonResponse({'succ': False})
 
         kwargs = makeEventKwargs(request, ev_id)

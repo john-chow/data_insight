@@ -22,7 +22,7 @@ EXPRESS_FACTOR_KEYS_TUPLE = \
 
 class FactorFactory():
     @ classmethod
-    def make(cls, arg, op = None):
+    def make(cls, arg):
         '''
         创建数据表示模型
         '''
@@ -35,10 +35,10 @@ class FactorFactory():
 
         if isinstance(arg, Number):
             return OneValue(arg)
-        elif isinstance(arg, list) and op in ['in', 'not_in']:
+        elif isinstance(arg, list) and '-' not in arg:
             return SeriesValue(arg)
-        elif isinstance(arg, list) and 'bw' == op:
-            v1, v2 = arg
+        elif isinstance(arg, list) and '-' in arg:
+            v1, v2 = arg[0], arg[2]
             low = float(v1) if v1 else None
             high = float(v2) if v2 else None
             return RangeValue(low, high)
@@ -53,18 +53,23 @@ class FactorFactory():
             raise Exception('uuuuuuuuuu')
 
     @ classmethod
-    def restore(cls, factor_str):
+    def restore(cls, str):
         '''
         从数据库格式恢复为Factor对象
         '''
-        factor_prototype = ast.literal_eval(factor_str)
+        expr = ast.literal_eval(str)
 
         # 原型是tuple，证明是列对象；如果只是数值，那么就是数字对象
-        if isinstance(factor_prototype, tuple):
-            dict_factor = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, factor_prototype))
+        if isinstance(expr, tuple) \
+                and len(expr) == len(EXPRESS_FACTOR_KEYS_TUPLE):
+            dict_factor = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, expr))
             return FactorFactory.make(**dict_factor)
         else:
-            return FactorFactory.make(**{'num': factor_prototype})
+            return FactorFactory.make(**{'num': expr})
+
+    @ classmethod
+    def stringify(cls, factor):
+        pass
 
 
 class Factor():

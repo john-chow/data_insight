@@ -781,7 +781,7 @@ class FactorHandler():
                     'field', 'operator', 'value' \
                 ))
             lfactor = FactorFactory.make(left)
-            rfactor = FactorFactory.make(right, op)
+            rfactor = FactorFactory.make(right)
             clause = Clause(lfactor, rfactor, op, None)
             filter_factors.append(clause)
 
