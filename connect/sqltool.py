@@ -273,6 +273,7 @@ class Convertor():
 
     def cvtClause(self, clause):
         lfactor, rfactor = clause.getLeft(), clause.getRight()
+        op = clause.getOp()
         if isinstance(rfactor, OneValue):
             lexpr = self.cvtFactor(lfactor)
             rexpr = rfactor.value
@@ -280,11 +281,19 @@ class Convertor():
         elif isinstance(rfactor, RangeValue):
             lexpr = self.cvtFactor(lfactor)
             low, high = rfactor.low, rfactor.high
-            return between(lexpr, low, high)
+            if not low:
+                return lexpr < high
+            elif not high:
+                return lexpr > low
+            else:
+                return between(lexpr, low, high)
         elif isinstance(rfactor, SeriesValue):
             lexpr = self.cvtFactor(lfactor)
             values = rfactor.values
-            return lexpr.in_(values)
+            if 'in' == op:
+                return lexpr.in_(values)
+            else:
+                return lexpr.notin_(values)
         elif isinstance(rfactor, TimeValue):
             unit, number = rfactor.unit, rfactor.number
             return self.cvtLastPeriod(lfactor, unit, number)

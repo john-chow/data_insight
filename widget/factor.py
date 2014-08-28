@@ -22,7 +22,7 @@ EXPRESS_FACTOR_KEYS_TUPLE = \
 
 class FactorFactory():
     @ classmethod
-    def make(cls, arg):
+    def make(cls, arg, op = None):
         '''
         创建数据表示模型
         '''
@@ -33,13 +33,14 @@ class FactorFactory():
             return NumericFactor(kwargs)
         '''
 
-        pdb.set_trace()
         if isinstance(arg, Number):
             return OneValue(arg)
-        elif isinstance(arg, list) and '-' != arg[0]:
+        elif isinstance(arg, list) and op in ['in', 'not_in']:
             return SeriesValue(arg)
-        elif isinstance(arg, list) and '-' == arg[0]:
-            low, high = arg[1], arg[2]
+        elif isinstance(arg, list) and 'bw' == op:
+            v1, v2 = arg
+            low = float(v1) if v1 else None
+            high = float(v2) if v2 else None
             return RangeValue(low, high)
         elif isinstance(arg, dict) \
                 and isSublist(arg.keys(), list(EXPRESS_FACTOR_KEYS_TUPLE)):
@@ -241,5 +242,10 @@ class Clause():
 
     def getRight(self):
         return self.right
+
+    def getOp(self):
+        return self.op
+
+
 
 
