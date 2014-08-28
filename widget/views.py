@@ -716,8 +716,6 @@ class DrawDataProducer():
         clean_data_db = cleanDataFromDb(data_db)
         strf_data_db = strfDataAfterFetchDb(clean_data_db)
 
-        pdb.set_trace()
-
         result = self.decorate(
             strf_data_db, self.fh.getMsus(), self.fh.getMsns(), 
             self.fh.getGroups()
@@ -777,13 +775,13 @@ class FactorHandler():
 
         # 过滤条件部分
         filter_factors = []
-        filters = req.get('filter', [])
+        filters = req.get('filters', [])
         for item in filters:
             [left, op, right] = map(lambda x: item.get(x), ( \
                     'field', 'operator', 'value' \
                 ))
             lfactor = FactorFactory.make(left)
-            rfactor = FactorFactory.make(right)
+            rfactor = FactorFactory.make(right, op)
             clause = Clause(lfactor, rfactor, op, None)
             filter_factors.append(clause)
 

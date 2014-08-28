@@ -280,7 +280,12 @@ class Convertor():
         elif isinstance(rfactor, RangeValue):
             lexpr = self.cvtFactor(lfactor)
             low, high = rfactor.low, rfactor.high
-            return between(lexpr, low, high)
+            if not low:
+                return lexpr < high
+            elif not high:
+                return lexpr > low
+            else:
+                return between(lexpr, low, high)
         elif isinstance(rfactor, SeriesValue):
             lexpr = self.cvtFactor(lfactor)
             values = rfactor.values
