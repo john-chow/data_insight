@@ -11,7 +11,7 @@ from django_sse.redisqueue import RedisQueueView
 
 from monitor.models import EventModel, WarningModel
 from monitor.trigger import TriggerPsgModel
-from widget.factor import FactorCreator
+from widget.factor import FactorFactory
 from widget.models import ExternalDbModel
 from common.log import logger
 from common.tool import MyHttpJsonResponse, logExcInfo
@@ -73,8 +73,8 @@ def makeEventKwargs(request):
 
     # 为用户输入数据建模过程
     try:
-        lf  = FactorCreator().make(table = table, attr = col, kind = kind, cmd = func)
-        rf  = FactorCreator().make(num = num)
+        lf  = FactorFactory().make(table = table, attr = col, kind = kind, cmd = func)
+        rf  = FactorFactory().make(num = num)
     except Exception, e:
         logExcInfo()
         raise Exception('xxxxxxxxxxxx')

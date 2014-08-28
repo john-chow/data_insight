@@ -3,7 +3,6 @@
 import pdb
 from common.head import *
 import common.protocol as Protocol
-from widget.factor import ElementFactor
 from widget.map import getCityPM2dot5, getRailLine
 from common.log import logger
 

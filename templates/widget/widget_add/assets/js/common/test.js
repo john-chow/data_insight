@@ -17,13 +17,13 @@ define([
         }]
         , 'filter':     [{
             'field':        {
-                'name':         '日期'
+                'name':         '消费交易'
                 , 'calcFunc':   'none'
                 , 'table':      '信用卡'
-                , 'kind':       'T'
+                , 'kind':       'N'
             }
-            , 'operator':   'last'
-            , 'value':      {'type': 'month', 'length': 20}
+            , 'operator':   '>'
+            , 'value':      110
         }]
     };
 

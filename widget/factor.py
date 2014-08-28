@@ -33,6 +33,7 @@ class FactorFactory():
             return NumericFactor(kwargs)
         '''
 
+        pdb.set_trace()
         if isinstance(arg, Number):
             return OneValue(arg)
         elif isinstance(arg, list) and '-' != arg[0]:
@@ -46,7 +47,7 @@ class FactorFactory():
         elif isinstance(arg, dict) \
                 and isSublist(arg.keys(), ['unit', 'length']):
             unit, length = arg['unit'], arg['length']
-            return TimeFactor(unit, length)
+            return TimeValue(unit, length)
         else:
             raise Exception('uuuuuuuuuu')
 
@@ -118,66 +119,11 @@ class Factor():
             return self.num
 
 
-'''
-一个值的基础类
-'''
-OneValue = namedtuple('OneValue', ('value'))
-
-'''
-class OneValueFactor(Factor):
-    def __init__(self, value):
-        self.value = value
-
-    def value(self):
-        return self.value
-'''
-
-
-'''
-一系列值的基础类
-'''
+OneValue    = namedtuple('OneValue', ('value'))
 SeriesValue = namedtuple('SeriesValue', ('values'))
+RangeValue  = namedtuple('RangeValue', ('low', 'high'))
+TimeValue   = namedtuple('TimeValue', ('unit', 'number'))
 
-'''
-class SeriesFactor(Factor):
-    def __init__(self, values):
-        if not isinstance(values, list):
-            pass
-        self.values = values
-
-    def value(self):
-        return self.values
-'''
-
-
-'''
-一个范围的值
-'''
-RangeValue = namedtuple('RangeValue', ('low', 'high'))
-
-'''
-class RangeFactor(Factor):
-    def __init__(self, low, high):
-        if low > high:
-            pass
-        self.low = low
-        self.high = high
-
-    def value(self):
-        return self.low, self.high
-'''
-
-TimeValue = namedtuple('TimeValue', ('unit', 'number'))
-
-'''
-class TimeFactor(Factor):
-    def __init__(self, type, number):
-        self.type = type
-        self.number = number
-
-    def value(self):
-        return self.type, self.number
-'''
 
 
 class Factor(Factor):
@@ -295,35 +241,5 @@ class Clause():
 
     def getRight(self):
         return self.right
-
-'''
-class ClauseCreator():
-    @classmethod
-    def make(cls, lfactor, rfactor, op, overplus):
-        if op in ['>', '>=']:
-            return CalcClause(lfactor, rfactor, op, overplus)
-        elif op in ['in', 'ex']:
-            return SeriesClause(lfactor, rfactor, op, overplus)
-        elif op in ['bw']:
-            return SeriesClause(lfactor, rfactor, op, overplus)
-        elif op in ['last', 'next']:
-            return TimeClause(lfactor, rfactor, op, overplus)
-        else:
-            pass
-
-class CalcClause(Clause):
-    pass
-
-class SeriesClause(Clause):
-    pass
-
-class RangeClause(Clause):
-    pass
-
-class TimeClause(Clause):
-    pass
-'''
-
-
 
 

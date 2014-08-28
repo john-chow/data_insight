@@ -4,7 +4,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.db import models
-from widget.factor import FactorCreator
+from widget.factor import FactorFactory
 from widget.models import ExternalDbModel
 
 import pdb
@@ -28,7 +28,7 @@ class EventModel(models.Model):
         else:
             return None
 
-        return FactorCreator.restore(factor_str)
+        return FactorFactory.restore(factor_str)
 
     def update(self, **kwargs):
         '''

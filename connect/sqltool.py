@@ -15,8 +15,7 @@ from sqlalchemy.sql.functions import current_date
 from sqlalchemy import *
 
 from widget.models import ExternalDbModel
-from widget.factor import Factor, OneValue, SeriesValue, RangeValue, TimeValue \
-        CalcClause, SeriesClause, RangeClause, TimeClause
+from widget.factor import Factor, OneValue, SeriesValue, RangeValue, TimeValue
 from common.log import logger
 from common.head import ConnNamedtuple
 from common.tool import logExcInfo
@@ -274,21 +273,20 @@ class Convertor():
 
     def cvtClause(self, clause):
         lfactor, rfactor = clause.getLeft(), clause.getRight()
-        pdb.set_trace()
-        if isinstance(clause, OneValue):
-            lexpr = self.cvtFactor(lf)
-            rexpr = rf.value()
+        if isinstance(rfactor, OneValue):
+            lexpr = self.cvtFactor(lfactor)
+            rexpr = rfactor.value
             return lexpr > rexpr
-        elif isinstance(clause, SeriesValue):
-            lexpr = self.cvtFactor(lf)
-            low, high = rf.value()
+        elif isinstance(rfactor, RangeValue):
+            lexpr = self.cvtFactor(lfactor)
+            low, high = rfactor.low, rfactor.high
             return between(lexpr, low, high)
-        elif isinstance(clause, RangeValue):
-            lexpr = self.cvtFactor(lf)
-            values = rf.value()
+        elif isinstance(rfactor, SeriesValue):
+            lexpr = self.cvtFactor(lfactor)
+            values = rfactor.values
             return lexpr.in_(values)
-        elif isinstance(clause, TimeValue):
-            unit, number = rfactor.value()
+        elif isinstance(rfactor, TimeValue):
+            unit, number = rfactor.unit, rfactor.number
             return self.cvtLastPeriod(lfactor, unit, number)
         else:
             pass
@@ -373,18 +371,15 @@ class Convertor():
             tc  =   extract('day', obj)
         elif 'hour'     == time_type:
             tc  =   extract('hour', obj)
-        elif 'raw'      == time_type:
-            tc  =   obj    
         else:
-            logger.error(sys.exc_info())
-            raise Exception('unknown time type')
+            logger.warning(sys.exc_info())
+            tc = obj
 
         return tc
 
 
     def cvtLastPeriod(self, factor, unit, length):
         obj = self.cvtFactor(factor)
-        pdb.set_trace()
         if 'year' == unit:
             year_obj = self.cvtTimeField(obj, 'year')
             return (year_obj > extract('year', current_date(type_ = types.Date)) - length)

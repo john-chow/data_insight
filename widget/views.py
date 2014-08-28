@@ -174,7 +174,7 @@ def handleDraw(request):
     hk = request.session.get('hk')
     try:
         producer = DrawDataProducer(hk)
-        data    = producer.produce(req_data)
+        data = producer.produce(req_data)
     except Exception, e:
         logger.debug("catch Exception: %s" % e)
         logExcInfo()
@@ -761,7 +761,7 @@ class FactorHandler():
         msn_factors, msu_factors = [], []
         for idx, col_element in enumerate(row_kind_attr_list + col_kind_attr_list):
             element_dict = {key:col_element[key] for key in EXPRESS_FACTOR_KEYS_TUPLE}
-            factor = ElementFactor(**element_dict)
+            factor = Factor(**element_dict)
             if idx < len(row_kind_attr_list):
                 factor.setBelongToAxis('row')
             else:
@@ -784,7 +784,7 @@ class FactorHandler():
                 ))
             lfactor = FactorFactory.make(left)
             rfactor = FactorFactory.make(right)
-            clause = Clause.make(lfactor, rfactor, op, None)
+            clause = Clause(lfactor, rfactor, op, None)
             filter_factors.append(clause)
 
 
@@ -796,7 +796,7 @@ class FactorHandler():
             color_attr_column = color_dict.get(Protocol.Attr, '')
             color_dict = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
                                     (color_attr_table, color_attr_column, -1, '')))
-            factor = ElementFactor(**color_dict)
+            factor = Factor(**color_dict)
             factor.setBelongToAxis('group')
             group_factors.append(factor)
 
