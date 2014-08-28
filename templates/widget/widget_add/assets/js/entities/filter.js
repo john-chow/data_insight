@@ -112,7 +112,7 @@ define([
 					}else if(data.kind == "N"){//如果是数值变量
 						self.push("values", []);//放入空的
 						this.getCurrentFilter().operator = 'bw';
-						this.getCurrentFilter().value = ["", ""];
+						this.getCurrentFilter().value = ["", "-", ""];
 						//通知视图重新绘画,展现选中的过滤器值
 						this.trigger("filter:rerender");
 					}
@@ -187,7 +187,7 @@ define([
 				})
 				//监听获取数值变量过滤器的最高值
 				this.on("hightRange:add", function(hightRange){
-					this.getCurrentFilter().value[1] = hightRange;
+					this.getCurrentFilter().value[2] = hightRange;
 					//通知入口model输入因子变量过滤器的下限
 					Entities.trigger("filter:change", this.toJson());
 				})
