@@ -7,7 +7,7 @@ Factor类:
 import ast
 import re
 from numbers import Number
-from collections import namedtuple
+#from collections import namedtuple
 
 from common.tool import isSublist
 from common.log import logger
@@ -18,11 +18,13 @@ import pdb
 # 打印、存储FACTOR类对象时，按照这样顺序进行
 EXPRESS_FACTOR_KEYS_TUPLE = \
         (Protocol.Table, Protocol.Attr, Protocol.Kind, Protocol.Func)
+TIME_LENGTH_LIST = ['unit', 'length']
+        
 
 
 class FactorFactory():
     @ classmethod
-    def make(cls, arg):
+    def make(cls, var):
         '''
         创建数据表示模型
         '''
@@ -33,22 +35,14 @@ class FactorFactory():
             return NumericFactor(kwargs)
         '''
 
-        if isinstance(arg, Number):
-            return OneValue(arg)
-        elif isinstance(arg, list) and '-' not in arg:
-            return SeriesValue(arg)
-        elif isinstance(arg, list) and '-' in arg:
-            v1, v2 = arg[0], arg[2]
-            low = float(v1) if v1 else None
-            high = float(v2) if v2 else None
-            return RangeValue(low, high)
-        elif isinstance(arg, dict) \
-                and isSublist(arg.keys(), list(EXPRESS_FACTOR_KEYS_TUPLE)):
-            return Factor(**arg)
-        elif isinstance(arg, dict) \
-                and isSublist(arg.keys(), ['unit', 'length']):
-            unit, length = arg['unit'], arg['length']
-            return TimeValue(unit, length)
+        if SeriesFactor.isThis(var):
+            return SeriesValue(var)
+        elif RangeFactor.isThis(var):
+            return RangeFactor(var)
+        elif TimeFactor.isThis(var):
+            return TimeFactor(var)
+        elif FieldFactor.isThis(var):
+            return FieldFactor(var)
         else:
             raise Exception('uuuuuuuuuu')
 
@@ -57,8 +51,10 @@ class FactorFactory():
         '''
         从数据库格式恢复为Factor对象
         '''
-        expr = ast.literal_eval(str)
+        var = ast.literal_eval(str)
+        return FactorFactory.make(var)
 
+'''
         # 原型是tuple，证明是列对象；如果只是数值，那么就是数字对象
         if isinstance(expr, tuple) \
                 and len(expr) == len(EXPRESS_FACTOR_KEYS_TUPLE):
@@ -66,10 +62,8 @@ class FactorFactory():
             return FactorFactory.make(**dict_factor)
         else:
             return FactorFactory.make(**{'num': expr})
+'''
 
-    @ classmethod
-    def stringify(cls, factor):
-        pass
 
 
 class Factor():
@@ -125,20 +119,96 @@ class Factor():
             return self.num
 
 
+'''
 OneValue    = namedtuple('OneValue', ('value'))
 SeriesValue = namedtuple('SeriesValue', ('values'))
 RangeValue  = namedtuple('RangeValue', ('low', 'high'))
 TimeValue   = namedtuple('TimeValue', ('unit', 'number'))
+'''
+
+
+class SeriesFactor(Factor):
+    def __init__(self, series):
+        self.series = series
+
+    def extract(self):
+        return self.series
+
+    def __str__(self):
+        return str(self.series)
+
+    def mapIntoSql(self):
+        pass
+
+    @ classmethod
+    def isThis(cls, var):
+        return isinstance(var, list) \
+                and '-' not in var
+
+
+class RangeFactor(Factor):
+    def __init__(self, range):
+        low, high = range[0], range[2]
+        self.low = low if low else None
+        self.high = high if high else None
+
+        if not self.low and not self.high:
+            pass
+        elif self.high < self.low:
+            pass
+
+    def extract(self):
+        return self.low, self.high
+
+    def __str__(self):
+        raw = [self.low, '-', self.high]
+        return str(raw)
+
+    def mapIntoSql(self):
+        if not self.low:
+            return '<' + str(self.high)
+        elif not self.high:
+            return '>' + str(self.low)
+        else:
+            return 'BETWEEN ' + str(self.low) \
+                    + ' AND ' + str(self.high)
+
+    @ classmethod
+    def isThis(cls, var):
+        return isinstance(var, list) \
+                and '-' in var
 
 
 
-class Factor(Factor):
-    def __init__(self, **kwargs):
-        map(lambda x: setattr(self, x, kwargs[x]), \
+class TimeFactor(Factor):
+    def __init__(self, dict):
+        map(lambda x: setattr(self, x, dict[x]), \
+                TIME_LENGTH_LIST)
+
+    def extract(self):
+        attrs = []
+        for k in TIME_LENGTH_LIST:
+            attrs.append(getattr(self, k))
+        return tuple(attrs)
+
+    def __str__(self):
+        raw = dict(zip(TIME_LENGTH_LIST, self.extract()))
+        return str(raw)
+
+    @ classmethod
+    def isThis(cls, var):
+        return isinstance(var, dict) \
+                and isSublist(var.keys(), TIME_LENGTH_LIST)
+
+
+class FieldFactor(Factor):
+    def __init__(self, dict):
+        map(lambda x: setattr(self, x, dict[x]), \
             EXPRESS_FACTOR_KEYS_TUPLE)
 
     def __str__(self):
-        return str(self.extract())
+        raw = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, self.extract()))
+        return str(raw)
 
     def extract(self):
         '''
@@ -150,15 +220,17 @@ class Factor(Factor):
         self_tuple = tuple(self_list)
         return self_tuple
 
-    def cvtToSqlVar(self):
+    def mapIntoSql(self):
         '''
         转换成sql里面的表达式
         '''
         # 注意判断属性的类型，是数字还是时间
-        if not self.cmd or Protocol.NoneFunc == self.cmd:
-            return self.attr
+        funcname = getattr(self, Protocol.Func)
+        attr = getattr(self, Protocol.Attr)
+        if not funcname or Protocol.NoneFunc == funcname:
+            return attr
         else:
-            return  self.cmd + '(' + self.attr + ')'
+            return  funcname + '(' + attr + ')'
 
     def setBelongToAxis(self, axis):
         '''
@@ -183,12 +255,13 @@ class Factor(Factor):
         '''
         return self.__str__()
 
+    @ classmethod
+    def isThis(cls, var):
+        return isinstance(var, dict) \
+                and isSublist(var.keys(), EXPRESS_FACTOR_KEYS_TUPLE)
 
-    def restoreFromDbFormat(self):
-        '''
-        从数据库存储格式恢复成对象
-        '''
-        pass
+
+
                 
 
 
@@ -217,7 +290,7 @@ class NumericFactor(Factor):
     def __str__(self):
         return self.str
 
-    def cvtToSqlVar(self):
+    def mapIntoSql(self):
         '''
         转换到sql中的表达形式
         '''

@@ -64,9 +64,9 @@ def makeEventKwargs(content):
     构建事件对象
     '''
     # 必须要提供事件名字以及相应表达式
-    name, field, operator, value, alarm_kind = \
+    name, table, field, operator, value, alarm_kind = \
             map(lambda x: content.get(x), \
-                ('name', 'field', 'operator', 'value', 'alarm'))
+                ('name', 'table', 'field', 'operator', 'value', 'alarm'))
 
     '''
     table, colname, kind, func = map(lambda x: field.get(x), \
@@ -76,13 +76,14 @@ def makeEventKwargs(content):
     # 为用户输入数据建模过程
     try:
         lfactor  = FactorFactory().make(field)
-        rfactor  = FactorFactory().make(value, operator)
+        rfactor  = FactorFactory().make(value)
     except Exception, e:
         logExcInfo()
         raise Exception('xxxxxxxxxxxx')
 
     return {
         'm_name'            : name,     
+        'm_table'           : table,
         'm_left_factor'     : str(lfactor), 
         'm_right_factor'    : str(rfactor), 
         'm_operator'        : operator, 
@@ -110,7 +111,7 @@ def eventCreate(request):
         ev = EventModel.objects.create(**kwargs)
 
         # 用触发器机制实现监控机制
-        tg = TriggerPsgModel(ev)
+        tg = TriggerPsgModel(ev, hk)
         tg.on()
     except Exception, e:
         logExcInfo()
@@ -129,13 +130,15 @@ def eventModify(request, ev_id):
     '''
     修改事件
     '''
+    content = json.loads(request.POST.get('data'))
+    hk = request.session.get('hk')
     try:
         ev = EventModel.objects.get(pk = ev_id)
         if ev.m_creator != request.user:
             return MyHttpJsonResponse({'succ': False})
 
-        kwargs = makeEventKwargs(request, ev_id)
-        ev.update(**kwargs)
+        pair = makeEventKwargs(content)
+        ev.update(**pair)
 
         tg = TriggerPsgModel(ev)
         tg.modify()
@@ -155,15 +158,13 @@ def eventDelete(request, id):
     '''
     删除事件
     '''
+    hk = request.session.get('hk')
     try:
         ev = EventModel.objects.get(pk = id)
-    except EventModel.DoesNotExist, e:
-        logExcInfo()
-        return MyHttpJsonResponse({'succ': False, 'msg': 'xx'})
-
-    try:
-        tg = TriggerPsgModel(ev)
+        tg = TriggerPsgModel(ev, hk)
         tg.off()
+    except EventModel.DoesNotExist, e:
+        return MyHttpJsonResponse({'succ': False, 'msg': 'xx'})
     except Exception, e:
         logExcInfo()
         return MyHttpJsonResponse({'succ': False})

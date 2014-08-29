@@ -15,7 +15,7 @@ from sqlalchemy.sql.functions import current_date
 from sqlalchemy import *
 
 from widget.models import ExternalDbModel
-from widget.factor import Factor, OneValue, SeriesValue, RangeValue, TimeValue
+from widget.factor import SeriesFactor, RangeFactor, TimeFactor, FieldFactor
 from common.log import logger
 from common.head import ConnNamedtuple
 from common.tool import logExcInfo
@@ -249,11 +249,11 @@ class Convertor():
         return sql_obj
 
 
-    def cvtFactor(self, factor):
-        if not isinstance(factor, Factor):
+    def cvtField(self, fieldfactor):
+        if not isinstance(fieldfactor, FieldFactor):
             pass
 
-        tablename, colname, kind, funcname = factor.extract()
+        tablename, colname, kind, funcname = fieldfactor.extract()
         table = self.storage.getTable(tablename)
         if not table.c.has_key(colname):
             msg = 'can''t recongnize column name of {0}'.format(colname)
@@ -274,28 +274,24 @@ class Convertor():
     def cvtClause(self, clause):
         lfactor, rfactor = clause.getLeft(), clause.getRight()
         op = clause.getOp()
-        if isinstance(rfactor, OneValue):
-            lexpr = self.cvtFactor(lfactor)
-            rexpr = rfactor.value
-            return lexpr > rexpr
-        elif isinstance(rfactor, RangeValue):
-            lexpr = self.cvtFactor(lfactor)
-            low, high = rfactor.low, rfactor.high
+        if isinstance(rfactor, RangeFactor):
+            lexpr = self.cvtField(lfactor)
+            low, high = rfactor.extract()
             if not low:
                 return lexpr < high
             elif not high:
                 return lexpr > low
             else:
                 return between(lexpr, low, high)
-        elif isinstance(rfactor, SeriesValue):
-            lexpr = self.cvtFactor(lfactor)
-            values = rfactor.values
+        elif isinstance(rfactor, SeriesFactor):
+            lexpr = self.cvtField(lfactor)
+            values = rfactor.extract()
             if 'in' == op:
                 return lexpr.in_(values)
             else:
                 return lexpr.notin_(values)
-        elif isinstance(rfactor, TimeValue):
-            unit, number = rfactor.unit, rfactor.number
+        elif isinstance(rfactor, TimeFactor):
+            unit, number = rfactor.extract()
             return self.cvtLastPeriod(lfactor, unit, number)
         else:
             pass
@@ -311,14 +307,14 @@ class Convertor():
         '''
         转换sql语句中select后字段part
         '''
-        return [self.cvtFactor(factor) for factor in selects]
+        return [self.cvtField(factor) for factor in selects]
 
 
     def cvtGroup(self, groups):
         '''
         转换sql语句中group by后字段part
         '''
-        return [self.cvtFactor(factor) for factor in groups]
+        return [self.cvtField(factor) for factor in groups]
 
     
     def cvtOrderBy(self):
@@ -388,7 +384,7 @@ class Convertor():
 
 
     def cvtLastPeriod(self, factor, unit, length):
-        obj = self.cvtFactor(factor)
+        obj = self.cvtField(factor)
         if 'year' == unit:
             year_obj = self.cvtTimeField(obj, 'year')
             return (year_obj > extract('year', current_date(type_ = types.Date)) - length)

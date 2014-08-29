@@ -68,30 +68,33 @@ define('monitor', ['jquery'], function($) {
 
     var data = {
         'name':         'myevent1'
+        , 'table':      '银行实验'
         , 'field':      {
-            'table':        'test'
-            , 'name':       'sale'
+            'table':        '银行实验'
+            , 'name':       '发卡量'
             , 'kind':       'N'
-            , 'calcFunc':   'sum'
+            , 'calcFunc':   'none'
         }
         , 'operator':       'bw'
-        , 'value':          [10, '-', '']
+        , 'value':          [400, '-', '']
         , 'alarm':          0
     };
-    setTimeout(function xxx() {
+/*
+    setTimeout(function () {
         $.ajax('/monitor/event/create/', {
             type:               'POST'
             , dataType:         'json'
             , data:             {'data': JSON.stringify(data)}
         })
-    }, 5000);
+    }, 3000);
+*/
 
-    function yyy() {
-        $.ajax('/monitor/event/delete/74/', {
+    setTimeout(function () {
+        $.ajax('/monitor/event/delete/' + 3 + '/', {
              type:               'POST'
              , dataType:         'json'
         })
-    }
+    }, 3000)
 });
 
 
