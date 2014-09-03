@@ -788,7 +788,8 @@ class FactorHandler():
 
         # 获取选择器上属性Factor对象
         group_factors = []
-        color_dict = req.get(Protocol.Color)
+        color_dict = req.get(Protocol.Mapping).get(Protocol.Color) \
+                                if Protocol.Mapping in req else None
         if color_dict:
             color_attr_table = color_dict.get(Protocol.Table, '')
             color_attr_column = color_dict.get(Protocol.Attr, '')
