@@ -263,7 +263,7 @@ def reqTimelyData(request, wi_id):
                 , time_factor.getProperty(Protocol.Kind)
                 , 'max'
             )))
-            latest_time_obj = st.makeSelectSql([Factor(**factor_dict)])
+            latest_time_obj = st.makeSelectSql([FactorFactory.make(**factor_dict)])
             sql_obj = origin_sql_obj.where(time_column_obj == latest_time_obj)
 
         data_from_db = st.execute(sql_obj).fetchall()
@@ -412,7 +412,7 @@ def extractFactor(req_data):
     axis_factor_list = []
     for idx, col_element in enumerate(row_kind_attr_list + col_kind_attr_list):
         element_dict = {key:col_element[key] for key in EXPRESS_FACTOR_KEYS_TUPLE}
-        factor = Factor(**element_dict)
+        factor = FactorFactory.make(element_dict)
         if idx < len(row_kind_attr_list):
             factor.setBelongToAxis('row')
         else:
@@ -429,7 +429,7 @@ def extractFactor(req_data):
         color_attr_column = color_dict.get('column', u'')
         color_dict = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
                                 (color_attr_table, color_attr_column, -1, u'')))
-        factor = Factor(**color_dict)
+        factor = FactorFactory.make(color_dict)
         factor.setBelongToAxis('group')
         group_factor_list.append(factor)
 
@@ -759,7 +759,7 @@ class FactorHandler():
         msn_factors, msu_factors = [], []
         for idx, col_element in enumerate(row_kind_attr_list + col_kind_attr_list):
             element_dict = {key:col_element[key] for key in EXPRESS_FACTOR_KEYS_TUPLE}
-            factor = Factor(**element_dict)
+            factor = FactorFactory.make(element_dict)
             if idx < len(row_kind_attr_list):
                 factor.setBelongToAxis('row')
             else:
@@ -794,7 +794,7 @@ class FactorHandler():
             color_attr_column = color_dict.get(Protocol.Attr, '')
             color_dict = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
                                     (color_attr_table, color_attr_column, -1, '')))
-            factor = Factor(**color_dict)
+            factor = FactorFactory.make(color_dict)
             factor.setBelongToAxis('group')
             group_factors.append(factor)
 
