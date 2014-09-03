@@ -143,7 +143,7 @@ define([
 				
 				//监听将字段拖拽到图表类型对应的字段列表中的某个列表项中
 				this.on("mapping:add", function(data){
-					eval("this.get('mapping')." + data.name + "={column:'" +
+					eval("this.get('mapping')." + data.name + "={name:'" +
 						  data.column + "', table:" + "'" + data.table + "'}");
 					this.trigger("change");//触发change事件
 				}, this);
