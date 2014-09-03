@@ -13,22 +13,15 @@ import pdb
 class EventModel(models.Model):
     m_name            = models.CharField(max_length = 20, db_column = 'name')
     m_table           = models.CharField(max_length = 20, db_column = 'table')
-    m_operator        = models.CharField(max_length = 10, db_column = 'oper')
-    m_left_factor     = models.CharField(max_length = 50, db_column = 'lf')
-    m_right_factor    = models.CharField(max_length = 50, db_column = 'rf')
-    m_warning_kind    = models.IntegerField(db_column = 'wk')
-    m_user            = models.ForeignKey(settings.AUTH_USER_MODEL)
+    m_left_factor     = models.CharField(max_length = 200, db_column = 'object')
+    m_operator        = models.CharField(max_length = 10, db_column = 'operator')
+    m_right_factor    = models.CharField(max_length = 200, db_column = 'threshold')
+    m_alarm_kind      = models.IntegerField(db_column = 'alarm')
+    m_creator         = models.ForeignKey(settings.AUTH_USER_MODEL)
     m_conn_db         = models.ForeignKey(ExternalDbModel)
 
-    def getLRFactor(self, l_r):
-        if 'left' == l_r:
-            factor_str = self.m_left_factor
-        elif 'right' == l_r:
-            factor_str = self.m_right_factor
-        else:
-            return None
-
-        return FactorFactory.restore(factor_str)
+    def getFactors(self):
+        return self.m_left_factor, self.m_right_factor
 
     def update(self, **kwargs):
         '''
@@ -44,7 +37,6 @@ class EventModel(models.Model):
 class WarningModel(models.Model):
     m_result        = models.CharField(max_length = 20, db_column = 'result')
     m_if_notify     = models.BooleanField(default = False, db_column = 'ifnotify')
-    #m_time          = models.DateTimeField(default = datetime.now(), db_column = 'time')
     m_event         = models.ForeignKey(EventModel, db_column = 'event_id') 
 
     class Meta:
