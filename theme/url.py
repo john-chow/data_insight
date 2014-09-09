@@ -13,6 +13,8 @@ urlpatterns = patterns('',
 	url(r'^distr/$', 			views.themeOp, {'op': 'dis'}),
 	url(r'^delete/$', 			views.themeOp, {'op': 'delete'}),
 
+    url(r'^detail/(\d+)/$',     views.themeDetail),
+
 	url(r'^batch/distri/$',		views.batachOp, {'op': 'dis'} ),
 	url(r'^batch/undistri/$',	views.batachOp, {'op': 'undis'} ),
 	url(r'^batch/delete/$',		views.batachOp, {'op': 'delete'} ),

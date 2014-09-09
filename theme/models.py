@@ -6,25 +6,30 @@ from MyTableau.models import ElementModel
 
 # Create your models here.
 class ThemeModel(ElementModel):
-	"""
-	场景类，继承ElementModel
-	"""
-	m_switch_effect = models.CharField(max_length=255)
-	description = models.TextField(max_length=255)
-	m_scenes = models.ManyToManyField(SceneModel\
-						, through='TheToScnRelationModel'\
-						)
+    """
+    场景类，继承ElementModel
+    """
+    m_switch_effect = models.CharField(max_length=255)
+    description = models.TextField(max_length=255)
+    m_scenes = models.ManyToManyField(SceneModel\
+                        , through='TheToScnRelationModel'\
+                        )
 
-	class Meta:
-		db_table = 'themes'
+    class Meta:
+        db_table = 'themes'
+
+    def getScenesId(self):
+        relations = self.t2r_set.all()
+        return [rela.m_scn.pk for rela in relations]
+
 
 class TheToScnRelationModel(models.Model):
-	"""
-	场景和主题关系类
-	"""
-	m_sub = models.ForeignKey(ThemeModel, related_name = 't2r_set')
-	m_scn = models.ForeignKey(SceneModel, related_name = 'sences_set')
-	m_order = models.IntegerField()
+    """
+    场景和主题关系类
+    """
+    m_sub = models.ForeignKey(ThemeModel, related_name = 't2r_set')
+    m_scn = models.ForeignKey(SceneModel, related_name = 'sences_set')
+    m_order = models.IntegerField()
 
-	class Meta:
-		db_table = 'theme_to_scene'
+    class Meta:
+        db_table = 'theme_to_scene'

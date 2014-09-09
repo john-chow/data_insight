@@ -98,9 +98,11 @@ define('monitor', ['jquery'], function($) {
 });
 
 
+/*
 require([
     './monitor'
 ], function() {
     console.log('start test')
 })
+*/
 

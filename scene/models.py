@@ -25,9 +25,13 @@ class SceneModel(ElementModel):
                             , through='ScnToWiRelationModel' \
                             , related_name = 's2w_set')
 
-
     class Meta:
         db_table = 'scenes'
+
+    def getSuites(self):
+        relations = self.s2w_set.all()
+        return [{'id': rela.m_wi.pk, 'type': rela.m_cat} \
+                    for rela in relations]
 
 
 class ScnToWiRelationModel(models.Model):
@@ -36,6 +40,7 @@ class ScnToWiRelationModel(models.Model):
     """
     m_scn   = models.ForeignKey(SceneModel, related_name = 's2r_set')
     m_wi    = models.ForeignKey(WidgetModel, related_name = 'w2r_set')
+    m_cat   = models.IntegerField(db_column = 'category')
     m_stamp = models.BigIntegerField()
 
     class Meta:

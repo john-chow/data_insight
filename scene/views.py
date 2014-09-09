@@ -216,6 +216,27 @@ def sceneView(request, id):
     context = RequestContext(request)
     return render_to_response('scene/view.html', dict, context)
 
+
+@login_required
+@require_http_methods(['GET'])
+def sceneDetail(request, id):
+    try:
+        scene = SceneModel.objects.get(pk = id) 
+        layout = json.loads(scene.m_layout)
+        suites = scene.getSuites()
+    except SceneModel.DoesNotExist, e:
+        return MyHttpJsonResponse({'succ': False, 'msg': 'section not exist'})
+    except Exception, e:
+        logExcInfo()
+        return MyHttpJsonResponse({'succ': False, 'msg': 'xxxxxxxxx'})
+
+    return MyHttpJsonResponse({
+        'succ':         True
+        , 'layout':     layout
+        , 'suites':     suites
+    }) 
+
+
 def sceneImgUpload(request):
     if request.method == 'POST':
         callback = request.GET.get('CKEditorFuncNum')

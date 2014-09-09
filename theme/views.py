@@ -9,6 +9,7 @@ from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.utils import simplejson as json
 from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_http_methods
 from common.log import logger
 import pdb
 
@@ -183,3 +184,23 @@ def view(request, id):
         return render_to_response(template_name, data, context)
     else:
         raise Http404()
+
+
+@require_http_methods(['GET'])
+@login_required
+def themeDetail(request, id):
+    try:
+        theme = ThemeModel.objects.get(pk = id) 
+        scenes_id = theme.getScenesId()
+    except SceneModel.DoesNotExist, e:
+        return MyHttpJsonResponse({'succ': False, 'msg': 'section not exist'})
+    except Exception, e:
+        logExcInfo()
+        return MyHttpJsonResponse({'succ': False, 'msg': 'xxxxxxxxx'})
+
+    return MyHttpJsonResponse({
+        'succ':         True
+        , 'ids':        scenes_id
+    }) 
+
+
