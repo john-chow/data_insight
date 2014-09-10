@@ -14,7 +14,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from scene.models import SceneModel, ScnToWiRelationModel
 from widget.models import WidgetModel
 #from skin.models import SkinModel
-from common.tool import MyHttpJsonResponse
+from common.tool import MyHttpJsonResponse, logExcInfo
 from common.head import SCENE_SKIN_PATH
 
 import pdb
@@ -233,7 +233,7 @@ def sceneDetail(request, id):
     return MyHttpJsonResponse({
         'succ':         True
         , 'layout':     layout
-        , 'suites':     suites
+        , 'data':       suites
     }) 
 
 

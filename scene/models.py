@@ -29,7 +29,7 @@ class SceneModel(ElementModel):
         db_table = 'scenes'
 
     def getSuites(self):
-        relations = self.s2w_set.all()
+        relations = self.s2r_set.all()
         return [{'id': rela.m_wi.pk, 'type': rela.m_cat} \
                     for rela in relations]
 

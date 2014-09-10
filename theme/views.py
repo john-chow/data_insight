@@ -11,6 +11,7 @@ from django.utils import simplejson as json
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 from common.log import logger
+from common.tool import logExcInfo
 import pdb
 
 def themeList(request, template_name):
@@ -187,11 +188,11 @@ def view(request, id):
 
 
 @require_http_methods(['GET'])
-@login_required
+#@login_required
 def themeDetail(request, id):
     try:
         theme = ThemeModel.objects.get(pk = id) 
-        scenes_id = theme.getScenesId()
+        info = theme.getScenesInfo()
     except SceneModel.DoesNotExist, e:
         return MyHttpJsonResponse({'succ': False, 'msg': 'section not exist'})
     except Exception, e:
@@ -200,7 +201,7 @@ def themeDetail(request, id):
 
     return MyHttpJsonResponse({
         'succ':         True
-        , 'ids':        scenes_id
+        , 'data':       info
     }) 
 
 

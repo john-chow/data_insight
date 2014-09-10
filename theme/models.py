@@ -18,9 +18,10 @@ class ThemeModel(ElementModel):
     class Meta:
         db_table = 'themes'
 
-    def getScenesId(self):
+    def getScenesInfo(self):
         relations = self.t2r_set.all()
-        return [rela.m_scn.pk for rela in relations]
+        return [{'id': rela.m_scn.pk, 'type': 2} \
+                    for rela in relations]
 
 
 class TheToScnRelationModel(models.Model):
