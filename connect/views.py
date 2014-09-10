@@ -54,7 +54,6 @@ def handleConn(request):
             return MyHttpJsonResponse({'succ': False, 'msg': 'xxxxx'})
 
         conn_list = map(lambda x: post_data.get(x), ConnArgsList)
-        #conn_list[-1] = 'postgres'
         conn_nt = ConnNamedtuple(*conn_list)
         succ, msg, hk, st = connectDb(conn_nt)
 
@@ -91,7 +90,7 @@ def handleTable(request):
 
         hk  = request.session.get('hk')
         st  = SqlExecutorMgr.stRestore(hk)
-        tables_list = st.listTables()
+        tables_list = st.listTables() + st.listViews()
 
         # 注意传多个来怎么办
         unkonwn_tables = list(set(chosen_tables) - set(tables_list))
@@ -107,7 +106,7 @@ def handleTable(request):
     else:
         hk  = request.session.get('hk')
         st  = SqlExecutorMgr.stRestore(hk)
-        tables_list = st.listTables()
+        tables_list = st.listTables() + st.listViews()
 
         return MyHttpJsonResponse( {'succ': True, \
                                     'data': json.dumps(tables_list)} )
