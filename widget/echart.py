@@ -142,6 +142,7 @@ class Area(Bar_Line_Base):
         self.type = u'area'
 
 
+'''
 class Table(EChart):
     def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
         if len(group_factor_list) > 0:
@@ -181,6 +182,18 @@ class Table(EChart):
         data_dict['column'] = column_list
 
         return data_dict
+'''
+
+class Table(EChart):
+    def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
+        if len(group_factor_list) > 0:
+            raise Exception('xxxxxxxxxxxx')
+        heads = [factor.getProperty(Protocol.Attr) \
+                    for factor in (msu_factor_list + msn_factor_list)]
+        return {
+            'heads':        heads
+            , 'contents':   data_from_db
+        }
             
 
 class Scatter(EChart):
@@ -193,7 +206,7 @@ class Scatter(EChart):
 
         x_info_list, y_info_list = [], []
         map(lambda x: x.append({
-            u'type':    u'value'
+            'type':    'value'
         }), (x_info_list, y_info_list))
 
         legend_series_data = []
