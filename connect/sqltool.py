@@ -12,6 +12,7 @@ import sys
 from sqlalchemy import create_engine, inspect, Table, MetaData, types, \
                         func, select, extract, Column, engine
 from sqlalchemy.sql.functions import current_date
+from sqlalchemy.dialects.oracle import cx_oracle
 from sqlalchemy import *
 
 from widget.models import ExternalDbModel
@@ -79,6 +80,7 @@ class SqlExecutor():
                 self.conn       = self.engine.connect()
                 self.insp       = inspect(self.engine)
             except Exception, e:
+                logExcInfo()
                 return False
 
             self.broadcast()
@@ -114,9 +116,21 @@ class SqlExecutor():
         """
         连接数据库
         """
+        '''
         cnt = '{kind}://{user}:{pwd}@{host}:{port}/{db}'.format(   \
             kind = conn_nt.kind, user = conn_nt.user, pwd = conn_nt.pwd, \
             host = conn_nt.ip, port = conn_nt.port, db = conn_nt.db   \
+        )
+        '''
+
+        if 'postgres' == conn_nt.kind:
+            tool = ''
+        elif 'oracle' == conn_nt.kind:
+            tool = '+cx_oracle'
+
+        cnt = '{kind}{tool}://{user}:{pwd}@{host}:{port}/{db}'.format(   \
+            kind = conn_nt.kind, user = conn_nt.user, pwd = conn_nt.pwd, \
+            host = conn_nt.ip, port = conn_nt.port, db = conn_nt.db, tool = tool   \
         )
 
         self.cnt    = cnt
@@ -133,6 +147,9 @@ class SqlExecutor():
         tables  = self.insp.get_table_names()
         return tables
 
+    def listViews(self):
+        views = self.insp.get_view_names()
+        return views
 
     def getTablesInfo(self, tables):
         '''
