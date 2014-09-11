@@ -22,8 +22,8 @@ class WidgetModel(ElementModel):
     # 影响图形本身效果
     m_x             = models.CharField(max_length=1024, db_column='x')               
     m_y             = models.CharField(max_length=1024, db_column='y')               
-    m_size          = models.CharField(max_length=50, db_column='size')               
-    m_color         = models.CharField(max_length=50, db_column='color')               
+    m_size          = models.CharField(max_length=200, db_column='size')               
+    m_color         = models.CharField(max_length=200, db_column='color')               
     GRAPH_CHOICES   = (
         ('bar',         'bar')
         , ('s_bar',     'stack_bar')
@@ -97,10 +97,19 @@ class WidgetModel(ElementModel):
         }
 
     def restoreUsedTables(self):
+        '''
         items = [eval(item) for item in \
                     (self.m_x, self.m_y, self.m_color, self.m_size)]
         flat_items = [i for ii in items for i in ii]
+        pdb.set_trace()
         tables = map(lambda i: i.get('table'), flat_items)
+        return list(set(tables))
+        '''
+
+        axis_items = [eval(item) for item in (self.m_x, self.m_y) if eval(item)]
+        flat_axis_items = [i for ii in axis_items for i in ii]
+        group_items = [eval(item) for item in (self.m_color, self.m_size) if eval(item)]
+        tables = map(lambda i: i.get('table'), flat_axis_items + group_items)
         return list(set(tables))
 
 

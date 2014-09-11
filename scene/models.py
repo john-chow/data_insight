@@ -40,7 +40,7 @@ class ScnToWiRelationModel(models.Model):
     """
     m_scn   = models.ForeignKey(SceneModel, related_name = 's2r_set')
     m_wi    = models.ForeignKey(WidgetModel, related_name = 'w2r_set')
-    m_cat   = models.IntegerField(db_column = 'category')
+    m_cat   = models.IntegerField(db_column = 'category', default = 1)
     m_stamp = models.BigIntegerField()
 
     class Meta:

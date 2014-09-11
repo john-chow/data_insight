@@ -36,7 +36,7 @@ class FactorFactory():
         '''
 
         if SeriesFactor.isThis(var):
-            return SeriesValue(var)
+            return SeriesFactor(var)
         elif RangeFactor.isThis(var):
             return RangeFactor(var)
         elif TimeFactor.isThis(var):

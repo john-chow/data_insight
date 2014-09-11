@@ -209,7 +209,7 @@ def handleUsedTable(request, wi_id):
         hk = model.getConn().getPk()
         st = SqlExecutorMgr.stRestore(hk)
         used = model.restoreUsedTables()
-        all = st.listTables()
+        all = st.listTables() + st.listViews()
     except ExternalDbModel.DoesNotExist, e:
         return MyHttpJsonResponse({'succ': False})
     except WidgetModel.DoesNotExist, e:
