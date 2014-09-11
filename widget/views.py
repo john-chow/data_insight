@@ -825,6 +825,13 @@ class FactorHandler():
         return 
 
 
+    def ifHasAggregation(self):
+        for factor in self.msus:
+            if Protocol.NoneFunc != factor.getProperty(Protocol.Func):
+                return True
+        return False
+
+
     def mapToSqlPart(self):
         """
         按照对所处select语句中的位置部分
@@ -836,10 +843,15 @@ class FactorHandler():
         # 选择区别里面的数字列不存在sql语句中，它只是做值域范围设定用的
         # 选择区别里面的文字列存在sql语句中的select段和group段
 
+        #isAggregate = True if self.ifHasAggregation() else False
+        isAggregate = True if len(self.msus) > 0 else False
+        
         selects, groups  = [], []
         for factor in (self.msus + self.msns):
             kind    = factor.getProperty(Protocol.Kind)
             if Protocol.NumericType == kind:
+                selects.append(factor)
+            elif (Protocol.NumericType != kind) and not isAggregate:
                 selects.append(factor)
             else:
                 selects.append(factor)
