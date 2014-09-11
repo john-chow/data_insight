@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import psycopg2 as pysql
 import datetime, time, random, sys, os, traceback
+from decimal import *
 
 from collections import defaultdict
 from django.http import HttpResponse
@@ -133,10 +134,13 @@ def strfDataAfterFetchDb(data_from_db):
             try:
                 json.dumps(data_tuple)
             except Exception, e:
+                '''
                 str_data_tuple = map( \
                     lambda x: x.strftime(Protocol.DatetimeFormat) \
                     , data_tuple \
                 )
+                '''
+                str_data_tuple = map(textfy, data_tuple) 
                 zip_data_list.pop(idx)
                 zip_data_list.insert(idx, str_data_tuple)
         return zip(*zip_data_list)
@@ -153,6 +157,13 @@ def cleanDataFromDb(data):
         return [round(i, 2) if isinstance(i, float) else i  for i in record]
 
     return [f(r) for r in data]
+
+
+def textfy(x):
+    if isinstance(x, Decimal):
+        return float(x)
+    else:
+        return x.strftime(Protocol.DatetimeFormat)
 
 
 def mergeListByKey(list1, list2, key):
