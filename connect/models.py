@@ -8,9 +8,9 @@ from widget.models import ExternalDbModel
 class FieldsInfoModel(models.Model):
     m_user = models.ForeignKey(User, db_column = 'user')
     m_conn = models.ForeignKey(ExternalDbModel, db_column = 'conn')
-    m_table = models.CharField(max_length = 20, db_column = 'table')
-    m_nicknames = models.CharField(max_length = 100, db_column = 'nicknames')
-    m_types = models.CharField(max_length = 100, db_column = 'types')
+    m_table = models.CharField(max_length = 100, db_column = 'table')
+    m_nicknames = models.CharField(max_length = 300, db_column = 'nicknames')
+    m_types = models.CharField(max_length = 300, db_column = 'types')
 
     def getTypesDict(self):
         """

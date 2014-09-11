@@ -119,6 +119,7 @@ def handleField(request):
     """
     hk = request.session.get('hk')
     st = SqlExecutorMgr.stRestore(hk)
+    logger.info('hk = {}'.format(hk))
     try:
         conn = ExternalDbModel.objects.get(pk = hk)
     except ExternalDbModel.DoesNotExist, e:
@@ -151,6 +152,7 @@ def handleField(request):
                 model.save()
 
         except Exception, e:
+            logExcInfo()
             return MyHttpJsonResponse({'succ': False, 'msg': 'xxxxx'})
 
         return MyHttpJsonResponse({'succ': True})
