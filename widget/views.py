@@ -151,7 +151,6 @@ def widgetShow(request, widget_id):
         hk = model.m_external_db.m_hk
         producer = DrawDataProducer(hk)
         data = producer.produce(model.restoreReqDataDict())
-        pdb.set_trace()
     except WidgetModel.DoesNotExist:
         return HttpResponse({'succ': False, 'msg': 'xxxxxxxxxxxx'})
     except ExternalDbModel.DoesNotExist:
