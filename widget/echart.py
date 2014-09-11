@@ -55,6 +55,67 @@ class EChart():
 
 class Bar_Line_Base(EChart):
     def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
+        if len(msu_factor_list) > 0:
+            return self.makeAggregateData( \
+                data_from_db, msu_factor_list, msn_factor_list, group_factor_list \
+            )
+        else:
+            return self.makeRegularData( \
+                data_from_db, msu_factor_list, msn_factor_list, group_factor_list \
+            )
+
+    def makeRegularData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
+        # 要求先是数字列,再是文字列
+        numeric_factor_list, word_factor_list = [], []
+        for factor in msn_factor_list:
+            tmp_factor_list = numeric_factor_list \
+                    if Protocol.NumericType == factor.getProperty(Protocol.Kind) \
+                    else word_factor_list
+            tmp_factor_list.append(factor)
+
+        all_data = map(list, zip(*data_from_db))
+
+        if not (0 < len(numeric_factor_list) < 3):
+            raise Exception('轴上参数不对')
+
+        x_info_list, y_info_list = [], []
+
+        # 先看度量列表，确定所在轴
+        _table, attr_name, attr_kind, attr_cmd = numeric_factor_list[0].extract()
+        attr_axis = numeric_factor_list[0].getProperty(Protocol.Axis)
+
+        msu_info_list = x_info_list if u'col' == attr_axis else y_info_list
+        msu_info_list.append({'type': 'value'})
+
+        # 再看维度列表
+        if 1 == len(word_factor_list):
+            msn_idx = len(numeric_factor_list)
+            _table, attr_name, attr_kind, attr_cmd = word_factor_list[0].extract()
+            attr_axis = word_factor_list[0].getProperty(Protocol.Axis)
+            msn_info_list = x_info_list if u'col' == attr_axis else y_info_list
+            msn_info_list.append({'type': 'category', 'data': list(set(all_data[msn_idx]))})
+
+        legend_series_data = []
+        if len(group_factor_list) > 0:
+            group_idx   = -1
+            legend_data = list(set(all_data[group_idx]))
+
+            for l in legend_data:
+                one_series_data = [d[0] for d in data_from_db if l == d[-1]]
+                legend_series_data.append({'legend': l, 'series': one_series_data})
+        else:
+            legend_data = []
+            one_series_data = all_data[0]
+            legend_series_data.append({'series': one_series_data})
+
+        return {    
+            'x': x_info_list   \
+            , 'y': y_info_list     \
+            , 'legend_series': legend_series_data
+        }
+            
+
+    def makeAggregateData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
         msu_len, msn_len, group_len = \
                 map(lambda x: len(x), (msu_factor_list, msn_factor_list, group_factor_list))
 

@@ -749,7 +749,6 @@ class FactorHandler():
         self.msns, self.msus, self.filters = [], [], []
         self.extract(req)
 
-
     def extract(self, req):
         '''
         解析获得各维度上的Factor对象
