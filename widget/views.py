@@ -589,15 +589,18 @@ class WidgetHandler(object):
 
     def parse(self, req):
         [self.graph, self.x, self.y, mapping, self.snapshot, self.name, \
-                self.skin, self.refresh, publish, self.filter] \
+                self.skin, self.refresh, publish, self.filter, self.order] \
             = map(lambda i: req.get(i), \
                 [Protocol.Graph, Protocol.Xaxis, Protocol.Yaxis, \
                 Protocol.Mapping, Protocol.Snapshot, Protocol.WidgetName, Protocol.Style, \
-                Protocol.Refresh, Protocol.IsPublish, Protocol.Filter])
+                Protocol.Refresh, Protocol.IsPublish, Protocol.Filter, Protocol.Order])
 
         self.color = mapping.get(Protocol.Color)
         self.size = mapping.get(Protocol.Size)
         self.publish = True if 'true' == publish else False
+
+        # 暂时写定
+        self.order = {}
 
         return self.validate()
 
@@ -633,6 +636,7 @@ class WidgetHandler(object):
             , 'm_status':             self.publish
             , 'm_skin':               self.skin
             , 'm_filter':             self.filter
+            , 'm_order':              self.order
         }
 
         return pair
@@ -800,10 +804,23 @@ class FactorHandler():
             group_factors.append(factor)
 
 
+        # 获取排序Factor对象
+        order_factors = []
+        orders = req.get(Protocol.Order, [])
+        for item in orders:
+            order_attr_table = item.get(Protocol.Table, '')
+            order_attr_column = item.get(Protocol.Attr, '')
+            item = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
+                                    (order_attr_table, order_attr_column, -1, '')))
+            factor = FactorFactory.make(item)
+            order_factors.append(factor)
+
+
         self.msus = msu_factors
         self.msns = msn_factors
         self.filters = filter_factors
         self.groups = group_factors
+        self.orders = order_factors
         self.extracted = True
         return 
 
@@ -836,6 +853,7 @@ class FactorHandler():
             'selects':          selects
             , 'groups':         groups
             , 'filters':        self.filters
+            , 'orders':         self.orders
         }
 
 

@@ -43,6 +43,7 @@ class WidgetModel(ElementModel):
     m_pic           = models.TextField(db_column='snapshot')
     m_external_db   = models.ForeignKey('ExternalDbModel')
     m_filter        = models.CharField(max_length=1024, db_column='filter')
+    m_order         = models.CharField(max_length=200, db_column='order')
 
     def getConn(self):
         return self.m_external_db
@@ -64,6 +65,7 @@ class WidgetModel(ElementModel):
             , Protocol.Graph:   self.m_graph 
             , 'table':          self.m_table
             , Protocol.Filter:  eval(self.m_filter) if self.m_filter else self.m_filter
+            , Protocol.Order:   eval(self.m_order) if self.m_order else self.m_order
         }
 
     def hasAggreate(self):
@@ -100,6 +102,7 @@ class WidgetModel(ElementModel):
             , Protocol.Filter:      eval(self.m_filter)
             , 'values':             []
             , 'operators':          []
+            , Protocol.Order:      eval(self.m_order)
         }
 
     def restoreUsedTables(self):

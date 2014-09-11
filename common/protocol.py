@@ -69,6 +69,9 @@ Fill = 'fill'
 # 用来进行大小的字段
 Size = 'size'
 
+# 排序字段
+Order = 'order'
+
 # 选择器封装
 Mapping = 'mapping'
 

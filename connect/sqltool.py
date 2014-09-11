@@ -241,7 +241,7 @@ class Convertor():
     def __init__(self, storage):
         self.storage = storage
 
-    def makeSelectSql(self, selects, filters = [], groups = [], **kwargs):
+    def makeSelectSql(self, selects, filters = [], groups = [], orders = [], **kwargs):
         '''
         制作select形式的sql语句
         '''
@@ -259,6 +259,10 @@ class Convertor():
             group_part = self.cvtGroup(groups)
             sql_obj = sql_obj.group_by(*group_part)
 
+        if orders:
+            order_part = self.cvtOrder(orders)
+            sql_obj = sql_obj.order_by(*order_part)
+
         if kwargs.get('distinct'):
             sql_obj = sql_obj.distinct()
 
@@ -268,7 +272,8 @@ class Convertor():
 
     def cvtField(self, fieldfactor):
         if not isinstance(fieldfactor, FieldFactor):
-            pass
+            logExcInfo()
+            raise Exception('error')
 
         tablename, colname, kind, funcname = fieldfactor.extract()
         table = self.storage.getTable(tablename)
@@ -333,12 +338,12 @@ class Convertor():
         '''
         return [self.cvtField(factor) for factor in groups]
 
-    
-    def cvtOrderBy(self):
+    def cvtOrder(self, orders):
         '''
         转换sql语句中order by后字段part
         '''
-        pass
+        return [self.cvtField(factor) for factor in orders]
+
 
 
     def cvtFunc(self, funcname):
