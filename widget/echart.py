@@ -353,8 +353,25 @@ class ChinaMap(Map):
         """
 
     def makeData(self, *args):
-        pmValue = getCityPM2dot5()
-        return {u'point_value': pmValue}
+        all_data = map(list, zip(*data_from_db))
+        
+        if len(msn_factor_list) > 1:
+            raise Exception('地图轴上参数不正确')
+
+        legend_series_data = []
+        for idx, factor in enumerate(msu_factor_list):
+            legend = factor.getProperty(Protocol.Attr)
+            data_list = all_data[idx]
+            district_list = all_data[-1]
+            one_series = dict(zip(district_list, data_list))
+            legend_series_data.append({
+                'legend':       legend
+                , 'series':     one_series
+            })
+
+        return {
+            'legend_series':        legend_series_data
+        }
         
             
             
@@ -406,7 +423,7 @@ class EChartManager():
         elif 'radar' == shape:
             return Radar()
         
-        elif 'china_map' == shape:
+        elif 'map' == shape:
             return ChinaMap()
 
         elif 'world_map' == shape:

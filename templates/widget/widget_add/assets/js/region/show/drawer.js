@@ -86,9 +86,10 @@ define([
 				this.now_drawer.start(resp)
 			} else {
 				var self = this;
-				require(["echarts/chart/map", "echarts/config", "common/city"]
+				require(["echarts/chart/map", "echarts/config"/*, "common/city"*/]
 						, function(_m, ecConfig, _t) {
-					self.now_drawer.work(resp.data)
+                    self.now_drawer.start(resp)
+					//self.now_drawer.work(resp.data)
 				})
 			}
 
@@ -606,52 +607,10 @@ define([
 
 	var MapDrawer = function() {
 		this.seriesOne = {
-            name: '全国'
+            name:   ''
 			, type: 'map'
-			, roam: true
-			, hoverable: false
 			, mapType: 'china'
-			, itemStyle:{
-                normal:{
-                    borderColor:'rgba(100,149,237,1)'
-					, borderWidth:0.5
-					, areaStyle:{
-                        color: '#1b1b1b'
-                    }
-                }
-            },
-            data:[]
-			, markLine : {
-                smooth:true
-				, symbol: ['none', 'circle']
-				,  symbolSize : 1,
-                itemStyle : {
-                    normal: {
-                        color:'#fff'
-						, borderWidth:1
-						, borderColor:'rgba(30,144,255,0.5)'
-                    }
-                }
-				, data : [],
-            },
-			markPoint : {
-				symbol:'emptyCircle'
-				, symbolSize : function(v){
-					return 10 + v/10
-				}
-				, effect : {
-					show: true,
-					shadowBlur : 0
-				}
-				, itemStyle:{
-					normal:{
-						label:{show:false}
-					}
-				}
-				, data : []
-			}
-			, geoCoord: {
-            }
+            , data:[]
         };
 
 		this.work = function(data) {
@@ -659,22 +618,41 @@ define([
 		};
 
 		this.fillSeries = function(data) {
-			this.optionCloned = cloneObject(this.option);
-			var bool_china = false;
-			if ( data.hasOwnProperty("point_value") ) 	{
-				this.seriesOne.markPoint.data = data["point_value"];
-			}
-			if ( data.hasOwnProperty("line_value") ) {
-				this.seriesOne.markLine.data = data["line_value"];
-				this.seriesOne.markPoint.data = $.map(data["line_value"], function(one) {
-					return one[1]
-				})
-			}
-			this.seriesOne.geoCoord = getChinaMainCityCoord();
-			this.optionCloned.series.push(this.seriesOne);
-		};
+            if (data.legend_series.length > 0) {
+                var self = this;
 
-	};
+                // 先清空series部分
+                self.optionCloned.series = [];
+                $.each(data.legend_series, function(i, l_s) {
+                    self.seriesOneCloned  = cloneObject(self.seriesOne);
+                    var legend_name = l_s["legend"];
+                    self.seriesOneCloned.name = legend_name;
+                    self.seriesOneCloned.type = 'map';
+                    self.seriesOneCloned.mapType = 'china';
+                    var series_data = self.convert(l_s["series"]);
+                    self.seriesOneCloned.data.push(series_data);
+                    self.seriesOneCloned.data = [
+                        {'name': '广东',    'value':    100},
+                        {'name': '北京',    'value':    500},
+                        {'name': '四川',    'value':    600},
+                    ];
+                    self.optionCloned.legend.data.push(legend_name);
+                    self.optionCloned.series.push(self.seriesOneCloned)
+                })
+            }
+        };
+
+        this.convert  =         function(data) {
+            var series = [];
+            for (var district in data) {
+                series.push({ 
+                    'name':     district
+                    , 'value':  data[district]
+                })
+            }
+            return series
+        }
+    };
 
 
     // 确定继承关系
