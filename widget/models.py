@@ -55,8 +55,12 @@ class WidgetModel(ElementModel):
             Protocol.Xaxis:     eval(self.m_x) if self.m_x else self.m_x 
             , Protocol.Yaxis:   eval(self.m_y) if self.m_y else self.m_y
             #, 'tables':         json.loads(self.m_table) 
-            , Protocol.Color:   eval(self.m_color) if self.m_color else self.m_color 
-            , Protocol.Size:    self.m_size 
+            , Protocol.Mapping:     {
+                Protocol.Color:         eval(self.m_color) if self.m_color else self.m_color
+                , Protocol.Size:        self.m_size
+            }
+            #, Protocol.Color:   eval(self.m_color) if self.m_color else self.m_color 
+            #, Protocol.Size:    self.m_size 
             , Protocol.Graph:   self.m_graph 
             , 'table':          self.m_table
             , Protocol.Filter:  eval(self.m_filter) if self.m_filter else self.m_filter
