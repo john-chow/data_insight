@@ -589,11 +589,11 @@ class WidgetHandler(object):
 
     def parse(self, req):
         [self.graph, self.x, self.y, mapping, self.snapshot, self.name, \
-                                        self.skin, self.refresh, publish] \
+                self.skin, self.refresh, publish, self.filter] \
             = map(lambda i: req.get(i), \
                 [Protocol.Graph, Protocol.Xaxis, Protocol.Yaxis, \
                 Protocol.Mapping, Protocol.Snapshot, Protocol.WidgetName, Protocol.Style, \
-                Protocol.Refresh, Protocol.IsPublish])
+                Protocol.Refresh, Protocol.IsPublish, Protocol.Filter])
 
         self.color = mapping.get(Protocol.Color)
         self.size = mapping.get(Protocol.Size)
@@ -632,6 +632,7 @@ class WidgetHandler(object):
             , 'm_refresh':            self.refresh 
             , 'm_status':             self.publish
             , 'm_skin':               self.skin
+            , 'm_filter':             self.filter
         }
 
         return pair

@@ -52,7 +52,7 @@ Xaxis = 'x'
 Yaxis = 'y'
 
 # 过滤
-Filter = 'filter'
+Filter = 'filters'
 
 # 图表类型种类
 Graph = 'graph'
@@ -91,11 +91,13 @@ IsPublish = 'isPublish'
 
 FilterColumn = 'field'
 
+'''
 Filter = {
     'Operator':     ''
     , 'Values':     ''
     , 'Overplus':   ''
 }
+'''
 
 
 

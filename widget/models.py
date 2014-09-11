@@ -42,6 +42,7 @@ class WidgetModel(ElementModel):
                                         default = 'default')
     m_pic           = models.TextField(db_column='snapshot')
     m_external_db   = models.ForeignKey('ExternalDbModel')
+    m_filter        = models.CharField(max_length=1024, db_column='filter')
 
     def getConn(self):
         return self.m_external_db
@@ -58,6 +59,7 @@ class WidgetModel(ElementModel):
             , Protocol.Size:    self.m_size 
             , Protocol.Graph:   self.m_graph 
             , 'table':          self.m_table
+            , Protocol.Filter:  eval(self.m_filter) if self.m_filter else self.m_filter
         }
 
     def hasAggreate(self):
@@ -91,7 +93,7 @@ class WidgetModel(ElementModel):
             , Protocol.Color:       self.m_color
             , Protocol.Size:        self.m_size
             , Protocol.WidgetName:  self.m_name
-            , 'filters':            []
+            , Protocol.Filter:      eval(self.m_filter)
             , 'values':             []
             , 'operators':          []
         }
