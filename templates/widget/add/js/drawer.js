@@ -172,6 +172,7 @@ define([
 		this.draw =		function(optionData) {
             this.ec.clear();
             var data = optionData || this.optionCloned;
+            console.log(JSON.stringify(data));
             this.ec.setOption(data)
 		};
 
