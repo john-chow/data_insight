@@ -5,10 +5,8 @@ define([
 , "echarts/chart/scatter"
 , "echarts/chart/pie"
 , "echarts/chart/radar"
-, "echarts/chart/table"
 , "common/tools"
-, "outter_interface"
-], function(echart, _b, _l, _s, _p, _t,  _r, _tools, _ot) {
+], function(echart) {
 
 
 /////////////////////////////////////////////////////////////////////
@@ -24,11 +22,15 @@ define([
 		this.now_drawer				= null;
         this.updator                = new Updator();
 
+        this.init   =   function(place) {
+            this.ec     = echart.init(place);
+        };
+
         // 对外提供的(重新)开始绘图接口
 		this.run	=				function(place, resp, dynamicObj) {
-            var type    = resp.type;
-            this.ec     = echart.init(place);
+            if(!this.ec)        this.ec = echart.init(place)
 
+            var type = resp.type;
 			switch(type) {
 				case "map":	 	
 					this.now_drawer = new MapDrawer();
@@ -83,9 +85,10 @@ define([
 				this.now_drawer.start(resp)
 			} else {
 				var self = this;
-				require(["echarts/chart/map", "echarts/config", "common/city"]
+				require(["echarts/chart/map", "echarts/config"/*, "common/city"*/]
 						, function(_m, ecConfig, _t) {
-					self.now_drawer.work(resp.data)
+                    self.now_drawer.start(resp)
+					//self.now_drawer.work(resp.data)
 				})
 			}
 
@@ -123,24 +126,8 @@ define([
 		this.place			            = "";
 		this.type			            = "";
 		this.option = {
-			'title': 					{}
-			, 'tooltip': 				{}
-			, 'legend':					{
-				'origent':				'vertical'
-				, 'x':					'left'
-				, 'data':				[]
-			}
-			, 'toolbox': 				{
-        		'show' : 				true,
-				'orient' : 				'vertical',
-				'x': 					'right',
-				'y': 					'center',
-				'feature' : {
-					'mark' : 			{'show': true},
-					'dataView' : 		{'show': true, 'readOnly': false},
-					'restore' : 		{'show': true},
-					'saveAsImage' : 	{'show': true}
-				}
+			'legend':					{
+				'data':				[]
 			}
 			, 'series':		[
 			]
@@ -172,27 +159,9 @@ define([
 		this.draw =		function(optionData) {
             this.ec.clear();
             var data = optionData || this.optionCloned;
+            console.log(JSON.stringify(data));
             this.ec.setOption(data)
 		};
-
-/*
-        // 主要的控制样式部分
-        this.styleChart     =   function(style) {
-            var self = this;
-            self.optionCloned["backgroundColor"] =      style["backgroundColor"];
-
-            $.each(["color", "title", "dataRange", "toolbox"
-                    , "tooltip", "dataZoom", "legend", "grid"], function(i, c) {
-                // _hide是要求移除此项的标记
-                if(style[c] && style[c]["_hide"])   delete self.optionCloned[c]
-                $.extend(self.optionCloned[c], style[c])
-            })
-
-            $.each(this.optionCloned["series"], function(i, ss) {
-                $.extend(ss, style["se"])
-            })
-        };
-*/
 
         this.styleLegend    =   function(lgStyle) {
         };
@@ -215,39 +184,13 @@ define([
         // 是否是聚合型图，即有没有stacked
         this.stacked        = false;
 
-/*
-		this.catStyle = {
-			boundaryGap : false
-		};
-
-		this.valStyle = {
-			axisLabel : {
-                formatter: ''
-            }
-			, splitArea : {show : true}
-		};
-*/
-
         this.seriesNewAdd = [
             0, 0, true, false, null   // 参数意义见echart官网
         ];
 
 		this.seriesOne = {
 			type:			""
-            /*
-			, markPoint: {
-                data: [
-                    {type : 'max', name: '最大值'},
-                    {type : 'min', name: '最小值'}
-                ]
-            }
-			, markLine: {
-                data: [
-                    {type : 'average', name: '平均值'}
-                ]
-            }
-            */
-			, temStyle: {normal: {label : {show: true, position: 'inside'}}}
+			//, temStyle: {normal: {label : {show: true, position: 'inside'}}}
 			, data: []
 		};
 
@@ -259,13 +202,6 @@ define([
 			this.fillAxis(resp.data);
 			AxisDrawer.prototype.work.call(this, resp);
 		};
-
-/*
-        this.styleChart =   function(style) {
-            this.styleAxis(style["x"], style["y"]);
-            AxisDrawer.prototype.styleChart.call(this, style);
-        };
-*/
 
 		this.fillAxis = function(data) {
 			// 分别加上属性样式，和数值样式
@@ -334,17 +270,6 @@ define([
 
 
 	var BarDrawer = function() {
-/*
-		this.catStyle = {
-		};
-		
-		this.valStyle = {
-		};
-
-		this.seriesStyle = {
-		};
-*/
-
 		this.styleAxis = function() {
 		};
 		
@@ -354,17 +279,6 @@ define([
 	};
 
 	var LineDrawer = function() {
-/*
-		this.catStyle = {
-		};
-		
-		this.valStyle = {
-		};
-
-		this.seriesStyle = {
-		};
-*/
-
 		this.styleAxis = function() {
 		};
 		
@@ -377,17 +291,6 @@ define([
         this.init          = function(ec, type, stateOption) {
             AreaDrawer.prototype.init.call(this, ec, "line" ,stateOption)
         };
-
-/*
-		this.catStyle = {
-		};
-		
-		this.valStyle = {
-		};
-
-		this.seriesStyle = {
-		};
-*/
 
 		this.styleAxis = function() {
 		};
@@ -447,8 +350,6 @@ define([
         this.seriesOne  =       {
             "name":             ""
             , "type":           "pie"
-            , "radius":         "55%"
-            , "center":         ['50%', 225]
             , "data":           []
         },
 
@@ -456,11 +357,13 @@ define([
             PieDrawer.prototype.init.call(this, el, "pie", stateOption);
 
             $.extend(this.optionCloned, {
+                /*
                 "tooltip": {
                     trigger:        'item'
                     , formatter:    "{a} <br/>{b} : {c} ({d}%)"
                 }
                 , "calculable":     true
+                */
             })
         };
 
@@ -622,52 +525,10 @@ define([
 
 	var MapDrawer = function() {
 		this.seriesOne = {
-            name: '全国'
+            name:   ''
 			, type: 'map'
-			, roam: true
-			, hoverable: false
 			, mapType: 'china'
-			, itemStyle:{
-                normal:{
-                    borderColor:'rgba(100,149,237,1)'
-					, borderWidth:0.5
-					, areaStyle:{
-                        color: '#1b1b1b'
-                    }
-                }
-            },
-            data:[]
-			, markLine : {
-                smooth:true
-				, symbol: ['none', 'circle']
-				,  symbolSize : 1,
-                itemStyle : {
-                    normal: {
-                        color:'#fff'
-						, borderWidth:1
-						, borderColor:'rgba(30,144,255,0.5)'
-                    }
-                }
-				, data : [],
-            },
-			markPoint : {
-				symbol:'emptyCircle'
-				, symbolSize : function(v){
-					return 10 + v/10
-				}
-				, effect : {
-					show: true,
-					shadowBlur : 0
-				}
-				, itemStyle:{
-					normal:{
-						label:{show:false}
-					}
-				}
-				, data : []
-			}
-			, geoCoord: {
-            }
+            , data:[]
         };
 
 		this.work = function(data) {
@@ -675,22 +536,41 @@ define([
 		};
 
 		this.fillSeries = function(data) {
-			this.optionCloned = cloneObject(this.option);
-			var bool_china = false;
-			if ( data.hasOwnProperty("point_value") ) 	{
-				this.seriesOne.markPoint.data = data["point_value"];
-			}
-			if ( data.hasOwnProperty("line_value") ) {
-				this.seriesOne.markLine.data = data["line_value"];
-				this.seriesOne.markPoint.data = $.map(data["line_value"], function(one) {
-					return one[1]
-				})
-			}
-			this.seriesOne.geoCoord = getChinaMainCityCoord();
-			this.optionCloned.series.push(this.seriesOne);
-		};
+            if (data.legend_series.length > 0) {
+                var self = this;
 
-	};
+                // 先清空series部分
+                self.optionCloned.series = [];
+                $.each(data.legend_series, function(i, l_s) {
+                    self.seriesOneCloned  = cloneObject(self.seriesOne);
+                    var legend_name = l_s["legend"];
+                    self.seriesOneCloned.name = legend_name;
+                    self.seriesOneCloned.type = 'map';
+                    self.seriesOneCloned.mapType = 'china';
+                    var series_data = self.convert(l_s["series"]);
+                    self.seriesOneCloned.data.push(series_data);
+                    self.seriesOneCloned.data = [
+                        {'name': '广东',    'value':    100},
+                        {'name': '北京',    'value':    500},
+                        {'name': '四川',    'value':    600},
+                    ];
+                    self.optionCloned.legend.data.push(legend_name);
+                    self.optionCloned.series.push(self.seriesOneCloned)
+                })
+            }
+        };
+
+        this.convert  =         function(data) {
+            var series = [];
+            for (var district in data) {
+                series.push({ 
+                    'name':     district
+                    , 'value':  data[district]
+                })
+            }
+            return series
+        }
+    };
 
 
     // 确定继承关系

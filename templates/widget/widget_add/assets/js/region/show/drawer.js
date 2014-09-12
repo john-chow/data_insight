@@ -5,7 +5,6 @@ define([
 , "echarts/chart/scatter"
 , "echarts/chart/pie"
 , "echarts/chart/radar"
-, "echarts/chart/table"
 , "tool"
 ], function(echart) {
 
@@ -127,24 +126,8 @@ define([
 		this.place			            = "";
 		this.type			            = "";
 		this.option = {
-			'title': 					{}
-			, 'tooltip': 				{}
-			, 'legend':					{
-				'origent':				'vertical'
-				, 'x':					'left'
-				, 'data':				[]
-			}
-			, 'toolbox': 				{
-        		'show' : 				true,
-				'orient' : 				'vertical',
-				'x': 					'right',
-				'y': 					'center',
-				'feature' : {
-					'mark' : 			{'show': true},
-					'dataView' : 		{'show': true, 'readOnly': false},
-					'restore' : 		{'show': true},
-					'saveAsImage' : 	{'show': true}
-				}
+			'legend':					{
+				'data':				[]
 			}
 			, 'series':		[
 			]
@@ -176,6 +159,7 @@ define([
 		this.draw =		function(optionData) {
             this.ec.clear();
             var data = optionData || this.optionCloned;
+            console.log(JSON.stringify(data));
             this.ec.setOption(data)
 		};
 
@@ -200,39 +184,13 @@ define([
         // 是否是聚合型图，即有没有stacked
         this.stacked        = false;
 
-/*
-		this.catStyle = {
-			boundaryGap : false
-		};
-
-		this.valStyle = {
-			axisLabel : {
-                formatter: ''
-            }
-			, splitArea : {show : true}
-		};
-*/
-
         this.seriesNewAdd = [
             0, 0, true, false, null   // 参数意义见echart官网
         ];
 
 		this.seriesOne = {
 			type:			""
-            /*
-			, markPoint: {
-                data: [
-                    {type : 'max', name: '最大值'},
-                    {type : 'min', name: '最小值'}
-                ]
-            }
-			, markLine: {
-                data: [
-                    {type : 'average', name: '平均值'}
-                ]
-            }
-            */
-			, temStyle: {normal: {label : {show: true, position: 'inside'}}}
+			//, temStyle: {normal: {label : {show: true, position: 'inside'}}}
 			, data: []
 		};
 
@@ -244,13 +202,6 @@ define([
 			this.fillAxis(resp.data);
 			AxisDrawer.prototype.work.call(this, resp);
 		};
-
-/*
-        this.styleChart =   function(style) {
-            this.styleAxis(style["x"], style["y"]);
-            AxisDrawer.prototype.styleChart.call(this, style);
-        };
-*/
 
 		this.fillAxis = function(data) {
 			// 分别加上属性样式，和数值样式
@@ -319,17 +270,6 @@ define([
 
 
 	var BarDrawer = function() {
-/*
-		this.catStyle = {
-		};
-		
-		this.valStyle = {
-		};
-
-		this.seriesStyle = {
-		};
-*/
-
 		this.styleAxis = function() {
 		};
 		
@@ -339,17 +279,6 @@ define([
 	};
 
 	var LineDrawer = function() {
-/*
-		this.catStyle = {
-		};
-		
-		this.valStyle = {
-		};
-
-		this.seriesStyle = {
-		};
-*/
-
 		this.styleAxis = function() {
 		};
 		
@@ -362,17 +291,6 @@ define([
         this.init          = function(ec, type, stateOption) {
             AreaDrawer.prototype.init.call(this, ec, "line" ,stateOption)
         };
-
-/*
-		this.catStyle = {
-		};
-		
-		this.valStyle = {
-		};
-
-		this.seriesStyle = {
-		};
-*/
 
 		this.styleAxis = function() {
 		};
@@ -432,8 +350,6 @@ define([
         this.seriesOne  =       {
             "name":             ""
             , "type":           "pie"
-            , "radius":         "55%"
-            , "center":         ['50%', 225]
             , "data":           []
         },
 
@@ -441,11 +357,13 @@ define([
             PieDrawer.prototype.init.call(this, el, "pie", stateOption);
 
             $.extend(this.optionCloned, {
+                /*
                 "tooltip": {
                     trigger:        'item'
                     , formatter:    "{a} <br/>{b} : {c} ({d}%)"
                 }
                 , "calculable":     true
+                */
             })
         };
 

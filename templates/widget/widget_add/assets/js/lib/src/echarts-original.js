@@ -22,7 +22,6 @@ define('echarts/config',[],function() {
         CHART_TYPE_CHORD : 'chord',
         CHART_TYPE_GAUGE : 'gauge',
         CHART_TYPE_FUNNEL : 'funnel',
-        CHART_TYPE_TABLE : 'table',
 
         // 组件类型
         COMPONENT_TYPE_TITLE: 'title',
@@ -40,8 +39,6 @@ define('echarts/config',[],function() {
         COMPONENT_TYPE_AXIS_CATEGORY: 'categoryAxis',
         COMPONENT_TYPE_AXIS_VALUE: 'valueAxis',
         COMPONENT_TYPE_TIMELINE: 'timeline',
-        COMPONENT_TYPE_ROW: 'row',
-        COMPONENT_TYPE_COLUMN: 'column',
 
         // 全图默认背景
         backgroundColor: 'rgba(0,0,0,0)',
@@ -7708,7 +7705,6 @@ define(
             // 实体
             for (var i = 0; i <= this._maxZlevel; i++) {
                 canvasElem = createDom(i, 'canvas', this);
-                canvasElem.setAttribute("name", "xxx");            // zhouzhengran
                 domRoot.appendChild(canvasElem);
                 this._domList[i] = canvasElem;
                 vmlCanvasManager && vmlCanvasManager.initElement(canvasElem);
@@ -8116,63 +8112,6 @@ define(
             ctx = null;
             this._domList.bg.removeChild(imageDom);
             return image;
-        };
-        
-        Painter.prototype.toDataCanvas = function (type, backgroundColor, args) {
-            if (vmlCanvasManager) {
-                return null;
-            }
-
-            var imageDom = createDom('image', 'canvas', this);
-            this._domList.bg.appendChild(imageDom);
-            var ctx = imageDom.getContext('2d');
-            devicePixelRatio != 1 
-            && ctx.scale(devicePixelRatio, devicePixelRatio);
-            
-            ctx.fillStyle = backgroundColor || '#fff';
-            ctx.rect(
-                0, 0, 
-                this._width * devicePixelRatio,
-                this._height * devicePixelRatio
-            );
-            ctx.fill();
-            
-            //升序遍历，shape上的zlevel指定绘画图层的z轴层叠
-            var me = this;
-            function updatePainter(shapeList, callback) {
-                me.update(shapeList, callback);
-            }
-            this.storage.iterShape(
-                function (shape) {
-                    if (!shape.invisible) {
-                        if (!shape.onbrush //没有onbrush
-                            //有onbrush并且调用执行返回false或undefined则继续粉刷
-                            || (shape.onbrush && !shape.onbrush(ctx, false))
-                        ) {
-                            if (config.catchBrushException) {
-                                try {
-                                    shape.brush(ctx, false, updatePainter);
-                                }
-                                catch(error) {
-                                    log(
-                                        error,
-                                        'brush error of ' + shape.type,
-                                        shape
-                                    );
-                                }
-                            }
-                            else {
-                                shape.brush(ctx, false, updatePainter);
-                            }
-                        }
-                    }
-                },
-                { normal: 'up' }
-            );
-            var image = imageDom.toDataURL(type, args); 
-            ctx = null;
-            //this._domList.bg.removeChild(imageDom);
-            return imageDom;
         };
 
         /**
@@ -9915,10 +9854,6 @@ define(
         ZRender.prototype.toDataURL = function(type, backgroundColor, args) {
             return this.painter.toDataURL(type, backgroundColor, args);
         };
-        
-        ZRender.prototype.toDataCanvas = function(type, backgroundColor, args) {
-            return this.painter.toDataCanvas(type, backgroundColor, args);
-        };
 
         /**
          * 将常规shape转成image shape
@@ -10208,7 +10143,6 @@ define('echarts/component/base',['require','../config','../util/ecQuery','../uti
      */
     Base.prototype = {
         canvasSupported : require('zrender/tool/env').canvasSupported,
-
         /**
          * 获取zlevel基数配置
          * @param {Object} contentType
@@ -22382,358 +22316,6 @@ define('echarts/theme/default',[],function() {
 
     return config;
 });
-
-
-define('echarts/theme/dark',[],function() {
-    var theme = {
-        // 全图默认背景
-        backgroundColor: '#1b1b1b',
-        
-        // 默认色板
-        color: [
-            '#FE8463','#9BCA63','#FAD860','#60C0DD','#0084C6',
-            '#D7504B','#C6E579','#26C0C0','#F0805A','#F4E001',
-            '#B5C334'
-        ],
-
-        // 图表标题
-        title: {
-            itemGap: 8,
-            textStyle: {
-                fontWeight: 'normal',
-                color: '#fff'          // 主标题文字颜色
-            }
-        },
-        
-        // 图例
-        legend: {
-            itemGap: 8,
-            textStyle: {
-                color: '#ccc'          // 图例文字颜色
-            }
-        },
-        
-        // 值域
-        dataRange: {
-            itemWidth: 15,
-            color: ['#FFF808','#21BCF9'],
-            textStyle: {
-                color: '#ccc'          // 值域文字颜色
-            }
-        },
-
-        toolbox: {
-            color : ['#fff', '#fff', '#fff', '#fff'],
-            effectiveColor : '#FE8463',
-            disableColor: '#666',
-            itemGap: 8
-        },
-
-        // 提示框
-        tooltip: {
-            backgroundColor: 'rgba(250,250,250,0.8)',     // 提示背景颜色，默认为透明度为0.7的黑色
-            axisPointer : {            // 坐标轴指示器，坐标轴触发有效
-                type : 'line',         // 默认为直线，可选为：'line' | 'shadow'
-                lineStyle : {          // 直线指示器样式设置
-                    color: '#aaa'
-                },
-                crossStyle: {
-                    color: '#aaa'
-                },
-                shadowStyle : {                     // 阴影指示器样式设置
-                    color: 'rgba(200,200,200,0.2)'
-                }
-            },
-            textStyle: {
-                color: '#333'
-            }
-        },
-
-        // 区域缩放控制器
-        dataZoom: {
-            dataBackgroundColor: '#555',            // 数据背景颜色
-            fillerColor: 'rgba(200,200,200,0.2)',   // 填充颜色
-            handleColor: '#eee'     // 手柄颜色
-        },
-
-        // 网格
-        grid: {
-            borderWidth: 0
-        },
-
-        // 类目轴
-        categoryAxis: {
-            axisLine: {            // 坐标轴线
-                show: false
-            },
-            axisTick: {            // 坐标轴小标记
-                show: false
-            },
-            axisLabel: {           // 坐标轴文本标签，详见axis.axisLabel
-                textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
-                    color: '#ccc'
-                }
-            },
-            splitLine: {           // 分隔线
-                show: false
-            }
-        },
-
-        // 数值型坐标轴默认参数
-        valueAxis: {
-            axisLine: {            // 坐标轴线
-                show: false
-            },
-            axisTick: {            // 坐标轴小标记
-                show: false
-            },
-            axisLabel: {           // 坐标轴文本标签，详见axis.axisLabel
-                textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
-                    color: '#ccc'
-                }
-            },
-            splitLine: {           // 分隔线
-                lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
-                    color: ['#aaa'],
-                    type: 'dashed'
-                }
-            },
-            splitArea: {           // 分隔区域
-                show: false
-            }
-        },
-        
-        polar : {
-            name : {
-                textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
-                    color: '#ccc'
-                }
-            },
-            axisLine: {            // 坐标轴线
-                lineStyle: {       // 属性lineStyle控制线条样式
-                    color: '#ddd'
-                }
-            },
-            splitArea : {
-                show : true,
-                areaStyle : {
-                    color: ['rgba(250,250,250,0.2)','rgba(200,200,200,0.2)']
-                }
-            },
-            splitLine : {
-                lineStyle : {
-                    color : '#ddd'
-                }
-            }
-        },
-
-        timeline : {
-            label: {
-                textStyle:{
-                    color: '#ccc'
-                }
-            },
-            lineStyle : {
-                color : '#aaa'
-            },
-            controlStyle : {
-                normal : { color : '#fff'},
-                emphasis : { color : '#FE8463'}
-            },
-            symbolSize : 3
-        },
-
-        // 折线图默认参数
-        line: {
-            smooth : true
-        },
-        
-        // K线图默认参数
-        k: {
-            itemStyle: {
-                normal: {
-                    color: '#FE8463',       // 阳线填充颜色
-                    color0: '#9BCA63',      // 阴线填充颜色
-                    lineStyle: {
-                        width: 1,
-                        color: '#FE8463',   // 阳线边框颜色
-                        color0: '#9BCA63'   // 阴线边框颜色
-                    }
-                }
-            }
-        },
-        
-        // 雷达图默认参数
-        radar : {
-            symbol: 'emptyCircle',    // 图形类型
-            symbolSize:3
-            //symbol: null,         // 拐点图形类型
-            //symbolRotate : null,  // 图形旋转控制
-        },
-
-        pie: {
-            itemStyle: {
-                normal: {
-                    borderWidth: 1,
-                    borderColor : 'rgba(255, 255, 255, 0.5)'
-                },
-                emphasis: {
-                    borderWidth: 1,
-                    borderColor : 'rgba(255, 255, 255, 1)'
-                }
-            }
-        },
-        
-        map: {
-            itemStyle: {
-                normal: {
-                    borderColor:'rgba(255, 255, 255, 0.5)',
-                    areaStyle: {
-                        color: '#ddd'
-                    },
-                    label: {
-                        textStyle: {
-                            color: '#ccc'
-                        }
-                    }
-                },
-                emphasis: {                 // 也是选中样式
-                    areaStyle: {
-                        color: '#FE8463'
-                    },
-                    label: {
-                        textStyle: {
-                            color: 'ccc'
-                        }
-                    }
-                }
-            }
-        },
-        
-        force : {
-            itemStyle: {
-                normal: {
-                    linkStyle : {
-                        strokeColor : '#fff'
-                    }
-                }
-            }
-        },
-
-        chord : {
-            padding : 4,
-            itemStyle : {
-                normal : {
-                    lineStyle : {
-                        width : 1,
-                        color : 'rgba(228, 228, 228, 0.2)'
-                    },
-                    chordStyle : {
-                        lineStyle : {
-                            width : 1,
-                            color : 'rgba(228, 228, 228, 0.2)'
-                        }
-                    }
-                },
-                emphasis : {
-                    lineStyle : {
-                        width : 1,
-                        color : 'rgba(228, 228, 228, 0.9)'
-                    },
-                    chordStyle : {
-                        lineStyle : {
-                            width : 1,
-                            color : 'rgba(228, 228, 228, 0.9)'
-                        }
-                    }
-                }
-            }
-        },
-
-        gauge : {
-            startAngle: 225,
-            endAngle : -45,
-            axisLine: {            // 坐标轴线
-                show: true,        // 默认显示，属性show控制显示与否
-                lineStyle: {       // 属性lineStyle控制线条样式
-                    color: [[0.2, '#9BCA63'],[0.8, '#60C0DD'],[1, '#D7504B']], 
-                    width: 3,
-                    shadowColor : '#fff', //默认透明
-                    shadowBlur: 10
-                }
-            },
-            axisTick: {            // 坐标轴小标记
-                length :15,        // 属性length控制线长
-                lineStyle: {       // 属性lineStyle控制线条样式
-                    color: 'auto',
-                    shadowColor : '#fff', //默认透明
-                    shadowBlur: 10
-                }
-            },
-            axisLabel: {            // 坐标轴小标记
-                textStyle: {       // 属性lineStyle控制线条样式
-                    fontWeight: 'bolder',
-                    color: '#fff',
-                    shadowColor : '#fff', //默认透明
-                    shadowBlur: 10
-                }
-            },
-            splitLine: {           // 分隔线
-                length :25,         // 属性length控制线长
-                lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
-                    width:3,
-                    color: '#fff',
-                    shadowColor : '#fff', //默认透明
-                    shadowBlur: 10
-                }
-            },
-            pointer: {           // 分隔线
-                shadowColor : '#fff', //默认透明
-                shadowBlur: 5
-            },
-            title : {
-                textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
-                    fontWeight: 'bolder',
-                    fontSize: 20,
-                    fontStyle: 'italic',
-                    color: '#fff',
-                    shadowColor : '#fff', //默认透明
-                    shadowBlur: 10
-                }
-            },
-            detail : {
-                shadowColor : '#fff', //默认透明
-                shadowBlur: 5,
-                offsetCenter: [0, '50%'],       // x, y，单位px
-                textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
-                    fontWeight: 'bolder',
-                    color: '#fff'
-                }
-            },
-        },
-        
-        funnel : {
-            itemStyle: {
-                normal: {
-                    borderColor : 'rgba(255, 255, 255, 0.5)',
-                    borderWidth: 1
-                },
-                emphasis: {
-                    borderColor : 'rgba(255, 255, 255, 1)',
-                    borderWidth: 1
-                }
-            }
-        },
-        
-        textStyle: {
-            fontFamily: '微软雅黑, Arial, Verdana, sans-serif'
-        }
-    }
-
-    return theme;
-});
-
-
 /*!
  * ECharts, a javascript interactive chart library.
  *  
@@ -22751,7 +22333,7 @@ define('echarts/theme/dark',[],function() {
  * @author Kener (@Kener-林峰, linzhifeng@baidu.com)
  *
  */
-define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool/env','zrender','zrender/config','zrender','zrender/tool/event','./chart/island','./component/toolbox','./component','./component/title','./component/tooltip','./component/legend','./util/ecData','./chart','./component','zrender/tool/color','./component/timeline','zrender','zrender/shape/Image','zrender/loadingEffect/Bar','zrender/loadingEffect/Bubble','zrender/loadingEffect/DynamicLine','zrender/loadingEffect/Ring','zrender/loadingEffect/Spin','zrender/loadingEffect/Whirling','./theme/default', './theme/dark'],function (require) {
+define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool/env','zrender','zrender/config','zrender','zrender/tool/event','./chart/island','./component/toolbox','./component','./component/title','./component/tooltip','./component/legend','./util/ecData','./chart','./component','zrender/tool/color','./component/timeline','zrender','zrender/shape/Image','zrender/loadingEffect/Bar','zrender/loadingEffect/Bubble','zrender/loadingEffect/DynamicLine','zrender/loadingEffect/Ring','zrender/loadingEffect/Spin','zrender/loadingEffect/Whirling','./theme/default'],function (require) {
     var ecConfig = require('./config');
     var zrUtil = require('zrender/tool/util');
     
@@ -22766,8 +22348,6 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
     self.dependencies = {
         zrender : '2.0.0'
     };
-
-
     /**
      * 入口方法 
      */
@@ -22817,10 +22397,6 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
      */
     function Echarts(dom) {
         this._themeConfig = zrUtil.clone(ecConfig);
-        
-        // 做自适应   周钲然增加
-        var times = this._calcTimes(dom.clientHeight, dom.clientWidth);
-        this._autoSize(this._themeConfig, times);
 
         this.dom = dom;
         // this._zr;
@@ -22895,42 +22471,6 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
     }
 
     Echarts.prototype = {
-        _calcTimes:     function(height, width) {
-            var heightTimes = height / 500;
-            var widthTimes = width / 800;
-            return (heightTimes > widthTimes ? widthTimes : heightTimes)
-        },
-
-        /**
-         *   自适应屏幕大小，设置ecConfig根据dom大小进行等比例变化
-         *      周钲然增加
-         */
-        _autoSize:   function(ecConfig, times) {
-            var self = this;
-            // 基本不是样式类的字段，数字大小不做变化
-            var excludeString = [
-                "percision", "Percision", "Index", "Number", "Delay", "Duration", "rotate", 
-                "power", "Angle", "Interval", "Blur"
-            ];
-            var f = function(key) {
-                for (var i in excludeString) {
-                    if(key.indexOf(excludeString[i]) >= 0) 
-                        return false
-                }
-                return true
-            };
-
-            for (var k in ecConfig) {
-                var val = ecConfig[k];
-                if ("number" ===  typeof(val)) {
-                    if (f(k))   ecConfig[k] = val * times
-                }
-                else if (val && Object == val.constructor) {
-                    self._autoSize(val, times)
-                }
-            }
-        },
-
         /**
          * 初始化::构造函数
          */ 
@@ -23365,7 +22905,7 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
                 magicOption.grid = magicOption.grid || {};
                 magicOption.dataZoom = magicOption.dataZoom || {};
             }
-
+            
             var componentList = [
                 'title', 'legend', 'tooltip', 'dataRange',
                 'grid', 'dataZoom', 'xAxis', 'yAxis', 'polar'
@@ -23416,11 +22956,6 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
                     chartMap[chartType] = true;
                     ChartClass = chartLibrary.get(chartType);
                     if (ChartClass) {
-                        chart = new ChartClass(
-                            this._themeConfig, this._messageCenter, this._zr,
-                            magicOption, this
-                        );
-                        /*
                         if (this.chart[chartType]) {
                             chart = this.chart[chartType];
                             chart.refresh(magicOption);
@@ -23431,7 +22966,6 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
                                 magicOption, this
                             );
                         }
-                        */
                         this._chartList.push(chart);
                         this.chart[chartType] = chart;
                     }
@@ -24296,9 +23830,6 @@ define('echarts/echarts',['require','./config','zrender/tool/util','zrender/tool
                     switch (theme) {
                         // case 'themename':
                         //     theme = require('./theme/themename');
-                        case 'dark':
-                            theme = require('./theme/dark');
-                            break;
                         default:
                             theme = require('./theme/default');
                     }
@@ -37822,501 +37353,6 @@ define('echarts/chart/line',['require','../component/base','./base','zrender/sha
     
     return Line;
 });
-
-
-/**
- * echarts图表类：表图
- *
- * @desc echarts基于Canvas，纯Javascript图表库，提供直观，生动，可交互，可个性化定制的数据统计图表。
- * @author Kener (@Kener-林峰, linzhifeng@baidu.com)
- *
- */
-define('echarts/chart/table',['require','../component/base','./base','zrender/shape/Rectangle','zrender/shape/Line','zrender/shape/Text','../component/grid','../component/dataZoom','../config','../util/ecData','zrender/tool/util','zrender/tool/color','../chart'],function (require) {
-    var ComponentBase = require('../component/base');
-    var ChartBase = require('./base');
-    
-    // 图形依赖
-    var TextShape = require('zrender/shape/Text');
-    var LineShape = require('zrender/shape/Line');
-
-    // 组件依赖
-    require('../component/axis');
-    require('../component/grid');
-    require('../component/dataZoom');
-    
-    var ecConfig = require('../config');
-    var ecData = require('../util/ecData');
-    var zrUtil = require('zrender/tool/util');
-    var zrColor = require('zrender/tool/color');
-    var zrArea = require('zrender/tool/area');
-
-
-    function HorVfactory(kind, ctx) {
-        switch(kind) {
-            case "horizontal":
-                return new HorizontalBuilder(ctx)
-            case "vertical":
-                return new VerticalBuilder(ctx)
-            default:
-                return 
-        }
-    }
-
-    function Base() {
-        this.drawLine = function(layer, area) {
-            if (layer >= this.headNum) {
-                return
-            }
-            var num  = this.ctx._getCatsNum(this.kind, layer);
-            for(var i = 0; i < num; i++) {
-                var idxPartArea = this.getIdxPartArea(area, layer, i);
-                this.drawLine(layer + 1, this.mapToNextLayer(idxPartArea));
-                this.buildSplitLine(idxPartArea);
-                this.buildHeadClassName(idxPartArea, layer, i);
-            }
-
-            this.buildHead(layer)
-        },
-
-        this.findHeadClassName   = function(layer, idx) {
-            var classes = this.headOption[layer].classes;
-            return classes[idx]
-        },
-
-        this.findHeadName  =    function(layer) {
-            return this.headOption[layer].name
-        },
-
-        this.buildHeadClassName  =      function(area, layer, i) {
-            var classname = this.findHeadClassName(layer, i);
-            var center = this.ctx._findCenterInGrid(area);
-            var option = {
-                "textAlign":    "center"
-            };
-            this.ctx._buildText(center.x, center.y, classname, option)
-        }
-
-    }
-
-    function HorizontalBuilder(ctx) {
-        this.kind = "horizontal";
-        this.ctx  = ctx;
-        this.headOption = this.ctx.option.row;
-        this.headNum = this.ctx.headRowNum;
-
-        this.getIdxPartArea = function(area, layer, i) {
-            var innerUnitHeigt = (area.yEnd - area.y) 
-                                            / this.ctx._getCatsNum(this.kind, layer);
-
-            return {
-                x:              area.x
-                , xEnd:         area.xEnd
-                , y:            area.y + i * innerUnitHeigt
-                , yEnd:         area.y + (i + 1) * innerUnitHeigt
-            }
-        },
-
-        this.mapToNextLayer = function(area) {
-            return {
-                x:          area.xEnd
-                , xEnd:     area.xEnd + (area.xEnd - area.x)
-                , y:        area.y
-                , yEnd:     area.yEnd
-            }
-        },
-
-        this.buildSplitLine = function(area) {
-            var bottomLineStyle = {
-                xStart:     area.x
-                , xEnd:     this.ctx.border.xEnd
-                , yStart:   area.yEnd
-                , yEnd:     area.yEnd
-                , lineWidth:    1
-            };
-            var leftLineStyle = {
-                xStart:     area.x
-                , xEnd:     area.x
-                , yStart:   area.y
-                , yEnd:     this.ctx.border.yEnd
-                , lineWidth:    1
-            };
-
-            var bottomLine = new LineShape({
-                style:      bottomLineStyle
-            });
-            var leftLine = new LineShape({
-                style:      leftLineStyle
-            });
-
-            this.ctx.shapeList.push(bottomLine, leftLine)
-        },
-
-        this.buildHead      =   function(layer) {    
-            var headname = this.findHeadName(layer);
-            var xStart = this.ctx.border.x + this.ctx.unitSize.rowHeadUnitWidth * layer;
-            var xEnd = this.ctx.border.x + this.ctx.unitSize.rowHeadUnitWidth * (layer + 1);
-            var x = xStart + (xEnd - xStart) / 2;
-            var y = this.ctx.crossY;
-            var option = {
-                "textBaseline":    "bottom"
-            };
-            this.ctx._buildText(x, y, headname, option)
-        }
-    }
-
-    function VerticalBuilder(ctx) {
-        this.kind = "vertical";
-        this.ctx  = ctx;
-        this.headOption = this.ctx.option.column;
-        this.headNum = this.ctx.headColNum;
-    
-        this.getIdxPartArea = function(area, layer, i) {
-            var innerUnitWidth = (area.xEnd - area.x) 
-                                            / this.ctx._getCatsNum(this.kind, layer);
-            return {
-                x:          area.x + i * innerUnitWidth
-                , xEnd:     area.x + (i + 1) * innerUnitWidth
-                , y:        area.y
-                , yEnd:     area.yEnd
-            }
-        },
-
-        this.mapToNextLayer = function(area) {
-            return {
-                x:          area.x
-                , xEnd:     area.xEnd
-                , y:        area.yEnd
-                , yEnd:     area.yEnd + (area.yEnd - area.y)
-            }
-        },
-
-        this.buildSplitLine = function(area) {
-            var rightLineStyle = {
-                xStart:     area.xEnd
-                , xEnd:     area.xEnd
-                , yStart:   area.y
-                , yEnd:     this.ctx.border.yEnd
-                , lineWidth:    1
-            };
-            var topLineStyle = {
-                xStart:     area.x
-                , xEnd:     this.ctx.border.xEnd
-                , yStart:   area.y
-                , yEnd:     area.y
-                , lineWidth:    1
-            };
-
-            var rightLine = new LineShape({
-                style:      rightLineStyle
-            });
-            var topLine = new LineShape({
-                style:      topLineStyle
-            });
-
-            this.ctx.shapeList.push(rightLine, topLine)
-        },
-
-        this.buildHead      =   function(layer) {    
-            var headname = this.findHeadName(layer);
-            var yStart = this.ctx.border.y + this.ctx.unitSize.colHeadUnitHeight * layer;
-            var yEnd = this.ctx.border.y + this.ctx.unitSize.colHeadUnitHeight * (layer + 1);
-            var y = yStart + (yEnd - yStart) / 2;
-            var x = this.ctx.crossX;
-            var option = {
-                "textAlign":     "right"
-            };
-            this.ctx._buildText(x, y, headname, option)
-        }
-    }
-
-    HorizontalBuilder.prototype = new Base();
-    VerticalBuilder.prototype = new Base();
-
-
-    function Table(ecTheme, messageCenter, zr, option, myChart){
-        // 基类
-        ComponentBase.call(this, ecTheme, messageCenter, zr, option, myChart);
-        // 图表基类
-        ChartBase.call(this);
-        
-        this.refresh(option);
-    }
-    
-    Table.prototype = {
-        type:   ecConfig.CHART_TYPE_TABLE,
-        padding:        {
-            "left":           80
-            , "right":        80
-            , "top":          60
-            , "bottom":       60
-        },
-
-        refresh : function (newOption) {
-            if (newOption) {
-                this.option = newOption;
-                this.series = newOption.series;
-            }
-            
-            this._buildShape();
-        },
-
-        _buildShape:    function() {
-            this._mapSize();
-            this._buildHeadDataSplit();
-            this._buildGridLineAndHeadText();
-
-            var series =  this.series;
-            for (var i = 0; i < series.length; i++) {
-                if (series[i].type == ecConfig.CHART_TYPE_TABLE) {
-                    this._buildDataText()
-                }
-            }
-
-            var myLine = new LineShape({
-                style:  {
-                    xStart:         100
-                    , yStart:       100
-                    , xEnd:         200
-                    , yEnd:         200
-                },
-                draggable:      true
-            });
-            this.shapeList.push(myLine)
-
-            this.addShapeList();
-        },
-
-        _getCatsNum:            function(kind, layer) {
-            /*
-            var obj = ('horizontal' === kind) ? this.option.row : this.option.column;
-    
-            var i = 0;
-            for (var k in obj) {
-                if (i++ === layer)     
-                    return obj[k].length
-            }
-            */
-
-            var list = ('horizontal' === kind) ? this.option.row : this.option.column;
-            return list[layer].classes.length
-        },
-
-        _buildHeadDataSplit:     function() {
-            var rowHeadBottomStartX = this.border.x;
-            var rowHeadBottomEndX = this.border.xEnd;
-            var rowHeadBottomY = this.border.y
-                                    + this.headColNum * this.unitSize.colHeadUnitHeight;
-            var rowHeadBottomLine = new LineShape({
-                "style":    {
-                    "xStart":       rowHeadBottomStartX
-                    , "xEnd":       rowHeadBottomEndX
-                    , "yStart":     rowHeadBottomY
-                    , "yEnd":       rowHeadBottomY
-                    , "lineWidth":  1
-                }
-            });
-
-            var colHeadRightSideStartY = this.border.y;
-            var colHeadRightSideEndY = this.border.yEnd;
-            var colHeadRigthSideX = this.border.x
-                                    + this.headRowNum * this.unitSize.rowHeadUnitWidth;
-            var colHeadRightLine = new LineShape({
-                "style":    {
-                    "xStart":       colHeadRigthSideX 
-                    , "xEnd":       colHeadRigthSideX
-                    , "yStart":     colHeadRightSideStartY
-                    , "yEnd":       colHeadRightSideEndY
-                    , "lineWidth":  1
-                }
-            });
-
-            this.shapeList.push(rowHeadBottomLine, colHeadRightLine)
-
-            // 栏目头域和数字域交叉点的x、y坐标
-            this.crossX = colHeadRigthSideX;
-            this.crossY = rowHeadBottomY;
-        },
-
-        _buildGridLineAndHeadText:         function() {
-            var horizontalArea = {
-                "x":                this.border.x
-                , "xEnd":           this.border.x + (this.crossX - this.border.x) 
-                                                            / this.headRowNum
-                , "y":              this.crossY
-                , "yEnd":           this.border.yEnd
-            };
-            var verticalArea = {
-                "x":                this.crossX
-                , "xEnd":           this.border.xEnd
-                , "y":              this.border.y
-                , "yEnd":           this.border.y + (this.crossY - this.border.y) 
-                                                            / this.headColNum
-            };
-
-            HorVfactory("horizontal", this).drawLine(0, horizontalArea);
-            HorVfactory("vertical", this).drawLine(0, verticalArea);
-        },
-
-
-        _buildDataText:         function() {
-            var startX = this.crossX; 
-            var startY = this.crossY;
-
-            for (var i = 0; i < this.option.series.length; i++) {
-                var count = 0;
-                var dataList = this.option.series[i].data;
-
-                for (var idxRow = 0; idxRow < this.dataRowNum; idxRow++) {
-                    for (var idxCol = 0; idxCol < this.dataColNum; idxCol++) {
-                        var area = {
-                            "x":            startX + idxCol * this.unitSize.dataGridWidth
-                            , "xEnd":       startX + (idxCol + 1) * this.unitSize.dataGridWidth
-                            , "y":          startY + idxRow * this.unitSize.dataGridHeight
-                            , "yEnd":       startY + (idxRow + 1) * this.unitSize.dataGridHeight
-                        };
-                        var center = this._findCenterInGrid(area);
-                        var option = {
-                            "textAlign":     "center"
-                        };
-                        this._buildText(center.x, center.y, dataList[count++], option) 
-                    }
-                }
-            }
-        },
-
-        _buildText:                 function(x, y, word, option) {
-            var textStyle = {
-                "x":                x
-                , "y":              y
-                , "text":           word
-            };
-
-            for (var k in option) {
-                textStyle[k] = option[k]
-            }
-
-            this.shapeList.push(
-                new TextShape({
-                    "hoverable":  false
-                    , "style":      textStyle
-                })
-            )
-        },
-
-        _mapSize:       function()      {
-            /*
-            f = function(obj) {
-                var n = 0;
-                for (var k in obj) {
-                    len = obj[k].length;
-                    n = (0 !== n) ? (n * len) : len;
-                }
-                return n
-            }
-            */
-
-            f = function(list) {
-                var len = 0;
-                for(var i = 0; i < list.length; i++) {
-                    if (0 == i)     
-                        len = list[i].classes.length
-                    else 
-                        len *= list[i].classes.length
-                }
-                return len
-            }
-
-            var Grid        =   {
-                "width":            75
-                , "height":         30
-            };
-
-            /*
-            this.headRowNum  = Object.keys(this.option.row).length;
-            this.headColNum  = Object.keys(this.option.column).length;
-            this.dataRowNum  = f(this.option.row);
-            this.dataColNum  = f(this.option.column);
-            */
-
-            this.headRowNum  = this.option.row.length;
-            this.headColNum  = this.option.column.length;
-            this.dataRowNum  = f(this.option.row);
-            this.dataColNum  = f(this.option.column);
-            
-            
-            // 假设默认，行头宽度：数据格子宽度， 列头高度:数据格子高度
-            var RowHeadDataRatio = 1.5;
-            var ColHeadDataRatio = 1.5;
-            var allRowUnitNum = this.headRowNum * RowHeadDataRatio + this.dataColNum * 1;
-            var allColUnitNum = this.headColNum * ColHeadDataRatio + this.dataRowNum * 1;
-
-            /*
-            var unitWidth   = (this.zr.getWidth() - Padding.left - Padding.right) 
-                                                                    / allRowUnitNum;
-            var unitHeight  = (this.zr.getHeight() - Padding.top - Padding.bottom) 
-                                                                    / allColUnitNum;
-
-            // 固定数据格子的长宽比
-            var WidthHeightRatio = 2.5;
-            if(unitWidth / unitHeight > WidthHeightRatio) {
-                unitWidth = unitHeight * WidthHeightRatio;
-            } else {
-                unitHeight = unitWidth / WidthHeightRatio
-            }
-            */
-            var unitWidth = 50;
-            var unitHeight = 30;
-
-            var width = unitWidth * allRowUnitNum;
-            var height = unitHeight * allColUnitNum;
-
-            this.unitSize = {
-                "rowHeadUnitWidth":         RowHeadDataRatio * unitWidth
-                , "colHeadUnitHeight":      ColHeadDataRatio * unitHeight
-                , "dataGridWidth":          unitWidth
-                , "dataGridHeight":         unitHeight
-            };
-
-            this.border = {
-                x:          this.padding.left
-                , xEnd:     this.padding.left + width
-                , y:        this.padding.bottom
-                , yEnd:     this.padding.bottom + height
-            };
-
-            this._resize(width, height);
-        },
-
-        _resize:                function(width, height) {
-            var canvasWidth = this.padding.left + width + this.padding.right + "px";
-            var canvasHeight = this.padding.top + height + this.padding.bottom + "px";
-            this.zr.painter.root.style.width = canvasWidth;
-            this.zr.painter.root.style.height = canvasHeight;
-            this.zr.painter.root.width = canvasWidth + "px";
-            this.zr.painter.root.height = canvasHeight + "px";
-            this.zr.resize();
-        },
-
-        _findCenterInGrid:      function(area)  {
-            var width   = area.xEnd - area.x;
-            var height  = area.yEnd - area.y;
-            return {
-                "x":        area.x + width / 2
-                , "y":      area.y + height / 2
-            }
-        }
-    };
-
-    zrUtil.inherits(Table, ChartBase);
-    zrUtil.inherits(Table, ComponentBase);
-
-    // 图表注册
-    require('../chart').define('table', Table);
-
-    return Table
-})
-
-
 /**
  * echarts图表类：柱形图
  *
@@ -38358,7 +37394,6 @@ define('echarts/chart/bar',['require','../component/base','./base','zrender/shap
     
     Bar.prototype = {
         type : ecConfig.CHART_TYPE_BAR,
-
         /**
          * 绘制图形
          */
@@ -40307,7 +39342,7 @@ define('echarts/chart/pie',['require','../component/base','./base','zrender/shap
     
     return Pie;
 });
-define('_chart',['require','echarts/chart/gauge','echarts/chart/funnel','echarts/chart/scatter','echarts/chart/k','echarts/chart/radar','echarts/chart/chord','echarts/chart/force','echarts/chart/line','echarts/chart/bar','echarts/chart/pie', 'echarts/chart/table'],function (require) {
+define('_chart',['require','echarts/chart/gauge','echarts/chart/funnel','echarts/chart/scatter','echarts/chart/k','echarts/chart/radar','echarts/chart/chord','echarts/chart/force','echarts/chart/line','echarts/chart/bar','echarts/chart/pie'],function (require) {
     require("echarts/chart/gauge");
     require("echarts/chart/funnel");
     require("echarts/chart/scatter");
@@ -40318,5 +39353,4 @@ define('_chart',['require','echarts/chart/gauge','echarts/chart/funnel','echarts
     require("echarts/chart/line");
     require("echarts/chart/bar");
     require("echarts/chart/pie");
-    require("echarts/chart/table");
 });
