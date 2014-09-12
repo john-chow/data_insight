@@ -508,7 +508,8 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
                 for(var j = 0; j < len; j++) {
                     if (self.drawerList[j].stamp == layout.data_time)  {
                         var ec = self.drawerList[j].dr.getEc();  
-                        layout["canvas"] = ec.getZrender().toDataCanvas();
+                        // 去Mytableau工程 下面 的echart备份 源码中找这个函数 
+                        //layout["canvas"] = ec.getZrender().toDataCanvas();
                         break
                     }
                 }
