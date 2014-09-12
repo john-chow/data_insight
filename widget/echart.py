@@ -413,28 +413,38 @@ class ChinaMap(Map):
         self.series[u'data'] = []
         """
 
-    def makeData(self, *args):
+    def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
         all_data = map(list, zip(*data_from_db))
         
-        if len(msn_factor_list) > 1:
+        numeric_factor_list, word_factor_list = [], []
+        for factor in msn_factor_list:
+            tmp_factor_list = numeric_factor_list \
+                    if Protocol.NumericType == factor.getProperty(Protocol.Kind) \
+                    else word_factor_list
+            tmp_factor_list.append(factor)
+
+        if len(word_factor_list) > 1:
             raise Exception('地图轴上参数不正确')
 
         legend_series_data = []
-        for idx, factor in enumerate(msu_factor_list):
-            legend = factor.getProperty(Protocol.Attr)
-            data_list = all_data[idx]
-            district_list = all_data[-1]
-            one_series = dict(zip(district_list, data_list))
+        if len(group_factor_list) > 0:
+            group_idx   = -1
+            legend_data = list(set(all_data[group_idx]))
+            for l in legend_data:
+                one_series_data = [{d[1]: d[0]} for d in data_from_db if l == d[-1]]
+                legend_series_data.append({'legend': l, 'series': one_series_data})
+        else:
+            legend_data = []
+            one_series_data = [{d[1]: d[0]} for d in data_from_db]
             legend_series_data.append({
-                'legend':       legend
-                , 'series':     one_series
+                'legend': ''
+                , 'series': one_series_data
             })
 
         return {
             'legend_series':        legend_series_data
         }
         
-            
             
 class WorldMap(Map):
     def __init__(self):
