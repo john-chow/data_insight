@@ -51,6 +51,7 @@ def handleOperate(request, widget_id = None):
 
                 return MyHttpJsonResponse({'succ': True, 'data': info})
             else:
+                request.session['hk'] = entity.getHk()
                 context = RequestContext(request)
                 dict = {'widget_id': widget_id} if widget_id else {}
                 return render_to_response('widget/widget_add/add.html', dict, context)

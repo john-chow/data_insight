@@ -522,7 +522,9 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
             $.each(layoutArray, function(i, layout) {
                 var dy  = parseInt(layout.row - 1)  * GRID_UNIT_HEIGHT,
                     dx  = parseInt(layout.col - 1)  * GRID_UNIT_WIDTH;
-                ctx.drawImage(layout.canvas, dx, dy);
+
+                // sometimes error, delete for temp
+                // ctx.drawImage(layout.canvas, dx, dy);
             
                 // 画到公共大面板之后移除画图对象
                 delete layout["canvas"]
