@@ -175,14 +175,14 @@ def handleDraw(request):
     hk = request.session.get('hk')
     try:
         producer = DrawDataProducer(hk)
-        data = producer.produce(req_data)
+        entity_data = producer.produce(req_data)
     except Exception, e:
         logger.debug("catch Exception: %s" % e)
         logExcInfo()
         error_dict = {'succ': False, 'msg': str(e)}
         return MyHttpJsonResponse(error_dict)
     else:
-        backData = {'succ': True, 'data': data}
+        backData = {'succ': True, 'entity': entity_data}
         return MyHttpJsonResponse(backData)
 
 
@@ -714,6 +714,9 @@ class DrawDataProducer():
         self.setDecorator(echart)
 
         self.fh = FactorHandler(req)
+        if not self.ifNeedToSql(shape):
+            return {}
+
         part_dict = self.fh.mapToSqlPart()
 
         sql_obj = self.st.getSwither().makeSelectSql(**part_dict)
@@ -722,12 +725,24 @@ class DrawDataProducer():
         strf_data_db = strfDataAfterFetchDb(clean_data_db)
 
         result = self.decorate(
-            strf_data_db, self.fh.getMsus(), self.fh.getMsns(), 
-            self.fh.getGroups()
+            strf_data_db, self.fh.selects
         )
+        return {'type': shape, 'figure': result}
 
-        return {'type': shape, 'data': result}
+    def ifNeedToSql(self, shape):
+        '''
+        判断现在条件, 是否有必要发送进数据库进行查询
+        '''
+        fh = self.fh
+        if len(fh.selects) < 2:
+            return False
+            
+        if shape in ('bar', 'line', 'area', 'scatter'):
+            if len(fh.cols) < 1 or len(fh.rows) < 1:
+                return False
 
+        return True
+        
 
     def setDecorator(self, obj):
         """
@@ -735,19 +750,20 @@ class DrawDataProducer():
         """
         self.dt = obj
 
-    def decorate(self, data, msus, msns, groups):
+    def decorate(self, data, factors):
         """
         格式化数据
         """
         if not self.dt:
             return data
 
-        return self.dt.makeData(data, msus, msns, groups)
+        return self.dt.makeData(data, factors)
 
 
 class FactorHandler():
     def __init__(self, req):
         self.msns, self.msus, self.filters = [], [], []
+        self.selects = []
         self.extract(req)
 
     def extract(self, req):
@@ -765,9 +781,9 @@ class FactorHandler():
             element_dict = {key:col_element[key] for key in EXPRESS_FACTOR_KEYS_TUPLE}
             factor = FactorFactory.make(element_dict)
             if idx < len(row_kind_attr_list):
-                factor.setBelongToAxis('row')
+                factor.location = 'row'
             else:
-                factor.setBelongToAxis('col')
+                factor.location = 'col'
 
             tmp_factors = msu_factors \
                     if Protocol.NoneFunc != factor.getProperty(Protocol.Func) \
@@ -800,7 +816,7 @@ class FactorHandler():
             color_dict = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
                                     (color_attr_table, color_attr_column, -1, '')))
             factor = FactorFactory.make(color_dict)
-            factor.setBelongToAxis('group')
+            factor.location = 'group'
             group_factors.append(factor)
 
 
@@ -822,6 +838,8 @@ class FactorHandler():
         self.groups = group_factors
         self.orders = order_factors
         self.extracted = True
+        self.selects = self.msus + self.msns + self.groups
+        setattr(self, 'show', self.msus + self.msns)
         return 
 
 
@@ -843,7 +861,6 @@ class FactorHandler():
         # 选择区别里面的数字列不存在sql语句中，它只是做值域范围设定用的
         # 选择区别里面的文字列存在sql语句中的select段和group段
 
-        #isAggregate = True if self.ifHasAggregation() else False
         isAggregate = True if len(self.msus) > 0 else False
         
         selects, groups  = [], []
@@ -868,7 +885,6 @@ class FactorHandler():
             , 'orders':         self.orders
         }
 
-
     def filterTimeFactors(self):
         if not self.extracted:
             self.extract()
@@ -877,16 +893,27 @@ class FactorHandler():
                     if Protocol.TimeType == factor.getProperty(Protocol.Kind)]
         return factors
 
+    @property
+    def selects(self):
+        return self.selects
 
-    def getMsus(self):
+    @property
+    def cols(self):
+        return [item for item in self.selects \
+                    if 'col' == item.getProperty(Protocol.Location)]
+
+    @property
+    def rows(self):
+        return [item for item in self.selects \
+                    if 'row' == item.getProperty(Protocol.Location)]
+
+    @property
+    def msus(self):
         return self.msus
 
-    def getMsns(self):
+    @property
+    def msns(self):
         return self.msns
-
-    def getGroups(self):
-        return self.groups
-
 
 
 ########################################

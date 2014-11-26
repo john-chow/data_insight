@@ -54,6 +54,9 @@ Yaxis = 'y'
 # 过滤
 Filter = 'filters'
 
+# 属性所处位置
+Location = 'location'
+
 # 图表类型种类
 Graph = 'graph'
 

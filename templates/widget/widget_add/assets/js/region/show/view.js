@@ -13,16 +13,14 @@ define([
             },
 
             initialize:     function() {
-                this.drawerMgr = new DrawManager();
+                this.drawerMgr = new DrawManager(this.el);
             },
 
             onShow:         function() {
-                this.drawerMgr.init(this.el);
-                this.ec = this.drawerMgr.getEc()
             },
 
             draw:           function(data) {
-                this.drawerMgr.run(this.el, data);
+                this.drawerMgr.draw(data);
             },
 
             clear:          function() {

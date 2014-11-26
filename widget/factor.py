@@ -232,6 +232,21 @@ class FieldFactor(Factor):
         else:
             return  funcname + '(' + attr + ')'
 
+    def setLocation(self, lc):
+        '''
+        设置该度量所属的轴
+        '''
+        setattr(self, 'location', lc) 
+
+    def getLocation(self, lc):
+        '''
+        获取该度量所在的位置
+        '''
+        getattr(self, 'location')
+
+    location = property(fget = getLocation, fset = setLocation)
+    del setLocation, getLocation
+
     def setBelongToAxis(self, axis):
         '''
         设置该度量所属的轴
@@ -259,9 +274,6 @@ class FieldFactor(Factor):
     def isThis(cls, var):
         return isinstance(var, dict) \
                 and isSublist(var.keys(), EXPRESS_FACTOR_KEYS_TUPLE)
-
-
-
                 
 
 

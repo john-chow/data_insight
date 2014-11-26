@@ -231,5 +231,8 @@ def findMaxLength(l):
     pass
 
 
+def uniqList(input_list):
+    return [item for i, item in enumerate(input_list) \
+            if item not in input_list[:i]]
 
 

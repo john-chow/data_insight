@@ -1,12 +1,7 @@
 define([
-"echarts"
-, "echarts/chart/bar"
-, "echarts/chart/line"
-, "echarts/chart/scatter"
-, "echarts/chart/pie"
-, "echarts/chart/radar"
-, "tool"
-], function(echart) {
+    "echarts"
+    //"city"
+], function(echarts) {
 
 
 /////////////////////////////////////////////////////////////////////
@@ -17,153 +12,149 @@ define([
 //
 ///////////////////////////////////////////////////////////////////
 
-    window.drawer   = {};
-	var DrawManager = function(opt) {
-		this.now_drawer				= null;
-        this.updator                = new Updator();
+    var DrawManager = function(place) {
+        this.ec = echarts.init(place);
+        this.now_drawer = null;
+    };
 
-        this.init   =   function(place) {
-            this.ec     = echart.init(place);
-        };
-
-        // 对外提供的(重新)开始绘图接口
-		this.run	=				function(place, resp, dynamicObj) {
-            if(!this.ec)        this.ec = echart.init(place)
-
-            var type = resp.type;
-			switch(type) {
-				case "map":	 	
-					this.now_drawer = new MapDrawer();
-					break;
-				case "bar":	
-					this.now_drawer = new BarDrawer();
-                    this.now_drawer.setStacked(false);
-					break;
-                case "s_bar":
-					this.now_drawer = new BarDrawer();
-                    this.now_drawer.setStacked(true);
-                    type = "bar";
-                    break;
-				case "line":	
-					this.now_drawer =  new LineDrawer();
-                    this.now_drawer.setStacked(false);
-					break;
-                case "s_line":
-					this.now_drawer =  new LineDrawer();
-                    this.now_drawer.setStacked(true);
-                    type = "line";
-					break;
-				case "area":	
-					this.now_drawer = new AreaDrawer();
-                    this.now_drawer.setStacked(false);
-					break;
-				case "s_area":	
-					this.now_drawer = new AreaDrawer();
-                    this.now_drawer.setStacked(true);
-                    type = "area";
-					break;
-				case "pie":
-					this.now_drawer = new PieDrawer();
-					break;
-				case "scatter":
-					this.now_drawer = new ScatterDrawer();
-					break;
-				case "radar":	
-					this.now_drawer = new RadarDrawer();
-					break;
-                case "table":
-                    this.now_drawer = new TableDrawer();
-                    break;
-				default:
-					easy_dialog_error('xxxxxxxxxxxx');
-					return
-			}
-
-			this.now_drawer.init(this.ec, type);
-
-			if ("map" !== type) {
-				this.now_drawer.start(resp)
-			} else {
-				var self = this;
-				require(["echarts/chart/map", "echarts/config"/*, "common/city"*/]
-						, function(_m, ecConfig, _t) {
-                    self.now_drawer.start(resp)
-					//self.now_drawer.work(resp.data)
-				})
-			}
-
-            // 重启更新器
-            this.updator.bindDrawer(this.now_drawer);
-            if(this.updator.isEnable())      this.updator.restart()
-		};
-
-        // 退出管理图型工作
-        this.stop           =       function() {
-            if(this.ec)         this.ec.clear()
-        };
-
-        // 对外提供的获取画图对象的接口
-        this.getEc =                function() {
-            return this.ec
-        };
-
-        this.getDrawer  =           function() {
-            return this.now_drawer
-        };
-
-        // 提供配置周期更新的接口
-        this.setUpdating =            function(periodJson) {
-            this.updator.setControl(periodJson);
+    DrawManager.prototype.build = function(resp) {
+        var type    = resp.type;
+        switch(type) {
+            case "map":     
+                this.now_drawer = new MapDrawer();
+                break;
+            case "bar": 
+                this.now_drawer = new BarDrawer();
+                this.now_drawer.setStacked(false);
+                break;
+            case "s_bar":
+                this.now_drawer = new BarDrawer();
+                this.now_drawer.setStacked(true);
+                type = "bar";
+                break;
+            case "line":    
+                this.now_drawer =  new LineDrawer();
+                this.now_drawer.setStacked(false);
+                break;
+            case "s_line":
+                this.now_drawer =  new LineDrawer();
+                this.now_drawer.setStacked(true);
+                type = "line";
+                break;
+            case "area":    
+                this.now_drawer = new AreaDrawer();
+                this.now_drawer.setStacked(false);
+                break;
+            case "s_area":  
+                this.now_drawer = new AreaDrawer();
+                this.now_drawer.setStacked(true);
+                type = "area";
+                break;
+            case "pie":
+                this.now_drawer = new PieDrawer();
+                break;
+            case "funnel":
+                this.now_drawer = new FunnelDrawer();
+                break;
+            case "scatter":
+                this.now_drawer = new ScatterDrawer();
+                break;
+            case "radar":   
+                this.now_drawer = new RadarDrawer();
+                break;
+            case "table":
+                this.now_drawer = new TableDrawer();
+                break;
+            default:
+                console.log('unknow picture type');
+                return
         }
-	};
-	
+
+        this.now_drawer.init(this.ec, type);
+        this.now_drawer.work(resp)
+    };
+
+    DrawManager.prototype.format = function(data) {
+        this.build(data)
+        return this.now_drawer.getOption()
+    };
+
+    DrawManager.prototype.draw = function(data) {
+        if (!this.now_drawer)       this.build()
+        this.now_drawer.draw(data);
+    };
+
+    DrawManager.prototype.getEc = function() {
+        return this.ec
+    }
+
+
 
     /*
      * 虚基类，不直接实例化
      */
-	var BaseDrawer = function() {
-		this.optionCloned 	            = {};
-		this.place			            = "";
-		this.type			            = "";
-		this.option = {
-			'legend':					{
-				'data':				[]
-			}
-			, 'series':		[
-			]
-		};
-	
+    var BaseDrawer = function() {
+        this.optionCloned               = {};
+        this.place                      = "";
+        this.type                       = "";
+        this.option = {
+            'legend':                   {
+                'data':             []
+            }
+            , 'series':     [
+            ]
+        };
+    
         // 初始化drawer工作环境
         this.init =    function(ec, type) {
             this.ec             = ec;
-			this.type           = type;
-			this.optionCloned   = cloneObject(this.option);
+            this.type           = type;
+            this.optionCloned   = cloneObject(this.option);
+        };
+
+        this.getOption = function() {
+            return this.optionCloned
         };
 
         // 启动drawer工作
-        this.start   =   function(resp) {
-			//this.optionCloned   = cloneObject(this.option);
-            this.work(resp)
+        this.work =     function(resp) {
+            if (!resp || !resp.data 
+                        || Object.keys(resp.data).length <= 0)    
+                return
+
+            // 首先，解析函数
+            this.extract(resp.data);
+
+            // 首先，派生类先各自操作    
+            this.fillSeries(resp.data);
+
+            // 确保legend不重复
+            this.optionCloned.legend.data = _.uniq(this.optionCloned.legend.data);
+
+            //this.draw()
         };
 
-        // drawer工作中
-		this.work = 	function(resp) {
-			this.fillSeries(resp.data);
+        this.extract = function(data) {
+            var heads   = data.heads;
+            var contents = data.data;
+        };
 
-            // 根据是否有样式，决定是否做style
-            //if (resp.style)     this.styleChart(resp.style);
-
-			this.draw()
-		};
-
-		this.draw =		function(optionData) {
+        this.draw =     function(optionData) {
             this.ec.clear();
-            var data = optionData || this.optionCloned;
-            console.log(JSON.stringify(data));
-            this.ec.setOption(data)
-		};
+            this.optionCloned = optionData || this.optionCloned;
 
-        this.styleLegend    =   function(lgStyle) {
+            if (!this.optionCloned || Object.keys(this.optionCloned).length <= 0) {
+                console.log('没有数据')
+            }
+            //data['toolbox']['show'] = false;
+            if ('map' == optionData.type) {
+                console.log()
+            }
+            this.ec.setOption(this.optionCloned)
+        };
+
+        this.getOption =    function() {
+            return this.optionCloned
         };
 
         this.findSeriesIdxByName    =   function(name) {
@@ -174,13 +165,13 @@ define([
             })
             return idx
         }
-	};
+    };
 
 
     /* 
      * 虚基类
      */
-	var AxisDrawer = function() {
+    var AxisDrawer = function() {
         // 是否是聚合型图，即有没有stacked
         this.stacked        = false;
 
@@ -188,58 +179,66 @@ define([
             0, 0, true, false, null   // 参数意义见echart官网
         ];
 
-		this.seriesOne = {
-			type:			""
-			//, temStyle: {normal: {label : {show: true, position: 'inside'}}}
-			, data: []
-		};
+        this.seriesOne = {
+            type:           ""
+            , data: []
+        };
 
         this.setStacked         = function(stacked) {
             this.stacked    = stacked
         };
 
-		this.work = function(resp) {
-			this.fillAxis(resp.data);
-			AxisDrawer.prototype.work.call(this, resp);
-		};
+        this.work = function(resp) {
+            this.fillAxis(resp.data);
+            AxisDrawer.prototype.work.call(this, resp);
+        };
 
-		this.fillAxis = function(data) {
-			// 分别加上属性样式，和数值样式
-			this.optionCloned["xAxis"] = data.x;
-			this.optionCloned["yAxis"] = data.y;
-		};
 
-		this.fillSeries = function(data) {
-			if (data.legend_series.length > 0) {
-				var self = this;
+        this.fillAxis = function(data) {
+            // 分别加上属性样式，和数值样式
+            this.optionCloned["xAxis"] = data.x;
+            this.optionCloned["yAxis"] = data.y;
+        };
+
+        this.fillSeries = function(data) {
+            if (data.legend_series && data.legend_series.length > 0) {
+                var self = this;
 
                 // 先清空series部分
                 self.optionCloned.series = [];
-				$.each(data.legend_series, function(i, l_s) {
+                $.each(data.legend_series, function(i, l_s) {
                     self.seriesOneCloned  = cloneObject(self.seriesOne);
 
-					// 调用子类去做样式
-					self.styleSeries(self.seriesOneCloned);
+                    // 调用子类去做样式
+                    self.styleSeries(self.seriesOneCloned);
 
-					if ("legend" in  l_s) {
-						var legend_name = l_s["legend"];
-						self.optionCloned.legend.data.push(legend_name);
-						self.seriesOneCloned.name = legend_name;
+                    if ("legend" in  l_s) {
+                        var legend_name = l_s["legend"];
+                        self.optionCloned.legend.data.push(legend_name);
+                        self.seriesOneCloned.name = legend_name;
                         //self.styleLegend(data.style.legend)
-					}
+                    }
+                    self.seriesOneCloned.smooth = true;
 
                     // 是否要画成聚合状
                     if (self.stacked)       self.seriesOneCloned.stack = "总量";
 
-					self.seriesOneCloned.data = l_s["series"];
-					self.seriesOneCloned.type = self.type;
-					self.optionCloned.series.push(self.seriesOneCloned)
-				})
-			}
-			else {
-				easy_dialog_error("xxxxxxxxxxx")
-			}
-		};
+                    self.seriesOneCloned.data = l_s["series"];
+                    self.seriesOneCloned.type = ("type" in l_s) ? l_s["type"] : self.type;
+                    if ('yAxisIndex' in l_s) {
+                        self.seriesOneCloned['yAxisIndex'] = l_s.yAxisIndex
+                    }
+                    if ('stack' in l_s) {
+                        self.seriesOneCloned['stack'] = l_s["stack"]
+                    }
+                    self.optionCloned.series.push(self.seriesOneCloned)
+                })
+
+            }
+            else {
+                console.log("xxxxxxxxxxx")
+            }
+        };
 
         this.drawNewAdded    =   function(data) {
             var self = this;
@@ -266,84 +265,84 @@ define([
 
             self.ec.addData(dataList)
         }
-	};
+    };
 
 
-	var BarDrawer = function() {
-		this.styleAxis = function() {
-		};
-		
-		this.styleSeries = function() {
-		};
+    var BarDrawer = function() {
 
-	};
+        this.styleAxis = function() {
+        };
+        
+        this.styleSeries = function() {
+        };
 
-	var LineDrawer = function() {
-		this.styleAxis = function() {
-		};
-		
-		this.styleSeries = function() {
-		};
+    };
 
-	};
+    var LineDrawer = function() {
+        this.styleAxis = function() {
+        };
+        
+        this.styleSeries = function() {
+        };
 
-	var AreaDrawer = function() {
+    };
+
+    var AreaDrawer = function() {
         this.init          = function(ec, type, stateOption) {
             AreaDrawer.prototype.init.call(this, ec, "line" ,stateOption)
         };
 
-		this.styleAxis = function() {
-		};
-		
-		this.styleSeries = function() {
+        this.styleAxis = function() {
+        };
+        
+        this.styleSeries = function() {
             $.extend(this.seriesOneCloned, {
                 "smooth":       true
                 , "itemStyle":  {normal: {areaStyle: {type: 'default'}}}
             })
-		};
+        };
 
-	};
+    };
 
-	var ScatterDrawer = function() {
-		this.valStyle = {
-			power: 1
-			, precision: 2
-			, scale:true
-			, axisLabel : {
-                formatter: '{value}'
-            }
-		};
+    var ScatterDrawer = function() {
+        this.fillSeries = function(data) {
+            var self = this;
 
-		this.seriesStyle = {
-			markPoint: {
-                data : [
-                    {type : 'max', name: '最大值'},
-                    {type : 'min', name: '最小值'}
-                ]
-            }
-			, markLine: {
-                data : [
-                    {type : 'average', name: '平均值'}
-                ]
-            }
-		};
+            self.optionCloned.series = [];
+            $.each(data.legend_series, function(i, item) {
+                var seriesOneCloned = cloneObject(self.seriesOne);
+                seriesOneCloned.name = item.legend;
+                seriesOneCloned.type = "scatter";
 
-		this.styleAxis = function(xList, yList) {
-			var self = this;
-			$.map(function(xObj) {
-				$.extend(xObj, self.valStyle)
-			}, xList);
+                var rows = item.series;
+                var points = _.map(rows, function(row) {
+                    return _.first(row, row.length)
+                })
 
-			$.map(function(yObj) {
-				$.extend(yObj, self.valStyle)
-			}, yList)
-		};
-		
-		this.styleSeries = function(oneObj) {
-			$.extend(oneObj, this.seriesStyle)
-		};
+                seriesOneCloned.data = points;
 
-	};
+                self.optionCloned.legend.data.push(item.legend);
+                self.optionCloned.series.push(seriesOneCloned)
+            })
+
+        };
+
+        /*
+        // 测试气泡图
+        this.draw = function() {
+            var optionList = ScatterOptionList;
+
+            var self = this;
+            var i = 0;
+            setInterval(function() {
+                var idx = (i++) % 3;
+                self.optionCloned = optionList[idx];
+                ScatterDrawer.prototype.draw.call(self)
+            }, 1000 * 5)
+
+        }
+        */
+    };
 
 
     var PieDrawer   = function() {
@@ -357,32 +356,69 @@ define([
             PieDrawer.prototype.init.call(this, el, "pie", stateOption);
 
             $.extend(this.optionCloned, {
-                /*
                 "tooltip": {
                     trigger:        'item'
                     , formatter:    "{a} <br/>{b} : {c} ({d}%)"
                 }
                 , "calculable":     true
-                */
             })
         };
 
         this.fillSeries     =   function(data) {
             var self = this;
             self.seriesOneCloned  = cloneObject(self.seriesOne);
-            $.each(data.legend_series, function(i, pair) {
-                self.optionCloned.legend.data.push(pair.name);
-                self.seriesOneCloned.data.push(pair)
+            var legends = self.optionCloned.legend.data;
+            $.each(data, function(i, item) {
+                var kind = item.kind;
+                var data = item.data;
+                
+                self.seriesOneCloned.name = kind;
+                $.each(data, function(i, pair) {
+                    legends.push(pair.name);
+                    self.seriesOneCloned.data.push(pair)
+                })
             })
-            self.optionCloned.series.push(self.seriesOneCloned)
+            self.optionCloned.series.push(self.seriesOneCloned);
+            legends = _.uniq(legends)
         };
 
-		this.styleSeries = function() {
-		};
+        this.styleSeries = function() {
+        };
     };
 
 
-	var RadarDrawer = function() {
+    var FunnelDrawer = function() {
+        this.seriesOne  =       {
+            "name":             ""
+            , "type":           "funnel"
+            , "data":           []
+        },
+
+        this.init      =       function(el, type, stateOption) {
+            FunnelDrawer.prototype.init.call(this, el, "pie", stateOption);
+        },
+
+        this.fillSeries = function(data) {
+            var self = this;
+            self.seriesOneCloned  = cloneObject(self.seriesOne);
+            var legends = self.optionCloned.legend.data;
+            $.each(data, function(i, item) {
+                var kind = item.kind;
+                var data = item.data;
+                
+                self.seriesOneCloned.name = kind;
+                $.each(data, function(i, pair) {
+                    legends.push(pair.name);
+                    self.seriesOneCloned.data.push(pair)
+                })
+            })
+            self.optionCloned.series.push(self.seriesOneCloned);
+            legends = _.uniq(legends)
+        }
+    };
+
+
+    var RadarDrawer = function() {
         this.seriesOne = {
             name:           ""
             , type:         "radar"
@@ -415,7 +451,7 @@ define([
                 "indicator":            data.indicator
             })
         }
-	};
+    };
 
 
     var TableDrawer     =   function() {
@@ -424,10 +460,10 @@ define([
         this.rowNum = 0;
         this.columnNum = 0;
 
-		this.work = function(resp) {
-			this.fillRowColumn(resp.data);
-			TableDrawer.prototype.work.call(this, resp);
-		};
+        this.work = function(resp) {
+            this.fillRowColumn(resp.data);
+            TableDrawer.prototype.work.call(this, resp);
+        };
 
         this.fillSeries     =       function(data) {
             var self = this;
@@ -523,69 +559,57 @@ define([
     };
 
 
-	var MapDrawer = function() {
-		this.seriesOne = {
-            name:   ''
-			, type: 'map'
-			, mapType: 'china'
-            , data:[]
+    var MapDrawer = function() {
+        this.seriesOne = {
+            name:   ''  
+            , type: 'map'
+            , mapType: 'china'
+            , data: []
+        };  
+
+        this.fillSeries = function(data) {
+            var seriesOneCloned = cloneObject(this.seriesOne);
+            for(var key in data) {
+                place = MAP.place_name(key);
+                value = data[key] || 0;
+                item = {'name': place, 'value': value};
+
+                /*
+                row = data[key];
+                place = MAP.provice_names(row[1]);
+                value = row[0] || 0;
+                */
+
+                item = {'name': place, 'value': value};
+                seriesOneCloned.data.push(item);
+                //this.doExtra(row);
+            }
+            seriesOneCloned.name = '';
+            this.optionCloned.legend.data.push('');
+            this.optionCloned.series.push(seriesOneCloned);
         };
 
-		this.work = function(data) {
-			MapDrawer.prototype.work.call(this, data)
-		};
-
-		this.fillSeries = function(data) {
-            if (data.legend_series.length > 0) {
-                var self = this;
-
-                // 先清空series部分
-                self.optionCloned.series = [];
-                $.each(data.legend_series, function(i, l_s) {
-                    self.seriesOneCloned  = cloneObject(self.seriesOne);
-                    var legend_name = l_s["legend"];
-                    self.seriesOneCloned.name = legend_name;
-                    self.seriesOneCloned.type = 'map';
-                    self.seriesOneCloned.mapType = 'china';
-                    var series_data = self.convert(l_s["series"]);
-                    self.seriesOneCloned.data.push(series_data);
-                    self.seriesOneCloned.data = [
-                        {'name': '广东',    'value':    100},
-                        {'name': '北京',    'value':    500},
-                        {'name': '四川',    'value':    600},
-                    ];
-                    self.optionCloned.legend.data.push(legend_name);
-                    self.optionCloned.series.push(self.seriesOneCloned)
-                })
-            }
-        };
-
-        this.convert  =         function(data) {
-            var series = [];
-            for (var district in data) {
-                series.push({ 
-                    'name':     district
-                    , 'value':  data[district]
-                })
-            }
-            return series
+        this.doExtra = function(row) {
+            var makeup = [row[1], row[3], row[4]]
+            this.optionCloned.extra.push(makeup)
         }
     };
 
 
     // 确定继承关系
-	var baseDrawer = new BaseDrawer();
-	AxisDrawer.prototype 	= baseDrawer;
-	PieDrawer.prototype 	= baseDrawer;
-	RadarDrawer.prototype 	= baseDrawer;
-	MapDrawer.prototype 	= baseDrawer;
-	ScatterDrawer.prototype = baseDrawer;
+    var baseDrawer = new BaseDrawer();
+    AxisDrawer.prototype    = baseDrawer;
+    PieDrawer.prototype     = baseDrawer;
+    RadarDrawer.prototype   = baseDrawer;
+    MapDrawer.prototype     = baseDrawer;
+    ScatterDrawer.prototype = baseDrawer;
+    FunnelDrawer.prototype  = baseDrawer;
     TableDrawer.prototype   = baseDrawer;
-	var axisDrawer = new AxisDrawer();
-	BarDrawer.prototype		= axisDrawer;
-	LineDrawer.prototype	= axisDrawer;
-	AreaDrawer.prototype	= axisDrawer;
-	ScatterDrawer.prototype = axisDrawer;
+    var axisDrawer = new AxisDrawer();
+    BarDrawer.prototype     = axisDrawer;
+    LineDrawer.prototype    = axisDrawer;
+    AreaDrawer.prototype    = axisDrawer;
+    ScatterDrawer.prototype = axisDrawer;
 
 
     // 动态更新器
@@ -640,7 +664,7 @@ define([
     };
 
 
-	return DrawManager
+    return DrawManager
 })
 
 
