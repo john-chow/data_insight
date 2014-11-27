@@ -1,6 +1,8 @@
 # --*-- encoding: utf-8 --*--
 #Filename:  echart.py
 
+import itertools
+import copy
 import pdb
 from common.head import *
 import common.protocol as Protocol
@@ -44,11 +46,10 @@ class Bar_Line_Base(EChart):
 
         cat_idx = cats_idx[0]
         cat_fc  = factors[cat_idx]
-
         pivot_data_from_db = map(list, zip(*data_from_db))
         cats_data = uniqList(pivot_data_from_db[cat_idx])
 
-        # 找出legend的data，并且把数据按legend分为每个series
+        # 根据legend，拆分data_from_db
         if locations_idx:
             legend_idx = locations_idx[0]
             legends = uniqList(pivot_data_from_db[legend_idx])
@@ -56,35 +57,39 @@ class Bar_Line_Base(EChart):
         else:
             data = [('', data_from_db)]
 
-        series  = self.calcSeries(data, factors, cats_data, cat_idx)
+        # 得出若干series
+        series  = self.calcSeries( 
+            data, factors, cats_data, cat_idx, cat_fc.location 
+        )
+
+        # 组合得全部的legends
         legend_items = {
             'data':  [item.get('name') for item in series]
         }
 
-        # 查询时各列的信息
-        head = [{
-            'name':         fc.getProperty(Protocol.Attr)
-            , 'location':   fc.getProperty(Protocol.Location)
-        } for fc in factors]
-
-        # 配置轴信息
-        category_item = {
+        # 计算xAxis和yAxis
+        distinct_series_axis = set( 
+            itertools.imap(lambda x: x.get('xAxisIndex') or x.get('yAxisIndex'), series) 
+        )
+        distinct_series_axis_num = len(distinct_series_axis)
+        cat_axis_unit, val_axis_unit = {
             'type':     'category'
             , 'data':   cats_data
-        }
-        value_item =  {
+        }, {
             'type':     'value'
         }
+        cat_axis, val_axis = cat_axis_unit, []
+        for i in range(distinct_series_axis_num):
+            copyed_val_axis = copy.deepcopy(val_axis_unit)
+            val_axis.append(copyed_val_axis)
 
-        xAxis, yAxis = (category_item, value_item) \
-                            if 'row' == cat_fc.location \
-                            else (value_item, category_item)
+        x_axis, y_axis = (cat_axis, val_axis) if 'col' == cat_fc.location \
+                                                else (val_axis, cat_axis)
 
         return {
-            'head':         head
-            , 'legend':     legend_items
-            , 'xAxis':      xAxis
-            , 'yAxis':      yAxis
+            'legend':     legend_items
+            , 'xAxis':      x_axis
+            , 'yAxis':      y_axis
             , 'series':     series
         }
 
@@ -101,20 +106,20 @@ class Bar_Line_Base(EChart):
         return data
 
 
-    def calcSeries(self, data, factors, cats_data, cat_idx):
+    def calcSeries(self, data, factors, cats_data, cat_idx, cat_loc):
         '''
         有多个数字列，按类分
         '''
-        colidx_colnames = [(col_idx, fc.getProperty(Protocol.Attr)) \
-                    for col_idx, fc in enumerate(factors) \
-                    if Protocol.NumericType == fc.getProperty(Protocol.Kind)]
+        colidx_fcs = [(col_idx, fc) for col_idx, fc in enumerate(factors) \
+                        if Protocol.NumericType == fc.getProperty(Protocol.Kind)]
 
-        mul_valaxis_flag = True if len(colidx_colnames) > 1 else False
+        mul_valaxis_flag = True if len(colidx_fcs) > 1 else False
 
         result = []
         for bf_legend, part_data in data:
             dim_data = map(list, zip(*part_data))
-            for col_idx, name in colidx_colnames:
+            for col_idx, fc in colidx_fcs:
+                name = fc.getProperty(Protocol.Attr)
                 # 把legend拼在一起
                 one_legend      = bf_legend + name if mul_valaxis_flag else bf_legend
                 one_cats, one_series = dim_data[cat_idx], dim_data[col_idx]
@@ -126,12 +131,19 @@ class Bar_Line_Base(EChart):
                 sorted_one_cats_series \
                         = sorted(after_supply_cats_series, key = lambda x: cats_data.index(x[0]))
                 final_series = [item[1] for item in sorted_one_cats_series]
+                index = getatt(fc, 'index') if hasattr(fc, 'index') else 0
 
-                result.append({
+                one_series = {
                     'name':     one_legend
                     , 'data':   final_series
                     , 'type':   self.type
-                })
+                }
+                if 'col' == cat_loc:
+                    one_series['xAxisIndex'] = index
+                else:
+                    one_series['yAxisIndex'] = index
+
+                result.append(one_series)
 
         return result
 
