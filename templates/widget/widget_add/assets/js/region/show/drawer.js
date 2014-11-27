@@ -1,5 +1,7 @@
 define([
     "echarts"
+    , "echarts/chart/bar"
+    , "echarts/chart/line"
     //"city"
 ], function(echarts) {
 
@@ -17,8 +19,8 @@ define([
         this.now_drawer = null;
     };
 
-    DrawManager.prototype.build = function(resp) {
-        var type    = resp.type;
+    DrawManager.prototype.build = function(entity) {
+        var type    = entity.type;
         switch(type) {
             case "map":     
                 this.now_drawer = new MapDrawer();
@@ -71,17 +73,17 @@ define([
         }
 
         this.now_drawer.init(this.ec, type);
-        this.now_drawer.work(resp)
+        this.now_drawer.work(entity)
     };
 
-    DrawManager.prototype.format = function(data) {
-        this.build(data)
+    DrawManager.prototype.format = function(entity) {
+        this.build(entity)
         return this.now_drawer.getOption()
     };
 
-    DrawManager.prototype.draw = function(data) {
-        if (!this.now_drawer)       this.build()
-        this.now_drawer.draw(data);
+    DrawManager.prototype.draw = function(entity) {
+        if (!this.now_drawer)       this.build(entity)
+        this.now_drawer.draw();
     };
 
     DrawManager.prototype.getEc = function() {
@@ -117,21 +119,14 @@ define([
         };
 
         // 启动drawer工作
-        this.work =     function(resp) {
-            if (!resp || !resp.data 
-                        || Object.keys(resp.data).length <= 0)    
+        this.work =     function(entity) {
+            if (!entity || !entity.figure 
+                        || Object.keys(entity.figure).length <= 0)    
                 return
 
-            // 首先，解析函数
-            this.extract(resp.data);
-
+            this.optionCloned = entity.figure;
             // 首先，派生类先各自操作    
-            this.fillSeries(resp.data);
-
-            // 确保legend不重复
-            this.optionCloned.legend.data = _.uniq(this.optionCloned.legend.data);
-
-            //this.draw()
+            //this.fillSeries(entity.data);
         };
 
         this.extract = function(data) {
@@ -147,9 +142,6 @@ define([
                 console.log('没有数据')
             }
             //data['toolbox']['show'] = false;
-            if ('map' == optionData.type) {
-                console.log()
-            }
             this.ec.setOption(this.optionCloned)
         };
 
@@ -188,16 +180,34 @@ define([
             this.stacked    = stacked
         };
 
-        this.work = function(resp) {
-            this.fillAxis(resp.data);
-            AxisDrawer.prototype.work.call(this, resp);
+        this.work = function(entity) {
+            var figure = entity.figure;
+
+            var category    = figure.category;
+            var series      = figure.series;
+            var heads       = figure.head;
+            var legends     = figure.legend;
+
+            //this.fillAxis(entity.data);
+            AxisDrawer.prototype.work.call(this, entity);
         };
 
+        this.fillAxis = function(category_item, heads) {
+            // 辨别出cat轴，value轴分别对应x、y中哪个
+            var cat_location = category.location;
+            delete category.location;
 
-        this.fillAxis = function(data) {
-            // 分别加上属性样式，和数值样式
-            this.optionCloned["xAxis"] = data.x;
-            this.optionCloned["yAxis"] = data.y;
+            var value_item = [{
+                'type':     'value'
+            }]
+
+            if ('row' == cat_location) {
+                this.optionCloned["xAxis"] = category_item;
+                this.optionCloned["yAxis"] = value_item;
+            } else {
+                this.optionCloned["yAxis"] = category_item
+                this.optionCloned["xAxis"] = value_item;;
+            }
         };
 
         this.fillSeries = function(data) {
@@ -429,13 +439,13 @@ define([
             RadarDrawer.prototype.init.call(this, el, "radar", stateOption);
         };
 
-        this.start =            function(resp) {
+        this.start =            function(entity) {
             $.extend(this.optionCloned, {
                 "polar":            []
                 , "calculable":     true
             })
 
-            RadarDrawer.prototype.start.call(this, resp)
+            RadarDrawer.prototype.start.call(this, entity)
         };
 
         this.fillSeries     =       function(data) {
@@ -460,9 +470,9 @@ define([
         this.rowNum = 0;
         this.columnNum = 0;
 
-        this.work = function(resp) {
-            this.fillRowColumn(resp.data);
-            TableDrawer.prototype.work.call(this, resp);
+        this.work = function(entity) {
+            this.fillRowColumn(entity.data);
+            TableDrawer.prototype.work.call(this, entity);
         };
 
         this.fillSeries     =       function(data) {

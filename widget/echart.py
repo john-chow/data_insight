@@ -37,11 +37,13 @@ class Bar_Line_Base(EChart):
         cats_idx = [idx for idx, fc in enumerate(factors) \
                         if fc.getProperty(Protocol.Kind) != Protocol.NumericType \
                         and fc.location in ('col', 'row')]
-
+ 
         # 找出cats的data
         if len(cats_idx) < 1:
             raise Exception('')
+
         cat_idx = cats_idx[0]
+        cat_fc  = factors[cat_idx]
 
         pivot_data_from_db = map(list, zip(*data_from_db))
         cats_data = uniqList(pivot_data_from_db[cat_idx])
@@ -65,15 +67,24 @@ class Bar_Line_Base(EChart):
             , 'location':   fc.getProperty(Protocol.Location)
         } for fc in factors]
 
+        # 配置轴信息
         category_item = {
             'type':     'category'
             , 'data':   cats_data
         }
+        value_item =  {
+            'type':     'value'
+        }
+
+        xAxis, yAxis = (category_item, value_item) \
+                            if 'row' == cat_fc.location \
+                            else (value_item, category_item)
 
         return {
             'head':         head
             , 'legend':     legend_items
-            , 'category':   category_item
+            , 'xAxis':      xAxis
+            , 'yAxis':      yAxis
             , 'series':     series
         }
 
@@ -119,6 +130,7 @@ class Bar_Line_Base(EChart):
                 result.append({
                     'name':     one_legend
                     , 'data':   final_series
+                    , 'type':   self.type
                 })
 
         return result
@@ -175,63 +187,63 @@ class Scatter(EChart):
     def makeData(self, data_from_db, factors):
         head = [{
             'name':         fc.getProperty(Protocol.Attr)
-            , 'location':   fc.getProperty(Protocol.Location)
+            , 'location':   fc.location
         } for fc in factors]
+
+        xAxis, yAxis = {'type': 'value'}, {'type': 'value'}
 
         return {
             'head':     head
-            , 'data':   data_from_db
+            , 'xAxis':  xAxis
+            , 'yAxis':  yAxis
+            , 'series':   [{
+                'type':     'scatter'
+                , 'data':   data_from_db
+            }]
         }
 
-    '''
-    def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
-        # 条件是至少2个数字列
-        numeric_factor_list = [f for f in (msu_factor_list + msn_factor_list) \
-                                if Protocol.NumericType == f.getProperty(Protocol.Kind)]
-        if len(numeric_factor_list) < 2:
-            raise Exception(u'cant draw scatter')
+class PartitionBase(EChart):
+    def makeData(self, data_from_db, factors):
+        cats_idx    = [idx for idx, fc in enumerate(factors) \
+                        if fc.getProperty(Protocol.Kind) != Protocol.NumericType \
+                        and fc.location in ('col', 'row')]
+        values_idx  = [idx for idx, item in enumerate(factors) \
+                            if idx not in cats_idx]
+        if len(cats_idx) > 1 or len(values_idx) < 1:
+            raise Exception('')
 
-        x_info_list, y_info_list = [], []
-        map(lambda x: x.append({
-            'type':    'value'
-        }), (x_info_list, y_info_list))
+        cat_idx     = cats_idx[0]
+        pivot_data  = map(list, zip(*data_from_db))
 
-        legend_series_data = []
-        if 0 < len(group_factor_list):
-            all_data = map( list, zip(*data_from_db) )
-            # 一定不会有度量列，全部是维度且数值的列
-            legend_list = list(set(all_data[len(msn_factor_list)]))
-            for le in legend_list:
-                legend_series_data.append({
-                    u'legend':          le
-                    , u'series':        [ x[:-1] for x in data_from_db if x[-1] == le ] 
-                })
-        else:
-            legend_series_data.append({
-                u'series':  data_from_db
+        legend = {
+            'data': uniqList(pivot_data[cat_idx])
+        }
+
+        series = []
+        for val_idx in values_idx:
+            zipped = zip(pivot_data[cat_idx], pivot_data[val_idx])
+            one_series_data = [{
+                'name':     item[0]
+                , 'value':  item[1]
+            } for item in zipped]
+            series.append({
+                'type':     self.type
+                , 'data':   one_series_data
             })
 
         return {
-            u'x':                   x_info_list
-            , u'y':                 y_info_list
-            , u'legend_series':     legend_series_data
+            'legend':       legend
+            , 'series':     series
         }
-    '''
 
 
-class Pie(EChart):
-    def makeData(self, data_from_db, factors):
-        head = [{
-            'name':         fc.getProperty(Protocol.Attr)
-            , 'location':   fc.getProperty(Protocol.Location)
-        } for fc in factors]
+class Pie(PartitionBase):
+    def __init__(self):
+        self.type = 'pie'
 
-        data = [{
-            'name':         item[1]
-            , 'value':      item[0]
-        } for item in data_from_db]
-
-        return data
+class Funnel(PartitionBase):
+    def __init__(self):
+        self.type = 'funnel'
 
 
 class Radar(EChart):

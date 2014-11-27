@@ -21,7 +21,7 @@ requirejs.config({
 	        "tool": 			"common/tool",
 	        "csrf": 			"lib/csrf",
 	        "minicolors":		"lib/jquery.minicolors",
-	        "echarts": 		    "lib/src/echarts-original"
+	        "echarts": 		            "lib/src/echarts-original"
 	        , "echarts/chart/bar": 		"lib/src/echarts-original"
 	        , "echarts/chart/line": 	"lib/src/echarts-original"
 	        , "echarts/chart/scatter": 	"lib/src/echarts-original"
@@ -30,6 +30,21 @@ requirejs.config({
 	        , "echarts/chart/table": 	"lib/src/echarts-original"
 	        , "echarts/chart/map": 		"lib/src/echarts-original-map"
     },
+
+    /*
+    packages:   [
+        {
+            name:   'echarts'
+            , location:     'lib/src'
+            , main:     'echarts'
+        }
+        , {
+            name:   'zrender'
+            , location:     'zrender/src'
+            , main:     'zrender'
+        }
+    ],
+    */
 
     //添加依赖关系
 	shim: {

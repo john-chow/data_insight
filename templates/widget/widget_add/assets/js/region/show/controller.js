@@ -27,7 +27,7 @@ define([
             });
 
             DataInsightManager.commands.setHandler("board:draw", function(resp) {
-                if (resp.succ)      self.showView.draw(resp.data)
+                if (resp.succ)      self.showView.draw(resp.entity)
                 else                self.showView.clear()
             });
 
