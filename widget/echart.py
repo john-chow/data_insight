@@ -33,39 +33,56 @@ class EChart(object):
 class Bar_Line_Base(EChart):
     def makeData(self, data_from_db, factors):
         locations_idx = [idx for idx, fc in enumerate(factors) \
-                        if fc.getProperty(Protocol.Location) in ('color', 'shape')]
+                        if fc.getProperty(Protocol.Location) in ('group')]
+        cats_idx = [idx for idx, fc in enumerate(factors) \
+                        if fc.getProperty(Protocol.Kind) != Protocol.NumericType \
+                        and fc.location in ('col', 'row')]
 
+        # 找出cats的data
+        if len(cats_idx) < 1:
+            raise Exception('')
+        cat_idx = cats_idx[0]
+
+        pivot_data_from_db = map(list, zip(*data_from_db))
+        cats_data = uniqList(pivot_data_from_db[cat_idx])
+
+        # 找出legend的data，并且把数据按legend分为每个series
         if locations_idx:
-            idx = locations_idx[0]
-            data = self.dispart(data_from_db, idx)
+            legend_idx = locations_idx[0]
+            legends = uniqList(pivot_data_from_db[legend_idx])
+            data = self.dispart(data_from_db, idx, legends)
         else:
             data = [('', data_from_db)]
 
+        series  = self.calcSeries(data, factors, cats_data, cat_idx)
+        legend_items = {
+            'data':  [item.get('name') for item in series]
+        }
+
+        # 查询时各列的信息
         head = [{
             'name':         fc.getProperty(Protocol.Attr)
             , 'location':   fc.getProperty(Protocol.Location)
         } for fc in factors]
-        series  = self.calcSeries(data, factors)
-        legend_items = {
-            'data':  [item.get('name') for item in series]
+
+        category_item = {
+            'type':     'category'
+            , 'data':   cats_data
         }
 
         return {
             'head':         head
             , 'legend':     legend_items
+            , 'category':   category_item
             , 'series':     series
         }
 
 
-    def dispart(self, data_from_db, idx):
+    def dispart(self, data_from_db, idx, legends):
         '''
         根据group列的结果，对数据库查询结果数据进行拆分
         idx 表示第几列是group列
         '''
-        pivot_data  = map(list, zip(*data))
-        lg_column   = pivot_data[idx]
-        legends     = uniqList(lg_column)
-
         data = [(le, [data_from_db[i] \
                     for i, row in enumerate(data_from_db) \
                     if row[idx] == le]) \
@@ -73,23 +90,35 @@ class Bar_Line_Base(EChart):
         return data
 
 
-    def calcSeries(self, data, factors):
+    def calcSeries(self, data, factors, cats_data, cat_idx):
         '''
         有多个数字列，按类分
         '''
-        colidx_legends = [(col_idx, fc.getProperty(Protocol.Attr)) \
+        colidx_colnames = [(col_idx, fc.getProperty(Protocol.Attr)) \
                     for col_idx, fc in enumerate(factors) \
                     if Protocol.NumericType == fc.getProperty(Protocol.Kind)]
+
+        mul_valaxis_flag = True if len(colidx_colnames) > 1 else False
 
         result = []
         for bf_legend, part_data in data:
             dim_data = map(list, zip(*part_data))
-            for col_idx, le in colidx_legends:
-                one_legend = le + bf_legend
-                one_series = dim_data[col_idx]
+            for col_idx, name in colidx_colnames:
+                # 把legend拼在一起
+                one_legend      = bf_legend + name if mul_valaxis_flag else bf_legend
+                one_cats, one_series = dim_data[cat_idx], dim_data[col_idx]
+
+                # 系列中缺少的cat时，补上(cat, '')组合
+                to_supply_cats_series = [(c, '') for c in cats_data if c not in one_cats]
+                after_supply_cats_series = zip(one_cats, one_series) + to_supply_cats_series
+
+                sorted_one_cats_series \
+                        = sorted(after_supply_cats_series, key = lambda x: cats_data.index(x[0]))
+                final_series = [item[1] for item in sorted_one_cats_series]
+
                 result.append({
                     'name':     one_legend
-                    , 'data':   one_series
+                    , 'data':   final_series
                 })
 
         return result
