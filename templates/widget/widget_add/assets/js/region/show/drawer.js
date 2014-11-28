@@ -1,9 +1,12 @@
 define([
+    'echarts'
+    /*
     "echarts"
     , "echarts/chart/bar"
     , "echarts/chart/line"
+    */
     //"city"
-], function(echarts) {
+], function() {
 
 
 /////////////////////////////////////////////////////////////////////
@@ -69,11 +72,11 @@ define([
                 break;
             default:
                 console.log('unknow picture type');
-                return
+                return false
         }
 
         this.now_drawer.init(this.ec, type);
-        this.now_drawer.work(entity)
+        return this.now_drawer.work(entity)
     };
 
     DrawManager.prototype.format = function(entity) {
@@ -82,7 +85,8 @@ define([
     };
 
     DrawManager.prototype.draw = function(entity) {
-        if (!this.now_drawer)       this.build(entity)
+        var workOk = this.build(entity);
+        if (!workOk)        return
         this.now_drawer.draw();
     };
 
@@ -99,19 +103,11 @@ define([
         this.optionCloned               = {};
         this.place                      = "";
         this.type                       = "";
-        this.option = {
-            'legend':                   {
-                'data':             []
-            }
-            , 'series':     [
-            ]
-        };
     
         // 初始化drawer工作环境
         this.init =    function(ec, type) {
             this.ec             = ec;
             this.type           = type;
-            this.optionCloned   = cloneObject(this.option);
         };
 
         this.getOption = function() {
@@ -122,11 +118,10 @@ define([
         this.work =     function(entity) {
             if (!entity || !entity.figure 
                         || Object.keys(entity.figure).length <= 0)    
-                return
+                return false
 
             this.optionCloned = entity.figure;
-            // 首先，派生类先各自操作    
-            //this.fillSeries(entity.data);
+            return true
         };
 
         this.extract = function(data) {
@@ -137,12 +132,8 @@ define([
         this.draw =     function(optionData) {
             this.ec.clear();
             this.optionCloned = optionData || this.optionCloned;
-
-            if (!this.optionCloned || Object.keys(this.optionCloned).length <= 0) {
-                console.log('没有数据')
-            }
-            //data['toolbox']['show'] = false;
-            this.ec.setOption(this.optionCloned)
+            this.ec.setOption(this.optionCloned);
+            this.ec.refresh()
         };
 
         this.getOption =    function() {
@@ -180,6 +171,7 @@ define([
             this.stacked    = stacked
         };
 
+        /*
         this.work = function(entity) {
             var figure = entity.figure;
 
@@ -191,6 +183,7 @@ define([
             //this.fillAxis(entity.data);
             AxisDrawer.prototype.work.call(this, entity);
         };
+        */
 
         this.fillAxis = function(category_item, heads) {
             // 辨别出cat轴，value轴分别对应x、y中哪个

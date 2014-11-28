@@ -20,8 +20,9 @@ requirejs.config({
 	        "ajaxfileupload": 	"lib/ajaxfileupload",
 	        "tool": 			"common/tool",
 	        "csrf": 			"lib/csrf",
-	        "minicolors":		"lib/jquery.minicolors",
-	        "echarts": 		            "lib/src/echarts-original"
+	        "minicolors":		"lib/jquery.minicolors"
+            , "echarts":        "lib/echarts-all"
+	        //, "echarts": 		            "lib/src/echarts-original"
 	        , "echarts/chart/bar": 		"lib/src/echarts-original"
 	        , "echarts/chart/line": 	"lib/src/echarts-original"
 	        , "echarts/chart/scatter": 	"lib/src/echarts-original"
