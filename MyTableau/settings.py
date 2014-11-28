@@ -145,6 +145,7 @@ INSTALLED_APPS = (
     'widget',
 	'scene',
     'theme',
+    'mould',
     #'monitor',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',

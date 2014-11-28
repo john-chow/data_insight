@@ -1,10 +1,5 @@
 define([
-    'echarts'
-    /*
-    "echarts"
-    , "echarts/chart/bar"
-    , "echarts/chart/line"
-    */
+    '/static/js/echarts-all.js'
     //"city"
 ], function() {
 

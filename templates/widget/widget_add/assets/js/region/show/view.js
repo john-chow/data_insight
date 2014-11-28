@@ -1,5 +1,5 @@
 define([
-    "region/show/drawer"
+    "/static/js/drawer.js"
 ], function(DrawManager) {
 
 	var ShowRegionView = DataInsightManager.module("ShowRegion",

@@ -302,13 +302,13 @@ define("compontnents", ["display"], function(d) {
             })
         };
 
-        this.onGetWidgetData =  function(data) {
+        this.onGetWidgetData =  function(resp) {
             // 如果成功，则传递数据到面板进行画图
-            if (data.succ){
+            if (resp.succ){
                 $body.trigger("show_widget"
-                                , {"data":data, "time": this.stamp})
+                                , {"resp_entity":resp.entity, "time": this.stamp})
             } else {
-                alert(data.msg)
+                alert(resp.msg)
             }
         };
 
@@ -400,35 +400,52 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
             this.skinObj.change(name)
         },
 
+        composeTem:             function(data) {
+            var timestamp = data.time;
+            var entity  = data.resp_entity;
+            var widget_id = entity.widget_id;
+            var unitTem = "<li class='se_wi_"+entity.widget_id+"_"+timestamp+
+                        "' data-id='"+entity.widget_id+"' data-time='"+timestamp+
+                        "'></li>";
+            $unitTem = $(unitTem).html(entity.tem);
+            var $widgetTem = $unitTem.find("[name='widget']");
+            $widgetTem.attr("id", "se_" + timestamp);
+            $widgetTem.attr("class", "se_wi_div se_wi_div_"+entity.widget_id+"" );
+            return $unitTem[0].outerHTML
+        },
+
         showNewWidget:              function(ev, data) {
             var timestamp = data.time;
-            var data = data.data;
+            var entity  = data.resp_entity;
             var gridster = $(".gridster ul").gridster().data('gridster');
 
             //利用时间戳
-            var len = $(".se_wi_div_"+data.widget_id).length;
-            var str =   "<li class='se_wi_"+data.widget_id+"_"+timestamp+
-                        "' data-id='"+data.widget_id+"' data-time='"+timestamp+
+            var len = $(".se_wi_div_"+entity.widget_id).length;
+            /*
+            var str =   "<li class='se_wi_"+entity.widget_id+"_"+timestamp+
+                        "' data-id='"+entity.widget_id+"' data-time='"+timestamp+
                         "'><div id='se_"+timestamp+"' class='se_wi_div se_wi_div_"+
-                        data.widget_id+"'></div></li>";
+                        entity.widget_id+"'></div></li>";
+            */
             var posObj  = this.sureShowPos(timestamp);
+            var str = this.composeTem(data);
             gridster.add_widget(
                 str
                 , parseInt(posObj.size_x),  parseInt(posObj.size_y)
                 , parseInt(posObj.col),     parseInt(posObj.row)
             );
 
-            var dom     = $(".se_wi_div_"+data.widget_id)[len];
-            var wiData  =    data.data;
-            var drawer  = new DrawManager();
-            drawer.run(dom, wiData);
+            var dom     = $(".se_wi_div_"+entity.widget_id)[len];
+            var wiData  =    entity.figure;
+            var drawer  = new DrawManager(dom);
+            drawer.draw(wiData);
 
             var gridUnitData = {
                 "stamp": timestamp, "dr": drawer, "wi_data": wiData, "dom": dom 
             };
             this.drawerList.push(gridUnitData);
 
-            this.afterWidgetShown(gridUnitData, data.widget_id)
+            this.afterWidgetShown(gridUnitData, entity.widget_id)
         },
 
         sureShowPos:                function(timestamp) {
@@ -475,8 +492,9 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
     
             var drawer = ev.data.unit.dr;
             var option = ev.data.unit.wi_data;
-            var dom = ev.data.unit.dom
-            drawer.run(dom, option);
+            var dom = ev.data.unit.dom;
+            var drawer = new DrawManager(dom);
+            drawer.draw(option);
 
             this.keepFlexible();
         },

@@ -4,6 +4,7 @@ from django.db import models
 from django.utils import simplejson as json
 
 from MyTableau.models import ElementModel
+from mould.models import MouldModel
 from common.head import WIDGET_SKIN_PATH, SKIN_FILE_TYPE
 from common.tool import readJsonFile
 import common.protocol as Protocol
@@ -44,6 +45,9 @@ class WidgetModel(ElementModel):
     m_external_db   = models.ForeignKey('ExternalDbModel')
     m_filter        = models.CharField(max_length=1024, db_column='filter')
     m_order         = models.CharField(max_length=200, db_column='order')
+    m_mould         = models.ForeignKey(MouldModel
+                        , related_name = 'm_used_by_set'
+                        , null = True)
 
     def getConn(self):
         return self.m_external_db
@@ -120,7 +124,6 @@ class WidgetModel(ElementModel):
         group_items = [eval(item) for item in (self.m_color, self.m_size) if eval(item)]
         tables = map(lambda i: i.get('table'), flat_axis_items + group_items)
         return list(set(tables))
-
 
     class Meta:
         db_table = 'widgets'

@@ -152,12 +152,24 @@ def widgetShow(request, widget_id):
         hk = model.m_external_db.m_hk
         producer = DrawDataProducer(hk)
         data = producer.produce(model.restoreReqDataDict())
+
+        # 是否有指定模板
+        if model.m_mould:
+            tem = model.m_mould.content
+
     except WidgetModel.DoesNotExist:
         return HttpResponse({'succ': False, 'msg': 'xxxxxxxxxxxx'})
     except ExternalDbModel.DoesNotExist:
         return HttpResponse({'succ': False, 'msg': 'yyyyyyyyyyyy'})
     else:
-        return MyHttpJsonResponse({'succ': True, 'widget_id': widget_id, 'data': data})
+        return MyHttpJsonResponse({
+            'succ': True
+            , 'entity': {
+                'figure':       data
+                , 'tem':        tem
+                , 'widget_id':  widget_id
+            }
+        })
 
 
 @require_http_methods(['POST'])
