@@ -14,7 +14,8 @@ define([
 
 	  //////////////////////////////////////////////////////////监听页面start
 	  DataInsightManager.on("start", function(){
-	    API.showShowView();
+        // 由switch统一调度，自己不主动
+	    //API.showShowView();
 	  });
 	});
 

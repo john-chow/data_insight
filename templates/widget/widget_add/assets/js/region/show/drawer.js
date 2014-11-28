@@ -18,7 +18,7 @@ define([
 ///////////////////////////////////////////////////////////////////
 
     var DrawManager = function(place) {
-        this.ec = echarts.init(place);
+        this.place = place;
         this.now_drawer = null;
     };
 
@@ -75,7 +75,7 @@ define([
                 return false
         }
 
-        this.now_drawer.init(this.ec, type);
+        this.now_drawer.init(type);
         return this.now_drawer.work(entity)
     };
 
@@ -87,11 +87,11 @@ define([
     DrawManager.prototype.draw = function(entity) {
         var workOk = this.build(entity);
         if (!workOk)        return
-        this.now_drawer.draw();
+        this.now_drawer.draw(this.place);
     };
 
     DrawManager.prototype.getEc = function() {
-        return this.ec
+        return this.now_drawer.getEc()
     }
 
 
@@ -105,8 +105,7 @@ define([
         this.type                       = "";
     
         // 初始化drawer工作环境
-        this.init =    function(ec, type) {
-            this.ec             = ec;
+        this.init =    function(type) {
             this.type           = type;
         };
 
@@ -129,15 +128,18 @@ define([
             var contents = data.data;
         };
 
-        this.draw =     function(optionData) {
-            this.ec.clear();
+        this.draw =     function(place, optionData) {
+            this.ec = echarts.init(place);
             this.optionCloned = optionData || this.optionCloned;
             this.ec.setOption(this.optionCloned);
-            this.ec.refresh()
         };
 
         this.getOption =    function() {
             return this.optionCloned
+        };
+
+        this.getEc  = function() {
+            return this.ec
         };
 
         this.findSeriesIdxByName    =   function(name) {
