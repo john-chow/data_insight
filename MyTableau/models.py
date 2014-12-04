@@ -3,7 +3,6 @@
 # Create your models here.
 from django.db import models
 from django.utils import simplejson as json
-from skin.models import SkinModel
 
 class ElementModel(models.Model):
     """

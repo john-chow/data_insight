@@ -357,46 +357,26 @@ class Map():
 class ChinaMap(Map):
     def __init__(self):
         Map.__init__(self)
-        """
-        self.series[u'mapType']     = u'china'
-        self.series[u'itemStyle']   = {
-            u'normal':      {u'label': {u'show':True}},
-            u'emphasis':    {u'label': {u'show':True}}
-        }
-        self.series[u'data'] = []
-        """
 
-    def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
-        all_data = map(list, zip(*data_from_db))
-        
-        numeric_factor_list, word_factor_list = [], []
-        for factor in msn_factor_list:
-            tmp_factor_list = numeric_factor_list \
-                    if Protocol.NumericType == factor.getProperty(Protocol.Kind) \
-                    else word_factor_list
-            tmp_factor_list.append(factor)
+    def makeData(self, data_from_db, factors):
+        all_data    = map(list, zip(*data_from_db))
+        results     = []
+        for i, f in enumerate(factors):
+            if Protocol.FactorType == f.getProperty(Protocol.Kind):
+                names   = all_data[i]
+                names_list = [{'name': one} for one in names]
+            elif Protocol.NumericType == f.getProperty(Protocol.Kind):
+                values  = all_data[i]
+                values_list = [{'value': one} for one in values]
 
-        if len(word_factor_list) > 1:
-            raise Exception('地图轴上参数不正确')
+        for item in zip(names_list, values_list):
+            item_one = {}
+            for d in item:
+                item_one.update(**d)
+            results.append(item_one)
 
-        legend_series_data = []
-        if len(group_factor_list) > 0:
-            group_idx   = -1
-            legend_data = list(set(all_data[group_idx]))
-            for l in legend_data:
-                one_series_data = [{d[1]: d[0]} for d in data_from_db if l == d[-1]]
-                legend_series_data.append({'legend': l, 'series': one_series_data})
-        else:
-            legend_data = []
-            one_series_data = [{d[1]: d[0]} for d in data_from_db]
-            legend_series_data.append({
-                'legend': ''
-                , 'series': one_series_data
-            })
+        return results
 
-        return {
-            'legend_series':        legend_series_data
-        }
         
             
 class WorldMap(Map):

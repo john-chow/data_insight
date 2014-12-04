@@ -140,7 +140,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'gunicorn',
 	'account',
-    #'skin',
+    'skin',
     'connect',
     'widget',
 	'scene',

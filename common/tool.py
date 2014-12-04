@@ -2,6 +2,7 @@
 import psycopg2 as pysql
 import datetime, time, random, sys, os, traceback
 from decimal import *
+import cPickle as pickle
 
 from collections import defaultdict
 from django.http import HttpResponse
@@ -68,11 +69,14 @@ def isNum(v):
 
 def readJsonFile(file_name):
     # 怎么检查文件是否存在
-
-    f = open(file_name, 'r')
-    data = json.load(f, 'utf-8')
-    f.close()
+    with open(file_name, 'r') as f:
+        data = pickle.load(f, 'utf-8')
     return data
+
+
+def writeJsonFile(file_name, data):
+    with open(file_name, 'f') as f:
+        pickle.dump(data, f, 'utf-8')
 
 
 def readFile(file_name):

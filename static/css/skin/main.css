@@ -1,0 +1,34 @@
+#skin_form [name='data'] {
+    width:  100%;
+    min-height: 400px;
+    background-color:   black;
+    color:  white;
+    overflow-x:     hidden;
+    overflow-y:     scroll;
+}
+
+#skin_form #name_outter {
+    margin-left:    20%;
+}
+
+.skin_row {
+    margin-top:     10px;
+}
+
+#test_btn,
+#submit_btn {
+    float:          right;
+    margin-right:   20px;
+}
+
+#all_widgets {
+    min-width:      100px;
+}
+
+#show_area {
+    border: 1px solid #e3e3e3;
+    overflow:   hidden;
+    padding:    10px;
+    min-height: 400px;
+}
+
