@@ -69,14 +69,20 @@ def isNum(v):
 
 def readJsonFile(file_name):
     # 怎么检查文件是否存在
-    with open(file_name, 'r') as f:
-        data = pickle.load(f, 'utf-8')
-    return data
+    try:
+        with open(file_name, 'r') as f:
+            data = pickle.load(f)
+        return data
+    except IOError, e:
+        raise e
 
 
 def writeJsonFile(file_name, data):
-    with open(file_name, 'f') as f:
-        pickle.dump(data, f, 'utf-8')
+    try:
+        with open(file_name, 'w') as f:
+            pickle.dump(data, f)
+    except IOError, e:
+        raise e
 
 
 def readFile(file_name):

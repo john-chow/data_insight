@@ -1,6 +1,10 @@
 # -*-coding: utf-8 -*-
 
 # Create your views here.
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 from django.views.decorators.http import require_http_methods
 from django.template import RequestContext, Template
@@ -65,6 +69,8 @@ def skinCreate(request):
         m_name = name, m_cat = 2 
     )
 
+    model.saveSkinDict(json.loads(data))
+
     return MyHttpJsonResponse({
         'succ':     True
     })
@@ -93,12 +99,19 @@ def skinEdit(request, id):
         })
     else:
         model = SkinModel.find(id)
-        data = model.getSkinDict()
+        try:
+            data = model.getSkinDict()
+        except IOError:
+            return MyHttpJsonResponse({
+                'succ':     False
+                , 'msg':    'no file existed'
+            })
+
         return MyHttpJsonResponse({
             'succ':     True
             , 'entity': {
                 'name':     model.m_name
-                , 'data':   data
+                , 'data':   json.dumps(data)
             }
         })
 

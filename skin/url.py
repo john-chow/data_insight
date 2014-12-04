@@ -7,6 +7,6 @@ urlpatterns = patterns('',
     url(r'^list/(\w+)/$',               views.skinList),
     url(r'^create',                     views.skinCreate),
     url(r'^delete',                     views.skinDelete),
-    url(r'^edit',                       views.skinEdit),
+    url(r'^edit/(\d+)/$',               views.skinEdit),
     url(r'^detail/(\w+)/(\d+)/$',       views.skinDetail)
 )

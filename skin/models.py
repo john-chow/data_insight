@@ -2,10 +2,11 @@
 
 from django.db import models
 import os
+import pdb
 
 from MyTableau.models import ElementModel
 from common.head import WIDGET_SKIN_PATH, SCENE_SKIN_PATH, SKIN_FILE_TYPE
-from common.tool import readJsonFile
+from common.tool import readJsonFile, writeJsonFile
 
 # Create your models here.
 
@@ -47,9 +48,9 @@ class SkinModel(ElementModel):
 
         cat = kwargs.get('m_cat', 2)
         if 1 == cat:
-            self.path_head = SCENE_SKIN_PATH
+            model.path_head = SCENE_SKIN_PATH
         else:
-            self.path_head = WIDGET_SKIN_PATH
+            model.path_head = WIDGET_SKIN_PATH
 
         return model
 
@@ -66,7 +67,7 @@ class SkinModel(ElementModel):
             self.path_head + self.m_name + SKIN_FILE_TYPE
         )
         writeJsonFile(file_name, data)
-    
+
     class Meta:
         db_table = 'skin'
 

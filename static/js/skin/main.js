@@ -9,8 +9,8 @@ $msg_pipe = $('body');
 ///////////////////////////////////////
 
 define('show', [
-    'common/drawer'
-    , 'common/tool'
+    'drawer'
+    , '/static/assets/js/common/tool.js'
     , 'skin/mix'
 ], function(DrawManager) {
     var ShowClass = function() {
@@ -90,7 +90,9 @@ define('adjust', [
         this.$form      = $("#skin_form");
         this.$test_btn  = $("#test_btn");
         this.$submit_btn = $("#submit_btn");
+        this.$skin_select = this.$form.find("[name='skin_id']");
 
+        this.$skin_select.on("change", $.proxy(this.onSkinChange, this));
         this.$test_btn.on("click", $.proxy(this.onTestClicked, this));
         this.$submit_btn.on("click", $.proxy(this.onSubmitClicked, this))
     }
@@ -103,10 +105,60 @@ define('adjust', [
         return false
     }
 
-    AdjustClass.prototype.onSubmitClicked = function() {
-        var input = this.$form.serieslize();
-        $.ajax('skin', {
+    AdjustClass.prototype.onSkinChange = function(e) {
+        var self = this;
+        var skin_value = e.target.value;
+        if ('new' == skin_value)        return
+
+        var url = "/skin/edit/" + skin_value + "/";
+        $.ajax(url, {
+            type:           'GET'
+            , dataType:     'json'
+            , success:      function(resp) {
+                if(resp.succ) {
+                    var name = resp.entity.name;
+                    var text = resp.entity.data;
+                    self.$form.find("[name='name']").val(name);
+                    self.$form.find("[name='data']").val(text)
+                }
+            }
+            , error:        function() {
+            }
         })
+    }
+
+    AdjustClass.prototype.onSubmitClicked = function(e) {
+        e.preventDefault();
+
+        // 检查输入
+        var name = this.$form.find("[name='name']").val();
+        if (!name) {
+            alert('填写名字');
+            return
+        }
+
+        var areatext = $("[name='data']").val();
+        var json = eval('(' + areatext + ')');
+
+        var skin_value = this.$skin_select.val();
+        if ('new' == skin_value) {
+            var url = "/skin/create/"
+        } else {
+            var url = "/skin/edit/" + skin_value + "/"
+        }
+
+        $.ajax(url, {
+            type:           'POST'
+            , data:         {
+                'name':     name
+                , 'data':   JSON.stringify(json)
+            }
+            , dataType:     'json'
+            , success:      function() {}
+            , error:        function() {}
+        })
+
+        return false
     }
 
     return AdjustClass
@@ -128,6 +180,5 @@ define('main', [
 })
 
 require(['main'])
-
 
 
