@@ -9,7 +9,9 @@ $msg_pipe = $('body');
 ///////////////////////////////////////
 
 define('show', [
-    'drawer'
+    'common/drawer'
+    , 'common/tool'
+    , 'skin/mix'
 ], function(DrawManager) {
     var ShowClass = function() {
         this.$show = $("#show_area");
@@ -35,8 +37,9 @@ define('show', [
 
     ShowClass.prototype.onGetWidget = function(resp) {
         if (resp.succ)      {
-            this.model = resp.entity;
-            this.draw(resp.entity)
+            this.entity = resp.entity;
+            var entity  = cloneObject(this.entity);
+            this.draw(entity)
         }
     }
 
@@ -51,7 +54,23 @@ define('show', [
         drawManager.draw(entity.figure)
     }
 
-    ShowClass.prototype.onGetSkin = function(data) {
+    ShowClass.prototype.onGetSkin = function(e, option) {
+        var entity      = cloneObject(this.entity);
+        var figure_data = entity.figure.figure;
+
+        if ('xAxis' in option || 'yAxis' in option) {
+            mixAxisOption(figure_data, option);
+            delete option['xAxis'];
+            delete option['yAxis']
+        }
+
+        if ('series' in option) {
+            mixSeriesOption(figure_data, option);
+            delete option['series']
+        } 
+
+        $.extend(true, figure_data, option);
+        this.draw(entity)
     }
 
     return ShowClass
@@ -78,11 +97,9 @@ define('adjust', [
 
     AdjustClass.prototype.onTestClicked = function(e) {
         e.preventDefault();
-        var areatext = $("[name='data']").html();
-        var data = JSON.parse(areatext);
-        $msg_pipe.trigger('test:skin', {
-            'data':     data
-        })
+        var areatext = $("[name='data']").val();
+        var data = eval('(' + areatext + ')');
+        $msg_pipe.trigger('test:skin', data)
         return false
     }
 

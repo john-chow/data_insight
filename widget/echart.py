@@ -78,7 +78,7 @@ class Bar_Line_Base(EChart):
         }, {
             'type':     'value'
         }
-        cat_axis, val_axis = cat_axis_unit, []
+        cat_axis, val_axis = [cat_axis_unit], []
         for i in range(distinct_series_axis_num):
             copyed_val_axis = copy.deepcopy(val_axis_unit)
             val_axis.append(copyed_val_axis)
