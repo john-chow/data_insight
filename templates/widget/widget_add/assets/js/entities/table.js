@@ -49,17 +49,24 @@ var data = DataInsightManager.module("Entities",
                             		'tableName': 	allTableName[i],
                             		'id': 			(i+1),
                             }
+                            /*
                             if(i==0){
                             	modelList[i].choosed = true;
                             }
                             else{
                             	modelList[i].choosed = false;
                             }
-                            if($.inArray(respose.selected[i], respose.all) == -1){
+                            */
+                            // modified by zzr, 它这里choosed表示正在用的表
+                            // selected表示进入时已经勾选的表
+                            // 这里弱化selected意义，没太大必要
+                            if($.inArray(respose.all[i], respose.selected) == -1){
                             	modelList[i].selected = false;
+                            	modelList[i].choosed = false;
                             }
                             else{
                             	modelList[i].selected = true;
+                            	modelList[i].choosed = true;
                             }
                         }
                         tables = new Entities.TableCollection(modelList);
