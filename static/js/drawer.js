@@ -1,7 +1,8 @@
 define([
     '/static/js/echarts-all.js'
+    , '/static/js/skin/mix.js'
     //"city"
-], function() {
+], function(_echart, Mix) {
 
 
 /////////////////////////////////////////////////////////////////////
@@ -15,6 +16,7 @@ define([
     var DrawManager = function(place) {
         this.place = place;
         this.now_drawer = null;
+        this.colorful_object = new Colorful()
     };
 
     DrawManager.prototype.build = function(entity) {
@@ -80,15 +82,67 @@ define([
     };
 
     DrawManager.prototype.draw = function(entity) {
-        var workOk = this.build(entity);
+        var self = this;
+        var workOk = self.build(entity);
         if (!workOk)        return
-        this.now_drawer.draw(this.place);
+
+        if (!self.colorful_object.getJson()) {
+            $.when(self.colorful_object.fetch()).done(
+                function() {
+                    self.now_drawer.draw(self.place, self.colorful_object.getJson())
+                }
+            )
+        } else {
+            self.now_drawer.draw(self.place, self.colorful_object.getJson());
+        }
     };
 
     DrawManager.prototype.getEc = function() {
         return this.now_drawer.getEc()
+    };
+
+    DrawManager.prototype.setStyle = function(styleId) {
+        var self = this;
+        self.colorful_object.setId(styleId);
+        if (self.now_drawer) {
+            $.when(self.colorful_object.fetch()).done(function(){
+                self.now_drawer.draw(self.place, self.colorful_object.getJson())
+            })
+        }
     }
 
+
+    /*
+     * 皮肤类
+     */
+    var Colorful = function() {
+        this.skinJson = {};
+    }
+
+    Colorful.prototype.setId = function(id) {
+        this.id = id;
+        this.skinJson = ('default' == id) ? {} : null;
+    }
+
+    Colorful.prototype.fetch = function() {
+        var self = this;
+        if ('default' != this.id) {
+            var defer = $.Deferred();
+            $.ajax('/skin/edit/' + this.id + '/', {
+                type:       'GET'
+                , dataType: 'json'
+                , success:  function(resp)  {
+                    self.skinJson = JSON.parse(resp.entity.data);
+                    defer.resolve()
+                }
+            })
+            return defer.promise()
+        }
+    }
+
+    Colorful.prototype.getJson = function() {
+        return this.skinJson
+    }
 
 
     /*
@@ -123,10 +177,13 @@ define([
             var contents = data.data;
         };
 
-        this.draw =     function(place, optionData) {
+        this.draw =     function(place, colorJson) {
             this.ec = echarts.init(place);
-            this.optionCloned = optionData || this.optionCloned;
-            this.ec.setOption(this.optionCloned);
+            var option = cloneObject(this.optionCloned);
+            if (colorJson) {
+                Mix.mix_option(option, colorJson)
+            }
+            this.ec.setOption(option);
         };
 
         this.getOption =    function() {
@@ -145,6 +202,7 @@ define([
             })
             return idx
         }
+
     };
 
 

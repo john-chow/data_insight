@@ -12,7 +12,7 @@ define('show', [
     'drawer'
     , '/static/assets/js/common/tool.js'
     , 'skin/mix'
-], function(DrawManager) {
+], function(DrawManager, _t, Mix) {
     var ShowClass = function() {
         this.$show = $("#show_area");
         this.$choose = $("#all_widgets");
@@ -57,19 +57,8 @@ define('show', [
     ShowClass.prototype.onGetSkin = function(e, option) {
         var entity      = cloneObject(this.entity);
         var figure_data = entity.figure.figure;
+        Mix.mix_option(figure_data, option)
 
-        if ('xAxis' in option || 'yAxis' in option) {
-            mixAxisOption(figure_data, option);
-            delete option['xAxis'];
-            delete option['yAxis']
-        }
-
-        if ('series' in option) {
-            mixSeriesOption(figure_data, option);
-            delete option['series']
-        } 
-
-        $.extend(true, figure_data, option);
         this.draw(entity)
     }
 

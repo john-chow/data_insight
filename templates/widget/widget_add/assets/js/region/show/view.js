@@ -36,7 +36,7 @@ define([
             },
         
             tryStyle:       function(style) {
-                this.ec.setTheme(style)
+                this.drawerMgr.setStyle(style)
             }
         });
     })

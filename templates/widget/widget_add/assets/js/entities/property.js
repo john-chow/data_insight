@@ -69,9 +69,9 @@ define([
 			 */
 			listenPropertyChange: function(){
                 this.on("style:change", function(style){
-                	this.set("style", style);//触发change事件
+                	this.set("style", style, {silent: true});//触发change事件
                 	//通知入口model主题改变
-                	//Entities.trigger("style:change", this.toJSON());
+                	Entities.trigger("style:change", this.toJSON());
                 }, this);
                 this.on("autoRefresh:change", function(autoRefresh){
                 	this.set("autoRefresh", autoRefresh);//触发change事件

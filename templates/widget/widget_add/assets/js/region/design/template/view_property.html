@@ -19,6 +19,7 @@
 		<div class="col-md-5 col-sm-5">
 			<label>样&nbsp;&nbsp;式&nbsp;:</label>
 			<select name="style" value="<%= style %>">
+                <option value="default">无</option>
                 <% _.each(all_styles, function(s) { %>
                     <option value=<%= s.SkinModel_id %>><%= s.SkinModel_m_name %></option>
                 <% }) %>
