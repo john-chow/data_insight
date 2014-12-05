@@ -17,6 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from widget.models import WidgetModel, ExternalDbModel, REFRESH_CHOICES
 from widget.echart import EChartManager
 from widget.factor import FactorFactory, Factor, Clause, EXPRESS_FACTOR_KEYS_TUPLE
+from skin.models import SkinModel
 from connect.sqltool import SqlExecutorMgr, SqlObjReader
 from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb, cleanDataFromDb
 from common.log import logger
@@ -53,7 +54,10 @@ def handleOperate(request, widget_id = None):
             else:
                 request.session['hk'] = entity.getHk()
                 context = RequestContext(request)
-                dict = {'widget_id': widget_id} if widget_id else {}
+                skins = SkinModel.customValues('id', 'm_name')
+                dict  = {'skins': json.dumps(skins)}
+                widget_dict = {'widget_id': widget_id} if widget_id else {}
+                dict.update(widget_dict)
                 return render_to_response('widget/widget_add/add.html', dict, context)
     except DatabaseError, e:
         logger.error(e[0])

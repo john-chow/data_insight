@@ -55,6 +55,22 @@ class SkinModel(ElementModel):
         return model
 
 
+    @classmethod
+    def customValues(cls, *args):
+        try:
+            items = cls.objects.values(*args)
+        except Exception, e:
+            raise(e)
+
+        def custom(ones):
+            for one in ones:
+                keys, values = one.keys(), one.values()
+                custom_keys = [cls.__name__ + '_' + k for k in keys]
+                yield dict(zip(custom_keys, values))
+
+        return list(custom(items))
+
+
     def getSkinDict(self):
         file_name = os.path.abspath(
             self.path_head + self.m_name + SKIN_FILE_TYPE

@@ -97,6 +97,10 @@ define([
 			getPropertyEntity: function(){
 				var defer = $.Deferred();
 				var propertyEntity = new Entities.Property();
+
+                // add by zzr
+                propertyEntity.set('all_styles', window.skins);
+
 				if(window.widgetId && !window.newArea){
 					$.when(propertyEntity.fecthFromWidget()).done(function(){
 						defer.resolve(propertyEntity);
