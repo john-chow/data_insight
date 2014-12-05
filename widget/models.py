@@ -5,6 +5,7 @@ from django.utils import simplejson as json
 
 from MyTableau.models import ElementModel
 from mould.models import MouldModel
+from skin.models import SkinModel
 from common.head import WIDGET_SKIN_PATH, SKIN_FILE_TYPE
 from common.tool import readJsonFile
 import common.protocol as Protocol
@@ -39,8 +40,7 @@ class WidgetModel(ElementModel):
     m_graph         = models.CharField(max_length = 16, choices = GRAPH_CHOICES, \
                                         db_column='graph')               
     m_refresh       = models.CharField(max_length = 8, default = 'No')
-    m_skin          = models.CharField(db_column = 'skin', max_length = 16, \
-                                        default = 'default')
+    m_skin          = models.ForeignKey(SkinModel, db_column = 'skin', null = True)
     m_pic           = models.TextField(db_column='snapshot')
     m_external_db   = models.ForeignKey('ExternalDbModel')
     m_filter        = models.CharField(max_length=1024, db_column='filter')
@@ -98,7 +98,7 @@ class WidgetModel(ElementModel):
                 , Protocol.Size:        eval(self.m_size)
             }
             , Protocol.Refresh:     self.m_refresh
-            , Protocol.Style:       self.m_skin
+            , Protocol.Style:       self.m_skin.pk
             , Protocol.IsPublish:   self.m_status
             , Protocol.Color:       self.m_color
             , Protocol.Size:        self.m_size
