@@ -609,7 +609,7 @@ class WidgetHandler(object):
 
     def parse(self, req):
         [self.graph, self.x, self.y, mapping, self.snapshot, self.name, \
-                self.skin, self.refresh, publish, self.filter, self.order] \
+                skin_id, self.refresh, publish, self.filter, self.order] \
             = map(lambda i: req.get(i), \
                 [Protocol.Graph, Protocol.Xaxis, Protocol.Yaxis, \
                 Protocol.Mapping, Protocol.Snapshot, Protocol.WidgetName, Protocol.Style, \
@@ -618,6 +618,10 @@ class WidgetHandler(object):
         self.color = mapping.get(Protocol.Color)
         self.size = mapping.get(Protocol.Size)
         self.publish = True if 'true' == publish else False
+        try:
+            self.skin = SkinModel.objects.get(pk = skin_id)
+        except Exception, e:
+            raise Exception('not valid skin')
 
         # 暂时写定
         self.order = {}
