@@ -83,8 +83,12 @@ define([
 
     DrawManager.prototype.draw = function(entity) {
         var self = this;
-        var workOk = self.build(entity);
-        if (!workOk)        return
+
+        // 表示新画图；否则是重画
+        if (entity) {
+            var workOk = self.build(entity);
+            if (!workOk)        return
+        } 
 
         if (!self.colorful_object.getJson()) {
             $.when(self.colorful_object.fetch()).done(
@@ -126,7 +130,7 @@ define([
 
     Colorful.prototype.fetch = function() {
         var self = this;
-        if ('default' != this.id) {
+        if (this.id) {
             var defer = $.Deferred();
             $.ajax('/skin/edit/' + this.id + '/', {
                 type:       'GET'

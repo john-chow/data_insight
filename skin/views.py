@@ -65,11 +65,16 @@ def skinCreate(request):
             , 'msg':    'need name'
         })
 
-    model = SkinModel.create(
-        m_name = name, m_cat = 2 
-    )
-
-    model.saveSkinDict(json.loads(data))
+    try:
+        json_data = json.loads(data)
+        model = SkinModel.create(
+            m_name = name, m_cat = 2 
+        )
+        model.saveSkinDict(json_data)
+    except Exception, e:
+        return MyHttpJsonResponse({
+            'succ':     False
+        })
 
     return MyHttpJsonResponse({
         'succ':     True
@@ -80,23 +85,27 @@ def skinEdit(request, id):
     if 'POST' == request.method:
         model = SkinModel.find(id)
         name = request.POST.get('name')
-        if name:
-            model.m_name = name
-            try:
-                model.save()
-            except Exception, e:
-                return MyHttpJsonResponse({
-                    'succ':     False
-                    , 'msg':    'db excption'
-                })
-
         data = request.POST.get('data')
-        if data:
-            model.saveSkinDict(data)
+
+        try:
+            if name:
+                model.m_name = name
+                model.save()
+
+            if data:
+                json_data = json.loads(data)
+                model.saveSkinDict(json_data)
+
+        except Exception, e:
+            return MyHttpJsonResponse({
+                'succ':     False
+                , 'msg':    'db excption'
+            })
 
         return MyHttpJsonResponse({
             'succ':     True
         })
+
     else:
         model = SkinModel.find(id)
         try:

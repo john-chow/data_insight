@@ -161,6 +161,8 @@ def widgetShow(request, widget_id):
         if model.m_mould:
             tem = model.m_mould.content
 
+        skin = model.m_skin.pk if model.m_skin else None
+
     except WidgetModel.DoesNotExist:
         return HttpResponse({'succ': False, 'msg': 'xxxxxxxxxxxx'})
     except ExternalDbModel.DoesNotExist:
@@ -172,6 +174,7 @@ def widgetShow(request, widget_id):
                 'figure':       data
                 , 'tem':        tem
                 , 'widget_id':  widget_id
+                , 'skin':       skin
             }
         })
 

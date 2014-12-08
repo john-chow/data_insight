@@ -438,6 +438,7 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
             var dom     = $(".se_wi_div_"+entity.widget_id)[len];
             var wiData  =    entity.figure;
             var drawer  = new DrawManager(dom);
+            drawer.setStyle(entity.skin);
             drawer.draw(wiData);
 
             var gridUnitData = {
@@ -485,16 +486,12 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
         },
 
         onWidgetResize:      function(ev) {
-            /*
-            var ec = ev.data.drawer.getEc();
-            ec.resize();
-            */
-    
             var drawer = ev.data.unit.dr;
             var option = ev.data.unit.wi_data;
             var dom = ev.data.unit.dom;
-            var drawer = new DrawManager(dom);
-            drawer.draw(option);
+
+            var drawer = ev.data.unit.dr;
+            drawer.draw();
 
             this.keepFlexible();
         },

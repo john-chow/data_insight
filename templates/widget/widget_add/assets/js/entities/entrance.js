@@ -87,7 +87,7 @@ define([
 
             onEditWidget:       function(data) {
                 if("0" != data.autoRefresh)     this.changeRefresh(data)
-                if("default" != data.style)     this.changeStyle(data)
+                if(data.style)     this.changeStyle(data)
             },
 
             changeRefresh:    function(data) {

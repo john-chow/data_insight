@@ -11,7 +11,8 @@ $msg_pipe = $('body');
 define('show', [
     'drawer'
     , '/static/assets/js/common/tool.js'
-    , 'skin/mix'
+    , '/static/js/skin/mix.js'
+    //, 'skin/mix'
 ], function(DrawManager, _t, Mix) {
     var ShowClass = function() {
         this.$show = $("#show_area");
