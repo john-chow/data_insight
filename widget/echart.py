@@ -56,9 +56,10 @@ class CatAxisEChart(EChart):
             series = self.yieldSeries(data_from_db, grp_idx_legend_list, '', i)
         else:
             for i in val_factor_idx_list:
+                copyed_grp_idx_legend_list = grp_idx_legend_list[:]
                 column_name = factors[i].getProperty(Protocol.Attr)
-                series.append(
-                    self.yieldSeries(data_from_db, grp_idx_legend_list, column_name, i)
+                series.extend(
+                    self.yieldSeries(data_from_db, copyed_grp_idx_legend_list, column_name, i)
                 )
 
         result = self.constructOption(factors, series)
