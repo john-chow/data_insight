@@ -12,28 +12,170 @@ from common.log import logger
 from common.tool import uniqList
 from common import globals as G
 
-
 class EChart(object):
-    def makeData(self, data_from_db, factors):
-        data_width = len(data_from_db[0]) if len(data_from_db) > 0 else len(factors)
-        if data_width != len(factors):
-            raise Exception('logical error')
+    pass
 
-        heads = []
-        for fc in factors:
-            name = fc.getProperty(Protocol.Attr)
-            location = fc.getProperty(Protocol.Location)
-            heads.append({
-                'name':         name
-                , 'location':   location
-            })
+class CatAxisEChart(EChart):
+    '''
+    有类目且有轴的图像基类
+    包括 line,area,china-map
+    '''
+    def makeData(self, data_from_db, factors):
+        cat_factor_idx_list = [ 
+            i for i, fc in enumerate(factors) \
+                if fc.location in [Protocol.Row, Protocol.Column] \
+                and Protocol.NumericType != fc.getProperty(Protocol.Kind) 
+        ]
+
+        if len(cat_factor_idx_list) <= 0:
+            raise Exception('')
+
+        self.cat_idx = cat_factor_idx_list[0]
+        val_factor_idx_list = [ 
+            i for i, fc in enumerate(factors) \
+                if fc.location in [Protocol.Row, Protocol.Column] \
+                and Protocol.NumericType == fc.getProperty(Protocol.Kind) 
+        ]
+        grp_factor_idx_list = [
+            i for i, fc in enumerate(factors) \
+                if fc.location in Protocol.Group_List
+        ]
+
+        pivot_data_from_db = map(list, zip(*data_from_db))
+        grp_idx_legend_list = [
+            (idx, uniqList(pivot_data_from_db[idx])) \
+                for idx in grp_factor_idx_list
+        ]
+
+        self.data, self.pivot_data = data_from_db, pivot_data_from_db
+        series = []
+        if len(val_factor_idx_list) < 1:
+            raise Exception('')
+        elif len(val_factor_idx_list) == 1:
+            i = val_factor_idx_list[0]
+            series = self.yieldSeries(data_from_db, grp_idx_legend_list, '', i)
+        else:
+            for i in val_factor_idx_list:
+                column_name = factors[i].getProperty(Protocol.Attr)
+                series.append(
+                    self.yieldSeries(data_from_db, grp_idx_legend_list, column_name, i)
+                )
+
+        result = self.constructOption(factors, series)
+        return result
+
+
+    def yieldSeries(self, data, sub_legends_list, this_legend, val_idx):
+        '''
+        生产series
+        param:
+            data:               横表 
+            sub_legends_list:   内部的子系列的索引值和名称
+            this_legend:        此时的系列名称
+            val_idx:            值列的索引数
+        '''
+        if not sub_legends_list:
+            series_data = self.pickSeriesData(data, val_idx)
+            return [{
+                'type':         self.type
+                , 'mapType':    'china'
+                , 'name':       this_legend
+                , 'data':       series_data
+            }]
+
+        series = []
+        idx, legends = sub_legends_list.pop(0)
+        for sub_legend in legends:
+            deep_legend, part_data = self.departData(data, this_legend, sub_legend, idx)
+            series.extend(
+                self.yieldSeries(part_data, sub_legends_list, deep_legend, val_idx)
+            )
+        return series
+
+
+    @property
+    def cat_data(self):
+        '''
+        挑拣出全体cat数据
+        '''
+        cat_column = self.pivot_data[self.cat_idx]
+        return uniqList(cat_column)
+
+
+    def pickSeriesData(self, the_series_data, val_idx):
+        '''
+        挑拣出本series里面的数据
+        '''
+        series_data = []
+        the_series_cats = [row[self.cat_idx] for row in the_series_data]
+        for cat in self.cat_data:
+            if cat in the_series_cats:
+                row_idx = the_series_cats.index(cat)
+                value = the_series_data[row_idx][val_idx]
+            else:
+                value = ''
+
+            series_data.append(value)
+
+        return series_data
+
+
+    def departData(self, data, this_legend, sub_legend, lg_idx):
+        '''
+        根据legend对数据进行分割
+        param:
+            data:           横表
+            this_legend:    当前系列名称
+            sub_legend:     子系列名称
+            lg_idx:         当前系列在横表中索引值
+        '''
+        deep_legend = (this_legend + Protocol.Legend_Link + sub_legend) \
+                                        if '' != this_legend else sub_legend
+        part_data = [row for row in data if sub_legend == row[lg_idx]]
+        return deep_legend, part_data
+
+
+class Bar_Line_Base(CatAxisEChart):
+    '''
+    bar, line, area的基类
+    '''
+    def constructOption(self, factors, series):
+        '''
+        制造echart规格的option
+        '''
+        legends = {
+            'data':  [item.get('name') for item in series]
+        }
+        
+        # 计算xAxis和yAxis
+        distinct_series_axis = set( 
+            itertools.imap(lambda x: x.get('xAxisIndex') or x.get('yAxisIndex'), series) 
+        )
+        distinct_series_axis_num = len(distinct_series_axis)
+        cat_axis_unit, val_axis_unit = {
+            'type':     'category'
+            , 'data':   self.cat_data
+        }, {
+            'type':     'value'
+        }
+        cat_axis, val_axis = [cat_axis_unit], []
+        for i in range(distinct_series_axis_num):
+            copyed_val_axis = copy.deepcopy(val_axis_unit)
+            val_axis.append(copyed_val_axis)
+
+        cat_fc = factors[self.cat_idx]
+        x_axis, y_axis = (cat_axis, val_axis) if Protocol.Column == cat_fc.location \
+                                                else (val_axis, cat_axis)
 
         return {
-            'heads':    heads
-            , 'data':   data_from_db
+            'legend':       legends
+            , 'xAxis':      x_axis
+            , 'yAxis':      y_axis
+            , 'series':     series
         }
 
-class Bar_Line_Base(EChart):
+
+    '''
     def makeData(self, data_from_db, factors):
         locations_idx = [idx for idx, fc in enumerate(factors) \
                         if fc.getProperty(Protocol.Location) in ('group')]
@@ -93,6 +235,7 @@ class Bar_Line_Base(EChart):
             , 'yAxis':      y_axis
             , 'series':     series
         }
+    '''
 
 
     def dispart(self, data_from_db, idx, legends):
@@ -184,17 +327,6 @@ class Area(Bar_Line_Base):
         self.type = u'area'
 
 
-class Table(EChart):
-    def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
-        if len(group_factor_list) > 0:
-            raise Exception('xxxxxxxxxxxx')
-        heads = [factor.getProperty(Protocol.Attr) \
-                    for factor in (msu_factor_list + msn_factor_list)]
-        return {
-            'heads':        heads
-            , 'contents':   data_from_db
-        }
-            
 
 class Scatter(EChart):
     def makeData(self, data_from_db, factors):
@@ -284,206 +416,25 @@ class Radar(EChart):
         }
 
 
-class Map():
+class ChinaMap(CatAxisEChart):
     def __init__(self):
-        self.option = {
-            u'title': {}
-            , u'tooltip':       {}
-            , u'legend':        {
-                u'origent':     u'vertical'
-                , u'x':         u'left'
-                , u'data':      []
-            }
-            , u'toolbox':       {
-                u'show' :               True,
-                u'orient' :             'vertical',
-                u'x':                   'right',
-                u'y':                   'center',
-                u'feature' : {
-                    u'mark' :           {u'show': True},
-                    u'dataView' :       {u'show': True, u'readOnly': False},
-                    u'restore' :        {u'show': True},
-                    u'saveAsImage' :    {u'show': True}
-                }
-            }
-            , u'series':        [
-            ]
+        self.type = 'map'
+        super(CatAxisEChart, self).__init__()
+
+    def constructOption(self, factors, series):
+        legends = {
+            'data':  [item.get('name') for item in series]
         }
-
-    def makeData(self, data_from_db, msu_factor_list, msn_factor_list, group_factor_list):
-        pass
-        """
-        self.option[u'series'].append( \
-            self.makeSeriesUnit() \
-        )
-        """
-
-
-    def makeSeriesUnit(self, name='', mapType='china'):
-        series = {
-            u'name':            name
-            , u'type':          'map'
-            , u'mapType':       mapType
-            , u'verable':       False
-            , u'roam':          True
-            , u'data':          []
-            , u'selectedMode':  'single'
-            , u'markPoint':     {
-                u'symbolSize':  5   
-                , u'itemStyle': {
-                    u'normal': {
-                        u'borderColor': '#87cefa',
-                        u'borderWidth': 1,            
-                        u'label': {
-                            u'show':    False
-                        }
-                    }
-                    , u'emphasis': {
-                        u'borderColor': '#1e90ff'
-                        , u'borderWidth': 5
-                        , u'label': {
-                            u'show':    False
-                        }
-                    }
-                }
-                , u'data':      []
-            }
-            , u'geoCoord':  {}
-        }
-        series[u'markPoint'][u'data'] = getCityPM2dot5()
-        series[u'geoCoord'] = getChinaMainCityCoord()
-        return series
-        
-
-
-class ChinaMap(Map):
-    def __init__(self):
-        Map.__init__(self)
-
-    def makeData(self, data_from_db, factors):
-        cat_factor_idx_list = [ 
-            i for i, fc in enumerate(factors) \
-                if fc.location in [Protocol.Row, Protocol.Column] \
-                and Protocol.NumericType != fc.getProperty(Protocol.Kind) 
-        ]
-
-        if len(cat_factor_idx_list) != 1:
-            raise Exception('')
-        self.cat_idx = cat_factor_idx_list[0]
-
-        val_factor_idx_list = [ 
-            i for i, fc in enumerate(factors) \
-                if fc.location in [Protocol.Row, Protocol.Column] \
-                and Protocol.NumericType == fc.getProperty(Protocol.Kind) 
-        ]
-        grp_factor_idx_list = [
-            i for i, fc in enumerate(factors) \
-                if fc.location in Protocol.Group_List
-        ]
-
-        pivot_data_from_db = map(list, zip(*data_from_db))
-        grp_idx_legend_list = [
-            (idx, uniqList(pivot_data_from_db[idx])) \
-                for idx in grp_factor_idx_list
-        ]
-
-        self.data, self.pivot_data = data_from_db, pivot_data_from_db
-        series = []
-        if len(val_factor_idx_list) < 1:
-            raise Exception('')
-        elif len(val_factor_idx_list) == 1:
-            i = val_factor_idx_list[0]
-            series = self.yieldSeries(data_from_db, grp_idx_legend_list, '', i)
-        else:
-            for i in val_factor_idx_list:
-                column_name = factors[i].getProperty(Protocol.Attr)
-                series.append(
-                    self.yieldSeries(data_from_db, grp_idx_legend_list, column_name, i)
-                )
 
         return {
-            'series':   series
+            'legend':       legends
+            , 'series':     series
         }
 
-
-    @property
-    def cat_data(self):
-        '''
-        挑拣出全体cat数据
-        '''
-        cat_column = self.pivot_data[self.cat_idx]
-        return uniqList(cat_column)
-
-
-    def pickSeriesData(self, the_series_data, val_idx):
-        '''
-        挑拣出本series里面的数据
-        '''
-        series_data = []
-        the_series_cats = [row[self.cat_idx] for row in the_series_data]
-        for cat in self.cat_data:
-            row_idx = the_series_cats.index(cat)
-            if row_idx:
-                value = the_series_data[row_idx][val_idx]
-            else:
-                value = ''
-
-            series_data.append(value)
-
-        return series_data
-
-
-    def yieldSeries(self, data, sub_legends_list, this_legend, val_idx):
-        '''
-        生产series
-        param:
-            data:               横表 
-            sub_legends_list:   内部的子系列的索引值和名称
-            this_legend:        此时的系列名称
-            val_idx:            值列的索引数
-        '''
-        if not sub_legends_list:
-            series_data = self.pickSeriesData(data, val_idx)
-            return [{
-                'type':         'map'
-                , 'mapType':    'china'
-                , 'name':       this_legend
-                , 'data':       series_data
-            }]
-
-        series = []
-        idx, legends = sub_legends_list.pop(0)
-        for sub_legend in legends:
-            deep_legend, part_data = self.departData(data, this_legend, sub_legend, idx)
-            series.extend(
-                self.yieldSeries(part_data, sub_legends_list, deep_legend, val_idx)
-            )
-        return series
-        
-
-    def departData(self, data, this_legend, sub_legend, idx):
-        '''
-        根据legend对数据进行分割
-        param:
-            data:           横表
-            this_legend:    当前系列名称
-            sub_legend:     子系列名称
-            idx:            当前系列在横表中索引值
-        '''
-        deep_legend = (this_legend + Protocol.Legend_Link + sub_legend) \
-                                        if '' != this_legend else sub_legend
-        part_data = [row for row in data if sub_legend == row[idx]]
-        return deep_legend, part_data
-
             
-class WorldMap(Map):
+class WorldMap(CatAxisEChart):
     def __init__(self):
         pass
-
-    def makeData(self, *args):
-        railValue = getRailLine()
-        return {u'line_value': railValue}
-
 
 
 class EChartManager():
