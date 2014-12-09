@@ -215,6 +215,7 @@ class Scatter(EChart):
             }]
         }
 
+
 class PartitionBase(EChart):
     def makeData(self, data_from_db, factors):
         cats_idx    = [idx for idx, fc in enumerate(factors) \
@@ -377,7 +378,7 @@ class ChinaMap(Map):
         ]
         grp_factor_idx_list = [
             i for i, fc in enumerate(factors) \
-                if fc.location == Protocol.Group
+                if fc.location in Protocol.Group_List
         ]
 
         pivot_data_from_db = map(list, zip(*data_from_db))
@@ -391,7 +392,8 @@ class ChinaMap(Map):
         if len(val_factor_idx_list) < 1:
             raise Exception('')
         elif len(val_factor_idx_list) == 1:
-            series = self.yieldSeries(data_from_db, grp_idx_legend_list, '')
+            i = val_factor_idx_list[0]
+            series = self.yieldSeries(data_from_db, grp_idx_legend_list, '', i)
         else:
             for i in val_factor_idx_list:
                 column_name = factors[i].getProperty(Protocol.Attr)
@@ -431,7 +433,7 @@ class ChinaMap(Map):
         return series_data
 
 
-    def yieldSeries(self, data, sub_legends_list, this_legend, val_idx = 0):
+    def yieldSeries(self, data, sub_legends_list, this_legend, val_idx):
         '''
         生产series
         param:

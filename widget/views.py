@@ -785,8 +785,7 @@ class DrawDataProducer():
 
 class FactorHandler():
     def __init__(self, req):
-        self.msns, self.msus, self.filters = [], [], []
-        self.selects = []
+        self.rows, self.cols, self.filters = [], [], []
         self.extract(req)
 
     def extract(self, req):
@@ -794,26 +793,21 @@ class FactorHandler():
         解析获得各维度上的Factor对象
         '''
         [col_kind_attr_list, row_kind_attr_list] = \
-                map( lambda i: req.get(i, []), \
-                        (Protocol.Xaxis, Protocol.Yaxis) \
+                map( lambda i: req.get(i, []),
+                        (Protocol.Xaxis, Protocol.Yaxis)
                     ) 
 
         # 获取轴上属性Factor对象
-        msn_factors, msu_factors = [], []
+        row_factors, col_factors = [], []
         for idx, col_element in enumerate(row_kind_attr_list + col_kind_attr_list):
             element_dict = {key:col_element[key] for key in EXPRESS_FACTOR_KEYS_TUPLE}
             factor = FactorFactory.make(element_dict)
             if idx < len(row_kind_attr_list):
-                factor.location = 'row'
+                factor.location = Protocol.Row
+                row_factors.append(factor)
             else:
-                factor.location = 'col'
-
-            tmp_factors = msu_factors \
-                    if Protocol.NoneFunc != factor.getProperty(Protocol.Func) \
-                        and Protocol.NumericType == factor.getProperty(Protocol.Kind)  \
-                    else msn_factors
-
-            tmp_factors.append(factor)
+                factor.location = Protocol.Column
+                col_factors.append(factor)
 
 
         # 过滤条件部分
@@ -829,7 +823,7 @@ class FactorHandler():
             filter_factors.append(clause)
 
 
-        # 获取选择器上属性Factor对象
+        # 获取group之类的属性，按照颜色，大小的顺序
         group_factors = []
         color_dict = req.get(Protocol.Mapping).get(Protocol.Color) \
                                 if Protocol.Mapping in req else None
@@ -839,7 +833,7 @@ class FactorHandler():
             color_dict = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
                                     (color_attr_table, color_attr_column, -1, '')))
             factor = FactorFactory.make(color_dict)
-            factor.location = 'group'
+            factor.location = Protocol.Color
             group_factors.append(factor)
 
 
@@ -852,22 +846,21 @@ class FactorHandler():
             item = dict(zip(EXPRESS_FACTOR_KEYS_TUPLE, \
                                     (order_attr_table, order_attr_column, -1, '')))
             factor = FactorFactory.make(item)
+            factor.location = Protocol.Order
             order_factors.append(factor)
 
 
-        self.msus = msu_factors
-        self.msns = msn_factors
+        self.rows = row_factors
+        self.cols = col_factors
         self.filters = filter_factors
         self.groups = group_factors
         self.orders = order_factors
         self.extracted = True
-        self.selects = self.msus + self.msns + self.groups
-        setattr(self, 'show', self.msus + self.msns)
         return 
 
 
     def ifHasAggregation(self):
-        for factor in self.msus:
+        for factor in (self.rows + self.cols):
             if Protocol.NoneFunc != factor.getProperty(Protocol.Func):
                 return True
         return False
@@ -884,10 +877,10 @@ class FactorHandler():
         # 选择区别里面的数字列不存在sql语句中，它只是做值域范围设定用的
         # 选择区别里面的文字列存在sql语句中的select段和group段
 
-        isAggregate = True if len(self.msus) > 0 else False
+        isAggregate = self.ifHasAggregation()
         
         selects, groups  = [], []
-        for factor in (self.msus + self.msns):
+        for factor in (self.rows + self.cols):
             kind    = factor.getProperty(Protocol.Kind)
             if Protocol.NumericType == kind:
                 selects.append(factor)
@@ -918,25 +911,15 @@ class FactorHandler():
 
     @property
     def selects(self):
-        return self.selects
+        return (self.rows + self.cols + self.groups)
 
     @property
     def cols(self):
-        return [item for item in self.selects \
-                    if 'col' == item.getProperty(Protocol.Location)]
+        return self.cols
 
     @property
     def rows(self):
-        return [item for item in self.selects \
-                    if 'row' == item.getProperty(Protocol.Location)]
-
-    @property
-    def msus(self):
-        return self.msus
-
-    @property
-    def msns(self):
-        return self.msns
+        return self.rows
 
 
 ########################################
@@ -998,7 +981,5 @@ class AllRefresher():
         producer = DrawDataProducer(self.hk)
         data    = producer.produce(self.req)
         return {'type': self.type, 'data': data}
-
-
 
 

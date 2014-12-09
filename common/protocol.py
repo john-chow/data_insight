@@ -63,6 +63,12 @@ Graph = 'graph'
 # 快照
 Snapshot = 'snapshot'
 
+# 横轴
+Row = 'row'
+
+# 纵轴
+Column = 'col'
+
 # 颜色区分字段的名称
 Color = 'colour'
 
@@ -77,6 +83,9 @@ Order = 'order'
 
 # 选择器封装
 Mapping = 'mapping'
+
+# group语句字段内
+Group_List = [Color, Size]
 
 # 样式
 Style = 'style'
@@ -107,10 +116,6 @@ Filter = {
 
 
 
-# 属性被拖放的位置
-Row = 'row'
-Column = 'col'
-Group = 'group'
 
 
 
