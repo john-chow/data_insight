@@ -107,9 +107,15 @@ Filter = {
 
 
 
+# 属性被拖放的位置
+Row = 'row'
+Column = 'col'
+Group = 'group'
 
 
 
+# legend层级之间的符号
+Legend_Link = '_'
 
 
 

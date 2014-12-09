@@ -176,11 +176,6 @@ define([
             return true
         };
 
-        this.extract = function(data) {
-            var heads   = data.heads;
-            var contents = data.data;
-        };
-
         this.draw =     function(place, colorJson) {
             this.ec = echarts.init(place);
             var option = cloneObject(this.optionCloned);
