@@ -122,6 +122,9 @@ Filter = {
 # legend层级之间的符号
 Legend_Link = '_'
 
+# 默认legend
+Default_Legend = ''
+
 
 
 '''

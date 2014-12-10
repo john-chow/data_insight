@@ -238,7 +238,7 @@ class FieldFactor(Factor):
         '''
         setattr(self, 'location', lc) 
 
-    def getLocation(self, lc):
+    def getLocation(self):
         '''
         获取该度量所在的位置
         '''
@@ -246,6 +246,27 @@ class FieldFactor(Factor):
 
     location = property(fget = getLocation, fset = setLocation)
     del setLocation, getLocation
+
+
+    def setCalcFunc(self, cfunc):
+        setattr(self, Protocol.Func, cfunc) 
+
+    def getCalcFunc(self):
+        getattr(self, Protocol.Func)
+
+    cfunc = property(fget = getCalcFunc, fset = setCalcFunc)
+    del getCalcFunc, setCalcFunc
+
+
+    def setKind(self, kind):
+        setattr(self, Protocol.Func, kind) 
+
+    def getKind(self):
+        getattr(self, Protocol.Func)
+
+    kind = property(fget = getKind, fset = setKind)
+    del getKind, setKind
+
 
     def setBelongToAxis(self, axis):
         '''
