@@ -89,7 +89,6 @@ class CatAxisEChart(EChart):
             series_data = self.pickSeriesData(data, val_idx)
             return [{
                 'type':         self.type
-                , 'mapType':    'china'
                 , 'name':       this_legend
                 , 'data':       series_data
             }]
@@ -126,7 +125,14 @@ class CatAxisEChart(EChart):
             else:
                 value = ''
 
-            series_data.append(value)
+            # 地图时候形式略有不同
+            if 'map' == self.type:
+                series_data.append({
+                    'name':     cat
+                    , 'value':  value
+                })
+            else:
+                series_data.append(value)
 
         return series_data
 
