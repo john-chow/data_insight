@@ -1,0 +1,9 @@
+/* 浮动提示框 */
+#float_tip {
+    position:   absolute;
+    top:        12%;
+    left:       40%;
+    font-size:  23px;
+    background-color:   rgba(216, 216, 11, 0.4)
+}
+

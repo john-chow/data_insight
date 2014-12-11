@@ -17,6 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from widget.models import WidgetModel, ExternalDbModel, REFRESH_CHOICES
 from widget.echart import EChartManager
 from widget.factor import FactorFactory, Factor, Clause, EXPRESS_FACTOR_KEYS_TUPLE
+import widget.validator as ValidModule
 from skin.models import SkinModel
 from connect.sqltool import SqlExecutorMgr, SqlObjReader
 from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb, cleanDataFromDb
@@ -157,6 +158,11 @@ def widgetShow(request, widget_id):
         producer = DrawDataProducer(hk)
         data = producer.produce(model.restoreReqDataDict())
 
+        # 检查结果是否是报告异常的结果
+        if 'msg' in data:
+            data['succ'] = False
+            return MyHttpJsonResponse(data)
+
         # 是否有指定模板
         if model.m_mould:
             tem = model.m_mould.content
@@ -194,14 +200,18 @@ def handleDraw(request):
     hk = request.session.get('hk')
     try:
         producer = DrawDataProducer(hk)
-        entity_data = producer.produce(req_data)
+        result = producer.produce(req_data)
     except Exception, e:
         logger.debug("catch Exception: %s" % e)
         logExcInfo()
         error_dict = {'succ': False, 'msg': str(e)}
         return MyHttpJsonResponse(error_dict)
     else:
-        backData = {'succ': True, 'entity': entity_data}
+        if 'msg' in result:
+            result['succ'] = False
+            return MyHttpJsonResponse(result)
+
+        backData = {'succ': True, 'entity': result}
         return MyHttpJsonResponse(backData)
 
 
@@ -719,8 +729,6 @@ class NewHandler(WidgetHandler):
         return self.hk
 
 
-
-
 ########################################
 ## 处理绘图
 #########################################
@@ -737,8 +745,11 @@ class DrawDataProducer():
         self.setDecorator(echart)
 
         self.fh = FactorHandler(req)
-        if not self.ifNeedToSql(shape):
-            return {}
+
+        # 验证是否符合去查询的要求
+        ok, msg = ValidModule.makeValidator(shape).ifValid(self.fh)
+        if not ok:
+            return {'msg': msg}
 
         part_dict = self.fh.mapToSqlPart()
 
@@ -751,21 +762,6 @@ class DrawDataProducer():
             strf_data_db, self.fh.selects
         )
         return {'type': shape, 'figure': result}
-
-    def ifNeedToSql(self, shape):
-        '''
-        判断现在条件, 是否有必要发送进数据库进行查询
-        '''
-        fh = self.fh
-        if len(fh.selects) < 2:
-            return False
-            
-        if shape in ('bar', 'line', 'area', 'scatter'):
-            if len(fh.cols) < 1 or len(fh.rows) < 1:
-                return False
-
-        return True
-        
 
     def setDecorator(self, obj):
         """
@@ -920,6 +916,10 @@ class FactorHandler():
     @property
     def rows(self):
         return self.rows
+
+    @property
+    def groups(self):
+        return self.groups
 
 
 ########################################

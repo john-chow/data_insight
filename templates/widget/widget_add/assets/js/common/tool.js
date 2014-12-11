@@ -156,3 +156,32 @@ function textcut(str, length){
 	return str;
 }
 
+/**
+ * 浮动提示错误信息
+ *
+ */
+function PromptMsg(msg, $place, lev) {
+    var $el = ($place && $place.length > 0) ? $place : $("body");
+    var level = lev || 0;
+
+    var $tip = $("#float_tip");
+    $tip.remove();
+
+    // 浮动提示，若干秒之后自动消失
+    $tip = $("<span id='float_tip'>" + msg + "</span>");
+    $el.append($tip);
+    setTimeout(function() {
+        $tip.remove()
+    }, 3 * 1000)
+}
+
+/**
+ * 清除浮动提示
+ *
+ */
+function CleanPrompt() {
+    var $tip = $("#float_tip");
+    $tip.remove()
+}
+
+

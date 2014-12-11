@@ -27,8 +27,13 @@ define([
             });
 
             DataInsightManager.commands.setHandler("board:draw", function(resp) {
-                if (resp.succ)      self.showView.draw(resp.entity)
-                else                self.showView.clear()
+                if (resp.succ) {
+                    CleanPrompt()
+                    self.showView.draw(resp.entity);
+                } else {
+                    self.showView.clear();
+                    PromptMsg(resp.msg)
+                }
             });
 
             DataInsightManager.commands.setHandler("style:try", function(style) {

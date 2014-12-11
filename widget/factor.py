@@ -252,7 +252,7 @@ class FieldFactor(Factor):
         setattr(self, Protocol.Func, cfunc) 
 
     def getCalcFunc(self):
-        getattr(self, Protocol.Func)
+        return getattr(self, Protocol.Func)
 
     cfunc = property(fget = getCalcFunc, fset = setCalcFunc)
     del getCalcFunc, setCalcFunc
