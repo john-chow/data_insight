@@ -29,6 +29,7 @@ import pdb
 
 @login_required
 def handleOperate(request, widget_id = None):
+    pdb.set_trace()
     try:
         entity = ExistedHandler(widget_id) if widget_id else NewHandler()
         if 'POST' == request.method:

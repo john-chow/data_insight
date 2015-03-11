@@ -26,6 +26,10 @@ import pdb
 
 
 def genConnHk(nt):
+    '''
+    得到连接名称的唯一数字标识
+    如 oracle_10.1.50.38_5432_orcl_amd_amd
+    '''
     str = '{kind}_{ip}_{port}_{db}_{user}_{pwd}'
     cnt = str.format(   \
         kind = nt.kind, user = nt.user, pwd = nt.pwd, \

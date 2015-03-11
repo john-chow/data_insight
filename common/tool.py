@@ -122,6 +122,7 @@ def logExcInfo():
 
     traceback.print_exc()
     logger.error(traceback_template.format(**traceback_details))
+    logger.error(''.join(traceback.format_tb(exc_traceback))) 
 
 
 def strfDataAfterFetchDb(data_from_db):
