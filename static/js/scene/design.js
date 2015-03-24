@@ -409,11 +409,10 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
                         "'></li>";
             if (entity.tem) {
                 $unitTem = $(unitTem).html(entity.tem);
-                var $widgetTem = $unitTem.find("[name='the_widget']");
             } else {
-                var $unitTem = $(unitTem);
-                var $widgetTem = $unitTem
+                $unitTem = $(unitTem).append("<div name='the_widget'></div>");
             }
+            var $widgetTem = $unitTem.find("[name='the_widget']");
             $widgetTem.attr("id", "se_" + timestamp);
             $widgetTem.attr("class", "se_wi_div se_wi_div_"+entity.widget_id+"");
             return $unitTem[0].outerHTML

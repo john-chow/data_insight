@@ -1,5 +1,6 @@
 
-	define(['drawer','gridster'], function(DrawManager, Gridster){
+	define(['/static/assets/js/common/tool.js', 'drawer','gridster'], 
+            function(_t, DrawManager, Gridster){
 		var GRID_UNIT_WIDTH     = 50,
     		GRID_UNIT_HEIGHT    = 50,
     		$body				= $("body");
@@ -26,7 +27,7 @@
 					onGetWidgetData :  function(data) {
 			            // 如果成功，则传递数据到面板进行画图
 			            if (data.succ){
-			            	this.data = data.data;
+			            	this.data = data.entity;
 			            	this.showNewWidget();
 			            } else {
 			                alert(data.msg)
@@ -36,8 +37,10 @@
 			        	return this.id;
 			        },
 			        showNewWidget : function(){
-						var drawer = new DrawManager();
-		            	drawer.run(this.$el[0], this.data);
+						var drawer = new DrawManager(this.$el[0]);
+		            	drawer.draw(this.data.figure);
+						//var drawer = new drawmanager();
+		            	//drawer.run(this.$el[0], this.data);
 					},
 					init: function(){
 						this.id = options.id;

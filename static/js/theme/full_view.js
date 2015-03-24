@@ -1,5 +1,6 @@
 
-	define(['drawer','gridster', 'underscore'], function(DrawManager, Gridster, Underscore){
+	define(['/static/assets/js/common/tool.js', 'drawer','gridster', 'underscore'], 
+            function(_t, DrawManager, Gridster, Underscore) {
 		//组件类
 		var WidgetItem = function(options){
 			var obj = {
@@ -22,7 +23,7 @@
 					onGetWidgetData :  function(data) {
 			            // 如果成功，则传递数据到面板进行画图
 			            if (data.succ){
-			            	this.data = data.data;
+			            	this.data = data.entity;
 			            	this.showNewWidget();
 			            } else {
 			                alert(data.msg)
@@ -35,8 +36,11 @@
 			        	return this.id;
 			        },
 			        showNewWidget : function(){
-						var drawer = new DrawManager();
-		            	drawer.run(this.$el.children(".se_wi_div_" + this.id + ":first")[0], this.data);
+						//var drawer = new DrawManager();
+		            	//drawer.run(this.$el.children(".se_wi_div_" + this.id + ":first")[0], this.data);
+                        var el = this.$el.children(".se_wi_div_" + this.id + ":first")[0];
+						var drawer = new DrawManager(el);
+		            	drawer.draw(this.data.figure);
 					},
 					init: function(){
 						this.id = options.id;
