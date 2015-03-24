@@ -407,10 +407,15 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
             var unitTem = "<li class='se_wi_"+entity.widget_id+"_"+timestamp+
                         "' data-id='"+entity.widget_id+"' data-time='"+timestamp+
                         "'></li>";
-            $unitTem = $(unitTem).html(entity.tem);
-            var $widgetTem = $unitTem.find("[name='the_widget']");
+            if (entity.tem) {
+                $unitTem = $(unitTem).html(entity.tem);
+                var $widgetTem = $unitTem.find("[name='the_widget']");
+            } else {
+                var $unitTem = $(unitTem);
+                var $widgetTem = $unitTem
+            }
             $widgetTem.attr("id", "se_" + timestamp);
-            $widgetTem.attr("class", "se_wi_div se_wi_div_"+entity.widget_id+"" );
+            $widgetTem.attr("class", "se_wi_div se_wi_div_"+entity.widget_id+"");
             return $unitTem[0].outerHTML
         },
 

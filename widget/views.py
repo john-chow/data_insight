@@ -29,7 +29,6 @@ import pdb
 
 @login_required
 def handleOperate(request, widget_id = None):
-    pdb.set_trace()
     try:
         entity = ExistedHandler(widget_id) if widget_id else NewHandler()
         if 'POST' == request.method:
@@ -88,6 +87,7 @@ def widgetList(request, template_name):
     sort = request.GET.get('sort' , '-1')
     page = request.GET.get('page' , '1') 
     order = "m_create_time" if int(sort) == 1 else "-m_create_time"
+
     widgetList = WidgetModel.objects.filter(m_name__contains=search,m_status=True) \
                                                                     .order_by(order)
     context = RequestContext(request)
@@ -165,8 +165,7 @@ def widgetShow(request, widget_id):
             return MyHttpJsonResponse(data)
 
         # 是否有指定模板
-        if model.m_mould:
-            tem = model.m_mould.content
+        tem = model.m_mould.content if model.m_mould else ''
 
         skin = model.m_skin.pk if model.m_skin else None
 
@@ -629,8 +628,13 @@ class WidgetHandler(object):
         self.color = mapping.get(Protocol.Color)
         self.size = mapping.get(Protocol.Size)
         self.publish = True if 'true' == publish else False
+
         try:
-            self.skin = SkinModel.objects.get(pk = skin_id)
+            if skin_id in ['default', '']:
+                skin_name = 'default'
+                self.skin = SkinModel.objects.get(m_name = skin_name)
+            else:
+                self.skin = SkinModel.objects.get(pk = skin_id)
         except Exception, e:
             raise Exception('not valid skin')
 
@@ -668,7 +672,8 @@ class WidgetHandler(object):
             , 'm_graph':              self.graph
             , 'm_pic':                self.snapshot
             , 'm_refresh':            self.refresh 
-            , 'm_status':             self.publish
+            #, 'm_status':             self.publish
+            , 'm_status':             True
             , 'm_skin':               self.skin
             , 'm_filter':             self.filter
             , 'm_order':              self.order
