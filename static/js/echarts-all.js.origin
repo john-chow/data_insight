@@ -2618,11 +2618,6 @@ define('zrender/zrender', [
     ZRender.prototype.toDataURL = function (type, backgroundColor, args) {
         return this.painter.toDataURL(type, backgroundColor, args);
     };
-
-    ZRender.prototype.toDataCanvas = function(type, backgroundColor, args) {
-        return this.painter.toDataCanvas(type, backgroundColor, args);
-    };
-
     ZRender.prototype.shapeToImage = function (e, width, height) {
         var id = guid();
         return this.painter.shapeToImage(id, e, width, height);
@@ -10108,64 +10103,6 @@ define('zrender/zrender', [
         this._bgDom.removeChild(imageDom);
         return image;
     };
-
-    Painter.prototype.toDataCanvas = function (type, backgroundColor, args) {
-        if (vmlCanvasManager) {
-            return null;
-        }
-
-        var imageDom = createDom('image', 'canvas', this);
-        this._bgDom.appendChild(imageDom);
-        var ctx = imageDom.getContext('2d');
-        devicePixelRatio != 1 
-        && ctx.scale(devicePixelRatio, devicePixelRatio);
-        
-        ctx.fillStyle = backgroundColor || '#fff';
-        ctx.rect(
-            0, 0, 
-            this._width * devicePixelRatio,
-            this._height * devicePixelRatio
-        );
-        ctx.fill();
-        
-        //升序遍历，shape上的zlevel指定绘画图层的z轴层叠
-        var me = this;
-        function updatePainter(shapeList, callback) {
-            me.update(shapeList, callback);
-        }
-        this.storage.iterShape(
-            function (shape) {
-                if (!shape.invisible) {
-                    if (!shape.onbrush //没有onbrush
-                        //有onbrush并且调用执行返回false或undefined则继续粉刷
-                        || (shape.onbrush && !shape.onbrush(ctx, false))
-                    ) {
-                        if (config.catchBrushException) {
-                            try {
-                                shape.brush(ctx, false, updatePainter);
-                            }
-                            catch(error) {
-                                log(
-                                    error,
-                                    'brush error of ' + shape.type,
-                                    shape
-                                );
-                            }
-                        }
-                        else {
-                            shape.brush(ctx, false, updatePainter);
-                        }
-                    }
-                }
-            },
-            { normal: 'up' }
-        );
-        var image = imageDom.toDataURL(type, args); 
-        ctx = null;
-        //this._domList.bg.removeChild(imageDom);
-        return imageDom;
-    };
-
     Painter.prototype.getWidth = function () {
         return this._width;
     };

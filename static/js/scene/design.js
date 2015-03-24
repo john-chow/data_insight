@@ -524,7 +524,7 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
                     if (self.drawerList[j].stamp == layout.data_time)  {
                         var ec = self.drawerList[j].dr.getEc();  
                         // 去Mytableau工程 下面 的echart备份 源码中找这个函数 
-                        //layout["canvas"] = ec.getZrender().toDataCanvas();
+                        layout["canvas"] = ec.getZrender().toDataCanvas();
                         break
                     }
                 }
@@ -540,7 +540,7 @@ define("display", ["./drawer", "skin"], function(DrawManager, Skin) {
                     dx  = parseInt(layout.col - 1)  * GRID_UNIT_WIDTH;
 
                 // sometimes error, delete for temp
-                // ctx.drawImage(layout.canvas, dx, dy);
+                ctx.drawImage(layout.canvas, dx, dy);
             
                 // 画到公共大面板之后移除画图对象
                 delete layout["canvas"]

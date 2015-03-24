@@ -24,13 +24,15 @@ define([
             },
 
             clear:          function() {
-                this.ec && this.ec.clear()
+                var ec = this.drawerMgr.getEc();
+                ec && ec.clear()
             },
 
             takeSnapshot:    function() {
-                if (!this.ec)       return ''
+                var ec = this.drawerMgr.getEc();
+                if (!ec)       return ''
 
-                var zr = this.ec.getZrender();
+                var zr = ec.getZrender();
                 var snapshot = zr.toDataURL("image/png");
                 return snapshot
             },
