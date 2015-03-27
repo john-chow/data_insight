@@ -1,0 +1,45 @@
+{
+    "backgroundColor":  "#000"
+    , "color":          ["#ff7f50", "#87cefa", "#da70d6", "#32cd32", "#6495ed"]
+    , "title":  {
+        "text":         "使用信用卡满意的地方"
+        , "subtext":    "一级分行数据统计"    
+        , "x":          "left"
+        , "y":          "top"
+        , "backgroundColor":    "rgba(0, 0, 0, 0)"
+        , "borderWidth":        2
+    }
+    , "legend": {
+        "origent":  "horizontal"
+        , "x":      "right"
+        , "y":      "bottom"
+    }
+    , "dataRange":  {
+        "_hide":      true
+    }
+    , "toolbox":   {
+        "show":     false
+    }
+    , "tooltip":  {
+        "borderColor":  "#555"
+    }
+    , "dataZoom":   {
+        "show":     false
+    }
+    , "gird":       {
+        "borderWidth":      3
+        , "borderColor":    "#ddd"
+    }
+    , "xAis":       {
+    }
+    , "yAix":       {
+        "splitArea" : {"show" : true}
+    }
+    , "se":         {
+        "itemStyle": { 
+            "normal": {
+                "label": {"show": true, "position": "inside"}
+            }
+        }
+    }
+}

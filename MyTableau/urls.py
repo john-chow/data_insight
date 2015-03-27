@@ -27,6 +27,7 @@ urlpatterns = patterns('',
     url(r'^theme/', 	include('theme.url', namespace="theme")),
     url(r'^skin/',      include('skin.url')),
     url(r'^connect/',   include('connect.url')),
-    url(r'^monitor/',   include('monitor.url'))
+    url(r'^monitor/',   include('monitor.url')),
+    url(r'^ws/',        include('websocket.url')),
 )
 urlpatterns += staticfiles_urlpatterns()
