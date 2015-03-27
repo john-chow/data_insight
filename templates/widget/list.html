@@ -176,12 +176,24 @@
 </form> 
 <!-- 提交表单 end -->
 <!-- 初始按钮 begin -->
+<script src="{{ STATIC_URL }}js/ws4redis.js" type="text/javascript"></script>
 <script>
 window.onload = function (){
 	if({{sort}}==1){
 		$("#widget_sort_drop").removeClass('active');
 		$("#widget_sort_rise").addClass('active');
 	}
+
+    // 为测试websocket所写
+    var ws4redis = WS4Redis({
+        uri: '{{ WEBSOCKET_URI }}ws?subscribe-broadcast&publish-broadcast&echo',
+        receive_message: receiveMessage,
+        heartbeat_msg: 'xxxxxx'
+    });
+
+    var receiveMessage = function() {
+        console.log("Yes, I know")
+    }
 };
 </script>
 <!-- 初始按钮 end -->

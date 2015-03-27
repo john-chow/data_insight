@@ -153,6 +153,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs'
     'pagination',
     'templatetags', 
+    'ws4redis',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
@@ -222,7 +223,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
-    "django.core.context_processors.request"
+    "django.core.context_processors.request",
+    "ws4redis.context_processors.default"
 )
 
 #The number of items to the left and to the right of the current page to display 
@@ -234,4 +236,17 @@ REDIS_SSEQUEUE_CONNECTION_SETTINGS = {
     'db': 0,
 }
 
+
+# 为django-websocket-redis配置
+WEBSOCKET_URL = '/ws/'
+#WS4REDIS_CONNECTION = {
+#    'host': 'redis.example.com',
+#    'port': 16379,
+#    'db': 17,
+#    'password': 'verysecret',
+#}
+WS4REDIS_EXPIRE = 7200
+WS4REDIS_PREFIX = 'ws'
+#WS4REDIS_SUBSCRIBER = 'MyTableau.redis_store.RedisSubscriber'
+WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
