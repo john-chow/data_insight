@@ -13,6 +13,8 @@ def makeValidator(shape):
         return BlaValidator()
     elif shape in ['pie', 'funnel']:
         return PtValidator()
+    elif shape in ['radar']:
+        return RadValidator()
     elif shape in ['scatter']:
         return ScaValidator()
     elif shape in ['map']:
@@ -82,9 +84,9 @@ class BlaValidator(BaseValidator):
             , row_cat_len, col_cat_len
             , row_msu_len, col_msu_len) = self.scan(fh)
 
-        # 一轴上全是value，另一轴上全是cat
-        if not (rows_len == row_value_len and cols_len == col_cat_len \
-                or rows_len == row_cat_len and cols_len == col_value_len):
+        # 一轴上全是msu，另一轴上全是msn
+        if not (rows_len == row_msu_len and cols_len == col_cat_len \
+                or rows_len == row_cat_len and cols_len == col_msu_len):
             return False, _MSG.DRAW_BLAM_ERR_1
 
         all_cat_len, all_value_len, all_msu_len \
@@ -117,9 +119,9 @@ class PtValidator(BaseValidator):
             , row_cat_len, col_cat_len
             , row_msu_len, col_msu_len) = self.scan(fh)
 
-        # 一轴上全是value，另一轴上全是cat
-        if not (rows_len == row_value_len and cols_len == col_cat_len \
-                or rows_len == row_cat_len and cols_len == col_value_len):
+        # 一轴上全是msu，另一轴上全是msn
+        if not (rows_len == row_msu_len and cols_len == col_cat_len \
+                or rows_len == row_cat_len and cols_len == col_msu_len):
             return False, _MSG.DRAW_PT_ERR_1
 
         # 只能有一个value，至少一个cat列
@@ -137,6 +139,33 @@ class PtValidator(BaseValidator):
             return False, _MSG.DRAW_PT_ERR_4
 
         return super(PtValidator, self).ifValid(fh)
+
+
+class RadValidator(BaseValidator):
+    '''
+    雷达图验证器
+    '''
+    def ifValid(self, fh):
+        (rows_len, cols_len
+            , row_value_len, col_value_len
+            , row_cat_len, col_cat_len
+            , row_msu_len, col_msu_len) = self.scan(fh)
+
+        # 一轴上全是msu，另一轴上全是msn
+        if not (rows_len == row_msu_len and cols_len == col_cat_len \
+                or rows_len == row_cat_len and cols_len == col_msu_len):
+            return False, _MSG.DRAW_RAD_ERR_1
+
+        all_msu_len, all_msn_len \
+                = row_msu_len + col_msu_len, row_cat_len + col_cat_len
+
+        # 至少要有3个msu列，有且只能有1个msn列
+        if all_msu_len < 3 or all_msn_len != 1:
+            return False, _MSG.DRAW_RAD_ERR_2
+
+        return super(RadValidator, self).ifValid(fh)
+
+        
 
 
 class ScaValidator(BaseValidator):
