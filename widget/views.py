@@ -257,7 +257,6 @@ def handleUsedTable(request, wi_id):
             , 'selected':   used
         })
 
-
 @require_http_methods(['POST'])
 def reqTimelyData(request, wi_id):
     '''

@@ -182,6 +182,7 @@ define([
             if (colorJson) {
                 Mix.mix_option(option, colorJson)
             }
+            this.transform && this.transform(option);
             this.ec.setOption(option);
         };
 
@@ -224,20 +225,6 @@ define([
         this.setStacked         = function(stacked) {
             this.stacked    = stacked
         };
-
-        /*
-        this.work = function(entity) {
-            var figure = entity.figure;
-
-            var category    = figure.category;
-            var series      = figure.series;
-            var heads       = figure.head;
-            var legends     = figure.legend;
-
-            //this.fillAxis(entity.data);
-            AxisDrawer.prototype.work.call(this, entity);
-        };
-        */
 
         this.fillAxis = function(category_item, heads) {
             // 辨别出cat轴，value轴分别对应x、y中哪个
@@ -332,6 +319,14 @@ define([
     };
 
     var AreaDrawer = function() {
+        this.transform = function(option) {
+            if (option && option.series) {
+                _.each(option.series, function(one) {
+                    one.smooth      = true;
+                    one.itemStyle   = {normal: {areaStyle: {type: "default"}}}
+                })
+            }
+        }
     };
 
     var ScatterDrawer = function() {
@@ -399,7 +394,8 @@ define([
     var axisDrawer = new AxisDrawer();
     BarDrawer.prototype     = axisDrawer;
     LineDrawer.prototype    = axisDrawer;
-    AreaDrawer.prototype    = axisDrawer;
+    var lineDrawer = new LineDrawer();
+    AreaDrawer.prototype    = lineDrawer;
     ScatterDrawer.prototype = axisDrawer;
 
 
