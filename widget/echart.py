@@ -278,7 +278,7 @@ class Line(Bar_Line_Base):
 
 class Area(Bar_Line_Base):
     def __init__(self):
-        self.type = u'area'
+        self.type = 'line'
 
 
 
