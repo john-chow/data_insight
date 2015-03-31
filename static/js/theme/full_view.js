@@ -1,6 +1,11 @@
 
-	define(['/static/assets/js/common/tool.js', 'drawer','gridster', 'underscore'], 
-            function(_t, DrawManager, Gridster, Underscore) {
+	define([
+        '/static/assets/js/common/tool.js'
+        , 'drawer'
+        , 'gridster'
+        , 'underscore'
+        , '/static/assets/js/common/mapping.js'
+    ], function(_t, DrawManager, Gridster, Underscore) {
 		//组件类
 		var WidgetItem = function(options){
 			var obj = {
@@ -24,11 +29,40 @@
 			            // 如果成功，则传递数据到面板进行画图
 			            if (data.succ){
 			            	this.data = data.entity;
+                            this.handleRefresh(this.data.extra.interval);
 			            	this.showNewWidget();
 			            } else {
 			                alert(data.msg)
 			            }
 			        },
+                    handleRefresh:    function(interval) {
+                        var timesec = cvtToTime(interval);
+                        var self = this;
+                        if (timesec > 0) {
+                            self.interval && clearInterval(self.interval);
+                            self.interval = setInterval(function() {
+                                self.reqRefresh()
+                            }, timesec)
+                        } else {
+                            clearInterval(self.interval);
+                            self.interval = null
+                        }
+                    },
+                    reqRefresh:     function() {
+                        var self = this;
+                        $.ajax({
+                            url:        '/widget/refresh/' + this.id + '/'
+                            , type:     'GET'
+                            , success:  function(data) {
+                                if (data.succ) {
+                                    this.data = {'figure': data.data};
+                                    this.showNewWidget()
+                                }
+                            }
+			                , error:        function() {console.log("服务器出错了")}
+			                , context:      self
+                        })
+                    },
 			        setEl: function($el){
 			        	this.$el = $el;
 			        },

@@ -181,6 +181,9 @@ def widgetShow(request, widget_id):
                 , 'tem':        tem
                 , 'widget_id':  widget_id
                 , 'skin':       skin
+                , 'extra':      {
+                    'interval': model.m_refresh
+                }
             }
         })
 
@@ -907,7 +910,7 @@ class FactorHandler():
         if not self.extracted:
             self.extract()
 
-        factors = [factor for factor in self.msns \
+        factors = [factor for factor in (self.rows+self.cols) \
                     if Protocol.TimeType == factor.getProperty(Protocol.Kind)]
         return factors
 
