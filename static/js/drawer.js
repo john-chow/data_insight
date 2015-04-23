@@ -1,8 +1,8 @@
 define([
     '/static/js/echarts-all.js'
     , '/static/js/skin/mix.js'
-    //"city"
-], function(_echart, Mix) {
+    , 'ol'
+], function(_echart, Mix, ol) {
 
 
 /////////////////////////////////////////////////////////////////////
@@ -67,12 +67,15 @@ define([
             case "table":
                 this.now_drawer = new TableDrawer();
                 break;
+            case "gis":
+                this.now_drawer = new GisDrawer();
+                break;
             default:
                 console.log('unknow picture type');
                 return false
         }
 
-        this.now_drawer.init(type);
+        this.now_drawer.init(type, this.place);
         return this.now_drawer.work(entity)
     };
 
@@ -102,7 +105,7 @@ define([
     };
 
     DrawManager.prototype.getEc = function() {
-        return this.now_drawer.getEc()
+        return this.now_drawer && this.now_drawer.getEc()
     };
 
     DrawManager.prototype.setStyle = function(styleId) {
@@ -158,7 +161,7 @@ define([
         this.type                       = "";
     
         // 初始化drawer工作环境
-        this.init =    function(type) {
+        this.init =    function(type, place) {
             this.type           = type;
         };
 
@@ -344,7 +347,6 @@ define([
     var TableDrawer = function() {
     };
 
-
     var MapDrawer = function() {
         this.seriesOne = {
             name:   ''  
@@ -378,6 +380,71 @@ define([
         this.doExtra = function(row) {
             var makeup = [row[1], row[3], row[4]]
             this.optionCloned.extra.push(makeup)
+        }
+    };
+
+    var GisDrawer = function() {
+        this.init = function(type, place) {
+            this.place_id = place.id;
+        }
+
+        this.work = function(entity) {
+            if (!entity || !entity.figure 
+                        || Object.keys(entity.figure).length <= 0)    
+                return false
+
+            this.optionCloned = entity.figure;
+            return true
+        }
+
+        this.draw = function(place, style) {
+            // 清空重新画
+            $(place).html("");
+
+            /*
+            var geojson_format = new ol.format.GeoJSON();
+            var features = geojson_format.readFeatures(this.optionCloned, "FeatureCollection");  
+            source.addFeatures(features);
+            */
+
+            var source = new ol.source.GeoJSON({
+                'object':   this.optionCloned
+            });
+
+            var layer = new ol.layer.Vector({
+                source:     source
+            });
+
+            var view = new ol.View({
+                center:     [119.483545, 39.837984] 
+                , zoom:     14
+                , projection:   'EPSG:4326'
+            });
+            view.on("change:center", function() {
+                console.log(view.getCenter());
+                console.log(view.getZoom())
+            })
+
+            this.map = new ol.Map({
+                'target':   place.id
+                , 'layers':     [
+                    layer
+                ]
+                , 'view':   view
+            })
+
+            /*
+            var layers_num = this.map.getLayers().getLength();
+            var if_base = layers_num > 0 ? false : true;
+            */
+        }
+
+        this.getOption = function() {
+            console.log('getOption')
+        }
+
+        this.getEc  = function() {
+            console.log('getEc')
         }
     };
 
@@ -453,5 +520,6 @@ define([
 
     return DrawManager
 })
+
 
 

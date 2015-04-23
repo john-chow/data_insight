@@ -3,7 +3,7 @@
 #Filename:  echart.py
 
 import itertools
-import copy
+import copy, json
 import pdb
 from common.head import *
 import common.protocol as Protocol
@@ -19,7 +19,6 @@ class EChart(object):
                 if fc.location in [Protocol.Row, Protocol.Column] \
                 and Protocol.NumericType != fc.getProperty(Protocol.Kind) 
         ]
-
         vals_idx = [ 
             i for i, fc in enumerate(factors) \
                 if fc.location in [Protocol.Row, Protocol.Column] \
@@ -486,10 +485,42 @@ class ChinaMap(CatAxisEChart):
             , 'series':     series
         }
 
-            
+
 class WorldMap(CatAxisEChart):
     def __init__(self):
         pass
+
+
+class Gis(object):
+    def __init__(self):
+        self.type = 'gis'
+
+    def makeData(self, data_from_db, factors):
+        '''
+        构造成geojson
+        '''
+        def looper(array):
+            data_list = []
+            for one in array:
+                obj = {
+                    'type':         'feature'
+                    , 'geometry':   json.loads(one[0])
+                }
+                data_list.append(obj)
+            return data_list
+
+        result = {
+            'type':         'FeatureCollection'
+            , 'features':   looper(data_from_db)
+            , 'crs': {
+              'type': 'name',
+              'properties': {
+                'name': "EPSG:4326"
+              }
+            }
+        }
+
+        return result
 
 
 class EChartManager():
@@ -535,6 +566,9 @@ class EChartManager():
 
         elif 'world_map' == shape:
             return WorldMap()
+
+        elif 'gis' == shape:
+            return Gis()
 
         else:
             logger.error('shape = {}'.format(shape))

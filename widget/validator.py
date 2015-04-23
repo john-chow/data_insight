@@ -19,6 +19,8 @@ def makeValidator(shape):
         return ScaValidator()
     elif shape in ['map']:
         return MapValidator()
+    elif shape in ['gis']:
+        return GisValidator()
     else:
         raise Exception('')
 
@@ -165,8 +167,6 @@ class RadValidator(BaseValidator):
 
         return super(RadValidator, self).ifValid(fh)
 
-        
-
 
 class ScaValidator(BaseValidator):
     '''
@@ -191,5 +191,9 @@ class MapValidator(BlaValidator):
     def ifValid(self, fh):
         return super(MapValidator, self).ifValid(fh)
 
+
+class GisValidator(object):
+    def ifValid(self, fh):
+        return True, ''
 
 

@@ -48,6 +48,7 @@ class WidgetModel(ElementModel):
     m_mould         = models.ForeignKey(MouldModel
                         , related_name = 'm_used_by_set'
                         , null = True)
+    m_merges        = models.CharField(max_length=16, db_column='merges')
 
     def getConn(self):
         return self.m_external_db

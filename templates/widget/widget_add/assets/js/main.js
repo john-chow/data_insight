@@ -30,6 +30,7 @@ requirejs.config({
 	        , "echarts/chart/radar": 	"lib/src/echarts-original"
 	        , "echarts/chart/table": 	"lib/src/echarts-original"
 	        , "echarts/chart/map": 		"lib/src/echarts-original-map"
+            , "ol":                     '/static/js/ol'
     },
 
     //添加依赖关系
@@ -42,7 +43,10 @@ requirejs.config({
 	　　　　},
 	  		'marionette': {
 	  			deps: ['backbone']
-	  		}
+	  		},
+            'OpenLayers':   {
+                'exports':  'ol'
+            }
 	  }
 });
 

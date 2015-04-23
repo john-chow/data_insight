@@ -8,6 +8,7 @@ define([
         ShowRegion.Board = Marionette.ItemView.extend({
             tagName:        "div",
             className:      "show_container",
+            id:             "show_container_id",
             template:       function() {
                 return ""
             },

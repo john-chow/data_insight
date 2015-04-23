@@ -29,6 +29,7 @@ Kind = 'kind'
 TimeType    = 'T'
 NumericType = 'N'
 FactorType  = 'F'
+GisType = 'G'
 
 # 数据表名称
 Table = 'table'

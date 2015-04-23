@@ -14,6 +14,7 @@ from sqlalchemy import create_engine, inspect, Table, MetaData, types, \
 from sqlalchemy.sql.functions import current_date
 from sqlalchemy.dialects.oracle import cx_oracle
 from sqlalchemy import *
+from geoalchemy2 import Geometry
 
 from widget.models import ExternalDbModel
 from widget.factor import SeriesFactor, RangeFactor, TimeFactor, FieldFactor
@@ -198,6 +199,8 @@ class SqlExecutor():
                 fields_types[fieldname] = Protocol.NumericType
             elif isinstance(fieldtype, (types.Date, types.DateTime)):
                 fields_types[fieldname] = Protocol.TimeType
+            elif isinstance(fieldtype, (Geometry)):
+                fields_types[fieldname] = Protocol.GisType
             else:
                 fields_types[fieldname] = Protocol.FactorType
 
@@ -266,6 +269,11 @@ class Convertor():
         if kwargs.get('distinct'):
             sql_obj = sql_obj.distinct()
 
+        # 如果是Gis，那么就默认拿全部数据做图
+        if 'gis' == kwargs.get('graph'):
+            pdb.set_trace()
+            pass
+
         logger.info(sql_obj.compile(compile_kwargs={"literal_binds": True}))
         return sql_obj
 
@@ -289,6 +297,8 @@ class Convertor():
         elif Protocol.NumericType == kind and Protocol.NoneFunc != funcname:
             f = self.cvtFunc(funcname)
             obj = f(obj)
+        elif Protocol.GisType == kind:
+            obj = func.ST_AsGeoJSON(obj)
 
         return obj
 
