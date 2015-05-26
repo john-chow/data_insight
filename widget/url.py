@@ -12,6 +12,7 @@ urlpatterns = patterns('',
 	url(r'^batch/$',			views.widgetList ,{'template_name': 'widget/batch.html'}),
 
 	url(r'^show/(\w+)/$', 		views.widgetShow),
+	#url(r'^show/(\w+)/$', 		views.widgetShowTest),
 
 	url(r'^distr/$', 			views.widgetOp, {'op': 'dis'}),
 	url(r'^delete/$', 			views.widgetOp, {'op': 'delete'}),

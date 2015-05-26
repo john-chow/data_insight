@@ -22,6 +22,17 @@ def timeCount(func):
         return r
     return wrapper
 
+
+def time_count(func, *args, **kwargs):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        r = func(*args, **kwargs)
+        end = time.time()
+        logger.warning('{}.{} : {}'.format(func.__module__, func.__name__, end - start))
+        return r
+    return wrapper
+    
+
 @contextmanager
 def timeblock(label):
     start = time.time()
@@ -67,7 +78,7 @@ LEVELS={'DEBUG':logging.DEBUG,
         }
 
 # 设置默认可打印的级别，及保存文件名
-logger = startLog('INFO', time.strftime(
+logger = startLog('WARNING', time.strftime(
     '%Y-%m-%d_%H-%M-%S.txt' , time.localtime(time.time())
 ))
 

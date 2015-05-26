@@ -138,6 +138,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #'oauth2_provider',
     'gunicorn',
 	'account',
     'skin',
@@ -146,7 +147,7 @@ INSTALLED_APPS = (
 	'scene',
     'theme',
     'mould',
-    #'monitor',
+    'monitor',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -249,4 +250,16 @@ WS4REDIS_EXPIRE = 7200
 WS4REDIS_PREFIX = 'ws'
 #WS4REDIS_SUBSCRIBER = 'MyTableau.redis_store.RedisSubscriber'
 WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+
+
+# used when test start and migrate
+# makemigrations requires this for some reason or it errors
+# Just set to the default value
+OAUTH2_PROVIDER_APPLICATION_MODEL = 'oauth2_provider.Application'
+
+# tell django where to put the oauth2 migrations
+MIGRATION_MODULES = {
+    # key: app name, value: a fully qualified package name, not the usual `app_label.something_else`
+    'oauth2_provider': 'MyTableau.migrations.oauth2_provider',
+}
 

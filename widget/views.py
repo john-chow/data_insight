@@ -21,7 +21,7 @@ import widget.validator as ValidModule
 from skin.models import SkinModel
 from connect.sqltool import SqlExecutorMgr, SqlObjReader
 from common.tool import MyHttpJsonResponse, logExcInfo, strfDataAfterFetchDb, cleanDataFromDb
-from common.log import logger
+from common.log import logger, time_count
 import common.protocol as Protocol
 
 import pdb
@@ -148,6 +148,7 @@ def batachOp(request, op):
     return HttpResponseRedirect(u'/widget/batch?page='+page)
 
 
+@time_count
 @require_http_methods(['GET'])
 def widgetShow(request, widget_id):
     """ 
@@ -186,6 +187,19 @@ def widgetShow(request, widget_id):
                 }
             }
         })
+
+def widgetShowTest(request, widget_id):
+    pdb.set_trace()
+    import cProfile
+    from functools import partial
+    import __main__
+
+    __main__.__dict__['widgetShow'] = widgetShow
+    __main__.__dict__['request'] = request
+    __main__.__dict__['widget_id'] = widget_id
+
+    cProfile.run('widgetShow(request, widget_id)', '/home/zzr/di_log.txt')
+    return widgetShow(request, widget_id)
 
 
 @require_http_methods(['POST'])
@@ -681,6 +695,7 @@ class WidgetHandler(object):
             , 'm_filter':             self.filter
             , 'm_order':              self.order
         }
+        pdb.set_trace()
 
         return pair
 
@@ -745,6 +760,7 @@ class DrawDataProducer():
     def __init__(self, hk):
         self.st = SqlExecutorMgr.stRestore(hk)
 
+    @time_count
     def produce(self, req):
         """
         生成数据，对外接口
@@ -990,5 +1006,4 @@ class AllRefresher():
         producer = DrawDataProducer(self.hk)
         data    = producer.produce(self.req)
         return {'type': self.type, 'data': data}
-
 
