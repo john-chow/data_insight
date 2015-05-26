@@ -38,6 +38,7 @@ class SqlExecutorMgr():
             st = cls.HK_ST_MAP.get(hk)
         else:
             st = SqlExecutor(hk)
+            cls.HK_ST_MAP[hk] = st
 
         return st
 
@@ -77,7 +78,8 @@ class SqlExecutor():
         """
         if not (self.engine and self.conn and self.insp):
             try:
-                self.engine     = create_engine(self.cnt, echo=True)
+                #self.engine     = create_engine(self.cnt, echo=True)   # turn on log
+                self.engine     = create_engine(self.cnt)
                 self.conn       = self.engine.connect()
                 self.insp       = inspect(self.engine)
             except Exception, e:
@@ -409,7 +411,7 @@ class Convertor():
         elif 'hour'     == time_type:
             tc  =   extract('hour', obj)
         else:
-            logger.warning(sys.exc_info())
+            logger.info(sys.exc_info())
             tc = obj
 
         return tc
